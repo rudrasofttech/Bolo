@@ -48,7 +48,7 @@ export class Meeting extends Component {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t
-            }
+            } 
         })
             .then(response => {
                 if (response.status === 401) {
