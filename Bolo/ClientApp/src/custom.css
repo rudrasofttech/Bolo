@@ -1,0 +1,93 @@
+/* Provide sufficient contrast against white background */
+a {
+    color: #0366d6;
+}
+
+code {
+    color: #E01A76;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.fixedBottom {
+    position: fixed;
+    top: auto;
+    bottom: 0px;
+    left: auto;
+    right: 0px;
+    z-index: 5000;
+}
+
+.noMargin {
+    margin: 0px;
+}
+
+.noRadius {
+    border-radius: 0px;
+}
+
+.startmeeting {
+    font-size: 1em;
+}
+
+#fullheight {
+    height: 100vh;
+    overflow: auto;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+}
+
+#inputcont {
+}
+
+    #inputcont #msginput {
+        width: calc(100% - 70px);
+    }
+
+#videocont {
+    width: 100%;
+    z-index: 0;
+    height: 100vh;
+}
+
+#msgcont {
+    width: 100%;
+    bottom: 0px;
+    left: 0px;
+    position: fixed;
+    background-color: transparent;
+    min-height: 54px;
+}
+
+    #msgcont > #msglist {
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+        background-color: transparent;
+    }
+
+        #msgcont > #msglist > li.notify {
+            text-align: center;
+            padding: 5px 0px;
+            font-style: italic;
+            font-size: 0.8em;
+        }
+
+        #msgcont > #msglist > li.receive {
+            text-align: left;
+            padding: 0px 5px;
+            font-style: normal;
+            font-size: 1em;
+        }
+
+        #msgcont > #msglist > li.sent {
+            text-align: right;
+            padding: 0px 5px;
+            font-style: normal;
+            font-size: 1em;
+        }
