@@ -53,7 +53,29 @@ code {
     width: 100%;
     z-index: 0;
     height: 100vh;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    background-color: transparent;
 }
+
+    #videocont > #videolist {
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+    }
+
+        #videocont > #videolist > li {
+            float: left;
+            display: inline-block;
+            width: 400px;
+            height: 300px;
+        }
+
+            #videocont > #videolist > li > video {
+                width: 100%;
+                height: 100%;
+            }
 
 #msgcont {
     width: 100%;
@@ -62,6 +84,9 @@ code {
     position: fixed;
     background-color: transparent;
     min-height: 54px;
+    /*max-height:200px;*/
+    z-index: 5;
+    padding: 0px 5rem;
 }
 
     #msgcont > #msglist {
@@ -69,6 +94,8 @@ code {
         padding: 0px;
         list-style: none;
         background-color: transparent;
+        max-height: 50vh;
+        overflow-y: auto;
     }
 
         #msgcont > #msglist > li.notify {
@@ -80,14 +107,23 @@ code {
 
         #msgcont > #msglist > li.receive {
             text-align: left;
-            padding: 0px 5px;
             font-style: normal;
             font-size: 1em;
         }
 
         #msgcont > #msglist > li.sent {
             text-align: right;
-            padding: 0px 5px;
             font-style: normal;
             font-size: 1em;
         }
+
+        #msgcont > #msglist > li > small {
+            display: block;
+            font-size: 0.7em;
+            font-style: italic;
+        }
+
+video.full {
+    width: 100%;
+    height: 100%;
+}
