@@ -1,10 +1,17 @@
 ﻿import React, { Component } from 'react';
 import { MessageStrip } from './MessageStrip';
+import { Redirect } from 'react-router-dom';
+import { Progress } from 'reactstrap';
 
 export class RegisterForm extends Component {
     constructor(props) {
         super(props);
-        this.state = { showregisterform: false, GenerateOTPButton: true, loginemail: '', OTP: '', registername: '', registeremail: '', loading: false, message: '', bsstyle: '', loggedin: false };
+        let loggedin = true;
+        if (localStorage.getItem("token") == null) {
+            loggedin = false;
+        }
+        
+        this.state = { showregisterform: props.beginWithRegister , GenerateOTPButton: true, loginemail: '', OTP: '', registername: '', registeremail: '', loading: false, message: '', bsstyle: '', loggedin: false, redirectto: '' };
         this.handleChange = this.handleChange.bind(this);
         this.handleGenerateOTP = this.handleGenerateOTP.bind(this);
         this.handleRegisterSubmit = this.handleRegisterSubmit.bind(this);
@@ -53,6 +60,8 @@ export class RegisterForm extends Component {
                             this.setState({ bsstyle: '', message: '', loggedin: true });
                             if (this.props.onLogin !== undefined) {
                                 this.props.onLogin();
+                            } else {
+                                this.setState({ redirectto: '/' });
                             }
                         }
                     });
@@ -85,7 +94,7 @@ export class RegisterForm extends Component {
                         bsstyle: 'success',
                         message: 'An OTP has been sent to your email address. Please verify and login.'
                     });
-                    
+
                 }
                 else {
                     this.setState({ bsstyle: '', message: '', loading: false });
@@ -134,7 +143,7 @@ export class RegisterForm extends Component {
     }
 
     renderOTPForm() {
-        return (<form onSubmit={this.handleGenerateOTP}>
+        return (<form autoComplete="off" onSubmit={this.handleGenerateOTP}>
             <div className="form-group">
                 <label>Email</label>
                 <input type="email" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Your email" />
@@ -157,18 +166,31 @@ export class RegisterForm extends Component {
         </form>);
     }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.beginWithRegister !== prevState.beginWithRegister) {
+            return { someState: nextProps.beginWithRegister };
+        }
+        else return null;
+    }
+
     render() {
+        let loading = this.state.loading ?<div> <Progress animated color="info" value="100" className="loaderheight" /> </div>: <></>;
+        if (this.state.redirectto !== "") {
+            return <Redirect to={this.state.redirectto} />;
+        }
         let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">
             <MessageStrip message={this.state.message} bsstyle={this.state.bsstyle} />
         </div> : <></>;
+
         let logincontents = this.state.GenerateOTPButton ?
             this.renderOTPForm()
             : this.renderLoginForm();
+        
         let formcontents = this.state.showregisterform ?
-            <div className="col-sm-4">
+            <div>
                 <h3>Register</h3>
-                <div className="p-3 border box-shadow">
-                    <form onSubmit={this.handleRegisterSubmit}>
+                <div >
+                    <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
                         <div className="form-group">
                             <label>Your Name</label>
                             <input type="text" className="form-control" required name="registername" value={this.state.registername} onChange={this.handleChange} />
@@ -180,22 +202,24 @@ export class RegisterForm extends Component {
                         </div>
                         <button className="btn btn-primary" type="submit">Submit</button>
                     </form>
-                    <p><button onClick={this.handleLoginClickHere} className="btn btn-link float-right">Login Here</button> </p>
+                    <p className="text-center">
+                        Already Registered! <a onClick={this.handleLoginClickHere} className="badge badge-light">Login Here</a> </p>
+                    {loading}
                 </div>
             </div> :
-            <div className="col-sm-4">
+            <div>
                 <h3>Login</h3>
-                <div className="p-3 border box-shadow">
+                <div >
                     {logincontents}
-                    <p><button onClick={this.handleRegisterClickHere} className="btn btn-link float-right">Register Here</button> </p>
+                    <p className="text-center">
+                        Register for FREE <a onClick={this.handleRegisterClickHere} className="badge badge-light">Click Here</a></p>
+                    {loading}
                 </div>
             </div>;
         return (
             <>
-                <div id="fullheight" className="row align-items-center justify-content-center">
-                    {formcontents}
-                </div>
-                {messagecontent};
+                {formcontents}
+                {messagecontent}
             </>
         );
     }

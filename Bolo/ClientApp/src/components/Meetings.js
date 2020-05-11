@@ -1,6 +1,5 @@
 ﻿import React, { Component } from 'react';
 import { MessageStrip } from './MessageStrip';
-import { RegisterForm } from './RegisterForm';
 import { Redirect } from 'react-router-dom';
 import { NavMenu } from './NavMenu';
 
@@ -46,7 +45,7 @@ export class Meetings extends Component {
     render() {
 
         if (!this.state.loggedin) {
-            return(<><NavMenu /><RegisterForm onLogin={this.loginHandler} /></>);
+            return (<><NavMenu register={true} onLogin={this.loginHandler} /></>);
         } else if (this.state.meetingid !== "") {
             return <Redirect to={'/meeting/' + this.state.meetingid} />;
         }
@@ -56,7 +55,7 @@ export class Meetings extends Component {
             </div> : <></>;
             return (
                 <>
-                    <NavMenu />
+                    <NavMenu onLogin={this.loginHandler} />
                     <div id="fullheight" className="row align-items-center justify-content-center">
                         <div className="col-3">
                             <h1><button className="btn btn-primary my-2 startmeeting" onClick={this.handleStartMeeting}>Start a Meeting</button></h1>

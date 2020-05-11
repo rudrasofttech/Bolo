@@ -19,6 +19,8 @@ namespace Bolo.Models
         {
             get;set;
         }
+
+        public bool VideoCapable { get; set; }
     }
 
 }

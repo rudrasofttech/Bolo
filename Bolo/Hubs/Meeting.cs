@@ -38,12 +38,13 @@ namespace Bolo.Hubs
         /// <param name="room">Unique Meeting ID</param>
         /// <param name="name">Member Name</param>
         /// <returns>It will call NewUserArrived function on all client in the group except self.</returns>
-        public async Task NotifyPresence(string room, string name)
+        public async Task NotifyPresence(string room, string name, bool videoCapable)
         {
             UserInfo ui = new UserInfo()
             {
                 ConnectionID = Context.ConnectionId,
                 Name = name,
+                VideoCapable = videoCapable,
                 MemberID = Context.User.Identity.IsAuthenticated ?
                 Context.User.Identity.Name : Guid.Empty.ToString()
             };

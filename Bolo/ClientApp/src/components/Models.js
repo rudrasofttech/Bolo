@@ -6,12 +6,15 @@
     //name of the user its provided by user.
     name;
     lastpulse;
+    //has video capability
+    videoCapable;
 
     constructor() {
         this.memberID = "00000000-0000-0000-0000-000000000000";
         this.connectionID = "";
         this.name = "";
         this.lastpulse = Date.now();
+        this.videoCapable = true;
     }
 
     isAlive() {

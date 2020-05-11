@@ -4,7 +4,7 @@ import { UserInfo, MessageInfo, MessageEnum } from './Models';
 import { HubConnectionBuilder, LogLevel, MessageType } from '@aspnet/signalr';
 import { MessageStrip } from './MessageStrip';
 import { NavMenu } from './NavMenu';
-//import { Webcam } from './Webcam';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 const Peer = require("simple-peer");
 
 export class Meeting extends Component {
@@ -16,6 +16,8 @@ export class Meeting extends Component {
             loggedin = false;
         }
         this.state = {
+            joinmeeting: false,
+            myname: '',
             textinput: '',
             messages: [],
             loading: false, loggedin: loggedin,
@@ -40,6 +42,21 @@ export class Meeting extends Component {
         this.sendPulse = this.sendPulse.bind(this);
         this.receivePulse = this.receivePulse.bind(this);
         this.collectDeadUsers = this.collectDeadUsers.bind(this);
+        this.hasVideoAudioCapability = this.hasVideoAudioCapability.bind(this);
+        this.createPeer = this.createPeer.bind(this);
+        this.loginHandler = this.loginHandler.bind(this);
+        this.handleMyName = this.handleMyName.bind(this);
+        this.handleJoinMeeting = this.handleJoinMeeting.bind(this);
+    }
+
+    handleMyName(e) {
+        this.setState({ myname: e.target.value });
+    }
+
+    loginHandler() {
+        if (localStorage.getItem("token") != null) {
+            this.setState({ loggedin: true });
+        }
     }
 
     handleChange(e) {
@@ -50,9 +67,20 @@ export class Meeting extends Component {
         }
     }
 
+    handleJoinMeeting() {
+        this.myself.name = this.state.myname;
+        this.setState({ joinmeeting: true }, () => { this.startHub(); });
+    }
+
     handleMessageSubmit(e) {
         e.preventDefault();
         this.sendTextMessage();
+    }
+
+    //check if browser supports access to camera and microphone
+    hasVideoAudioCapability() {
+        return !!(navigator.mediaDevices &&
+            navigator.mediaDevices.getUserMedia && Peer.WEBRTC_SUPPORT);
     }
 
     //see if user is logged in
@@ -68,16 +96,16 @@ export class Meeting extends Component {
                 if (response.status === 401) {
                     localStorage.removeItem("token");
                     this.myself = new UserInfo();
-                    this.myself.name = window.prompt("Your Name?");
+                    this.myself.name = "";
 
-                    this.setState({ loggedin: false, loading: false }, () => { this.startHub(); });
+                    this.setState({ loggedin: false, loading: false });
                 } else if (response.status === 200) {
                     response.json().then(data => {
                         //console.log(data);
                         this.myself = new UserInfo();
                         this.myself.memberID = data.id;
-                        this.myself.name = window.prompt("Your Name?", data.name);
-                        this.setState({ loggedin: true, loading: false }, () => { this.startHub(); });
+                        this.myself.name = data.name;
+                        this.setState({ loggedin: true, loading: false, joinmeeting: true }, () => { this.startHub(); });
                     });
                 }
             });
@@ -119,25 +147,32 @@ export class Meeting extends Component {
             }
         })
         this.hubConnection.on('ReceivePulse', (cid) => {
-            console.log(cid);
+            //console.log(cid);
             this.receivePulse(cid);
         });
     }
 
+    //call this function when on receivepulse call from server 
+    //and set the lastpulse date of the target user
     receivePulse(cid) {
-        this.users.get(cid).lastpulse = Date.now();
+        if (this.users.get(cid) !== undefined) {
+            this.users.get(cid).lastpulse = Date.now();
+        }
 
-        console.log(this.users.get(cid));
+        //console.log(this.users.get(cid));
     }
 
+    //call this function at regular interval to clean up dead users.
+    //dead users are those whose last pulse date is older by 5 seconds
     collectDeadUsers() {
         for (const [key, u] of this.users.entries()) {
             if (!u.isAlive()) {
                 if (this.peers.get(u.connectionID) !== null) {
+                    console.log(u.connectionID + " peer about to be destoryed");
                     this.peers.get(u.connectionID).destroy();
                     this.peers.delete(u.connectionID);
                 }
-                
+
                 //add a message
                 let msg = new MessageInfo();
                 msg.sender = null;
@@ -154,23 +189,48 @@ export class Meeting extends Component {
     setMySelf(u) {
         //set your connection id
         this.myself.connectionID = u.connectionID;
-
+        this.myself.videoCapable = this.hasVideoAudioCapability();
         this.hubConnection
-            .invoke('NotifyPresence', this.state.id, this.myself.name)
+            .invoke('NotifyPresence', this.state.id, this.myself.name, this.myself.videoCapable)
             .catch(err => console.error(err));
-
-        this.streamCamVideo();
+        if (this.myself.videoCapable) {
+            this.streamCamVideo();
+        }
     }
 
+    //send your pulse to other clients
+    //this will indicate that you are still alive in 
+    //meeting
     sendPulse() {
         this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.error('sendPulse ' + err));
     }
 
-    //called when peer signal is received from another user
-    receiveSignal(sender, data) {
-        
+    createPeer(initiater, u) {
+        //RTC Peer configuration
+        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
+        console.log("newuserarrived stream : ");
+        console.log(this.mystream);
+        let p = new Peer({ initiator: initiater, config: configuration, stream: this.mystream });
+        p["cid"] = u.connectionID;
+        p["hubConnection"] = this.hubConnection;
+        p["myself"] = this.myself;
+        p["meetingid"] = this.state.id;
+        //set peer event handlers
+        p.on("error", this.onPeerError);
+        p.on("signal", this.onPeerSignal);
+        p.on("connect", this.onPeerConnect);
+        p.on("stream", this.onPeerStream);
+        p.on('data', data => {
+            // got a data channel message
+            console.log('got a message from peer1: ' + data)
+        });
+        this.peers.set(u.connectionID, p);
     }
 
+    /**
+     * Simple Peer events
+     * 
+     */
     onPeerSignal(data) {
         this.hubConnection
             .invoke('SendSignal', data, this.cid, this.myself, this.meetingid)
@@ -198,6 +258,7 @@ export class Meeting extends Component {
 
         video.play();
     }
+    //simple peer events end here
 
 
     //call this function when hub says new user has arrived
@@ -208,43 +269,28 @@ export class Meeting extends Component {
         temp.connectionID = u.connectionID;
         temp.memberID = u.memberID;
         temp.name = u.name;
+        temp.videoCapable = u.videoCapable;
         this.users.set(u.connectionID, temp);
 
-        
         //add a message
         let msg = new MessageInfo();
         msg.sender = null;
         msg.text = temp.name + " have joined the meeting.";
+        if (!temp.videoCapable) {
+            msg.text = msg.text + " No Video/Audio Capability.";
+        }
         msg.type = MessageEnum.MemberAdd;
         let mlist = this.state.messages;
         mlist.push(msg);
 
-        this.setState({ messages: mlist }, () => { });
+        this.setState({ messages: mlist });
 
         this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u.connectionID)
-            .catch(err => {
-                console.log("Unable to say hello to new user."); console.error(err);
+            .catch(err => { console.log("Unable to say hello to new user."); console.error(err); });
 
-            });
-        //RTC Peer configuration
-        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
-        console.log("newuserarrived stream : ");
-        console.log(this.mystream);
-        let p = new Peer({initiator: true, config: configuration, stream: this.mystream });
-        p["cid"] = u.connectionID;
-        p["hubConnection"] = this.hubConnection;
-        p["myself"] = this.myself;
-        p["meetingid"] = this.state.id;
-        //set peer event handlers
-        p.on("error", this.onPeerError);
-        p.on("signal", this.onPeerSignal);
-        p.on("connect", this.onPeerConnect);
-        p.on("stream", this.onPeerStream);
-        p.on('data', data => {
-            // got a data channel message
-            console.log('got a message from peer1: ' + data)
-        });
-        this.peers.set(u.connectionID, p);
+        if (this.myself.videoCapable && temp.videoCapable) {
+            this.createPeer(true, u);
+        }
     }
 
     sendTextMessage() {
@@ -305,33 +351,37 @@ export class Meeting extends Component {
         var mi = new MessageInfo();
         mi.sender = null;
         mi.text = u.name + ' is here.';
+        if (!temp.videoCapable) {
+            mi.text = mi.text + " No Video/Audio Capability.";
+        }
         mi.type = MessageEnum.Text;
 
         let mlist = this.state.messages;
         mlist.push(mi);
 
         this.setState({ messages: mlist });
+        if (this.myself.videoCapable && temp.videoCapable) {
+            this.createPeer(false, u);
+            ////start a peer for new user that has arrived
+            //const configuration = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
+            //console.log("usersaidhello stream : " + this.mystream);
+            //let p = new Peer({ config: configuration, stream: this.mystream });
 
-        //start a peer for new user that has arrived
-        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
-        console.log("usersaidhello stream : " + this.mystream);
-        let p = new Peer({ config: configuration, stream: this.mystream });
-
-        p["cid"] = u.connectionID;
-        p["hubConnection"] = this.hubConnection;
-        p["myself"] = this.myself;
-        p["meetingid"] = this.state.id;
-        //set peer event handlers
-        p.on("error", this.onPeerError);
-        p.on("signal", this.onPeerSignal);
-        p.on("connect", this.onPeerConnect);
-        p.on("stream", this.onPeerStream);
-        p.on('data', data => {
-            // got a data channel message
-            console.log('got a message from peer1: ' + data)
-        });
-        this.peers.set(u.connectionID, p);
-
+            //p["cid"] = u.connectionID;
+            //p["hubConnection"] = this.hubConnection;
+            //p["myself"] = this.myself;
+            //p["meetingid"] = this.state.id;
+            ////set peer event handlers
+            //p.on("error", this.onPeerError);
+            //p.on("signal", this.onPeerSignal);
+            //p.on("connect", this.onPeerConnect);
+            //p.on("stream", this.onPeerStream);
+            //p.on('data', data => {
+            //    // got a data channel message
+            //    console.log('got a message from peer1: ' + data)
+            //});
+            //this.peers.set(u.connectionID, p);
+        }
     }
 
     leaveMeeting() {
@@ -347,17 +397,24 @@ export class Meeting extends Component {
 
         video.srcObject = stream;
         video.onloadedmetadata = function (e) {
-            video.play();
+            if (video !== undefined) {
+                video.play();
+            }
         };
 
         this.mystream = stream;
-        for (const p of this.peers) {
-            p.addStream(this.mystream);
+        for (const [key, value] of this.peers) {
+            value.addStream(this.mystream);
         }
     }
 
     streamCamVideo() {
-        var constraints = { audio: false, video: true };
+        var constraints = {
+            audio: false, video: {
+                width: window.screen.width,
+                height: window.screen.height
+            }
+        };
         if (navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices
                 .getUserMedia(constraints)
@@ -372,6 +429,7 @@ export class Meeting extends Component {
     componentDidMount() {
         this.validate(this.state.token);
         this.aliveInterval = setInterval(this.collectDeadUsers, 5000);
+        this.scrollToBottom();
     }
 
     //react function
@@ -385,70 +443,112 @@ export class Meeting extends Component {
         }
     }
 
+    scrollToBottom = () => {
+        if (this.messagesEnd !== undefined) {
+            this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+        }
+    }
+
+    componentDidUpdate() {
+        this.scrollToBottom();
+    }
+
+    renderNameForm() {
+        return (<Modal isOpen={true} >
+            <ModalBody>
+                <input type="text" value={this.state.myname} autoFocus="on" className="form-control" maxLength="10" onChange={this.handleMyName} placeholder="Your Name Here" />
+            </ModalBody>
+            <ModalFooter>
+                <Button color="primary" onClick={this.handleJoinMeeting}>Join Meeting</Button>
+            </ModalFooter>
+        </Modal>);
+    }
+
     renderMessageList() {
         const items = [];
         for (var k in this.state.messages) {
             let obj = this.state.messages[k];
             if (obj.sender === null) {
-                items.push(<li className="notify" key={k}>{obj.text}</li>);
+                items.push(<li className="notify" key={k}><span>{obj.text}</span></li>);
             } else if (obj.sender.connectionID == this.myself.connectionID) {
                 items.push(<li className="sent" key={k}>
-                    {obj.text}
-                    <small><Moment fromNow ago>{obj.timeStamp}</Moment></small>
+                    <span>{obj.text}
+                        <small className="time"><Moment fromNow ago>{obj.timeStamp}</Moment></small>
+                    </span>
                 </li>);
             } else {
                 items.push(<li className="receive" key={k}>
-                    <small>{obj.name}</small>
-                    {obj.text}
-                    <small><Moment fromNow ago>{obj.timeStamp}</Moment></small>
+                    <span>
+                        <small className="name">{obj.sender.name} says</small>
+                        {obj.text}
+                        <small className="time"><Moment fromNow ago>{obj.timeStamp}</Moment></small>
+                    </span>
                 </li>);
             }
         }
 
-        return (<ul id="msglist">
+        return (<><ul id="msglist">
             {items}
-        </ul>);
+            <li style={{ float: "left", clear: "both" }}
+                ref={(el) => { this.messagesEnd = el; }}>
+            </li>
+        </ul></>);
     }
 
     renderVideoTags() {
+        let classname = "video1";
         const items = [];
+        const mv = <li className="video"><video id="myvideo" autoPlay={true}></video></li>;
 
         this.users.forEach(function (value, key) {
-            items.push(<li className="video" key={key}>
-                <video id={'video' + value.connectionID} autoPlay={true} controls ></video>
-            </li>);
+            if (value.videoCapable) {
+                items.push(<li className="video" key={key}>
+                    <video id={'video' + value.connectionID} autoPlay={true}></video>
+                </li>);
+            }
         });
+        if ((items.length + 1) < 13) {
+            classname = "video" + (items.length + 1);
+        }
+        else {
+            classname = "video13";
+        }
 
-        return (<ul id="videolist">
-            <li className="video">
-                <video id="myvideo" autoPlay={true} controls></video>
-            </li>
+        return (<ul id="videolist" className={classname}>
+            {mv}
             {items}
         </ul>);
     }
 
 
     render() {
-        let messagecontent = this.myselfssage !== "" ? <div className="fixedBottom ">
-            <MessageStrip message={this.myselfssage} bsstyle={this.state.bsstyle} />
-        </div> : <></>;
-        let mhtml = this.renderMessageList();
-        let vhtml = this.renderVideoTags();
-        return (<>
-            <NavMenu />
-            <div id="fullheight">
-                <div id="videocont">
-                    {vhtml}</div>
-                <div id="msgcont">
-                    {mhtml}
-                    <div id="inputcont" className="p-2">
-                        <form className="form-inline" onSubmit={this.handleMessageSubmit}>
-                            <input type="text" name="textinput" value={this.state.textinput} onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
-                            <button type="submit" className="btn btn-primary">Send</button>
-                        </form>
+        if (this.myself !== null && this.myself.name.trim() === "") {
+            return this.renderNameForm();
+        }
+        else if (this.state.joinmeeting) {
+            let messagecontent = this.myselfssage !== "" ? <div className="fixedBottom ">
+                <MessageStrip message={this.myselfssage} bsstyle={this.state.bsstyle} />
+            </div> : <></>;
+            let mhtml = this.renderMessageList();
+            let vhtml = this.renderVideoTags();
+            return (<>
+                <NavMenu onLogin={this.loginHandler} />
+                <div id="fullheight">
+                    <div id="videocont">
+                        {vhtml}</div>
+                    <div id="msgcont">
+                        {mhtml}
+                        <div id="inputcont" className="p-2">
+                            <form className="form-inline" onSubmit={this.handleMessageSubmit}>
+                                <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On" onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
+                                <button type="submit" className="btn btn-primary">Send</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                {messagecontent}
-            </div></>);
+                    {messagecontent}
+                </div></>);
+        } else {
+            return (<></>);
+        }
     }
 }

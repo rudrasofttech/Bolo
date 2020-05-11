@@ -3,11 +3,29 @@ import { NavMenu } from './NavMenu';
 
 export class Home extends Component {
     static displayName = Home.name;
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") == null) {
+            loggedin = false;
+        }
+        this.state = {
+            loggedin: loggedin,
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+        };
+        this.loginHandler = this.loginHandler.bind(this);
+    }
+
+    loginHandler() {
+        if (localStorage.getItem("token") != null) {
+            this.setState({ loggedin: true });
+        }
+    }
 
     render() {
         return (
             <>
-                <NavMenu />
+                <NavMenu onLogin={this.loginHandler} />
                 
                     <div className="pt-5">
                         <h1>Hello, world!</h1>
