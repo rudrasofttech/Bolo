@@ -50,8 +50,8 @@ namespace Bolo.Helper
                     client.Dispose();
                 }
             }
-            catch(Exception ex) { 
-            
+            catch(Exception ex) {
+                throw ex;
             }
         }
 

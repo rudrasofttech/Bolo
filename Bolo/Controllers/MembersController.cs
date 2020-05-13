@@ -194,15 +194,16 @@ namespace Bolo.Controllers
         {
             if (String.IsNullOrEmpty(model.Name))
             {
-                return BadRequest("Name Required");
+                ModelState.AddModelError("Error", "Name Required");
+                return BadRequest(ModelState);
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (_context.Members.Count(t => t.Email == model.Email || (t.Phone == model.Phone && t.CountryCode == model.CountryCode)) > 0)
+            if (_context.Members.Count(t => t.Email == model.Email || (t.Phone == model.Phone && t.CountryCode == model.CountryCode && model.Phone != "")) > 0)
             {
-                ModelState.AddModelError("Duplicate", "The email / phone already exist, please try to log in.");
+                ModelState.AddModelError("Error", "The email / phone already exist, please try to log in.");
                 return BadRequest(ModelState);
             }
             string OTP = Helper.Utility.GenerateOTP();

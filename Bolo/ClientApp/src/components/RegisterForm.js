@@ -11,7 +11,7 @@ export class RegisterForm extends Component {
             loggedin = false;
         }
         
-        this.state = { showregisterform: props.beginWithRegister , GenerateOTPButton: true, loginemail: '', OTP: '', registername: '', registeremail: '', loading: false, message: '', bsstyle: '', loggedin: false, redirectto: '' };
+        this.state = { showregisterform: props.beginWithRegister, GenerateOTPButton: true, loginemail: '', OTP: '', registername: '', registeremail: '', loading: false, message: '', bsstyle: '', loggedin: loggedin, redirectto: '' };
         this.handleChange = this.handleChange.bind(this);
         this.handleGenerateOTP = this.handleGenerateOTP.bind(this);
         this.handleRegisterSubmit = this.handleRegisterSubmit.bind(this);
@@ -123,6 +123,14 @@ export class RegisterForm extends Component {
                         loginemail: this.state.registeremail,
                         showregisterform: false
                     });
+                } else if (response.status === 400) {
+                    response.json().then(data => {
+                        this.setState({
+                            loading: false,
+                            bsstyle: 'warning',
+                            message: data.Error[0]
+                        });
+                    });
                 }
                 else {
                     this.setState({
@@ -202,8 +210,8 @@ export class RegisterForm extends Component {
                         </div>
                         <button className="btn btn-primary" type="submit">Submit</button>
                     </form>
-                    <p className="text-center">
-                        Already Registered! <a onClick={this.handleLoginClickHere} className="badge badge-light">Login Here</a> </p>
+                    <p className="text-center mt-5">
+                        Already a Member! <button type="button" onClick={this.handleLoginClickHere} className="btn btn-success btn-sm">Login Here</button> </p>
                     {loading}
                 </div>
             </div> :
@@ -211,8 +219,8 @@ export class RegisterForm extends Component {
                 <h3>Login</h3>
                 <div >
                     {logincontents}
-                    <p className="text-center">
-                        Register for FREE <a onClick={this.handleRegisterClickHere} className="badge badge-light">Click Here</a></p>
+                    <p className="text-center mt-5">
+                        Register for FREE <button type="button" onClick={this.handleRegisterClickHere} className="btn btn-success btn-sm">Click Here</button></p>
                     {loading}
                 </div>
             </div>;

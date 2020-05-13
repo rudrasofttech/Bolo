@@ -1,10 +1,10 @@
 ﻿import React, { Component } from 'react';
 import Moment from 'react-moment';
 import { UserInfo, MessageInfo, MessageEnum } from './Models';
-import { HubConnectionBuilder, LogLevel, MessageType } from '@aspnet/signalr';
+import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { MessageStrip } from './MessageStrip';
 import { NavMenu } from './NavMenu';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
+import { Modal, ModalBody } from 'reactstrap';
 const Peer = require("simple-peer");
 
 export class Meeting extends Component {
@@ -62,10 +62,12 @@ export class Meeting extends Component {
             case 'textinput':
                 this.setState({ textinput: e.target.value });
                 break;
+            default:
         }
     }
 
-    handleJoinMeeting() {
+    handleJoinMeeting(e) {
+        e.preventDefault();
         this.myself.name = this.state.myname;
         this.setState({ joinmeeting: true }, () => { this.startHub(); });
     }
@@ -77,7 +79,6 @@ export class Meeting extends Component {
 
     //check if browser supports access to camera and microphone
     hasVideoAudioCapability() {
-        debugger;
         console.log(Peer.WEBRTC_SUPPORT);
         return !!(navigator.mediaDevices &&
             navigator.mediaDevices.getUserMedia);
@@ -278,7 +279,7 @@ export class Meeting extends Component {
         let msg = new MessageInfo();
         msg.sender = null;
         msg.text = temp.name + " have joined the meeting.";
-        if (!temp.videoCapable  && !temp.peerCapable) {
+        if (!temp.videoCapable && !temp.peerCapable) {
             msg.text = msg.text + " No Video/Audio Capability.";
         }
         msg.type = MessageEnum.MemberAdd;
@@ -394,10 +395,7 @@ export class Meeting extends Component {
 
     getUserCam() {
         var constraints = {
-            audio: false, video: {
-                width: window.screen.width,
-                height: window.screen.height
-            }
+            audio: true, video: true
         };
         if (navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices
@@ -460,12 +458,17 @@ export class Meeting extends Component {
     }
 
     renderNameForm() {
-        return (<Modal isOpen={true} >
+        return (
+            <div className="container">
+                <div className="row"><div className="col-md-12">
+            <Modal isOpen={true} >
             <ModalBody>
-                <input type="text" value={this.state.myname} autoFocus="on" className="form-control" maxLength="10" onChange={this.handleMyName} placeholder="Your Name Here" />
-                <br /><Button color="primary" onClick={this.handleJoinMeeting}>Join Meeting</Button>
+                <form onSubmit={this.handleJoinMeeting}>
+                    <input type="text" value={this.state.myname} autoFocus="on" className="form-control" maxLength="10" onChange={this.handleMyName} placeholder="Your Name Here" />
+                    <br /><button type="submit" className="btn btn-primary">Join Meeting</button>
+                </form>
             </ModalBody>
-        </Modal>);
+        </Modal></div></div></div>);
     }
 
     renderMessageList() {
@@ -474,7 +477,7 @@ export class Meeting extends Component {
             let obj = this.state.messages[k];
             if (obj.sender === null) {
                 items.push(<li className="notify" key={k}><span>{obj.text}</span></li>);
-            } else if (obj.sender.connectionID == this.myself.connectionID) {
+            } else if (obj.sender.connectionID === this.myself.connectionID) {
                 items.push(<li className="sent" key={k}>
                     <span>{obj.text}
                         <small className="time"><Moment fromNow ago>{obj.timeStamp}</Moment></small>
@@ -519,7 +522,7 @@ export class Meeting extends Component {
             classname = "video13";
         }
         if (items.length > 0) {
-            return <div className="col col-md-9">
+            return <div className="col-md-9">
                 <div id="videocont">
                     <ul id="videolist" className={classname}>
                         {items}</ul>
@@ -539,12 +542,16 @@ export class Meeting extends Component {
             </div> : <></>;
             let mhtml = this.renderMessageList();
             let vhtml = this.renderVideoTags();
+            let chatcolclassname = "col-md-3 align-self-end";
+            if (vhtml === <></>) {
+                chatcolclassname = "col-md-12 align-self-end";
+            }
             return (<>
                 <NavMenu onLogin={this.loginHandler} />
-                <div id="fullheight" className="container-fluid">
+                <div className="container-fluid">
                     <div className="row">
                         {vhtml}
-                        <div className="col align-self-end"><div id="msgcont">
+                        <div className={chatcolclassname}><div id="msgcont">
                             {mhtml}
                             <div id="inputcont">
                                 <form className="form-inline" onSubmit={this.handleMessageSubmit}>

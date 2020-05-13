@@ -1,3 +1,7 @@
+body{
+    padding-top:60px;
+}
+
 /* Provide sufficient contrast against white background */
 a {
     color: #0366d6;
@@ -54,14 +58,15 @@ code {
     }
 
 #videocont {
-    width: 100%;
+    /*width: 100%;
     z-index: 0;
     height: 100vh;
     position: relative;
     overflow: auto;
     left: 0px;
     top: 0px;
-    background-color: transparent;
+    background-color: transparent;*/
+    
 }
 
     #videocont > #videolist {

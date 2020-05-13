@@ -51,11 +51,11 @@ export class Meetings extends Component {
                 <p className="lead">Arrange a meeting quickly. Text, Video and Audio chat enabled. No restriction on number of attendees.
                     Works from the browser no need to install any software. PC and Mac Support. Fully secure.</p>
                 <p className="lead">
-                    <a href="#" className="btn btn-lg btn-secondary">Login to start a Meeting</a>
+                    <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
                 </p>
             </main></>);
         } else if (this.state.meetingid !== "") {
-            return <Redirect to={'/meeting/' + this.state.meetingid} />;
+            return <Redirect to={'/m/' + this.state.meetingid} />;
         }
         else {
             let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, Modal, ModalBody } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
 import { RegisterForm } from './RegisterForm';
@@ -9,15 +9,20 @@ export class NavMenu extends Component {
 
     constructor(props) {
         super(props);
-
+        const token = localStorage.getItem("token");
+        let loggedin = true;
+        if (localStorage.getItem("token") == null) {
+            loggedin = false;
+        }
         this.toggleNavbar = this.toggleNavbar.bind(this);
         this.state = {
+            loggedin: loggedin,
             collapsed: true,
             registermodal: this.props.register === undefined ? false : this.props.register,
-            registerFormBeginWith : 'register'
+            registerFormBeginWith: 'register',
+            membername: '',
+            memberid: ''
         };
-
-        const token = localStorage.getItem("token");
 
         if (token !== null) {
             this.fetchData(token);
@@ -30,6 +35,7 @@ export class NavMenu extends Component {
 
     loginHandler() {
         if (localStorage.getItem("token") != null) {
+            this.fetchData(localStorage.getItem("token"));
             this.setState({ loggedin: true, registermodal: false, registerFormBeginWith: false });
             if (this.props.onLogin !== undefined) {
                 this.props.onLogin();
@@ -57,10 +63,13 @@ export class NavMenu extends Component {
             }
         })
             .then(response => {
-                this.setState({ loading: false });
                 if (response.status === 401) {
                     localStorage.removeItem("token");
-                    this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false });
+                    this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, membername: data.name, memberid: data.id });
+                    });
                 }
             });
     }
@@ -79,26 +88,27 @@ export class NavMenu extends Component {
             loggedin = false;
         }
         let loggedinlinks = loggedin ? <>
-            <NavItem><NavLink tag={Link} className="text-dark translucent" to="/logout">Logout</NavLink></NavItem>
+            <NavItem><NavLink tag={Link} className="text-light" to="/profile">{this.state.membername}</NavLink></NavItem>
+            <NavItem><NavLink tag={Link} className="text-light" to="/logout">Logout</NavLink></NavItem>
         </>
             : <>
-                <NavItem><NavLink tag={Link} className="text-dark translucent" onClick={this.handleLogin}>Login</NavLink></NavItem>
-                <NavItem><NavLink tag={Link} className="text-dark translucent" onClick={this.handleRegister}>Register</NavLink></NavItem>
+                <NavItem><button className="btn btn-primary mr-2" onClick={this.handleLogin}>Login</button></NavItem>
+                <NavItem><button className="btn btn-light" onClick={this.handleRegister}>Register</button></NavItem>
             </>;
 
         return (
             <>
                 <header>
-                    <Navbar className="navbar-expand-sm navbar-toggleable-sm fixed-top translucent ng-white mb-3" light>
+                    <Navbar className="navbar-expand-sm navbar-toggleable-sm fixed-top bg-dark ng-white mb-3" dark>
                         <div className="container-fluid">
                             <NavbarBrand tag={Link} to="/">Waarta</NavbarBrand>
                             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
                             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                                 <ul className="navbar-nav flex-grow">
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-dark translucent" to="/">Home</NavLink>
+                                        <NavLink tag={Link} className="text-light" to="/">Home</NavLink>
                                     </NavItem>
-                                    <NavItem><NavLink tag={Link} className="text-dark translucent" to="/meetings">Meetings</NavLink></NavItem>
+                                    <NavItem><NavLink tag={Link} className="text-light" to="/meetings">Meetings</NavLink></NavItem>
                                     {loggedinlinks}
                                 </ul>
                             </Collapse>
