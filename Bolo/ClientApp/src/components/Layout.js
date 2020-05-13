@@ -5,13 +5,12 @@ import React, { Component } from 'react';
 export class Layout extends Component {
   static displayName = Layout.name;
 
-  render () {
+    render() {
+      //children should have full control over html
     return (
-      <div>
-        <div className="container-fluid">
+      <>
           {this.props.children}
-        </div>
-      </div>
+      </>
     );
   }
 }

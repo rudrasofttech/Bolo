@@ -85,11 +85,11 @@ export class NavMenu extends Component {
                 <NavItem><NavLink tag={Link} className="text-dark translucent" onClick={this.handleLogin}>Login</NavLink></NavItem>
                 <NavItem><NavLink tag={Link} className="text-dark translucent" onClick={this.handleRegister}>Register</NavLink></NavItem>
             </>;
-        
+
         return (
             <>
                 <header>
-                    <Navbar className="navbar-expand-sm navbar-toggleable-sm fixed-top  ng-white mb-3" light>
+                    <Navbar className="navbar-expand-sm navbar-toggleable-sm fixed-top translucent ng-white mb-3" light>
                         <div className="container-fluid">
                             <NavbarBrand tag={Link} to="/">Waarta</NavbarBrand>
                             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />

@@ -21,6 +21,7 @@ namespace Bolo.Models
         }
 
         public bool VideoCapable { get; set; }
+        public bool PeerCapable { get; set; }
     }
 
 }

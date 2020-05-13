@@ -8,6 +8,8 @@
     lastpulse;
     //has video capability
     videoCapable;
+    //has rtcpeer capability
+    peerCapable;
 
     constructor() {
         this.memberID = "00000000-0000-0000-0000-000000000000";
@@ -15,6 +17,7 @@
         this.name = "";
         this.lastpulse = Date.now();
         this.videoCapable = true;
+        this.peerCapable = true;
     }
 
     isAlive() {

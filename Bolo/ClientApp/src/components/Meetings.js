@@ -2,6 +2,7 @@
 import { MessageStrip } from './MessageStrip';
 import { Redirect } from 'react-router-dom';
 import { NavMenu } from './NavMenu';
+import { Progress } from 'reactstrap';
 
 export class Meetings extends Component {
     constructor(props) {
@@ -43,9 +44,16 @@ export class Meetings extends Component {
     }
 
     render() {
-
+        let loading = this.state.loading ? <div> <Progress animated color="info" value="100" className="loaderheight" /> </div> : <></>;
         if (!this.state.loggedin) {
-            return (<><NavMenu register={true} onLogin={this.loginHandler} /></>);
+            return (<><NavMenu register={true} onLogin={this.loginHandler} /><main role="main" className="inner cover meetingsmain">
+                <h1 className="cover-heading">Online Meetings</h1>
+                <p className="lead">Arrange a meeting quickly. Text, Video and Audio chat enabled. No restriction on number of attendees.
+                    Works from the browser no need to install any software. PC and Mac Support. Fully secure.</p>
+                <p className="lead">
+                    <a href="#" className="btn btn-lg btn-secondary">Login to start a Meeting</a>
+                </p>
+            </main></>);
         } else if (this.state.meetingid !== "") {
             return <Redirect to={'/meeting/' + this.state.meetingid} />;
         }
@@ -56,12 +64,14 @@ export class Meetings extends Component {
             return (
                 <>
                     <NavMenu onLogin={this.loginHandler} />
-                    <div id="fullheight" className="row align-items-center justify-content-center">
-                        <div className="col-3">
-                            <h1><button className="btn btn-primary my-2 startmeeting" onClick={this.handleStartMeeting}>Start a Meeting</button></h1>
-                        </div>
-                        {messagecontent}
-                    </div>
+                    <main role="main" className="inner cover meetingsmain">
+                        <h1 className="cover-heading">Online Meetings</h1>
+                        <p className="lead">Arrange a meeting quickly. Text, Video and Audio chat enabled. No restriction on number of attendees.
+                    Works from the browser no need to install any software. PC and Mac Support. Fully secure.</p>
+                        <h1><button className="btn btn-primary my-2 startmeeting" onClick={this.handleStartMeeting}>Start a Meeting</button></h1>
+                    </main>
+                    {loading}
+                    {messagecontent}
                 </>);
         }
     }

@@ -16,14 +16,11 @@ export class Meeting extends Component {
             loggedin = false;
         }
         this.state = {
-            joinmeeting: false,
-            myname: '',
-            textinput: '',
-            messages: [],
-            loading: false, loggedin: loggedin,
-            bsstyle: '', message: '',
+            joinmeeting: false, myname: '', textinput: '', messages: [],
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
             id: this.props.match.params.id === null ? '' : this.props.match.params.id,
-            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            dummydate: new Date()
         };
         this.pulseInterval = null;
         this.aliveInterval = null;
@@ -35,7 +32,7 @@ export class Meeting extends Component {
         this.handleMessageSubmit = this.handleMessageSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.leaveMeeting = this.leaveMeeting.bind(this);
-        this.streamCamVideo = this.streamCamVideo.bind(this);
+        this.getUserCam = this.getUserCam.bind(this);
         this.addMedia = this.addMedia.bind(this);
         this.newUserArrived = this.newUserArrived.bind(this);
         this.userSaidHello = this.userSaidHello.bind(this);
@@ -47,6 +44,7 @@ export class Meeting extends Component {
         this.loginHandler = this.loginHandler.bind(this);
         this.handleMyName = this.handleMyName.bind(this);
         this.handleJoinMeeting = this.handleJoinMeeting.bind(this);
+        this.userMediaError = this.userMediaError.bind(this);
     }
 
     handleMyName(e) {
@@ -79,8 +77,10 @@ export class Meeting extends Component {
 
     //check if browser supports access to camera and microphone
     hasVideoAudioCapability() {
+        debugger;
+        console.log(Peer.WEBRTC_SUPPORT);
         return !!(navigator.mediaDevices &&
-            navigator.mediaDevices.getUserMedia && Peer.WEBRTC_SUPPORT);
+            navigator.mediaDevices.getUserMedia);
     }
 
     //see if user is logged in
@@ -130,8 +130,8 @@ export class Meeting extends Component {
             this.newUserArrived(u);
         });
 
-        this.hubConnection.on('UpdateName', (u) => {
-            this.updateName(u);
+        this.hubConnection.on('UpdateUser', (u) => {
+            this.updateUser(u);
         });
 
         this.hubConnection.on('UserLeft', (cid) => { console.log(cid); this.userLeft(cid); });
@@ -190,11 +190,12 @@ export class Meeting extends Component {
         //set your connection id
         this.myself.connectionID = u.connectionID;
         this.myself.videoCapable = this.hasVideoAudioCapability();
+        this.myself.peerCapable = Peer.WEBRTC_SUPPORT;
         this.hubConnection
-            .invoke('NotifyPresence', this.state.id, this.myself.name, this.myself.videoCapable)
+            .invoke('NotifyPresence', this.state.id, this.myself)
             .catch(err => console.error(err));
         if (this.myself.videoCapable) {
-            this.streamCamVideo();
+            this.getUserCam();
         }
     }
 
@@ -270,13 +271,14 @@ export class Meeting extends Component {
         temp.memberID = u.memberID;
         temp.name = u.name;
         temp.videoCapable = u.videoCapable;
+        temp.peerCapable = u.peerCapable;
         this.users.set(u.connectionID, temp);
 
         //add a message
         let msg = new MessageInfo();
         msg.sender = null;
         msg.text = temp.name + " have joined the meeting.";
-        if (!temp.videoCapable) {
+        if (!temp.videoCapable  && !temp.peerCapable) {
             msg.text = msg.text + " No Video/Audio Capability.";
         }
         msg.type = MessageEnum.MemberAdd;
@@ -288,7 +290,7 @@ export class Meeting extends Component {
         this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u.connectionID)
             .catch(err => { console.log("Unable to say hello to new user."); console.error(err); });
 
-        if (this.myself.videoCapable && temp.videoCapable) {
+        if (this.myself.peerCapable && temp.peerCapable) {
             this.createPeer(true, u);
         }
     }
@@ -328,17 +330,36 @@ export class Meeting extends Component {
         this.setState({ messages: mlist });
     }
 
-    updateName(cid, name) {
-        var oldname = this.users.get(cid).name;
-        this.users.get(cid).name = name;
+    updateUser(u) {
+        if (this.users.get(u.connectionID) !== undefined) {
+            var oldname = this.users.get(u.connectionID).name;
+            if (oldname !== u.name) {
+                this.users.get(u.connectionID).name = u.name;
 
-        var msg = new MessageInfo();
-        msg.sender = null;
-        msg.text = oldname + " has changed name to " + name + ".";
-        msg.type = MessageEnum.Text;
-        var mlist = this.state.messages;
-        mlist.push(msg);
-        this.setState({ messages: mlist });
+                var msg = new MessageInfo();
+                msg.sender = null;
+                msg.text = oldname + " has changed name to " + u.name + ".";
+                msg.type = MessageEnum.Text;
+                var mlist = this.state.messages;
+                mlist.push(msg);
+                this.setState({ messages: mlist });
+            }
+            let eitherchanged = false;
+            if (this.users.get(u.connectionID).videoCapable !== u.videoCapable) {
+                this.users.get(u.connectionID).videoCapable = u.videoCapable;
+                eitherchanged = true;
+            }
+
+            if (this.users.get(u.connectionID).peerCapable !== u.peerCapable) {
+                this.users.get(u.connectionID).peerCapable = u.peerCapable;
+                eitherchanged = true;
+            }
+
+            if (eitherchanged) {
+                //change state so that UI can be updated
+                this.setState({ dummydate: new Date() });
+            }
+        }
     }
 
     userSaidHello(u) {
@@ -351,7 +372,7 @@ export class Meeting extends Component {
         var mi = new MessageInfo();
         mi.sender = null;
         mi.text = u.name + ' is here.';
-        if (!temp.videoCapable) {
+        if (!temp.videoCapable && !temp.peerCapable) {
             mi.text = mi.text + " No Video/Audio Capability.";
         }
         mi.type = MessageEnum.Text;
@@ -360,27 +381,8 @@ export class Meeting extends Component {
         mlist.push(mi);
 
         this.setState({ messages: mlist });
-        if (this.myself.videoCapable && temp.videoCapable) {
+        if (this.myself.peerCapable && temp.peerCapable) {
             this.createPeer(false, u);
-            ////start a peer for new user that has arrived
-            //const configuration = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
-            //console.log("usersaidhello stream : " + this.mystream);
-            //let p = new Peer({ config: configuration, stream: this.mystream });
-
-            //p["cid"] = u.connectionID;
-            //p["hubConnection"] = this.hubConnection;
-            //p["myself"] = this.myself;
-            //p["meetingid"] = this.state.id;
-            ////set peer event handlers
-            //p.on("error", this.onPeerError);
-            //p.on("signal", this.onPeerSignal);
-            //p.on("connect", this.onPeerConnect);
-            //p.on("stream", this.onPeerStream);
-            //p.on('data', data => {
-            //    // got a data channel message
-            //    console.log('got a message from peer1: ' + data)
-            //});
-            //this.peers.set(u.connectionID, p);
         }
     }
 
@@ -390,6 +392,20 @@ export class Meeting extends Component {
             .catch(err => console.error(err));
     }
 
+    getUserCam() {
+        var constraints = {
+            audio: false, video: {
+                width: window.screen.width,
+                height: window.screen.height
+            }
+        };
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then(this.addMedia)
+                .catch(this.userMediaError); // always check for errors at the end.
+        }
+    }
     //assign media stream received from getusermedia to my video 
     addMedia(stream) {
         //peer1.addStream(stream) // <- add streams to peer dynamically
@@ -403,26 +419,16 @@ export class Meeting extends Component {
         };
 
         this.mystream = stream;
+        this.myself.videoCapable = true;
         for (const [key, value] of this.peers) {
             value.addStream(this.mystream);
         }
     }
-
-    streamCamVideo() {
-        var constraints = {
-            audio: false, video: {
-                width: window.screen.width,
-                height: window.screen.height
-            }
-        };
-        if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices
-                .getUserMedia(constraints)
-                .then(this.addMedia)
-                .catch(function (err) {
-                    console.log(err.name + ": " + err.message);
-                }); // always check for errors at the end.
-        }
+    //handle error when trying to get usermedia. This may be raised when user does not allow access to camera and microphone
+    userMediaError(err) {
+        this.myself.videoCapable = false;
+        console.log(err.name + ": " + err.message);
+        this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
     }
 
     //react function
@@ -457,10 +463,8 @@ export class Meeting extends Component {
         return (<Modal isOpen={true} >
             <ModalBody>
                 <input type="text" value={this.state.myname} autoFocus="on" className="form-control" maxLength="10" onChange={this.handleMyName} placeholder="Your Name Here" />
+                <br /><Button color="primary" onClick={this.handleJoinMeeting}>Join Meeting</Button>
             </ModalBody>
-            <ModalFooter>
-                <Button color="primary" onClick={this.handleJoinMeeting}>Join Meeting</Button>
-            </ModalFooter>
         </Modal>);
     }
 
@@ -496,28 +500,32 @@ export class Meeting extends Component {
     }
 
     renderVideoTags() {
-        let classname = "video1";
+        let classname = "";
         const items = [];
-        const mv = <li className="video"><video id="myvideo" autoPlay={true}></video></li>;
-
+        if (this.myself.videoCapable) {
+            items.push(<li className="video" key={"myvideo"}><video id="myvideo" autoPlay={true} controls playsInline></video></li>);
+        }
         this.users.forEach(function (value, key) {
-            if (value.videoCapable) {
+            if (value.videoCapable && value.peerCapable) {
                 items.push(<li className="video" key={key}>
-                    <video id={'video' + value.connectionID} autoPlay={true}></video>
+                    <video id={'video' + value.connectionID} autoPlay={true} controls playsInline></video>
                 </li>);
             }
         });
-        if ((items.length + 1) < 13) {
-            classname = "video" + (items.length + 1);
+        if (items.length < 13) {
+            classname = "video" + items.length;
         }
         else {
             classname = "video13";
         }
-
-        return (<ul id="videolist" className={classname}>
-            {mv}
-            {items}
-        </ul>);
+        if (items.length > 0) {
+            return <div className="col col-md-9">
+                <div id="videocont">
+                    <ul id="videolist" className={classname}>
+                        {items}</ul>
+                </div>
+            </div>;
+        } else { return <></>; }
     }
 
 
@@ -533,17 +541,18 @@ export class Meeting extends Component {
             let vhtml = this.renderVideoTags();
             return (<>
                 <NavMenu onLogin={this.loginHandler} />
-                <div id="fullheight">
-                    <div id="videocont">
-                        {vhtml}</div>
-                    <div id="msgcont">
-                        {mhtml}
-                        <div id="inputcont" className="p-2">
-                            <form className="form-inline" onSubmit={this.handleMessageSubmit}>
-                                <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On" onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
-                                <button type="submit" className="btn btn-primary">Send</button>
-                            </form>
-                        </div>
+                <div id="fullheight" className="container-fluid">
+                    <div className="row">
+                        {vhtml}
+                        <div className="col align-self-end"><div id="msgcont">
+                            {mhtml}
+                            <div id="inputcont">
+                                <form className="form-inline" onSubmit={this.handleMessageSubmit}>
+                                    <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On" onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
+                                    <button type="submit" className="btn btn-primary">Send</button>
+                                </form>
+                            </div>
+                        </div></div>
                     </div>
                     {messagecontent}
                 </div></>);

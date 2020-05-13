@@ -40,7 +40,7 @@ code {
 
 #fullheight {
     height: 100vh;
-    overflow: auto;
+    overflow: hidden;
     margin: 0px;
     padding: 0px;
     width: 100%;
@@ -57,7 +57,7 @@ code {
     width: 100%;
     z-index: 0;
     height: 100vh;
-    position: fixed;
+    position: relative;
     overflow: auto;
     left: 0px;
     top: 0px;
@@ -130,12 +130,12 @@ code {
     width: 100%;
     bottom: 0px;
     left: 0px;
-    position: fixed;
+    position: relative;
     background-color: transparent;
-    min-height: 54px;
+    padding-bottom:5px;
     /*max-height:200px;*/
     z-index: 5;
-    padding: 0px 5rem;
+    /*padding: 0px 1rem;*/
 }
 
     #msgcont > #msglist {
@@ -143,7 +143,7 @@ code {
         padding: 0px;
         list-style: none;
         background-color: transparent;
-        max-height: 50vh;
+        max-height: calc(100vh - 100px);
         overflow-y: auto;
     }
 
@@ -229,3 +229,8 @@ code {
     ::-webkit-scrollbar-thumb:hover {
         background: #555;
     }
+
+
+.meetingsmain{
+    margin: 10rem;
+}
