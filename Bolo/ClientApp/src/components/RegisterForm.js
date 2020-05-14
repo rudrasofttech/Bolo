@@ -143,9 +143,11 @@ export class RegisterForm extends Component {
 
         return false;
     }
+
     handleRegisterClickHere() {
         this.setState({ showregisterform: true });
     }
+
     handleLoginClickHere() {
         this.setState({ showregisterform: false });
     }

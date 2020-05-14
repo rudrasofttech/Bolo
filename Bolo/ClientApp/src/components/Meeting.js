@@ -4,7 +4,9 @@ import { UserInfo, MessageInfo, MessageEnum } from './Models';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { MessageStrip } from './MessageStrip';
 import { NavMenu } from './NavMenu';
-import { Modal, ModalBody } from 'reactstrap';
+import { Modal, ModalBody, ModalHeader } from 'reactstrap';
+import { Link } from 'react-router-dom';
+
 const Peer = require("simple-peer");
 
 export class Meeting extends Component {
@@ -17,10 +19,12 @@ export class Meeting extends Component {
         }
         this.state = {
             joinmeeting: false, myname: '', textinput: '', messages: [],
+            showinvite: false,
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             id: this.props.match.params.id === null ? '' : this.props.match.params.id,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            dummydate: new Date()
+            dummydate: new Date(),
+            idvalid: false
         };
         this.pulseInterval = null;
         this.aliveInterval = null;
@@ -45,6 +49,40 @@ export class Meeting extends Component {
         this.handleMyName = this.handleMyName.bind(this);
         this.handleJoinMeeting = this.handleJoinMeeting.bind(this);
         this.userMediaError = this.userMediaError.bind(this);
+        this.inviteHandler = this.inviteHandler.bind(this);
+        this.closeInviteModal = this.closeInviteModal.bind(this);
+    }
+
+    validateMeeting(t) {
+        if (this.state.id !== undefined && this.state.id !== null) {
+            this.setState({ idvalid : false });
+        } else {
+            this.setState({ loggedin: true });
+            fetch('api/Meetings/' + this.state.id, {
+                method: 'get',
+                headers: {
+                    'Authorization': 'Bearer ' + t
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        response.json().then(data => {
+                            this.setState({ idvalid: true, loading: false }, () => { this.validate(this.state.token); });
+                        });
+                    } else {
+                        this.setState({ idvalid: false });
+                    }
+                });
+        }
+    }
+
+
+    closeInviteModal() {
+        this.setState({ showinvite: false });
+    }
+
+    inviteHandler() {
+        this.setState({ showinvite: true });
     }
 
     handleMyName(e) {
@@ -170,8 +208,10 @@ export class Meeting extends Component {
             if (!u.isAlive()) {
                 if (this.peers.get(u.connectionID) !== null) {
                     console.log(u.connectionID + " peer about to be destoryed");
-                    this.peers.get(u.connectionID).destroy();
-                    this.peers.delete(u.connectionID);
+                    if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
+                        this.peers.get(u.connectionID).destroy();
+                        this.peers.delete(u.connectionID);
+                    }
                 }
 
                 //add a message
@@ -278,7 +318,7 @@ export class Meeting extends Component {
         //add a message
         let msg = new MessageInfo();
         msg.sender = null;
-        msg.text = temp.name + " have joined the meeting.";
+        msg.text = temp.name + " has joined the meeting.";
         if (!temp.videoCapable && !temp.peerCapable) {
             msg.text = msg.text + " No Video/Audio Capability.";
         }
@@ -431,7 +471,7 @@ export class Meeting extends Component {
 
     //react function
     componentDidMount() {
-        this.validate(this.state.token);
+        this.validateMeeting(this.state.token);
         this.aliveInterval = setInterval(this.collectDeadUsers, 5000);
         this.scrollToBottom();
     }
@@ -457,18 +497,55 @@ export class Meeting extends Component {
         this.scrollToBottom();
     }
 
+    renderValidateModal() {
+        return <><NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} /><div className="container-fluid">
+            <div className="row">
+                <div className="col-md-12">
+                    <Modal isOpen={true} centered>
+                        <ModalHeader>Not Found</ModalHeader>
+                        <ModalBody>
+                            <p className="m-2">This meeting id cannot be found. Please recheck with the meeting organizer.</p>
+                            <p className="m-2">Alternatively you can organize your own meeting. <Link to="/meetings">Organize a Meeting</Link></p>
+                        </ModalBody>
+                    </Modal>
+                </div>
+            </div>
+        </div></>;
+    }
+
+    renderInviteModal() {
+        return <div className="container">
+            <div className="row">
+                <div className="col-md-12">
+                    <Modal isOpen={true} centered>
+                        <ModalHeader toggle={this.closeInviteModal}>Send Meeting Invites</ModalHeader>
+                        <ModalBody>
+                            <p className="mt-10">You can share this URL with anyone who wants to join the meeting.</p>
+                            <input type="text" value={window.location.href} autoFocus="on" className="form-control" />
+                            <p className="mb-10"></p>
+                        </ModalBody>
+                    </Modal>
+                </div>
+            </div>
+        </div>;
+    }
+
     renderNameForm() {
         return (
             <div className="container">
-                <div className="row"><div className="col-md-12">
-            <Modal isOpen={true} >
-            <ModalBody>
-                <form onSubmit={this.handleJoinMeeting}>
-                    <input type="text" value={this.state.myname} autoFocus="on" className="form-control" maxLength="10" onChange={this.handleMyName} placeholder="Your Name Here" />
-                    <br /><button type="submit" className="btn btn-primary">Join Meeting</button>
-                </form>
-            </ModalBody>
-        </Modal></div></div></div>);
+                <div className="row">
+                    <div className="col-md-12">
+                        <Modal isOpen={true} centered>
+                            <ModalBody>
+                                <form onSubmit={this.handleJoinMeeting}>
+                                    <input type="text" value={this.state.myname} autoFocus="on" className="form-control" maxLength="20" onChange={this.handleMyName} placeholder="Your Name Here" />
+                                    <br /><button type="submit" className="btn btn-primary">Join Meeting</button>
+                                </form>
+                            </ModalBody>
+                        </Modal>
+                    </div>
+                </div>
+            </div>);
     }
 
     renderMessageList() {
@@ -505,9 +582,8 @@ export class Meeting extends Component {
     renderVideoTags() {
         let classname = "";
         const items = [];
-        if (this.myself.videoCapable) {
-            items.push(<li className="video" key={"myvideo"}><video id="myvideo" autoPlay={true} controls playsInline></video></li>);
-        }
+        let myvclass = "";
+
         this.users.forEach(function (value, key) {
             if (value.videoCapable && value.peerCapable) {
                 items.push(<li className="video" key={key}>
@@ -521,9 +597,17 @@ export class Meeting extends Component {
         else {
             classname = "video13";
         }
-        if (items.length > 0) {
-            return <div className="col-md-9">
+        if (items.length === 0) {
+            myvclass = "full";
+        } else {
+            myvclass = "smalldocked"
+        }
+
+        let myv = this.myself.videoCapable ? <video id="myvideo" muted="muted" className={myvclass} autoPlay={true} controls playsInline></video> : <></>;
+        if (items.length > 0 || this.myself.videoCapable) {
+            return <div className="col-md-9 border-right">
                 <div id="videocont">
+                    {myv}
                     <ul id="videolist" className={classname}>
                         {items}</ul>
                 </div>
@@ -533,13 +617,17 @@ export class Meeting extends Component {
 
 
     render() {
-        if (this.myself !== null && this.myself.name.trim() === "") {
+        if (!this.state.idvalid) {
+            return this.renderValidateModal();
+        }
+        else if (this.myself !== null && this.myself.name.trim() === "") {
             return this.renderNameForm();
         }
         else if (this.state.joinmeeting) {
             let messagecontent = this.myselfssage !== "" ? <div className="fixedBottom ">
                 <MessageStrip message={this.myselfssage} bsstyle={this.state.bsstyle} />
             </div> : <></>;
+            let invite = this.state.showinvite ? this.renderInviteModal() : <></>;
             let mhtml = this.renderMessageList();
             let vhtml = this.renderVideoTags();
             let chatcolclassname = "col-md-3 align-self-end";
@@ -547,9 +635,9 @@ export class Meeting extends Component {
                 chatcolclassname = "col-md-12 align-self-end";
             }
             return (<>
-                <NavMenu onLogin={this.loginHandler} />
+                <NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} />
                 <div className="container-fluid">
-                    <div className="row">
+                    <div className="row fullheight">
                         {vhtml}
                         <div className={chatcolclassname}><div id="msgcont">
                             {mhtml}
@@ -562,6 +650,7 @@ export class Meeting extends Component {
                         </div></div>
                     </div>
                     {messagecontent}
+                    {invite}
                 </div></>);
         } else {
             return (<></>);

@@ -50,11 +50,11 @@ namespace Bolo.Controllers
             }
             if (!string.IsNullOrEmpty(member.Email))
             {
-                Helper.Utility.SendEmail(member.Email, "", "contact@bolo.com", "", "Bolo OTP", string.Format("You passcode is: {0}", OTP));
+                Helper.Utility.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("You passcode is: {0}", OTP));
             }
             if (!string.IsNullOrEmpty(member.Phone))
             {
-                Helper.Utility.SendSMS(member.Phone, string.Format("Your Bolo passcode is: {0}", OTP));
+                Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta passcode is: {0}", OTP));
             }
 
             return Ok(OTP);

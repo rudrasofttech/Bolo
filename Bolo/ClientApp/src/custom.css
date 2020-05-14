@@ -1,10 +1,8 @@
-body{
-    padding-top:60px;
-}
 
 /* Provide sufficient contrast against white background */
 a {
     color: #0366d6;
+    cursor:pointer;
 }
 
 code {
@@ -42,12 +40,8 @@ code {
     background-color: rgba(255, 255, 255, 0.4);
 }
 
-#fullheight {
-    height: 100vh;
-    overflow: hidden;
-    margin: 0px;
-    padding: 0px;
-    width: 100%;
+.fullheight {
+    min-height: 100vh;
 }
 
 #inputcont {
@@ -66,8 +60,24 @@ code {
     left: 0px;
     top: 0px;
     background-color: transparent;*/
-    
+    text-align:center;
 }
+
+    #videocont > video.full{
+        max-width:100%;
+        width:auto;
+        height:99vh;
+    }
+
+    #videocont > video.smalldocked {
+        width: auto;
+        max-height: 200px;
+        position:fixed;
+        bottom:60px;
+        left:10px;
+        
+        border:5px solid #AED178;
+    }
 
     #videocont > #videolist {
         margin: 0px;
@@ -77,13 +87,14 @@ code {
 
         #videocont > #videolist > li {
             display: inline-block;
-            width: 400px;
-            height: 300px;
+            text-align:center;
+            max-height:100%;
+            max-width:100%;
         }
 
             #videocont > #videolist > li > video {
-                width: 100%;
                 height: 100%;
+                max-width:100%;
             }
 
     #videocont > ul#videolist.video1 > li {
@@ -92,8 +103,8 @@ code {
     }
 
     #videocont > ul#videolist.video2 > li {
-        width: 50%;
-        height: 99vh;
+        width: 100%;
+        height: 50vh;
     }
 
     #videocont > ul#videolist.video3 > li {

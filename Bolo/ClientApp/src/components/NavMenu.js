@@ -19,6 +19,7 @@ export class NavMenu extends Component {
             loggedin: loggedin,
             collapsed: true,
             registermodal: this.props.register === undefined ? false : this.props.register,
+            showinvite: this.props.onInvite === undefined ? false : true,
             registerFormBeginWith: 'register',
             membername: '',
             memberid: ''
@@ -30,6 +31,7 @@ export class NavMenu extends Component {
         this.loginHandler = this.loginHandler.bind(this);
         this.handleRegister = this.handleRegister.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
+        this.handleOnInvite = this.handleOnInvite.bind(this);
         this.closeRegisterModal = this.closeRegisterModal.bind(this);
     }
 
@@ -40,6 +42,12 @@ export class NavMenu extends Component {
             if (this.props.onLogin !== undefined) {
                 this.props.onLogin();
             }
+        }
+    }
+
+    handleOnInvite(e) {
+        if (this.props.onInvite !== undefined) {
+            this.props.onInvite();
         }
     }
 
@@ -80,6 +88,13 @@ export class NavMenu extends Component {
         });
     }
 
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.register !== prevState.register) {
+            return { registermodal: nextProps.register };
+        }
+        else return null;
+    }
+
     render() {
         const token = localStorage.getItem("token");
         let loggedin = true;
@@ -92,10 +107,11 @@ export class NavMenu extends Component {
             <NavItem><NavLink tag={Link} className="text-light" to="/logout">Logout</NavLink></NavItem>
         </>
             : <>
-                <NavItem><button className="btn btn-primary mr-2" onClick={this.handleLogin}>Login</button></NavItem>
-                <NavItem><button className="btn btn-light" onClick={this.handleRegister}>Register</button></NavItem>
+                <NavItem><a className="text-light nav-link" onClick={this.handleLogin}>Login</a></NavItem>
+                <NavItem><a className="text-light nav-link" onClick={this.handleRegister}>Register</a></NavItem>
             </>;
-
+        let showinvite = this.state.showinvite ? <NavItem><a className="text-light nav-link" onClick={this.handleOnInvite}>Invite</a></NavItem> :
+            <></>;
         return (
             <>
                 <header>
@@ -109,6 +125,7 @@ export class NavMenu extends Component {
                                         <NavLink tag={Link} className="text-light" to="/">Home</NavLink>
                                     </NavItem>
                                     <NavItem><NavLink tag={Link} className="text-light" to="/meetings">Meetings</NavLink></NavItem>
+                                    {showinvite}
                                     {loggedinlinks}
                                 </ul>
                             </Collapse>

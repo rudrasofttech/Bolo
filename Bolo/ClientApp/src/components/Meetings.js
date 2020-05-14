@@ -63,7 +63,7 @@ export class Meetings extends Component {
             </div> : <></>;
             return (
                 <>
-                    <NavMenu onLogin={this.loginHandler} />
+                    <NavMenu onLogin={this.loginHandler} register={false} />
                     <main role="main" className="inner cover meetingsmain">
                         <h1 className="cover-heading">Online Meetings</h1>
                         <p className="lead">Arrange a meeting quickly. Text, Video and Audio chat enabled. No restriction on number of attendees.
