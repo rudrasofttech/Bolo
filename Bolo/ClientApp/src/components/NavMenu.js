@@ -22,7 +22,8 @@ export class NavMenu extends Component {
             showinvite: this.props.onInvite === undefined ? false : true,
             registerFormBeginWith: 'register',
             membername: '',
-            memberid: ''
+            memberid: '',
+            fixed: this.props.fixed === undefined ? true : this.props.fixed
         };
 
         if (token !== null) {
@@ -98,7 +99,7 @@ export class NavMenu extends Component {
     render() {
         const token = localStorage.getItem("token");
         let loggedin = true;
-
+        let fixedtop = this.state.fixed ? "fixed-top" : "";
         if (token === null) {
             loggedin = false;
         }
@@ -115,7 +116,7 @@ export class NavMenu extends Component {
         return (
             <>
                 <header>
-                    <Navbar className="navbar-expand-sm navbar-toggleable-sm fixed-top bg-dark ng-white mb-3" dark>
+                    <Navbar className={"navbar-expand-sm navbar-toggleable-sm bg-dark ng-white mb-3 " + fixedtop} dark>
                         <div className="container-fluid">
                             <NavbarBrand tag={Link} to="/">Waarta</NavbarBrand>
                             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />

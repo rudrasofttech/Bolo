@@ -54,7 +54,7 @@ export class Meeting extends Component {
     }
 
     validateMeeting(t) {
-        if (this.state.id !== undefined && this.state.id !== null) {
+        if (this.state.id === undefined || this.state.id === null) {
             this.setState({ idvalid : false });
         } else {
             this.setState({ loggedin: true });
@@ -651,7 +651,9 @@ export class Meeting extends Component {
                     </div>
                     {messagecontent}
                     {invite}
-                </div></>);
+                </div>
+                
+            </>);
         } else {
             return (<></>);
         }
