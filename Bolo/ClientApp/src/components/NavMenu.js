@@ -20,7 +20,7 @@ export class NavMenu extends Component {
             collapsed: true,
             registermodal: this.props.register === undefined ? false : this.props.register,
             showinvite: this.props.onInvite === undefined ? false : true,
-            registerFormBeginWith: 'register',
+            registerFormBeginWith: this.props.registerFormBeginWith === undefined ? true : this.props.registerFormBeginWith,
             membername: '',
             memberid: '',
             fixed: this.props.fixed === undefined ? true : this.props.fixed

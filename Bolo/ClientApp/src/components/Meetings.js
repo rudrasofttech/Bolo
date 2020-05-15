@@ -46,14 +46,23 @@ export class Meetings extends Component {
     render() {
         let loading = this.state.loading ? <div> <Progress animated color="info" value="100" className="loaderheight" /> </div> : <></>;
         if (!this.state.loggedin) {
-            return (<><NavMenu register={true} onLogin={this.loginHandler} /><main role="main" className="inner cover meetingsmain">
-                <h1 className="cover-heading">Online Meetings</h1>
-                <p className="lead">Arrange a meeting quickly. Text, Video and Audio chat enabled. No restriction on number of attendees.
-                    Works from the browser no need to install any software. PC and Mac Support. Fully secure.</p>
-                <p className="lead">
-                    <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
-                </p>
-            </main></>);
+            return (<><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={false} />
+                <main role="main" className="inner cover meetingsmain mr-5 ml-5">
+                    <h1 className="cover-heading">Online Meetings</h1>
+                    <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
+                    important discussions, future planning or interviews. Salient Features-</p>
+                    <ul>
+                        <li>Unlimited participants</li>
+                        <li>Audio, Video and Text Chat Enabled</li>
+                        <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
+                        <li>Peer to Peer technlogy</li>
+                        <li>Secured with SSL</li>
+                        <li>Free to use</li>
+                    </ul>
+                    <p className="lead">
+                        <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
+                    </p>
+                </main></>);
         } else if (this.state.meetingid !== "") {
             return <Redirect to={'/m/' + this.state.meetingid} />;
         }
@@ -63,11 +72,19 @@ export class Meetings extends Component {
             </div> : <></>;
             return (
                 <>
-                    <NavMenu onLogin={this.loginHandler} register={false} />
-                    <main role="main" className="inner cover meetingsmain">
+                    <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={false} />
+                    <main role="main" className="inner cover meetingsmain mr-5 ml-5">
                         <h1 className="cover-heading">Online Meetings</h1>
-                        <p className="lead">Arrange a meeting quickly. Text, Video and Audio chat enabled. No restriction on number of attendees.
-                    Works from the browser no need to install any software. PC and Mac Support. Fully secure.</p>
+                        <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
+                    important discussions, future planning or interviews. Salient Features-</p>
+                        <ul>
+                            <li>Unlimited participants</li>
+                            <li>Audio, Video and Text Chat Enabled</li>
+                            <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
+                            <li>Peer to Peer technlogy</li>
+                            <li>Secured with SSL</li>
+                            <li>Free to use</li>
+                        </ul>
                         <h1><button className="btn btn-primary my-2 startmeeting" onClick={this.handleStartMeeting}>Start a Meeting</button></h1>
                     </main>
                     {loading}

@@ -24,8 +24,11 @@ export class Meeting extends Component {
             id: this.props.match.params.id === null ? '' : this.props.match.params.id,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             dummydate: new Date(),
-            idvalid: false
+            idvalid: true
         };
+
+        this.validateMeeting(this.state.token);
+
         this.pulseInterval = null;
         this.aliveInterval = null;
         this.users = new Map();
@@ -57,7 +60,6 @@ export class Meeting extends Component {
         if (this.state.id === undefined || this.state.id === null) {
             this.setState({ idvalid : false });
         } else {
-            this.setState({ loggedin: true });
             fetch('api/Meetings/' + this.state.id, {
                 method: 'get',
                 headers: {
@@ -67,7 +69,7 @@ export class Meeting extends Component {
                 .then(response => {
                     if (response.status === 200) {
                         response.json().then(data => {
-                            this.setState({ idvalid: true, loading: false }, () => { this.validate(this.state.token); });
+                            this.setState({ idvalid: true, loading: false }, () => {  });
                         });
                     } else {
                         this.setState({ idvalid: false });
@@ -471,7 +473,7 @@ export class Meeting extends Component {
 
     //react function
     componentDidMount() {
-        this.validateMeeting(this.state.token);
+        this.validate(this.state.token);
         this.aliveInterval = setInterval(this.collectDeadUsers, 5000);
         this.scrollToBottom();
     }
