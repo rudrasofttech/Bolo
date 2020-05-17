@@ -2,7 +2,7 @@
 /* Provide sufficient contrast against white background */
 a {
     color: #0366d6;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 code {
@@ -60,23 +60,49 @@ code {
     left: 0px;
     top: 0px;
     background-color: transparent;*/
-    text-align:center;
+    text-align: center;
 }
 
-    #videocont > video.full{
-        max-width:100%;
-        width:auto;
-        height:99vh;
+    #videocont > div.full {
+        max-width: 100%;
+        width: auto;
+        max-height: 99vh;
+        position: relative;
+        display: inline-block;
     }
 
-    #videocont > video.smalldocked {
-        width: auto;
-        max-height: 200px;
-        position:fixed;
-        bottom:60px;
-        left:10px;
-        
-        border:5px solid #AED178;
+    #videocont > div.smalldocked {
+        max-width: 200px;
+        max-height: 150px;
+        position: fixed;
+        bottom: 100px;
+        left: 10px;
+        border: 5px solid #AED178;
+        display: inline-block;
+        z-index: 10;
+    }
+
+        #videocont > div.full > video#myvideo,
+        #videocont > div.smalldocked > video#myvideo {
+            max-height: 100%;
+            max-width: 100%;
+            width: auto;
+        }
+
+    #videocont > div.full > .ctrl {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        display: inline-block;
+        margin-left: -38px;
+    }
+
+    #videocont > div.smalldocked > .ctrl {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        display: inline-block;
+        margin-left: 0;
     }
 
     #videocont > #videolist {
@@ -87,14 +113,14 @@ code {
 
         #videocont > #videolist > li {
             display: inline-block;
-            text-align:center;
-            max-height:100%;
-            max-width:100%;
+            text-align: center;
+            max-height: 100%;
+            max-width: 100%;
         }
 
             #videocont > #videolist > li > video {
                 height: 100%;
-                max-width:100%;
+                max-width: 100%;
             }
 
     #videocont > ul#videolist.video1 > li {
@@ -148,7 +174,7 @@ code {
     left: 0px;
     position: relative;
     background-color: transparent;
-    padding-bottom:5px;
+    padding-bottom: 5px;
     /*max-height:200px;*/
     z-index: 5;
     /*padding: 0px 1rem;*/
@@ -188,7 +214,7 @@ code {
             display: inline-block;
             padding: 4px;
             margin: 4px 0px;
-            border-radius: 3px;
+            border-radius: 5px;
         }
 
             #msgcont > #msglist > li > span > small.name {
@@ -196,7 +222,7 @@ code {
             }
 
             #msgcont > #msglist > li > span > small.time {
-                display:none;
+                display: none;
             }
 
             #msgcont > #msglist > li > span > small {
@@ -207,13 +233,20 @@ code {
 
         #msgcont > #msglist > li.notify > span {
             text-transform: capitalize;
+            background-color: #FFF3CD;
         }
 
         #msgcont > #msglist > li.receive > span {
             background-color: rgba(142, 191, 67, 0.6);
-            color:white;
+            color: black;
+            padding: 4px 10px;
         }
-
+        #msgcont > #msglist > li.sent > span {
+            background-color: #D4EDDA;
+            color: black;
+            padding:4px 10px;
+        }
+        #D4EDDA
     #msgcont #inputcont {
         background-color: rgba(255, 255, 255, 0.4);
     }
@@ -247,6 +280,6 @@ code {
     }
 
 
-.meetingsmain{
+.meetingsmain {
     margin-top: 2rem;
 }

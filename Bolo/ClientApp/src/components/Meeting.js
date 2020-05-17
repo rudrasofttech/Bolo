@@ -5,7 +5,8 @@ import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { MessageStrip } from './MessageStrip';
 import { NavMenu } from './NavMenu';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import { BsFillChatDotsFill, BsCameraVideoFill, BsMicFill, BsCameraVideo, BsMic } from 'react-icons/bs';
 
 const Peer = require("simple-peer");
 
@@ -18,8 +19,8 @@ export class Meeting extends Component {
             loggedin = false;
         }
         this.state = {
-            joinmeeting: false, myname: '', textinput: '', messages: [],
-            showinvite: false,
+            joinmeeting: false, redirectto: '', myname: '', textinput: '', messages: [],
+            showinvite: false, videoplaying: false, audioplaying: true,
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             id: this.props.match.params.id === null ? '' : this.props.match.params.id,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
@@ -54,11 +55,13 @@ export class Meeting extends Component {
         this.userMediaError = this.userMediaError.bind(this);
         this.inviteHandler = this.inviteHandler.bind(this);
         this.closeInviteModal = this.closeInviteModal.bind(this);
+        this.handleVideoToggle = this.handleVideoToggle.bind(this);
+        this.handleAudioToggle = this.handleAudioToggle.bind(this);
     }
 
     validateMeeting(t) {
         if (this.state.id === undefined || this.state.id === null) {
-            this.setState({ idvalid : false });
+            this.setState({ idvalid: false });
         } else {
             fetch('api/Meetings/' + this.state.id, {
                 method: 'get',
@@ -69,7 +72,7 @@ export class Meeting extends Component {
                 .then(response => {
                     if (response.status === 200) {
                         response.json().then(data => {
-                            this.setState({ idvalid: true, loading: false }, () => {  });
+                            this.setState({ idvalid: true, loading: false }, () => { });
                         });
                     } else {
                         this.setState({ idvalid: false });
@@ -85,6 +88,25 @@ export class Meeting extends Component {
 
     inviteHandler() {
         this.setState({ showinvite: true });
+    }
+
+    //enable or disable video track of my stream
+    handleVideoToggle(e) {
+        if (this.mystream !== null) {
+            if (this.mystream.getVideoTracks().length > 0) {
+                this.mystream.getVideoTracks()[0].enabled = !this.state.videoplaying;
+                this.setState({ videoplaying: !this.state.videoplaying });
+            }
+        }
+    }
+    //enable or disable audio track of my stream
+    handleAudioToggle(e) {
+        if (this.mystream !== null) {
+            if (this.mystream.getAudioTracks().length > 0) {
+                this.mystream.getAudioTracks()[0].enabled = !this.state.audioplaying;
+                this.setState({ audioplaying: !this.state.audioplaying });
+            }
+        }
     }
 
     handleMyName(e) {
@@ -135,12 +157,15 @@ export class Meeting extends Component {
         })
             .then(response => {
                 if (response.status === 401) {
+                    //if token is not valid than remove token, set myself object with empty values
                     localStorage.removeItem("token");
                     this.myself = new UserInfo();
                     this.myself.name = "";
-
                     this.setState({ loggedin: false, loading: false });
                 } else if (response.status === 200) {
+                    //if token is valid vet user information from response and set "myself" object with member id and name.
+                    //set state joinmeeting to true so that it does not ask for name and other info from user. Once the state
+                    //is set then start signalr hub
                     response.json().then(data => {
                         //console.log(data);
                         this.myself = new UserInfo();
@@ -152,6 +177,7 @@ export class Meeting extends Component {
             });
     }
 
+    //start signalr hub invoke preliminary functions and set on event handlers
     startHub() {
         this.hubConnection = new HubConnectionBuilder().withUrl("/meetinghub", { accessTokenFactory: () => this.state.token }).configureLogging(LogLevel.Debug).build();
 
@@ -162,24 +188,46 @@ export class Meeting extends Component {
                 .invoke('JoinMeeting', this.state.id, this.myself.name)
                 .catch(err => console.error(err));
 
+            //set pulse interval, this will call the function that will send 
+            //pulse to other in meeting about current users existance
             this.pulseInterval = setInterval(this.sendPulse, 3000);
         }).catch(err => console.log('Error while establishing connection :('));
 
-
+        //Handle New User Arrived server call
+        //userinfo paramt will be sent by server as provided by other
+        //user
         this.hubConnection.on('NewUserArrived', (u) => {
-            console.log(u);
+            //console.log(u);
             this.newUserArrived(u);
         });
 
+        //receive updated user object from target
+        //this can be any thing user name, video capability, audio capability or
+        //peer capability and status of target user
         this.hubConnection.on('UpdateUser', (u) => {
             this.updateUser(u);
         });
 
-        this.hubConnection.on('UserLeft', (cid) => { console.log(cid); this.userLeft(cid); });
+        //userleft is called by server when a user invokes leavemeeting function
+        //use this function to perform cleanup of peer object and user object
+        this.hubConnection.on('UserLeft', (cid) => {
+            //console.log(cid);
+            this.userLeft(cid);
+        });
+
+        //this function is called by server when client invoke HelloUser server function
+        //this is called in response to newuserarrived function
+        //so that new user can add existing users to its list
         this.hubConnection.on('UserSaidHello', (u) => { this.userSaidHello(u); });
 
+        //this function is called by server when user invokes joinmeting function on server
+        //setmyself recieves userinfo from server, like if user is logged then its public id, name and signalr connection id
         this.hubConnection.on('SetMySelf', (u) => { this.setMySelf(u); });
+
+        //this function is called by server when it receives a sendtextmessage from user.
         this.hubConnection.on('ReceiveTextMessage', (ui, text, timestamp) => { this.receiveTextMessage(ui, text, timestamp); });
+
+        //this function is strictly call by server to transfer webrtc peer data
         this.hubConnection.on('ReceiveSignal', (sender, data) => {
             console.log("receivesignal sender : " + sender);
             console.log("receivesignal data : " + data);
@@ -187,6 +235,8 @@ export class Meeting extends Component {
                 this.peers.get(sender.connectionID).signal(data);
             }
         })
+
+        //function is called by server in response to sendpulse server call
         this.hubConnection.on('ReceivePulse', (cid) => {
             //console.log(cid);
             this.receivePulse(cid);
@@ -234,6 +284,12 @@ export class Meeting extends Component {
         this.myself.connectionID = u.connectionID;
         this.myself.videoCapable = this.hasVideoAudioCapability();
         this.myself.peerCapable = Peer.WEBRTC_SUPPORT;
+        //support for video and peer to peer on IE and Edge is dicy it
+        //is better to forbid it altogether.
+        if (this.detectEdgeorIE()) {
+            this.myself.videoCapable = false;
+            this.myself.peerCapable = false;
+        }
         this.hubConnection
             .invoke('NotifyPresence', this.state.id, this.myself)
             .catch(err => console.error(err));
@@ -286,7 +342,8 @@ export class Meeting extends Component {
     }
 
     onPeerError(err) {
-        console.log(this.cid + " peer gave error. " + err);
+        console.log(this.cid + " peer gave error. ");
+        console.error(err);
     }
 
     onPeerStream(stream) {
@@ -334,7 +391,15 @@ export class Meeting extends Component {
             .catch(err => { console.log("Unable to say hello to new user."); console.error(err); });
 
         if (this.myself.peerCapable && temp.peerCapable) {
-            this.createPeer(true, u);
+            try {
+                this.createPeer(true, u);
+            } catch (err) {
+                console.log("Unable to create a new peer when newuserarrived");
+                //disable capability
+                this.myself.peerCapable = false;
+                //notify other about my capability change
+                this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
+            }
         }
     }
 
@@ -425,7 +490,15 @@ export class Meeting extends Component {
 
         this.setState({ messages: mlist });
         if (this.myself.peerCapable && temp.peerCapable) {
-            this.createPeer(false, u);
+            try {
+                this.createPeer(false, u);
+            } catch (err) {
+                console.log("Unable to create a new peer when userSaidHello");
+                //disable capability
+                this.myself.peerCapable = false;
+                //notify other about my capability change
+                this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
+            }
         }
     }
 
@@ -433,6 +506,40 @@ export class Meeting extends Component {
         this.hubConnection
             .invoke('LeaveMeeting', this.state.id)
             .catch(err => console.error(err));
+        try {
+            if (this.mystream !== null) {
+                this.mystream.getTracks()[0].stop();
+            }
+        } catch (err2) {
+            console.log("Error while stoping video and audio.");
+            console.error(err2);
+        }
+        for (const [key, u] of this.users.entries()) {
+            try {
+                if (this.peers.get(u.connectionID) !== null) {
+                    if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
+                        this.peers.get(u.connectionID).destroy();
+                        this.peers.delete(u.connectionID);
+                    }
+                }
+                this.users.delete(u.connectionID);
+            } catch (err) {
+                console.log("Error while deleting peer and deleting user");
+                console.error(err);
+            }
+        }
+
+        this.setState({redirectto : '/'});
+    }
+
+    detectEdgeorIE() {
+        // Internet Explorer 6-11
+        const isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+        // Edge 20+
+        const isEdge = !isIE && !!window.StyleMedia;
+
+        return (isIE || isEdge);
     }
 
     getUserCam() {
@@ -446,28 +553,41 @@ export class Meeting extends Component {
                 .catch(this.userMediaError); // always check for errors at the end.
         }
     }
+
     //assign media stream received from getusermedia to my video 
     addMedia(stream) {
         //peer1.addStream(stream) // <- add streams to peer dynamically
-        var video = document.getElementById('myvideo');
-
-        video.srcObject = stream;
-        video.onloadedmetadata = function (e) {
-            if (video !== undefined) {
-                video.play();
-            }
-        };
-
+        
+        
         this.mystream = stream;
+        this.setState({ dummydate: new Date() }, () => {
+            var video = document.getElementById('myvideo');
+
+            video.srcObject = this.mystream;
+            video.onloadedmetadata = function (e) {
+                if (video !== undefined) {
+                    video.volume = 0;
+                    video.muted = 0;
+                    video.play();
+                }
+            }; });
+        if (this.mystream.getVideoTracks().length > 0) {
+            this.mystream.getVideoTracks()[0].enabled = this.state.videoplaying;
+        }
+        if (this.mystream.getAudioTracks().length > 0) {
+            this.mystream.getAudioTracks()[0].enabled = this.state.audioplaying;
+        }
         this.myself.videoCapable = true;
         for (const [key, value] of this.peers) {
             value.addStream(this.mystream);
         }
     }
+
     //handle error when trying to get usermedia. This may be raised when user does not allow access to camera and microphone
     userMediaError(err) {
         this.myself.videoCapable = false;
-        console.log(err.name + ": " + err.message);
+        console.log("Unable to access user media");
+        console.error(err);
         this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
     }
 
@@ -490,7 +610,7 @@ export class Meeting extends Component {
     }
 
     scrollToBottom = () => {
-        if (this.messagesEnd !== undefined) {
+        if (this.messagesEnd !== undefined && this.messagesEnd !== null) {
             this.messagesEnd.scrollIntoView({ behavior: "smooth" });
         }
     }
@@ -533,14 +653,18 @@ export class Meeting extends Component {
     }
 
     renderNameForm() {
+        let browserinfo = this.detectEdgeorIE() ? <p>You are using either Edge or Internet Explorer.
+            Your access is restricted to text chat only. You will have full feature access on chrome, firefox or safari.</p> : <></>;
+
         return (
             <div className="container">
                 <div className="row">
                     <div className="col-md-12">
                         <Modal isOpen={true} centered>
                             <ModalBody>
+                                {browserinfo}
                                 <form onSubmit={this.handleJoinMeeting}>
-                                    <input type="text" value={this.state.myname} autoFocus="on" className="form-control" maxLength="20" onChange={this.handleMyName} placeholder="Your Name Here" />
+                                    <input type="text" required value={this.state.myname} autoFocus="on" className="form-control" maxLength="20" onChange={this.handleMyName} placeholder="Your Name Here" />
                                     <br /><button type="submit" className="btn btn-primary">Join Meeting</button>
                                 </form>
                             </ModalBody>
@@ -589,7 +713,7 @@ export class Meeting extends Component {
         this.users.forEach(function (value, key) {
             if (value.videoCapable && value.peerCapable) {
                 items.push(<li className="video" key={key}>
-                    <video id={'video' + value.connectionID} autoPlay={true} controls playsInline></video>
+                    <video id={'video' + value.connectionID} autoPlay={true} playsInline></video>
                 </li>);
             }
         });
@@ -604,9 +728,13 @@ export class Meeting extends Component {
         } else {
             myvclass = "smalldocked"
         }
-
-        let myv = this.myself.videoCapable ? <video id="myvideo" muted="muted" className={myvclass} autoPlay={true} controls playsInline></video> : <></>;
-        if (items.length > 0 || this.myself.videoCapable) {
+        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}><BsCameraVideoFill /></button> : <button type="button" className="btn btn-secondary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}><BsCameraVideo /></button>;
+        let audiotoggleele = this.state.audioplaying ? <button type="button" className="btn btn-primary audioctrl" onClick={this.handleAudioToggle}><BsMicFill /></button> : <button type="button" className="btn btn-secondary audioctrl" onClick={this.handleAudioToggle}><BsMic /></button>
+        let myv = (this.myself.videoCapable && this.mystream !== null) ? <div className={myvclass}>
+            <video id="myvideo" muted="muted"  playsInline></video>
+            <span className="ctrl">{videotoggleele}{audiotoggleele}</span>
+        </div> : <></>;
+        if (/*items.length > 0 ||*/ this.myself.videoCapable) {
             return <div className="col-md-9 border-right">
                 <div id="videocont">
                     {myv}
@@ -619,7 +747,10 @@ export class Meeting extends Component {
 
 
     render() {
-        if (!this.state.idvalid) {
+        if (this.state.redirectto !== '') {
+            return <Redirect to={this.state.redirectto} />;
+        }
+        else if (!this.state.idvalid) {
             return this.renderValidateModal();
         }
         else if (this.myself !== null && this.myself.name.trim() === "") {
@@ -632,12 +763,12 @@ export class Meeting extends Component {
             let invite = this.state.showinvite ? this.renderInviteModal() : <></>;
             let mhtml = this.renderMessageList();
             let vhtml = this.renderVideoTags();
-            let chatcolclassname = "col-md-3 align-self-end";
+            let chatcolclassname = "col-md align-self-end";
             if (vhtml === <></>) {
-                chatcolclassname = "col-md-12 align-self-end";
+                chatcolclassname = "col-md align-self-end";
             }
             return (<>
-                <NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} />
+                <NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} onLeaveMeeting={this.leaveMeeting} />
                 <div className="container-fluid">
                     <div className="row fullheight">
                         {vhtml}
@@ -646,7 +777,7 @@ export class Meeting extends Component {
                             <div id="inputcont">
                                 <form className="form-inline" onSubmit={this.handleMessageSubmit}>
                                     <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On" onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
-                                    <button type="submit" className="btn btn-primary">Send</button>
+                                    <button type="submit" className="btn btn-primary"><BsFillChatDotsFill /></button>
                                 </form>
                             </div>
                         </div></div>
@@ -654,7 +785,7 @@ export class Meeting extends Component {
                     {messagecontent}
                     {invite}
                 </div>
-                
+
             </>);
         } else {
             return (<></>);

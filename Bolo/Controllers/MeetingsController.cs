@@ -26,6 +26,7 @@ namespace Bolo.Controllers
 
         // GET: api/Meetings
         [HttpGet]
+        
         public async Task<ActionResult<IEnumerable<Meeting>>> GetMeetings()
         {
             return await _context.Meetings.ToListAsync();
@@ -33,6 +34,7 @@ namespace Bolo.Controllers
 
         // GET: api/Meetings/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Meeting>> GetMeeting(string id)
         {
             var meeting = await _context.Meetings.FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());

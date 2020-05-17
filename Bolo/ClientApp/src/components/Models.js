@@ -22,7 +22,7 @@
 
     isAlive() {
         var dt = new Date(this.lastpulse);
-        dt.setSeconds(dt.getSeconds() + 5);
+        dt.setSeconds(dt.getSeconds() + 20);
         
         if (dt < Date.now()) {
             return false;

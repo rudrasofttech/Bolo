@@ -3,6 +3,7 @@ import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, Modal, 
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
 import { RegisterForm } from './RegisterForm';
+import { BsFillPersonLinesFill, BsBoxArrowRight, BsFillPersonPlusFill, BsBackspace, BsHouseFill, BsFillXDiamondFill } from 'react-icons/bs';
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -20,6 +21,7 @@ export class NavMenu extends Component {
             collapsed: true,
             registermodal: this.props.register === undefined ? false : this.props.register,
             showinvite: this.props.onInvite === undefined ? false : true,
+            showleavemeeting: this.props.onLeaveMeeting === undefined ? false: true,
             registerFormBeginWith: this.props.registerFormBeginWith === undefined ? true : this.props.registerFormBeginWith,
             membername: '',
             memberid: '',
@@ -34,6 +36,7 @@ export class NavMenu extends Component {
         this.handleLogin = this.handleLogin.bind(this);
         this.handleOnInvite = this.handleOnInvite.bind(this);
         this.closeRegisterModal = this.closeRegisterModal.bind(this);
+        this.handleLeaveMeeting = this.handleLeaveMeeting.bind(this);
     }
 
     loginHandler() {
@@ -52,11 +55,19 @@ export class NavMenu extends Component {
         }
     }
 
+    handleLeaveMeeting(e) {
+        if (this.props.onLeaveMeeting !== undefined) {
+            this.props.onLeaveMeeting();
+        }
+    }
+
     handleRegister(e) {
+        e.preventDefault();
         this.setState({ registermodal: true, registerFormBeginWith: true });
     }
 
     handleLogin(e) {
+        e.preventDefault();
         this.setState({ registermodal: true, registerFormBeginWith: false });
     }
 
@@ -104,14 +115,16 @@ export class NavMenu extends Component {
             loggedin = false;
         }
         let loggedinlinks = loggedin ? <>
-            <NavItem><NavLink tag={Link} className="text-light" to="/profile">{this.state.membername}</NavLink></NavItem>
-            <NavItem><NavLink tag={Link} className="text-light" to="/logout">Logout</NavLink></NavItem>
+            <NavItem><NavLink tag={Link} className="text-light" to="/profile">{this.state.membername} <BsFillPersonLinesFill /></NavLink></NavItem>
+            <NavItem><NavLink tag={Link} className="text-light" to="/logout">Logout <BsBoxArrowRight /></NavLink></NavItem>
         </>
             : <>
-                <NavItem><a className="text-light nav-link" onClick={this.handleLogin}>Login</a></NavItem>
-                <NavItem><a className="text-light nav-link" onClick={this.handleRegister}>Register</a></NavItem>
+                <NavItem><button type="button" className="btn btn-link text-light nav-link" onClick={this.handleLogin}>Login</button></NavItem>
+                <NavItem><button type="button" className="btn btn-link text-light nav-link" onClick={this.handleRegister}>Register</button></NavItem>
             </>;
-        let showinvite = this.state.showinvite ? <NavItem><a className="text-light nav-link" onClick={this.handleOnInvite}>Invite</a></NavItem> :
+        let showinvite = this.state.showinvite ? <NavItem><button type="button" className="btn btn-link text-light bg-info mr-2 ml-2 nav-link" onClick={this.handleOnInvite}>Invite <BsFillPersonPlusFill /></button></NavItem> :
+            <></>;
+        let showleavemeeting = this.state.showleavemeeting ? <NavItem><button type="button" className="btn btn-link text-light bg-danger mr-2 ml-2 nav-link" onClick={this.handleLeaveMeeting}>Leave Meeting <BsBackspace /></button></NavItem> :
             <></>;
         return (
             <>
@@ -123,10 +136,11 @@ export class NavMenu extends Component {
                             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                                 <ul className="navbar-nav flex-grow">
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-light" to="/">Home</NavLink>
+                                        <NavLink tag={Link} className="text-light" to="/">Home <BsHouseFill /></NavLink>
                                     </NavItem>
-                                    <NavItem><NavLink tag={Link} className="text-light" to="/meetings">Meetings</NavLink></NavItem>
+                                    <NavItem><NavLink tag={Link} className="text-light" to="/meetings">Meetings <BsFillXDiamondFill /></NavLink></NavItem>
                                     {showinvite}
+                                    {showleavemeeting}
                                     {loggedinlinks}
                                 </ul>
                             </Collapse>
