@@ -529,7 +529,7 @@ export class Meeting extends Component {
             }
         }
 
-        this.setState({redirectto : '/'});
+        this.setState({ redirectto: '/' });
     }
 
     detectEdgeorIE() {
@@ -542,11 +542,15 @@ export class Meeting extends Component {
         return (isIE || isEdge);
     }
 
+    //call this function to gain access to camera and microphone
     getUserCam() {
+        //config 
         var constraints = {
             audio: true, video: true
         };
+        //simple feature avialability check
         if (navigator.mediaDevices.getUserMedia) {
+            //try to gain access and then take appropriate action
             navigator.mediaDevices
                 .getUserMedia(constraints)
                 .then(this.addMedia)
@@ -556,28 +560,39 @@ export class Meeting extends Component {
 
     //assign media stream received from getusermedia to my video 
     addMedia(stream) {
-        //peer1.addStream(stream) // <- add streams to peer dynamically
-        
-        
+        //save stream in global variable 
         this.mystream = stream;
+        //update state so that myvideo element can be added to dom and then manipulated
         this.setState({ dummydate: new Date() }, () => {
             var video = document.getElementById('myvideo');
 
             video.srcObject = this.mystream;
+            //only play when meta data is loaded from stream
             video.onloadedmetadata = function (e) {
                 if (video !== undefined) {
+                    //provision to reduce echoe
+                    //mute the self video
                     video.volume = 0;
                     video.muted = 0;
+
+                    //start playing the video
                     video.play();
                 }
-            }; });
+            };
+        });
+
+        //based on initial state enable or disable video and audio
+        //initially video will be disabled or micrphone will broadcast
         if (this.mystream.getVideoTracks().length > 0) {
             this.mystream.getVideoTracks()[0].enabled = this.state.videoplaying;
         }
         if (this.mystream.getAudioTracks().length > 0) {
             this.mystream.getAudioTracks()[0].enabled = this.state.audioplaying;
         }
+        //set the videocapability toggle of self
         this.myself.videoCapable = true;
+
+        //set stream to all existing peers
         for (const [key, value] of this.peers) {
             value.addStream(this.mystream);
         }
@@ -609,6 +624,8 @@ export class Meeting extends Component {
         }
     }
 
+    //scroll to bottom of chat window when a new message is added.
+    //important feature to have.
     scrollToBottom = () => {
         if (this.messagesEnd !== undefined && this.messagesEnd !== null) {
             this.messagesEnd.scrollIntoView({ behavior: "smooth" });
@@ -616,9 +633,12 @@ export class Meeting extends Component {
     }
 
     componentDidUpdate() {
+        //each time compoment updates scroll to bottom
+        //this can be improved by identifying if new messages added
         this.scrollToBottom();
     }
 
+    //modal to show if meeting id is valid, when this is shown user cannot do anything else on the page execpt move to meetings page
     renderValidateModal() {
         return <><NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} /><div className="container-fluid">
             <div className="row">
@@ -706,7 +726,8 @@ export class Meeting extends Component {
     }
 
     renderVideoTags() {
-        let classname = "";
+        //this cssclass will decide who to place user videos
+        let videocontcss = "";
         const items = [];
         let myvclass = "";
 
@@ -717,28 +738,31 @@ export class Meeting extends Component {
                 </li>);
             }
         });
-        if (items.length < 13) {
-            classname = "video" + items.length;
-        }
-        else {
-            classname = "video13";
-        }
-        if (items.length === 0) {
-            myvclass = "full";
-        } else {
-            myvclass = "smalldocked"
-        }
-        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}><BsCameraVideoFill /></button> : <button type="button" className="btn btn-secondary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}><BsCameraVideo /></button>;
+        //beyond thirteen participant will all have same dimensions, 
+        //less than 13 will change dimension based on number of participants
+        videocontcss = (items.length < 13) ? "video" + items.length : "video13"
+
+        //myvideo css class, if no participant show full screen else small docked on bottom left
+        myvclass = (items.length === 0) ? "full" : "smalldocked";
+        
+
+        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}>
+            <BsCameraVideoFill />
+        </button> : <button type="button" className="btn btn-secondary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}><BsCameraVideo /></button>;
         let audiotoggleele = this.state.audioplaying ? <button type="button" className="btn btn-primary audioctrl" onClick={this.handleAudioToggle}><BsMicFill /></button> : <button type="button" className="btn btn-secondary audioctrl" onClick={this.handleAudioToggle}><BsMic /></button>
+
         let myv = (this.myself.videoCapable && this.mystream !== null) ? <div className={myvclass}>
-            <video id="myvideo" muted="muted"  playsInline></video>
+            <video id="myvideo" muted="muted" playsInline></video>
             <span className="ctrl">{videotoggleele}{audiotoggleele}</span>
         </div> : <></>;
-        if (/*items.length > 0 ||*/ this.myself.videoCapable) {
+
+        //videos should only be shown if there are users with video capability and self 
+        //also is video capable
+        if (items.length > 0 && this.myself.videoCapable) {
             return <div className="col-md-9 border-right">
                 <div id="videocont">
                     {myv}
-                    <ul id="videolist" className={classname}>
+                    <ul id="videolist" className={videocontcss}>
                         {items}</ul>
                 </div>
             </div>;
