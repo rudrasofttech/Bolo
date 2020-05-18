@@ -836,54 +836,54 @@ export class Meeting extends Component {
 
 
         let videotoggleele = this.state.videoplaying ? (
-          <button
-            type="button"
-            className="btn btn-primary mr-2 ml-2 videoctrl"
-            onClick={this.handleVideoToggle}
-            onMouseDown={(e) => e.stopPropagation()}
+            <button
+                type="button"
+                className="btn btn-primary mr-2 ml-2 videoctrl"
+                onClick={this.handleVideoToggle}
+                onMouseDown={(e) => e.stopPropagation()}
             >
-            <BsCameraVideoFill />
-          </button>
+                <BsCameraVideoFill />
+            </button>
         ) : (
-          <button
-            type="button"
-            className="btn btn-secondary mr-2 ml-2 videoctrl"
-            onClick={this.handleVideoToggle}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <BsCameraVideo />
-          </button>
-        );
+                <button
+                    type="button"
+                    className="btn btn-secondary mr-2 ml-2 videoctrl"
+                    onClick={this.handleVideoToggle}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    <BsCameraVideo />
+                </button>
+            );
         let audiotoggleele = this.state.audioplaying ? (
-          <button
-            type="button"
-            className="btn btn-primary audioctrl"
-            onClick={this.handleAudioToggle}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <BsMicFill />
-          </button>
+            <button
+                type="button"
+                className="btn btn-primary audioctrl"
+                onClick={this.handleAudioToggle}
+                onMouseDown={(e) => e.stopPropagation()}
+            >
+                <BsMicFill />
+            </button>
         ) : (
-          <button
-            type="button"
-            className="btn btn-secondary audioctrl"
-            onClick={this.handleAudioToggle}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            <BsMic />
-          </button>
-        );
-
-        let myv =
-          this.myself.videoCapable && this.mystream !== null ? (
-            <div className={myvclass} onMouseDown={this.handleDrag}>
-              <video id="myvideo" muted="muted" playsInline></video>
-              <span className="ctrl">
-                {videotoggleele}
-                {audiotoggleele}
-              </span>
-            </div>
-          ) : null;
+                <button
+                    type="button"
+                    className="btn btn-secondary audioctrl"
+                    onClick={this.handleAudioToggle}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    <BsMic />
+                </button>
+            );
+        let myv = this.mystream !== null ? <video id="myvideo" muted="muted" playsInline ></video> : <></>;
+        let myvcontainer =
+            this.myself.videoCapable ? (
+                <div className={myvclass} onMouseDown={this.handleDrag}>
+                    {myv}
+                    <span className="ctrl">
+                        {videotoggleele}
+                        {audiotoggleele}
+                    </span>
+                </div>
+            ) : null;
 
         //videos should only be shown if there are users with video capability and self 
         //also is video capable
@@ -898,28 +898,28 @@ export class Meeting extends Component {
         } else { return null; }
     }
 
-    handleDrag = (event)=> {
-      const { target, clientX, clientY } = event;
-      const { left, top } = target.getBoundingClientRect();
-      const shiftX = clientX - left;
-      const shiftY = clientY - top;
+    handleDrag = (event) => {
+        const { target, clientX, clientY } = event;
+        const { left, top } = target.getBoundingClientRect();
+        const shiftX = clientX - left;
+        const shiftY = clientY - top;
 
-      function moveAt(pageX, pageY) {
-        target.style.left = pageX - shiftX + "px";
-        target.style.top = pageY - shiftY + "px";
-      }
+        function moveAt(pageX, pageY) {
+            target.style.left = pageX - shiftX + "px";
+            target.style.top = pageY - shiftY + "px";
+        }
 
-      function onMouseMove(event) {
-        moveAt(event.pageX, event.pageY);
-      }
+        function onMouseMove(event) {
+            moveAt(event.pageX, event.pageY);
+        }
 
-      function onMouseUp(e) {
-        document.removeEventListener("mousemove", onMouseMove);
-        document.body.removeEventListener("mouseup", onMouseUp);
-      }
+        function onMouseUp(e) {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.body.removeEventListener("mouseup", onMouseUp);
+        }
 
-      document.addEventListener("mousemove", onMouseMove);
-      document.body.addEventListener("mouseup", onMouseUp);
+        document.addEventListener("mousemove", onMouseMove);
+        document.body.addEventListener("mouseup", onMouseUp);
     }
     render() {
         if (this.state.redirectto !== '') {
@@ -949,14 +949,14 @@ export class Meeting extends Component {
                         {vhtml}
                         <div className={chatcolclassname}>
                             <div id="msgcont">
-                            {mhtml}
-                            <div id="inputcont">
-                                <form className="form-inline" onSubmit={this.handleMessageSubmit}>
-                                    <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On" onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
-                                    <button type="submit" className="btn btn-primary"><BsFillChatDotsFill /></button>
-                                </form>
-                            </div>
-                        </div></div>
+                                {mhtml}
+                                <div id="inputcont">
+                                    <form className="form-inline" onSubmit={this.handleMessageSubmit}>
+                                        <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On" onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
+                                        <button type="submit" className="btn btn-primary"><BsFillChatDotsFill /></button>
+                                    </form>
+                                </div>
+                            </div></div>
                     </div>
                     {messagecontent}
                     {invite}

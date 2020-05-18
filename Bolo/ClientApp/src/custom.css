@@ -311,7 +311,7 @@ code {
 
         #msgcont > #msglist > li.notify > span {
             text-transform: capitalize;
-            background-color: #FFF3CD;
+            /*background-color: #FFF3CD;*/
         }
 
         #msgcont > #msglist > li.receive > span {
