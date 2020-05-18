@@ -124,12 +124,12 @@ export class NavMenu extends Component {
             </>;
         let showinvite = this.state.showinvite ? <NavItem><button type="button" className="btn btn-link text-light bg-info mr-2 ml-2 nav-link" onClick={this.handleOnInvite}>Invite <BsFillPersonPlusFill /></button></NavItem> :
             <></>;
-        let showleavemeeting = this.state.showleavemeeting ? <NavItem><button type="button" className="btn btn-link text-light bg-danger mr-2 ml-2 nav-link" onClick={this.handleLeaveMeeting}>Leave Meeting <BsBackspace /></button></NavItem> :
+        let showleavemeeting = this.state.showleavemeeting ? <NavItem><button type="button" className="btn btn-link text-light bg-danger mr-2 ml-2 nav-link" onClick={this.handleLeaveMeeting}>Leave <BsBackspace /></button></NavItem> :
             <></>;
         return (
             <>
                 <header>
-                    <Navbar className={"navbar-expand-sm navbar-toggleable-sm bg-dark ng-white mb-3 " + fixedtop} dark>
+                    <Navbar className={"navbar-expand-sm navbar-toggleable-sm bg-dark ng-white " + fixedtop} dark>
                         <div className="container-fluid">
                             <NavbarBrand tag={Link} to="/">Waarta</NavbarBrand>
                             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />

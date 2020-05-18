@@ -57,7 +57,7 @@ namespace Bolo.Controllers
                 Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta passcode is: {0}", OTP));
             }
 
-            return Ok(OTP);
+            return Ok();
         }
 
         [HttpPost]
