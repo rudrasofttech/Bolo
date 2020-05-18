@@ -92,7 +92,7 @@ code {
         max-width: 165px;
         max-height: 125px;
         position: fixed;
-        bottom: 100px;
+        top: calc(100vh - 250px);
         left: 10px;
         border: 5px solid #AED178;
         display: inline-block;

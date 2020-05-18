@@ -835,16 +835,55 @@ export class Meeting extends Component {
         myvclass = (items.length === 0) ? "full" : "smalldocked";
 
 
-        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-sm btn-primary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}>
+        let videotoggleele = this.state.videoplaying ? (
+          <button
+            type="button"
+            className="btn btn-primary mr-2 ml-2 videoctrl"
+            onClick={this.handleVideoToggle}
+            onMouseDown={(e) => e.stopPropagation()}
+            >
             <BsCameraVideoFill />
-        </button> : <button type="button" className="btn btn-sm btn-secondary mr-2 ml-2 videoctrl" onClick={this.handleVideoToggle}><BsCameraVideo /></button>;
-        let audiotoggleele = this.state.audioplaying ? <button type="button" className="btn btn-sm btn-primary audioctrl" onClick={this.handleAudioToggle}><BsMicFill /></button> : <button type="button" className="btn btn-sm btn-secondary audioctrl" onClick={this.handleAudioToggle}><BsMic /></button>
-        let myv = this.mystream !== null || true ? <video id="myvideo" muted="muted" playsInline></video> : <></>;
-        let myvcontainer = (this.myself.videoCapable) ? <div className={myvclass}>
-            {myv}
-            <span className="ctrl">
-                {videotoggleele}{audiotoggleele}</span>
-        </div> : <></>;
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-secondary mr-2 ml-2 videoctrl"
+            onClick={this.handleVideoToggle}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <BsCameraVideo />
+          </button>
+        );
+        let audiotoggleele = this.state.audioplaying ? (
+          <button
+            type="button"
+            className="btn btn-primary audioctrl"
+            onClick={this.handleAudioToggle}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <BsMicFill />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-secondary audioctrl"
+            onClick={this.handleAudioToggle}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <BsMic />
+          </button>
+        );
+
+        let myv =
+          this.myself.videoCapable && this.mystream !== null ? (
+            <div className={myvclass} onMouseDown={this.handleDrag}>
+              <video id="myvideo" muted="muted" playsInline></video>
+              <span className="ctrl">
+                {videotoggleele}
+                {audiotoggleele}
+              </span>
+            </div>
+          ) : null;
 
         //videos should only be shown if there are users with video capability and self 
         //also is video capable
@@ -856,10 +895,32 @@ export class Meeting extends Component {
                         {items}</ul>
                 </div>
             </div>;
-        } else { return <></>; }
+        } else { return null; }
     }
 
+    handleDrag = (event)=> {
+      const { target, clientX, clientY } = event;
+      const { left, top } = target.getBoundingClientRect();
+      const shiftX = clientX - left;
+      const shiftY = clientY - top;
 
+      function moveAt(pageX, pageY) {
+        target.style.left = pageX - shiftX + "px";
+        target.style.top = pageY - shiftY + "px";
+      }
+
+      function onMouseMove(event) {
+        moveAt(event.pageX, event.pageY);
+      }
+
+      function onMouseUp(e) {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.body.removeEventListener("mouseup", onMouseUp);
+      }
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.body.addEventListener("mouseup", onMouseUp);
+    }
     render() {
         if (this.state.redirectto !== '') {
             return <Redirect to={this.state.redirectto} />;
@@ -918,7 +979,7 @@ export class Meeting extends Component {
 
             </>);
         } else {
-            return (<></>);
+            return null;
         }
     }
 }
