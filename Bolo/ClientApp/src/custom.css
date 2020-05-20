@@ -57,9 +57,9 @@ code {
 }
 
 #inputcont {
-    position: absolute;
+    /*position: absolute;
     bottom: 0px;
-    left: 0px;
+    left: 0px;*/
     background-color: rgba(255, 255, 255, 0.4);
     width:100%;
 }
@@ -86,6 +86,8 @@ code {
         max-height: 99vh;
         position: relative;
         display: inline-block;
+        min-width: 200px;
+        min-height: 150px;
     }
 
     #videocont > div.smalldocked {
@@ -140,6 +142,7 @@ code {
             max-height: 100%;
             max-width: 100%;
             position: relative;
+            background-color:black;
         }
 
             #videocont > #videolist > li > .ctrl {
@@ -252,8 +255,8 @@ code {
     /*max-height:200px;*/
     z-index: 5;
     /*padding: 0px 1rem;*/
-    height: 100%;
-    height: calc(99vh - 60px);
+    /*height: 100%;
+    height: calc(99vh - 60px);*/
     overflow:hidden;
 }
 
@@ -316,7 +319,7 @@ code {
 
         #msgcont > #msglist > li.receive > span {
             background-color: #F2F6F9; /*rgba(142, 191, 67, 0.6)*/
-            ;
+                
             color: black;
             padding: 4px 10px;
         }

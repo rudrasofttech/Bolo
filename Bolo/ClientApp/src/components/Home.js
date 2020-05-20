@@ -33,12 +33,11 @@ export class Home extends Component {
                         <p className="lead font-weight-normal">Organize audio/video meetings online with unlimited number of participants. Text chat enabled, fully secure and based on
                             peer to peer technology.</p>
                         <Link className="btn btn-success" to="/meetings">Get Started</Link>
-                        
-                        
                     </div>
                     <div className="col-md-7 mx-auto my-5">
-                        <h1 className="display-4 mt-5 font-weight-normal">Made for India by Indians</h1>
-                        </div>
+                        <h1 className="display-4 mt-5 font-weight-normal">Made in India</h1>
+                        <h1 className="display-4 mt-5 font-weight-normal">Made for India</h1>
+                    </div>
                 </div>
 
             </>
