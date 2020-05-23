@@ -4,9 +4,10 @@ import { UserInfo, MessageInfo, MessageEnum } from './Models';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { MessageStrip } from './MessageStrip';
 import { NavMenu } from './NavMenu';
-import { Modal, ModalBody, ModalHeader } from 'reactstrap';
+import { Modal, ModalBody, ModalHeader, Alert } from 'reactstrap';
 import { Link, Redirect } from 'react-router-dom';
 import { BsFillChatDotsFill, BsCameraVideoFill, BsMicFill, BsCameraVideo, BsMic } from 'react-icons/bs';
+import { IoMdSend } from 'react-icons/io';
 import swiftly from '../assets/swiftly.mp3';
 import swiftlym4r from '../assets/swiftly.m4r';
 import swiftlyogg from '../assets/swiftly.ogg';
@@ -17,7 +18,7 @@ import joinedmp3 from '../assets/got-it-done.mp3';
 import joinedm4r from '../assets/got-it-done.m4r';
 import joinedogg from '../assets/got-it-done.ogg';
 const Peer = require("simple-peer");
-const videoresbigscr = { width: 640, height: 480 };
+const videoresbigscr = { width: 375, height: 812 };
 export class Meeting extends Component {
 
 
@@ -33,8 +34,7 @@ export class Meeting extends Component {
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             id: this.props.match.params.id === null ? '' : this.props.match.params.id,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            dummydate: new Date(),
-            idvalid: true
+            dummydate: new Date(), idvalid: true, showchatlist: this.detectXtralargeScreen(), showalert: !this.detectXtralargeScreen()
         };
 
         this.validateMeeting(this.state.token);
@@ -66,6 +66,9 @@ export class Meeting extends Component {
         this.closeInviteModal = this.closeInviteModal.bind(this);
         this.handleVideoToggle = this.handleVideoToggle.bind(this);
         this.handleAudioToggle = this.handleAudioToggle.bind(this);
+        this.onAlertDismiss = this.onAlertDismiss.bind(this);
+        this.showChatList = this.showChatList.bind(this);
+        this.hideChatList = this.hideChatList.bind(this);
     }
 
     validateMeeting(t) {
@@ -110,6 +113,7 @@ export class Meeting extends Component {
             //if there is no stream then most probably
             //user denied permission to cam and microphone
             this.getUserCam();
+            this.setState({ videoplaying: true });
         }
     }
     //enable or disable audio track of my stream
@@ -123,6 +127,7 @@ export class Meeting extends Component {
             //if there is no stream then most probably
             //user denied permission to cam and microphone
             this.getUserCam();
+            this.setState({ audioplaying: true });
         }
     }
 
@@ -154,6 +159,20 @@ export class Meeting extends Component {
     handleMessageSubmit(e) {
         e.preventDefault();
         this.sendTextMessage();
+    }
+
+    onAlertDismiss() {
+        this.setState({ showalert: false });
+    }
+
+    showChatList(e) {
+        e.preventDefault();
+        this.setState({ showchatlist: true, showalert: false });
+    }
+
+    hideChatList(e) {
+        e.preventDefault();
+        this.setState({ showchatlist: false });
     }
 
     //check if browser supports access to camera and microphone
@@ -294,7 +313,7 @@ export class Meeting extends Component {
                 let mlist = this.state.messages;
                 mlist.push(msg);
                 this.users.delete(u.connectionID);
-                this.setState({ messages: mlist });
+                this.setState({ messages: mlist, showalert : !this.state.showchatlist });
                 this.playmsgbeep();
             }
         }
@@ -315,7 +334,7 @@ export class Meeting extends Component {
             .invoke('NotifyPresence', this.state.id, this.myself)
             .catch(err => console.error(err));
         if (this.myself.videoCapable) {
-            this.getUserCam();
+            //this.getUserCam();
         }
     }
 
@@ -406,7 +425,7 @@ export class Meeting extends Component {
         let mlist = this.state.messages;
         mlist.push(msg);
 
-        this.setState({ messages: mlist });
+        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         this.playjoinbeep();
         this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u.connectionID)
             .catch(err => { console.log("Unable to say hello to new user."); console.error(err); });
@@ -440,7 +459,7 @@ export class Meeting extends Component {
         mi.timeStamp = timestamp;
         let mlist = this.state.messages;
         mlist.push(mi);
-        this.setState({ messages: mlist });
+        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         this.playmsgbeep();
     }
 
@@ -457,7 +476,7 @@ export class Meeting extends Component {
             this.peers.get(cid).destroy();
         }
         this.peers.delete(cid);
-        this.setState({ messages: mlist });
+        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         this.playleftbeep();
     }
 
@@ -473,7 +492,7 @@ export class Meeting extends Component {
                 msg.type = MessageEnum.Text;
                 var mlist = this.state.messages;
                 mlist.push(msg);
-                this.setState({ messages: mlist });
+                this.setState({ messages: mlist, showalert: !this.state.showchatlist });
                 this.playjoinbeep();
             }
             let eitherchanged = false;
@@ -513,7 +532,7 @@ export class Meeting extends Component {
         let mlist = this.state.messages;
         mlist.push(mi);
 
-        this.setState({ messages: mlist });
+        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         this.playmsgbeep();
         if (this.myself.peerCapable && temp.peerCapable) {
             try {
@@ -574,14 +593,19 @@ export class Meeting extends Component {
         let check = false;
         (function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true; })(navigator.userAgent || navigator.vendor || window.opera);
         //return check;
-        return check || window.matchMedia("(max-width: 768px)").matches;
+        //return check || window.matchMedia("(max-width: 768px)").matches;
+        return false;
+    }
+
+    detectXtralargeScreen() {
+        return window.matchMedia("(min-width: 1200px)").matches;
     }
 
     //call this function to gain access to camera and microphone
     getUserCam() {
         //config 
         var constraints = {
-            audio: true, video: videoresbigscr
+            audio: true, video: true
         };
         //simple feature avialability check
         if (navigator.mediaDevices.getUserMedia) {
@@ -598,7 +622,7 @@ export class Meeting extends Component {
         //save stream in global variable 
         this.mystream = stream;
         //update state so that myvideo element can be added to dom and then manipulated
-        this.setState({ dummydate: new Date(), videoplaying: false, audioplaying: true }, () => {
+        this.setState({ dummydate: new Date()}, () => {
             var video = document.getElementById('myvideo');
 
             video.srcObject = this.mystream;
@@ -648,7 +672,9 @@ export class Meeting extends Component {
                 alert("You have specifically denied access to camera and microphone. Please check browser title or address bar to see the notification.");
             }
         }
-        this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
+        this.setState({ videoplaying: false, audioplaying: false });
+        //dont know if user should be updated or not
+        //this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
     }
 
     /*Sounds and Notifications */
@@ -771,6 +797,7 @@ export class Meeting extends Component {
     }
 
     renderMessageList() {
+        let alert = <></>;
         const items = [];
         for (var k in this.state.messages) {
             let obj = this.state.messages[k];
@@ -792,13 +819,39 @@ export class Meeting extends Component {
                 </li>);
             }
         }
+        if (this.state.showalert && this.state.messages.length > 0) {
+            if (this.state.messages[this.state.messages.length - 1].sender === null) {
+                alert = <Alert className="meetingalert" color="light" isOpen={this.state.showalert} toggle={this.onAlertDismiss}>
+                    {this.state.messages[this.state.messages.length - 1].text}
+                </Alert>;
+            } else {
+                alert = <Alert className="meetingalert" color="light" isOpen={this.state.showalert} toggle={this.onAlertDismiss}>
+                    {this.state.messages[this.state.messages.length - 1].sender.name} sent a message. <a href="#" className="alert-link" onClick={this.showChatList}>See Here</a>
+                </Alert>;
+            }
+        }
+        let cn = "col-xl-3";
+        //if browser is edge or ie let chat window have full width
+        if (this.detectEdgeorIE()) {
+            cn = "col-md-12";
+        }
+        if (this.state.showchatlist) {
+            return (<>
+                {alert}
+                <div id="msgcont" className={cn}>
+                    <p className="h5 text-left pl-1">Chat <button onClick={this.hideChatList} type="button" className="btn btn-sm float-right btn-dark rounded-0">Close</button></p>
+                    <ul id="msglist" className="pt-1">
+                        {items}
+                        <li style={{ float: "left", clear: "both" }}
+                            ref={(el) => { this.messagesEnd = el; }}>
+                        </li>
+                    </ul>
 
-        return (<><ul id="msglist">
-            {items}
-            <li style={{ float: "left", clear: "both" }}
-                ref={(el) => { this.messagesEnd = el; }}>
-            </li>
-        </ul></>);
+                </div>
+            </>);
+        } else {
+            return <>{alert}</>;
+        }
     }
 
     renderVideoTags() {
@@ -807,7 +860,7 @@ export class Meeting extends Component {
         const items = [];
         let myvclass = "";
 
-        //for (var i = 0; i <= 13; i++) {
+        //for (var i = 0; i <= 1; i++) {
         //    items.push(<li className="video" key={i}>
         //        <video id={'video' + i} className="sample" autoPlay={true} playsInline controls ></video>
         //        <span className="ctrl">
@@ -835,52 +888,14 @@ export class Meeting extends Component {
         myvclass = (items.length === 0) ? "full" : "smalldocked";
         const myvstyle = (items.length === 0) ? { left: 0, top: 0 } : {};
 
-        let videotoggleele = this.state.videoplaying ? (
-            <button
-                type="button"
-                className="btn btn-sm btn-primary mr-2 ml-2 videoctrl"
-                onClick={this.handleVideoToggle}
-                onMouseDown={(e) => e.stopPropagation()}
-            >
-                <BsCameraVideoFill />
-            </button>
-        ) : (
-                <button
-                    type="button"
-                    className="btn btn-sm btn-secondary mr-2 ml-2 videoctrl"
-                    onClick={this.handleVideoToggle}
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    <BsCameraVideo />
-                </button>
-            );
-        let audiotoggleele = this.state.audioplaying ? (
-            <button
-                type="button"
-                className="btn btn-sm btn-primary audioctrl"
-                onClick={this.handleAudioToggle}
-                onMouseDown={(e) => e.stopPropagation()}
-            >
-                <BsMicFill />
-            </button>
-        ) : (
-                <button
-                    type="button"
-                    className="btn btn-sm btn-secondary audioctrl"
-                    onClick={this.handleAudioToggle}
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    <BsMic />
-                </button>
-            );
+        
         let myv = this.mystream !== null ? <video id="myvideo" muted="muted" playsInline onMouseDown={this.handleDrag}></video> : <></>;
         let myvcontainer =
             this.myself.videoCapable ? (
                 <div className={myvclass} id="myvideocont" style={myvstyle} >
                     {myv}
                     <span className="ctrl">
-                        {videotoggleele}
-                        {audiotoggleele}
+                        
                     </span>
                 </div>
             ) : null;
@@ -888,7 +903,7 @@ export class Meeting extends Component {
         //videos should only be shown if there are users with video capability and self 
         //also is video capable
         if (/*items.length > 0 &&*/ this.myself.videoCapable) {
-            return <div className="col-md-9 border-right meetingvideocol">
+            return <div className="col-lg-12 col-xl-9 meetingvideocol">
                 <div id="videocont">
                     {myvcontainer}
                     <ul id="videolist" className={videocontcss}>
@@ -898,10 +913,10 @@ export class Meeting extends Component {
         } else { return null; }
     }
 
-    handleDrag = (event) => {
-        const target = document.querySelector("#myvideocont.smalldocked");
-        const {  clientX, clientY } = event;
-        const { left, top } = target !== null ? target.getBoundingClientRect() : { left : 0 , top : 0};
+    handleMsgContDrag = (event) => {
+        const target = document.querySelector("#msgcont");
+        const { clientX, clientY } = event;
+        const { left, top } = target !== null ? target.getBoundingClientRect() : { left: 0, top: 0 };
         const shiftX = clientX - left;
         const shiftY = clientY - top;
         console.log("mousedown");
@@ -924,6 +939,34 @@ export class Meeting extends Component {
         document.addEventListener("mousemove", onMouseMove);
         document.body.addEventListener("mouseup", onMouseUp);
     }
+
+    handleDrag = (event) => {
+        const target = document.querySelector("#myvideocont.smalldocked");
+        const { clientX, clientY } = event;
+        const { left, top } = target !== null ? target.getBoundingClientRect() : { left: 0, top: 0 };
+        const shiftX = clientX - left;
+        const shiftY = clientY - top;
+        console.log("mousedown");
+        function moveAt(pageX, pageY) {
+            if (target !== null) {
+                target.style.left = pageX - shiftX + "px";
+                target.style.top = pageY - shiftY + "px";
+            }
+        }
+
+        function onMouseMove(event) {
+            moveAt(event.pageX, event.pageY);
+        }
+
+        function onMouseUp(e) {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.body.removeEventListener("mouseup", onMouseUp);
+        }
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.body.addEventListener("mouseup", onMouseUp);
+    }
+
     render() {
         if (this.state.redirectto !== '') {
             return <Redirect to={this.state.redirectto} />;
@@ -941,25 +984,56 @@ export class Meeting extends Component {
             let invite = this.state.showinvite ? this.renderInviteModal() : <></>;
             let mhtml = this.renderMessageList();
             let vhtml = this.renderVideoTags();
-            let chatcolclassname = "col-md-3";
-            if (vhtml === null) {
-                chatcolclassname = "col-md-12";
+            
+            let videotoggleele = this.state.videoplaying ? (
+                <button
+                    type="button"
+                    className="btn btn-sm btn-primary mr-1 ml-1 videoctrl"
+                    onClick={this.handleVideoToggle}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    <BsCameraVideoFill />
+                </button>
+            ) : (
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-danger mr-1 ml-1 videoctrl"
+                        onClick={this.handleVideoToggle}
+                        onMouseDown={(e) => e.stopPropagation()}
+                    >
+                        <BsCameraVideo />
+                    </button>
+                );
+            let audiotoggleele = this.state.audioplaying ? (
+                <button
+                    type="button"
+                    className="btn btn-sm btn-primary mr-1 audioctrl"
+                    onClick={this.handleAudioToggle}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    <BsMicFill />
+                </button>
+            ) : (
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-danger mr-1 audioctrl"
+                        onClick={this.handleAudioToggle}
+                        onMouseDown={(e) => e.stopPropagation()}
+                    >
+                        <BsMic />
+                    </button>
+                );
+            //if browser is edge or ie no need to show video or audio control button
+            if (this.detectEdgeorIE()) {
+                audiotoggleele = null;
+                videotoggleele = null;
             }
             return (<>
-                <NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} onLeaveMeeting={this.leaveMeeting} fixed={false} />
+                <NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} onLeaveMeeting={this.leaveMeeting} fixed={true} />
                 <div className="container-fluid">
                     <div className="row">
                         {vhtml}
-                        <div className={chatcolclassname}>
-                            <div id="msgcont">
-                                {mhtml}
-                                <div id="inputcont">
-                                    <form className="form-inline" onSubmit={this.handleMessageSubmit}>
-                                        <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On" onChange={this.handleChange} className="form-control mr-sm-2" id="msginput" />
-                                        <button type="submit" className="btn btn-primary"><BsFillChatDotsFill /></button>
-                                    </form>
-                                </div>
-                            </div></div>
+                        {mhtml}
                     </div>
                     {messagecontent}
                     {invite}
@@ -979,7 +1053,25 @@ export class Meeting extends Component {
                         <source src={userleftogg}></source>
                     </audio>
                 </div>
-
+                <footer className="footer fixed-bottom py-2">
+                    <form className="form-inline" onSubmit={this.handleMessageSubmit}>
+                        <div className="container-fluid">
+                            <div className="row">
+                                <div className="col-sm-9 col-lg-10">
+                                    <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
+                                        onChange={this.handleChange} className="form-control form-control-sm mb-1" id="msginput" />
+                                </div>
+                                <div className="col-sm-3 col-lg-2 text-center">
+                                    <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary" title="Send Message"><IoMdSend /></button>
+                                    {videotoggleele}
+                                    {audiotoggleele}
+                                    <button type="button" className="btn btn-sm btn-primary d-xl-none" title="Show Chat Window" onClick={this.showChatList}><BsFillChatDotsFill /></button>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </footer>
             </>);
         } else {
             return null;
