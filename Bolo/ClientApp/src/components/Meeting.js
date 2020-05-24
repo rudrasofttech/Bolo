@@ -149,7 +149,8 @@ export class Meeting extends Component {
 
     loginHandler() {
         if (localStorage.getItem("token") != null) {
-            this.setState({ loggedin: true });
+            //this.setState({ loggedin: true });
+            this.validate(localStorage.getItem("token"));
         }
     }
 
@@ -982,6 +983,11 @@ export class Meeting extends Component {
     render() {
         if (this.state.redirectto !== '') {
             return <Redirect to={this.state.redirectto} />;
+        } else if (!this.state.loggedin) {
+            return <><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={false} />
+                <div>
+                    <h3>Login to Join Meeting</h3>
+                </div></>;
         }
         else if (!this.state.idvalid) {
             return this.renderValidateModal();
@@ -1000,7 +1006,7 @@ export class Meeting extends Component {
             let videotoggleele = this.state.videoplaying ? (
                 <button
                     type="button"
-                    className="btn btn-sm btn-primary mr-1 ml-1 videoctrl"
+                    className="btn btn-primary mr-1 ml-2 videoctrl"
                     onClick={this.handleVideoToggle}
                     onMouseDown={(e) => e.stopPropagation()}
                 >
@@ -1009,7 +1015,7 @@ export class Meeting extends Component {
             ) : (
                     <button
                         type="button"
-                        className="btn btn-sm btn-danger mr-1 ml-1 videoctrl"
+                        className="btn btn-light mr-1 ml-2 videoctrl"
                         onClick={this.handleVideoToggle}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
@@ -1019,7 +1025,7 @@ export class Meeting extends Component {
             let audiotoggleele = this.state.audioplaying ? (
                 <button
                     type="button"
-                    className="btn btn-sm btn-primary mr-1 audioctrl"
+                    className="btn btn-primary mr-1 audioctrl"
                     onClick={this.handleAudioToggle}
                     onMouseDown={(e) => e.stopPropagation()}
                 >
@@ -1028,7 +1034,7 @@ export class Meeting extends Component {
             ) : (
                     <button
                         type="button"
-                        className="btn btn-sm btn-danger mr-1 audioctrl"
+                        className="btn btn-light mr-1 audioctrl"
                         onClick={this.handleAudioToggle}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
@@ -1070,14 +1076,14 @@ export class Meeting extends Component {
                         <div className="container-fluid">
                             <div className="row">
                                 <div className="col-sm-9 col-lg-10">
-                                    <input type="text" name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
+                                    <input type="text" placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
                                         onChange={this.handleChange} className="form-control form-control-sm mb-1" id="msginput" />
                                 </div>
                                 <div className="col-sm-3 col-lg-2 text-center">
-                                    <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary" title="Send Message"><IoMdSend /></button>
+                                    <button type="submit" id="msgsubmit" className="btn btn-primary" title="Send Message"><IoMdSend /></button>
                                     {videotoggleele}
                                     {audiotoggleele}
-                                    <button type="button" className="btn btn-sm btn-primary d-xl-none" title="Show Chat Window" onClick={this.showChatList}><BsFillChatDotsFill /></button>
+                                    <button type="button" className="btn btn-primary d-xl-none" title="Show Chat Window" onClick={this.showChatList}><BsFillChatDotsFill /></button>
                                     
                                 </div>
                             </div>

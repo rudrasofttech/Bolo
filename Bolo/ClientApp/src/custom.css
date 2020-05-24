@@ -440,13 +440,17 @@ code {
 }
 
     @media only screen and (max-width: 768px) {
+        .meetingalert{
+            top:auto;
+            bottom:65px;
+        }
         #msgcont {
             width: 100%;
             height: auto;
             background-color: rgba(255, 255, 255, 0.9);
             right: auto;
             left: 0;
-            top: 70px;
+            bottom: 70px;
             position: fixed;
             -webkit-box-shadow: none;
             -moz-box-shadow: none;

@@ -69,7 +69,6 @@ export class Meetings extends Component {
                     <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
                     important discussions, future planning or interviews. Salient Features-</p>
                     <ul>
-                        <li>Unlimited participants</li>
                         <li>Text, Audio and Video Chat Enabled</li>
                         <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
                         <li>Peer to Peer technlogy</li>
@@ -97,7 +96,6 @@ export class Meetings extends Component {
                         <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
                     important discussions, future planning or interviews. Salient Features-</p>
                         <ul>
-                            <li>Unlimited participants</li>
                             <li>Text, Audio and Video Chat Enabled</li>
                             <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
                             <li>Peer to Peer technlogy</li>

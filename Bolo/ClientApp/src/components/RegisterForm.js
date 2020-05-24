@@ -1,9 +1,10 @@
 ﻿import React, { Component } from 'react';
-import { MessageStrip } from './MessageStrip';
 import { Redirect } from 'react-router-dom';
-import { Progress } from 'reactstrap';
+import { Progress, Alert } from 'reactstrap';
 
 export class RegisterForm extends Component {
+
+    
     constructor(props) {
         super(props);
         let loggedin = true;
@@ -19,7 +20,6 @@ export class RegisterForm extends Component {
         this.handleRegisterClickHere = this.handleRegisterClickHere.bind(this);
         this.handleLoginClickHere = this.handleLoginClickHere.bind(this);
     }
-
 
     handleChange(e) {
         switch (e.target.name) {
@@ -97,7 +97,7 @@ export class RegisterForm extends Component {
 
                 }
                 else {
-                    this.setState({ bsstyle: '', message: '', loading: false });
+                    this.setState({ bsstyle: 'warning', message: 'Email is not registered with us.', loading: false });
                 }
             });
     }
@@ -118,7 +118,7 @@ export class RegisterForm extends Component {
                     this.setState({
                         loading: false,
                         bsstyle: 'success',
-                        message: 'Your registration is complete, an OTP has been sent to your email address. Please verify and login.',
+                        message: 'Your registration is complete, an OTP has been sent to your email address. Please verify and login. Please do check spam folder of your email.',
                         loggedin: false,
                         loginemail: this.state.registeremail,
                         showregisterform: false
@@ -188,9 +188,9 @@ export class RegisterForm extends Component {
         if (this.state.redirectto !== "") {
             return <Redirect to={this.state.redirectto} />;
         }
-        let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">
-            <MessageStrip message={this.state.message} bsstyle={this.state.bsstyle} />
-        </div> : <></>;
+        let messagecontent = this.state.message !== "" ? <Alert color={this.state.bsstyle} className="mt-1">
+            {this.state.message}
+      </Alert> : <></>;
 
         let logincontents = this.state.GenerateOTPButton ?
             this.renderOTPForm()
@@ -210,10 +210,13 @@ export class RegisterForm extends Component {
                             <input type="email" className="form-control" required name="registeremail" value={this.state.registeremail} onChange={this.handleChange} placeholder="me@bolo.com" />
                             <small className="form-text text-muted">We'll never share your email with anyone else.</small>
                         </div>
+                        
                         <button className="btn btn-primary" type="submit">Submit</button>
                     </form>
-                    <p className="text-center mt-5">
+                    
+                    <p className="text-center mt-2">
                         Already a Member! <button type="button" onClick={this.handleLoginClickHere} className="btn btn-success btn-sm">Login Here</button> </p>
+                    {messagecontent}
                     {loading}
                 </div>
             </div> :
@@ -221,15 +224,15 @@ export class RegisterForm extends Component {
                 <h3>Login</h3>
                 <div >
                     {logincontents}
-                    <p className="text-center mt-5">
+                    <p className="text-center mt-2">
                         Register for FREE <button type="button" onClick={this.handleRegisterClickHere} className="btn btn-success btn-sm">Click Here</button></p>
+                    {messagecontent}
                     {loading}
                 </div>
             </div>;
         return (
             <>
                 {formcontents}
-                {messagecontent}
             </>
         );
     }
