@@ -84,7 +84,19 @@ export class Meeting extends Component {
                 .then(response => {
                     if (response.status === 200) {
                         response.json().then(data => {
-                            this.setState({ idvalid: true, loading: false }, () => { });
+                            let mlist = this.state.messages;
+                            if (data.purpose !== null && data.purpose !== '') {
+                                var mi = new MessageInfo();
+                                mi.sender = null;
+                                mi.text = data.purpose;
+                                mi.type = MessageEnum.Text;
+                                mi.timeStamp = new Date();
+                                mlist.push(mi);
+                            }
+                            this.setState({ idvalid: true, loading: false, messages : mlist });
+                            if (data.name !== null && data.name !== '') {
+                                document.title = data.name;
+                            }
                         });
                     } else {
                         this.setState({ idvalid: false });

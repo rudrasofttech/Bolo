@@ -85,6 +85,8 @@ namespace Bolo.Controllers
                 {
                     member.Status = RecordStatus.Active;
                     await _context.SaveChangesAsync();
+                    //this data is changed just to avoid sending confidetial information to client.
+                    //it is not saved in db
                     member.ID = 0;
                     member.OTP = "";
                     member.OTPExpiry = DateTime.UtcNow.AddDays(-365);
@@ -102,7 +104,7 @@ namespace Bolo.Controllers
                 new Claim(ClaimTypes.Name, m.PublicID.ToString()),
         //new Claim(JwtRegisteredClaimNames.Sub, m.PublicID.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, m.Email),
-        new Claim(JwtRegisteredClaimNames.Exp, DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd")),
+        new Claim(JwtRegisteredClaimNames.Exp, Helper.Utility.OTPExpiry.ToString("yyyy-MM-dd")),
         new Claim(JwtRegisteredClaimNames.Jti, m.PublicID.ToString())
     };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],

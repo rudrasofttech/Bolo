@@ -40,6 +40,21 @@ namespace Bolo.Models
         public Member Owner { get; set; }
         public DateTime CreateDate { get; set; }
         public string PublicID { get; set; }
+
+        public RecordStatus Status { get; set; }
+        [MaxLength(50)]
+        public String Name { get; set; }
+        [MaxLength(250)]
+        public string Purpose { get; set; }
+        
+    }
+
+    public class CreateMeetingDTO
+    {
+        [MaxLength(50)]
+        public String Name { get; set; }
+        [MaxLength(250)]
+        public string Purpose { get; set; }
     }
 
     public class MemberDTO

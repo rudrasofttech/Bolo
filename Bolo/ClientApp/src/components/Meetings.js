@@ -11,10 +11,11 @@ export class Meetings extends Component {
         if (localStorage.getItem("token") == null) {
             loggedin = false;
         }
-        this.state = { loading: false, loggedin: loggedin, bsstyle: '', message: '', meetingid: '' };
+        this.state = { loading: false, loggedin: loggedin, bsstyle: '', message: '', meetingid: '', name:'', purpose:'' };
 
         this.loginHandler = this.loginHandler.bind(this);
         this.handleStartMeeting = this.handleStartMeeting.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     loginHandler() {
@@ -24,10 +25,13 @@ export class Meetings extends Component {
     }
 
     handleStartMeeting(e) {
+        e.preventDefault();
         fetch('api/Meetings', {
             method: 'post',
+            body: JSON.stringify({ Name: this.state.name, Purpose: this.state.purpose }),
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem("token")
+                'Authorization': 'Bearer ' + localStorage.getItem("token"),
+                'Content-Type': 'application/json'
             }
         })
             .then(response => {
@@ -43,6 +47,19 @@ export class Meetings extends Component {
             });
     }
 
+    handleChange(e) {
+        switch (e.target.name) {
+            case 'name':
+                this.setState({ name: e.target.value });
+                break;
+            case 'purpose':
+                this.setState({ purpose: e.target.value });
+                break;
+            default:
+                break;
+        }
+    }
+
     render() {
         let loading = this.state.loading ? <div> <Progress animated color="info" value="100" className="loaderheight" /> </div> : <></>;
         if (!this.state.loggedin) {
@@ -53,15 +70,17 @@ export class Meetings extends Component {
                     important discussions, future planning or interviews. Salient Features-</p>
                     <ul>
                         <li>Unlimited participants</li>
-                        <li>Audio, Video and Text Chat Enabled</li>
+                        <li>Text, Audio and Video Chat Enabled</li>
                         <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
                         <li>Peer to Peer technlogy</li>
                         <li>Secured with SSL</li>
                         <li>Free to use</li>
                     </ul>
+
                     <p className="lead">
                         <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
                     </p>
+
                 </main></>);
         } else if (this.state.meetingid !== "") {
             return <Redirect to={'/m/' + this.state.meetingid} />;
@@ -79,13 +98,28 @@ export class Meetings extends Component {
                     important discussions, future planning or interviews. Salient Features-</p>
                         <ul>
                             <li>Unlimited participants</li>
-                            <li>Audio, Video and Text Chat Enabled</li>
+                            <li>Text, Audio and Video Chat Enabled</li>
                             <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
                             <li>Peer to Peer technlogy</li>
                             <li>Secured with SSL</li>
                             <li>Free to use</li>
                         </ul>
-                        <h1><button className="btn btn-primary my-2 startmeeting" onClick={this.handleStartMeeting}>Start a Meeting</button></h1>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <form onSubmit={this.handleStartMeeting}>
+                                    <div className="form-group">
+                                        <label for="meetingnametxt">Name</label>
+                                        <input type="text" className="form-control" id="meetingnametxt" placeholder="Friendly name of your meeting" name="name" maxLength="50" onChange={this.handleChange} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label for="purposetxt">Purpose</label>
+                                        <input type="text" className="form-control" id="purposetxt" placeholder="What is the agenda of the meeting" maxLength="250" name="purpose" onChange={this.handleChange} />
+                                    </div>
+                                    <h1><button type="submit" className="btn btn-primary my-2 startmeeting" >Start a Meeting</button></h1>
+                                </form>
+                                </div>
+                        </div>
+                        
                     </main>
                     {loading}
                     {messagecontent}

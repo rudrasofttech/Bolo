@@ -13,7 +13,7 @@ namespace Bolo.Helper
         {
             get
             {
-                return DateTime.UtcNow.AddMinutes(60);
+                return DateTime.UtcNow.AddDays(60);
             }
         }
 

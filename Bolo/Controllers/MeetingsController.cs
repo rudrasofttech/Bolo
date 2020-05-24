@@ -83,10 +83,13 @@ namespace Bolo.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult> PostMeeting()
+        public async Task<ActionResult> PostMeeting(CreateMeetingDTO m)
         {
             Meeting meeting = new Meeting();
             meeting.CreateDate = DateTime.UtcNow;
+            meeting.Status = RecordStatus.Active;
+            meeting.Name = m.Name;
+            meeting.Purpose = m.Purpose;
             meeting.Owner = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
             _context.Meetings.Add(meeting);
             await _context.SaveChangesAsync();
