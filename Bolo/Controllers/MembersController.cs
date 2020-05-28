@@ -14,6 +14,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Bolo.Controllers
 {
@@ -57,7 +58,7 @@ namespace Bolo.Controllers
                 Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta passcode is: {0}", OTP));
             }
 
-            return Ok();
+            return Ok(OTP);
         }
 
         [HttpPost]
@@ -136,9 +137,24 @@ namespace Bolo.Controllers
             }
             else
             {
-                MemberDTO result = new MemberDTO() { ID = member.PublicID, Name = member.Name };
+                MemberDTO result = new MemberDTO() { ID = member.PublicID, Name = member.Name, ChannelName = member.Channelname };
                 return result;
             }
+        }
+
+        [HttpGet("{name}")]
+        [AllowAnonymous]
+        [Route("Channel")]
+        public async Task<ActionResult<MemberDTO>> GetMemberByChannel(string name)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.Channelname == name);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+            MemberDTO result = new MemberDTO() { ID = member.PublicID, Name = member.Name, ChannelName = member.Channelname };
+            return result;
         }
 
         // GET: api/Members/5
@@ -153,6 +169,31 @@ namespace Bolo.Controllers
             }
 
             return member;
+        }
+
+        [HttpGet]
+        [Route("SaveChannel")]
+        public async Task<IActionResult> SaveChannelName([FromQuery]string channel)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                int count = await _context.Members.CountAsync(t => t.Channelname == channel);
+                if(count > 0) {
+                    return BadRequest(new { message = "Channel name is taken." });
+                }
+                else
+                {
+                    member.Channelname = channel;
+                    member.ModifyDate = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
+                return Ok();
+            }
         }
 
         // PUT: api/Members/5

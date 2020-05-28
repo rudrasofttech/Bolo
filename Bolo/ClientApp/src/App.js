@@ -6,6 +6,8 @@ import { Meetings } from './components/Meetings';
 import { Logout } from './components/Logout';
 import { Meeting } from './components/Meeting';
 import './custom.css'
+import { Broadcast } from './components/Broadcast';
+import { Live } from './components/Live';
 
 export default class App extends Component {
     static displayName = App.name;
@@ -15,8 +17,10 @@ export default class App extends Component {
             <Layout>
                 <Route exact path='/' component={Home} />
                 <Route path='/meetings' component={Meetings} />
+                <Route path='/broadcast' component={Broadcast} />
                 <Route path='/logout' component={Logout} />
                 <Route path='/m/:id' component={Meeting} />
+                <Route path='/live/:channel' component={Live} />
             </Layout>
         );
     }

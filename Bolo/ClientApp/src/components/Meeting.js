@@ -19,8 +19,8 @@ import joinedm4r from '../assets/got-it-done.m4r';
 import joinedogg from '../assets/got-it-done.ogg';
 const Peer = require("simple-peer");
 const videoresbigscr = { width: 375, height: 812 };
-export class Meeting extends Component {
 
+export class Meeting extends Component {
 
     constructor(props) {
         super(props);
@@ -69,6 +69,7 @@ export class Meeting extends Component {
         this.onAlertDismiss = this.onAlertDismiss.bind(this);
         this.showChatList = this.showChatList.bind(this);
         this.hideChatList = this.hideChatList.bind(this);
+        this.onPeerStream = this.onPeerStream.bind(this);
     }
 
     validateMeeting(t) {
@@ -93,7 +94,7 @@ export class Meeting extends Component {
                                 mi.timeStamp = new Date();
                                 mlist.push(mi);
                             }
-                            this.setState({ idvalid: true, loading: false, messages : mlist });
+                            this.setState({ idvalid: true, loading: false, messages: mlist });
                             if (data.name !== null && data.name !== '') {
                                 document.title = data.name;
                             }
@@ -104,7 +105,6 @@ export class Meeting extends Component {
                 });
         }
     }
-
 
     closeInviteModal() {
         this.setState({ showinvite: false });
@@ -326,7 +326,7 @@ export class Meeting extends Component {
                 let mlist = this.state.messages;
                 mlist.push(msg);
                 this.users.delete(u.connectionID);
-                this.setState({ messages: mlist, showalert : !this.state.showchatlist });
+                this.setState({ messages: mlist, showalert: !this.state.showchatlist });
                 this.playmsgbeep();
             }
         }
@@ -372,7 +372,7 @@ export class Meeting extends Component {
         p.on("error", this.onPeerError);
         p.on("signal", this.onPeerSignal);
         p.on("connect", this.onPeerConnect);
-        p.on("stream", this.onPeerStream);
+        p.on("stream", stream => { this.onPeerStream(stream, p.cid); });
         p.on('data', data => {
             // got a data channel message
             console.log('got a message from peer1: ' + data)
@@ -399,21 +399,16 @@ export class Meeting extends Component {
         console.error(err);
     }
 
-    onPeerStream(stream) {
+    onPeerStream(stream, connectionid) {
         console.log("received a stream"); console.log(stream);
-        // got remote video stream, now let's show it in a video tag
-        var video = document.getElementById('video' + this.cid);
-        console.log(video);
-        if ('srcObject' in video) {
-            video.srcObject = stream
-        } else {
-            video.src = window.URL.createObjectURL(stream) // for older browsers
+        if (this.users.get(connectionid) !== undefined) {
+            this.users.get(connectionid).stream = stream;
+            //update state so that UI changes
+            this.setState({ dummydate: Date.now() });
         }
-
-        video.play();
+        
     }
     //simple peer events end here
-
 
     //call this function when hub says new user has arrived
     //u is user info sent by the server
@@ -635,7 +630,7 @@ export class Meeting extends Component {
         //save stream in global variable 
         this.mystream = stream;
         //update state so that myvideo element can be added to dom and then manipulated
-        this.setState({ dummydate: new Date()}, () => {
+        this.setState({ dummydate: new Date() }, () => {
             var video = document.getElementById('myvideo');
 
             video.srcObject = this.mystream;
@@ -690,30 +685,39 @@ export class Meeting extends Component {
         //this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
     }
 
-    /*Sounds and Notifications */
+/*Sounds and Notifications */
+    //play sound when receive a new message
     playmsgbeep() {
         let cb = document.getElementById("chatbeep");
         if (cb != null) {
             cb.currentTime = 0;
-            cb.volume = 0.3;
+            cb.volume = 0.15;
+            //we have to unmute the audio since it  is muted at time of loading
+            cb.muted = false;
             cb.play();
         }
     }
 
+    //play sound when participant joins a meeting
     playjoinbeep() {
         let jb = document.getElementById("joinedbeep");
         if (jb != null) {
             jb.currentTime = 0;
-            jb.volume = 0.3;
+            jb.volume = 0.15;
+            //we have to unmute the audio since it  is muted at time of loading
+            jb.muted = false;
             jb.play();
         }
     }
 
+    //play sound when participant leaves meeting
     playleftbeep() {
         let ulb = document.getElementById("userleftbeep");
         if (ulb != null) {
             ulb.currentTime = 0;
-            ulb.volume = 0.3;
+            ulb.volume = 0.15;
+            //we have to unmute the audio since it  is muted at time of loading
+            ulb.muted = false;
             ulb.play();
         }
     }
@@ -749,6 +753,19 @@ export class Meeting extends Component {
         //each time compoment updates scroll to bottom
         //this can be improved by identifying if new messages added
         this.scrollToBottom();
+
+        this.users.forEach(function (value, key) {
+            let v = document.getElementById('video' + value.connectionID);
+            if (v !== null) {
+                if ('srcObject' in v) {
+                    v.srcObject = value.stream
+                } else {
+                    v.src = window.URL.createObjectURL(value.stream) // for older browsers
+                }
+
+                v.play();
+            }
+        });
     }
 
     //modal to show if meeting id is valid, when this is shown user cannot do anything else on the page execpt move to meetings page
@@ -809,7 +826,7 @@ export class Meeting extends Component {
             </div>);
     }
 
-    renderMessageList() {
+    renderMessageList(hasVideos) {
         let alert = <></>;
         const items = [];
         for (var k in this.state.messages) {
@@ -843,10 +860,12 @@ export class Meeting extends Component {
                 </Alert>;
             }
         }
-        let cn = "col-xl-3";
+        let cn = "col-md-12";
         //if browser is edge or ie let chat window have full width
         if (this.detectEdgeorIE()) {
             cn = "col-md-12";
+        } else if (hasVideos) {
+            cn = "col-xl-3";
         }
         if (this.state.showchatlist) {
             return (<>
@@ -873,20 +892,10 @@ export class Meeting extends Component {
         const items = [];
         let myvclass = "";
 
-        //for (var i = 0; i <= 1; i++) {
-        //    items.push(<li className="video" key={i}>
-        //        <video id={'video' + i} className="sample" autoPlay={true} playsInline controls ></video>
-        //        <span className="ctrl">
-        //            <span className="name">{"video" + i}</span>
-
-        //        </span>
-        //    </li>);
-        //}
-
         this.users.forEach(function (value, key) {
-            if (value.videoCapable && value.peerCapable) {
+            if (value.stream !== null) {
                 items.push(<li className="video" key={key}>
-                    <video id={'video' + value.connectionID} autoPlay={true} playsInline></video>
+                    <video id={'video' + value.connectionID} autoPlay={true} playsInline muted="muted"></video>
                     <span className="ctrl">
                         <span className="name">{value.name}</span>
                     </span>
@@ -899,23 +908,18 @@ export class Meeting extends Component {
 
         //myvideo css class, if no participant show full screen else small docked on bottom left
         myvclass = (items.length === 0) ? "full" : "smalldocked";
+        
         const myvstyle = (items.length === 0) ? { left: 0, top: 0 } : {};
 
-        
-        let myv = this.mystream !== null ? <video id="myvideo" muted="muted" playsInline onMouseDown={this.handleDrag}></video> : <></>;
         let myvcontainer =
-            this.myself.videoCapable ? (
+            this.mystream !== null  ? (
                 <div className={myvclass} id="myvideocont" style={myvstyle} >
-                    {myv}
-                    <span className="ctrl">
-                        
-                    </span>
+                    <video id="myvideo" muted="muted" playsInline onMouseDown={this.handleDrag}></video>
                 </div>
             ) : null;
 
-        //videos should only be shown if there are users with video capability and self 
-        //also is video capable
-        if (/*items.length > 0 &&*/ this.myself.videoCapable) {
+        //Video should only be show if participants have a stream or myself have a stream
+        if (items.length > 0  || this.mystream !== null) {
             return <div className="col-lg-12 col-xl-9 meetingvideocol">
                 <div id="videocont">
                     {myvcontainer}
@@ -924,33 +928,6 @@ export class Meeting extends Component {
                 </div>
             </div>;
         } else { return null; }
-    }
-
-    handleMsgContDrag = (event) => {
-        const target = document.querySelector("#msgcont");
-        const { clientX, clientY } = event;
-        const { left, top } = target !== null ? target.getBoundingClientRect() : { left: 0, top: 0 };
-        const shiftX = clientX - left;
-        const shiftY = clientY - top;
-        console.log("mousedown");
-        function moveAt(pageX, pageY) {
-            if (target !== null) {
-                target.style.left = pageX - shiftX + "px";
-                target.style.top = pageY - shiftY + "px";
-            }
-        }
-
-        function onMouseMove(event) {
-            moveAt(event.pageX, event.pageY);
-        }
-
-        function onMouseUp(e) {
-            document.removeEventListener("mousemove", onMouseMove);
-            document.body.removeEventListener("mouseup", onMouseUp);
-        }
-
-        document.addEventListener("mousemove", onMouseMove);
-        document.body.addEventListener("mouseup", onMouseUp);
     }
 
     handleDrag = (event) => {
@@ -996,13 +973,13 @@ export class Meeting extends Component {
             return this.renderNameForm();
         }
         else if (this.state.joinmeeting) {
-            let messagecontent = this.myselfssage !== "" ? <div className="fixedBottom ">
-                <MessageStrip message={this.myselfssage} bsstyle={this.state.bsstyle} />
+            let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">
+                <MessageStrip message={this.state.message} bsstyle={this.state.bsstyle} />
             </div> : <></>;
             let invite = this.state.showinvite ? this.renderInviteModal() : <></>;
-            let mhtml = this.renderMessageList();
-            let vhtml = this.renderVideoTags();
             
+            let vhtml = this.renderVideoTags();
+            let mhtml = this.renderMessageList(vhtml == null ? false : true);
             let videotoggleele = this.state.videoplaying ? (
                 <button
                     type="button"
@@ -1055,17 +1032,17 @@ export class Meeting extends Component {
                     </div>
                     {messagecontent}
                     {invite}
-                    <audio id="chatbeep">
+                    <audio id="chatbeep" muted="muted">
                         <source src={swiftly}></source>
                         <source src={swiftlym4r}></source>
                         <source src={swiftlyogg}></source>
                     </audio>
-                    <audio id="joinedbeep">
+                    <audio id="joinedbeep" muted="muted">
                         <source src={joinedmp3}></source>
                         <source src={joinedm4r}></source>
                         <source src={joinedogg}></source>
                     </audio>
-                    <audio id="userleftbeep">
+                    <audio id="userleftbeep" muted="muted">
                         <source src={userleftmp3}></source>
                         <source src={userleftm4r}></source>
                         <source src={userleftogg}></source>
@@ -1084,7 +1061,7 @@ export class Meeting extends Component {
                                     {videotoggleele}
                                     {audiotoggleele}
                                     <button type="button" className="btn btn-primary d-xl-none" title="Show Chat Window" onClick={this.showChatList}><BsFillChatDotsFill /></button>
-                                    
+
                                 </div>
                             </div>
                         </div>

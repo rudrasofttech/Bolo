@@ -100,7 +100,7 @@ code {
         left: 10px;
         background: white;
         display: inline-block;
-        z-index: 5;
+        z-index: 11;
     }
 
     #videocont > div.full > video#myvideo {
@@ -294,6 +294,8 @@ code {
             padding: 4px;
             margin: 4px 0px;
             border-radius: 5px;
+            max-width: 100%;
+            overflow-wrap: break-word;
         }
 
             #msgcont > #msglist > li > span > small.name {
@@ -386,6 +388,58 @@ code {
 .meetingalert .close{
     padding:0.2rem;
 }
+#broadcastmsgcont {
+    border-left: 1px solid #DEE2E6;
+    height: calc(100vh - 105px);
+    overflow: auto;
+}
+#broadcastmsgcont ul{
+    margin:0px;
+    padding:0px;
+    list-style:none;
+}
+    #broadcastmsgcont ul > li {
+        border-bottom: 1px solid #DEE2E6;
+    }
+    #broadcastmsgcont ul > li.notify {
+        text-align: center;
+        padding: 5px 0px;
+        font-style: italic;
+        font-size: 0.8em;
+    }
+
+
+
+    #broadcastmsgcont ul > li.sent {
+        text-align: left;
+        font-style: normal;
+        font-size: 1em;
+    }
+
+
+    #broadcastmsgcont ul > li > span {
+        background-color: rgba(255, 255, 255, 0.5);
+        display: block;
+        padding: 4px;
+        margin: 4px 0px;
+        border-radius: 5px;
+    }
+
+        #broadcastmsgcont ul > li > span > small.name {
+            text-transform: capitalize;
+            display:block;
+            color:#555555;
+        }
+
+        #broadcastmsgcont ul > li > span > small.time {
+            display: block;
+            font-size: 0.7em;
+            color: #D2D2D2;
+        }
+
+        
+
+
 /*Large screens*/
 @media only screen and (min-width: 1200px) {
     #msgcont {
@@ -410,9 +464,20 @@ code {
     #videocont > div.full > video#myvideo {
         height: calc(100vh - 130px);
     }
+
+    #broadcastvideo, #livevideo {
+        max-width: 100%;
+        max-height: calc(100vh - 60px);
+    }
+    #broadcastmsgcont {
+    }
 }
 
 @media only screen and (max-width: 1024px) {
+    #broadcastmsgcont {
+        max-height: calc(100vh - 60px);
+        overflow:auto;
+    }
     #msgcont {
         width: 25%;
         height: auto;
@@ -436,6 +501,11 @@ code {
     }
     #videocont > div.full > video#myvideo {
         height: calc(100vh - 130px);
+    }
+
+    #broadcastvideo, #livevideo {
+        max-width: 100%;
+        max-height: calc(100vh - 60px);
     }
 }
 
@@ -514,5 +584,11 @@ code {
         }
         #videocont > div.smalldocked{
             height:65px;
+        }
+
+        #broadcastvideo, #livevideo {
+            max-width: 100%;
+            max-height: calc(100vh - 60px);
+            max-height: calc(100% - 60px);
         }
     }

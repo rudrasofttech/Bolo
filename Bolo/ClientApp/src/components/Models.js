@@ -10,6 +10,7 @@
     videoCapable;
     //has rtcpeer capability
     peerCapable;
+    stream;
 
     constructor() {
         this.memberID = "00000000-0000-0000-0000-000000000000";
@@ -18,6 +19,7 @@
         this.lastpulse = Date.now();
         this.videoCapable = true;
         this.peerCapable = true;
+        this.stream = null;
     }
 
     isAlive() {
