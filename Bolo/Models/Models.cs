@@ -32,6 +32,9 @@ namespace Bolo.Models
         public RecordStatus Status { get; set; }
 
         public Guid PublicID { get; set; }
+        [MaxLength(100)]
+        [RegularExpression("^[a-zA-Z][a-zA-Z0-9]*$", ErrorMessage = "Channel should only have english alphabets and numbers.")]
+        public string Channelname { get; set; }
     }
 
     public class Meeting
@@ -61,6 +64,15 @@ namespace Bolo.Models
     {
         public Guid ID { get; set; }
         public string Name { get; set; }
+
+        public string ChannelName { get; set; }
+
+        public MemberDTO()
+        {
+            ID = Guid.Empty;
+            Name = string.Empty;
+            ChannelName = string.Empty;
+        }
     }
 
     public class RegisterDTO

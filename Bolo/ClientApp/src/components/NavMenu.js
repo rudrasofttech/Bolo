@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import './NavMenu.css';
 import { RegisterForm } from './RegisterForm';
 import { BsFillPersonLinesFill, BsBoxArrowRight, BsFillPersonPlusFill, BsBackspace, BsHouseFill, BsFillXDiamondFill } from 'react-icons/bs';
+import { RiLiveLine } from 'react-icons/ri';
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -138,6 +139,7 @@ export class NavMenu extends Component {
                                     <NavItem>
                                         <NavLink tag={Link} className="text-light" to="/">Home <BsHouseFill /></NavLink>
                                     </NavItem>
+                                    <NavItem><NavLink tag={Link} className="text-light" to="/broadcast">Broadcast <RiLiveLine /></NavLink></NavItem>
                                     <NavItem><NavLink tag={Link} className="text-light" to="/meetings">Meetings <BsFillXDiamondFill /></NavLink></NavItem>
                                     {showinvite}
                                     {showleavemeeting}

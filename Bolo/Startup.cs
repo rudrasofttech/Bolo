@@ -55,7 +55,7 @@ namespace Bolo
                             // If the request is for our hub...
                             var path = context.HttpContext.Request.Path;
                             if (!string.IsNullOrEmpty(accessToken) &&
-                                (path.StartsWithSegments("/meetinghub")))
+                                (path.StartsWithSegments("/meetinghub") || path.StartsWithSegments("/broadcasthub")))
                             {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
@@ -97,6 +97,7 @@ namespace Bolo
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<MeetingHub>("/meetinghub");
+                endpoints.MapHub<BroadcastHub>("/broadcasthub");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");

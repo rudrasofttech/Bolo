@@ -1,4 +1,5 @@
 ﻿using Bolo.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bolo.Hubs
 {
+    //[Authorize]
     public class MeetingHub : Hub
     {
         /// <summary>
