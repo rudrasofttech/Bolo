@@ -268,10 +268,10 @@ export class Live extends Component {
     }
 
     render() {
-        /*if (!this.state.loggedin) {
+        if (!this.state.loggedin) {
             return <><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} /></>;
         }
-        else*/ {
+        else {
             return <><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={true} />
                 <div className="container-fluid mt-5 mb-5">
                     <div className="row">
@@ -287,11 +287,9 @@ export class Live extends Component {
                     <form className="form-inline" onSubmit={this.handleMessageSubmit}>
                         <div className="container-fluid">
                             <div className="row">
-                                <div className="col-sm-11 col-lg-11">
+                                <div className="col-12">
                                     <input type="text" placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
-                                        onChange={this.handleChange} className="form-control form-control-sm mb-1" id="msginput" />
-                                </div>
-                                <div className="col-sm-1 col-lg-1 text-center">
+                                        onChange={this.handleChange} className="form-control form-control-sm mr-2 livetextinput" />
                                     <button type="submit" id="msgsubmit" className="btn btn-primary" title="Send Message"><IoMdSend /></button>
                                 </div>
                             </div>

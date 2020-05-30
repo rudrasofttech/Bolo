@@ -30,7 +30,7 @@ export class Broadcast extends Component {
         }
         this.state = {
             dummydate: new Date(), loading: false, loggedin: loggedin, channelname: '', myself: null, connectionId: '', bsstyle: '', message: '',
-            videoplaying: false, audioplaying: false, messages: [],
+            videoplaying: false, audioplaying: false, messages: [], showinvite: false,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             textinput: ''
         };
@@ -52,6 +52,8 @@ export class Broadcast extends Component {
         this.collectDeadUsers = this.collectDeadUsers.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.receiveTextMessage = this.receiveTextMessage.bind(this);
+        this.inviteHandler = this.inviteHandler.bind(this);
+        this.closeInviteModal = this.closeInviteModal.bind(this);
     }
 
     componentDidMount() {
@@ -94,6 +96,14 @@ export class Broadcast extends Component {
                     });
                 }
             });
+    }
+
+    inviteHandler() {
+        this.setState({ showinvite: true });
+    }
+
+    closeInviteModal() {
+        this.setState({ showinvite: false });
     }
 
     receiveTextMessage(sender, text, timestamp) {
@@ -416,6 +426,23 @@ export class Broadcast extends Component {
         }
     }
 
+    renderInviteModal() {
+        return <div className="container">
+            <div className="row">
+                <div className="col-md-12">
+                    <Modal isOpen={true} centered>
+                        <ModalHeader toggle={this.closeInviteModal}>Invite Viewers</ModalHeader>
+                        <ModalBody>
+                            <p className="mt-10">You can share this URL with anyone who wants to watch your broadcast. There is limit of {MaxPeers} viewers at a time.</p>
+                            <input type="text" value={'https://waarta.com/live/' + this.state.myself.channelName.toLowerCase()} autoFocus="on" className="form-control" />
+                            <p className="mb-10"></p>
+                        </ModalBody>
+                    </Modal>
+                </div>
+            </div>
+        </div>;
+    }
+
     renderChannelFormModal() {
         let loading = this.state.loading ? <div> <Progress animated color="info" value="100" className="loaderheight" /> </div> : <></>;
         let messagecontent = this.state.message !== "" ? <div className="mt-1"><MessageStrip message={this.state.message} bsstyle={this.state.bsstyle} /></div> : <></>;
@@ -529,7 +556,8 @@ export class Broadcast extends Component {
             return this.renderChannelFormModal();
         }
         else {
-            return <><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={true} />
+            let invite = this.state.showinvite ? this.renderInviteModal() : <></>;
+            return <><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} onInvite={this.inviteHandler} register={!this.state.loggedin} fixed={true} />
                 <div className="container-fluid mt-5 mb-5">
                     <div className="row">
                         <div className="col-12 col-lg-9 text-center">
@@ -550,6 +578,7 @@ export class Broadcast extends Component {
                         </div>
                     </div>
                 </footer>
+                {invite}
             </>;
         }
     }

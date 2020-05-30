@@ -137,7 +137,7 @@ namespace Bolo.Controllers
             }
             else
             {
-                MemberDTO result = new MemberDTO() { ID = member.PublicID, Name = member.Name, ChannelName = member.Channelname };
+                MemberDTO result = new MemberDTO() { ID = member.PublicID, Name = member.Name, ChannelName = string.IsNullOrEmpty(member.Channelname) ? "" : member.Channelname.ToLower() };
                 return result;
             }
         }

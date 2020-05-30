@@ -8,6 +8,7 @@ import { Meeting } from './components/Meeting';
 import './custom.css'
 import { Broadcast } from './components/Broadcast';
 import { Live } from './components/Live';
+import { Xtream } from './components/Xtream';
 
 export default class App extends Component {
     static displayName = App.name;
@@ -17,6 +18,7 @@ export default class App extends Component {
             <Layout>
                 <Route exact path='/' component={Home} />
                 <Route path='/meetings' component={Meetings} />
+                <Route path='/stream' component={Xtream} />
                 <Route path='/broadcast' component={Broadcast} />
                 <Route path='/logout' component={Logout} />
                 <Route path='/m/:id' component={Meeting} />

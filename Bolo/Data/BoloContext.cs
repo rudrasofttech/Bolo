@@ -17,6 +17,7 @@ namespace Bolo.Data
         public DbSet<Meeting> Meetings { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("dbo");
             modelBuilder.Entity<Member>().ToTable("Member");
             modelBuilder.Entity<Meeting>().ToTable("Meeting");
         }

@@ -406,7 +406,7 @@ export class Meeting extends Component {
             //update state so that UI changes
             this.setState({ dummydate: Date.now() });
         }
-        
+
     }
     //simple peer events end here
 
@@ -612,8 +612,19 @@ export class Meeting extends Component {
     //call this function to gain access to camera and microphone
     getUserCam() {
         //config 
+        var videoconst = true;
+        if (window.matchMedia("(max-width: 414px) and (orientation: portrait)").matches) {
+            videoconst = {
+                width: {
+                    min: 375
+                },
+                height: {
+                    min: 740
+                }
+            };
+        }
         var constraints = {
-            audio: true, video: true
+            audio: true, video: videoconst
         };
         //simple feature avialability check
         if (navigator.mediaDevices.getUserMedia) {
@@ -678,6 +689,8 @@ export class Meeting extends Component {
         if (err.name !== undefined && err.name !== null) {
             if (err.name.toLowerCase() === "notallowederror") {
                 alert("You have specifically denied access to camera and microphone. Please check browser title or address bar to see the notification.");
+            } else {
+                alert("Unable to access camera.");
             }
         }
         this.setState({ videoplaying: false, audioplaying: false });
@@ -685,7 +698,7 @@ export class Meeting extends Component {
         //this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
     }
 
-/*Sounds and Notifications */
+    /*Sounds and Notifications */
     //play sound when receive a new message
     playmsgbeep() {
         let cb = document.getElementById("chatbeep");
@@ -908,18 +921,18 @@ export class Meeting extends Component {
 
         //myvideo css class, if no participant show full screen else small docked on bottom left
         myvclass = (items.length === 0) ? "full" : "smalldocked";
-        
+
         const myvstyle = (items.length === 0) ? { left: 0, top: 0 } : {};
 
         let myvcontainer =
-            this.mystream !== null  ? (
+            this.mystream !== null ? (
                 <div className={myvclass} id="myvideocont" style={myvstyle} >
                     <video id="myvideo" muted="muted" playsInline onMouseDown={this.handleDrag}></video>
                 </div>
             ) : null;
 
         //Video should only be show if participants have a stream or myself have a stream
-        if (items.length > 0  || this.mystream !== null) {
+        if (items.length > 0 || this.mystream !== null) {
             return <div className="col-lg-12 col-xl-9 meetingvideocol">
                 <div id="videocont">
                     {myvcontainer}
@@ -977,7 +990,7 @@ export class Meeting extends Component {
                 <MessageStrip message={this.state.message} bsstyle={this.state.bsstyle} />
             </div> : <></>;
             let invite = this.state.showinvite ? this.renderInviteModal() : <></>;
-            
+
             let vhtml = this.renderVideoTags();
             let mhtml = this.renderMessageList(vhtml == null ? false : true);
             let videotoggleele = this.state.videoplaying ? (
@@ -1052,11 +1065,11 @@ export class Meeting extends Component {
                     <form className="form-inline" onSubmit={this.handleMessageSubmit}>
                         <div className="container-fluid">
                             <div className="row">
-                                <div className="col-sm-9 col-lg-10">
+                                <div className="col-sm-8 col-lg-10">
                                     <input type="text" placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
                                         onChange={this.handleChange} className="form-control form-control-sm mb-1" id="msginput" />
                                 </div>
-                                <div className="col-sm-3 col-lg-2 text-center">
+                                <div className="col-sm-4 col-lg-2 text-center">
                                     <button type="submit" id="msgsubmit" className="btn btn-primary" title="Send Message"><IoMdSend /></button>
                                     {videotoggleele}
                                     {audiotoggleele}

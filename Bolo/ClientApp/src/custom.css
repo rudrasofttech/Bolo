@@ -70,6 +70,11 @@ code {
     width: 100%;
 }
 
+.livetextinput{
+    width:calc(100% - 50px) !important;
+    display:inline-block;
+}
+
 #videocont {
     /*width: 100%;
     z-index: 0;

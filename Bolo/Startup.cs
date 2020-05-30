@@ -96,6 +96,7 @@ namespace Bolo
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<StreamHub>("/streamhub");
                 endpoints.MapHub<MeetingHub>("/meetinghub");
                 endpoints.MapHub<BroadcastHub>("/broadcasthub");
                 endpoints.MapControllerRoute(
