@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, Modal, ModalBody } from 'reactstrap';
+import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, Modal, ModalBody, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, ModalHeader, ModalFooter } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
 import { RegisterForm } from './RegisterForm';
 import { BsFillPersonLinesFill, BsBoxArrowRight, BsFillPersonPlusFill, BsBackspace, BsHouseFill, BsFillXDiamondFill } from 'react-icons/bs';
-import { RiLiveLine } from 'react-icons/ri';
+import { FaUserCircle } from 'react-icons/fa';
+import { ManageProfile } from './ManageProfile';
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -22,11 +23,13 @@ export class NavMenu extends Component {
             collapsed: true,
             registermodal: this.props.register === undefined ? false : this.props.register,
             showinvite: this.props.onInvite === undefined ? false : true,
-            showleavemeeting: this.props.onLeaveMeeting === undefined ? false: true,
+            showleavemeeting: this.props.onLeaveMeeting === undefined ? false : true,
+            onProfileChange: this.props.onProfileChange === undefined ? null : this.props.onProfileChange,
             registerFormBeginWith: this.props.registerFormBeginWith === undefined ? true : this.props.registerFormBeginWith,
             membername: '',
             memberid: '',
-            fixed: this.props.fixed === undefined ? true : this.props.fixed
+            fixed: this.props.fixed === undefined ? true : this.props.fixed,
+            showprofilemodal: false
         };
 
         if (token !== null) {
@@ -38,6 +41,8 @@ export class NavMenu extends Component {
         this.handleOnInvite = this.handleOnInvite.bind(this);
         this.closeRegisterModal = this.closeRegisterModal.bind(this);
         this.handleLeaveMeeting = this.handleLeaveMeeting.bind(this);
+        this.toggleProfileModal = this.toggleProfileModal.bind(this);
+        this.handleProfileChange = this.handleProfileChange.bind(this);
     }
 
     loginHandler() {
@@ -48,6 +53,16 @@ export class NavMenu extends Component {
                 this.props.onLogin();
             }
         }
+    }
+
+    handleProfileChange() {
+        if (this.state.onProfileChange !== null) {
+            this.state.onProfileChange();
+        }
+        if (localStorage.getItem("token") !== null) {
+            this.fetchData(localStorage.getItem("token"));
+        }
+
     }
 
     handleOnInvite(e) {
@@ -72,6 +87,10 @@ export class NavMenu extends Component {
         this.setState({ registermodal: true, registerFormBeginWith: false });
     }
 
+    toggleProfileModal() {
+        this.setState({ showprofilemodal: !this.state.showprofilemodal });
+    }
+
     closeRegisterModal() {
         this.setState({ registermodal: false });
     }
@@ -89,7 +108,7 @@ export class NavMenu extends Component {
                     this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false });
                 } else if (response.status === 200) {
                     response.json().then(data => {
-                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, membername: data.name, memberid: data.id });
+                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, membername: data.name, memberid: data.id, memberpic : data.pic });
                     });
                 }
             });
@@ -115,9 +134,13 @@ export class NavMenu extends Component {
         if (token === null) {
             loggedin = false;
         }
+        let profilepic = <FaUserCircle />;
+        if (loggedin && this.state.memberpic !== "") {
+            profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded" />
+        }
         let loggedinlinks = loggedin ? <>
-            <NavItem><NavLink tag={Link} className="text-light" to="/profile">{this.state.membername} <BsFillPersonLinesFill /></NavLink></NavItem>
-            <NavItem><NavLink tag={Link} className="text-light" to="/logout">Logout <BsBoxArrowRight /></NavLink></NavItem>
+            <NavItem><button type="button" className="btn btn-link text-light nav-link membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button></NavItem>
+            <NavItem><NavLink tag={Link} className="text-light" to="/logout">Logout</NavLink></NavItem>
         </>
             : <>
                 <NavItem><button type="button" className="btn btn-link text-light nav-link" onClick={this.handleLogin}>Login</button></NavItem>
@@ -137,10 +160,9 @@ export class NavMenu extends Component {
                             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                                 <ul className="navbar-nav flex-grow">
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-light" to="/">Home <BsHouseFill /></NavLink>
+                                        <NavLink tag={Link} className="text-light" to="/">Home</NavLink>
                                     </NavItem>
-                                    <NavItem><NavLink tag={Link} className="text-light" to="/broadcast">Broadcast <RiLiveLine /></NavLink></NavItem>
-                                    <NavItem><NavLink tag={Link} className="text-light" to="/meetings">Meetings <BsFillXDiamondFill /></NavLink></NavItem>
+                                    <NavItem><NavLink tag={Link} className="text-light" to="/meetings">Meetings</NavLink></NavItem>
                                     {showinvite}
                                     {showleavemeeting}
                                     {loggedinlinks}
@@ -155,6 +177,12 @@ export class NavMenu extends Component {
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <RegisterForm onLogin={this.loginHandler} beginWithRegister={this.state.registerFormBeginWith} />
+                    </ModalBody>
+                </Modal>
+                <Modal isOpen={this.state.showprofilemodal} className="modal-lg" toggle={this.toggleProfileModal}>
+                    <ModalHeader toggle={this.toggleProfileModal}>Profile</ModalHeader>
+                    <ModalBody>
+                        <ManageProfile onProfileChange={this.handleProfileChange} />
                     </ModalBody>
                 </Modal>
             </>

@@ -196,7 +196,7 @@ export class Meeting extends Component {
 
     //see if user is logged in
     validate(t) {
-        this.setState({ loggedin: true });
+        this.setState({ loading: true });
         fetch('api/Members/Validate', {
             method: 'get',
             headers: {
@@ -223,7 +223,8 @@ export class Meeting extends Component {
                         this.myself.name = data.name;
                         this.myself.videoCapable = this.hasVideoAudioCapability() && !this.detectEdgeorIE() && !this.detectMobileorTablet();
                         this.myself.peerCapable = Peer.WEBRTC_SUPPORT && !this.detectEdgeorIE() && !this.detectMobileorTablet();
-                        this.setState({ loggedin: true, loading: false, joinmeeting: true }, () => { this.startHub(); });
+                        this.myself.pic = data.pic;
+                        this.setState({ loggedin: true, loading: false, joinmeeting: false }, () => { this.startHub(); });
                     });
                 }
             });
@@ -355,7 +356,10 @@ export class Meeting extends Component {
     //this will indicate that you are still alive in 
     //meeting
     sendPulse() {
-        this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.error('sendPulse ' + err));
+        console.log("SendPulse Hubconnection State:" + this.hubConnection.connectionState);
+        if (this.hubConnection.connectionState === 1) {
+            this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.error('sendPulse ' + err));
+        }
     }
 
     createPeer(initiater, u) {
@@ -404,7 +408,21 @@ export class Meeting extends Component {
         if (this.users.get(connectionid) !== undefined) {
             this.users.get(connectionid).stream = stream;
             //update state so that UI changes
-            this.setState({ dummydate: Date.now() });
+            this.setState({ dummydate: Date.now() }, () => {
+                this.users.forEach(function (value, key) {
+                    let v = document.getElementById('video' + value.connectionID);
+                    if (v !== null) {
+                        if ('srcObject' in v) {
+                            v.srcObject = value.stream
+                        } else {
+                            v.src = window.URL.createObjectURL(value.stream) // for older browsers
+                        }
+                        v.muted = false;
+                        v.volume = 0.8;
+                        v.play();
+                    }
+                }); });
+
         }
 
     }
@@ -418,6 +436,7 @@ export class Meeting extends Component {
         temp.connectionID = u.connectionID;
         temp.memberID = u.memberID;
         temp.name = u.name;
+        temp.pic = u.pic;
         temp.videoCapable = u.videoCapable;
         temp.peerCapable = u.peerCapable;
         this.users.set(u.connectionID, temp);
@@ -527,6 +546,7 @@ export class Meeting extends Component {
         temp.connectionID = u.connectionID;
         temp.memberID = u.memberID;
         temp.name = u.name;
+        temp.pic = u.pic;
         this.users.set(u.connectionID, temp);
 
         var mi = new MessageInfo();
@@ -767,18 +787,7 @@ export class Meeting extends Component {
         //this can be improved by identifying if new messages added
         this.scrollToBottom();
 
-        this.users.forEach(function (value, key) {
-            let v = document.getElementById('video' + value.connectionID);
-            if (v !== null) {
-                if ('srcObject' in v) {
-                    v.srcObject = value.stream
-                } else {
-                    v.src = window.URL.createObjectURL(value.stream) // for older browsers
-                }
-
-                v.play();
-            }
-        });
+        
     }
 
     //modal to show if meeting id is valid, when this is shown user cannot do anything else on the page execpt move to meetings page
@@ -853,9 +862,10 @@ export class Meeting extends Component {
                     </span>
                 </li>);
             } else {
+                let userpic = obj.sender.pic !== "" ? <img src={obj.sender.pic} width="20" height="20" className="rounded img-fluid" /> : <></>;
                 items.push(<li className="receive" key={k}>
                     <span>
-                        <small className="name">{obj.sender.name} says</small>
+                        <small className="name">{userpic} {obj.sender.name} says</small>
                         {obj.text}
                         <small className="time"><Moment fromNow ago>{obj.timeStamp}</Moment></small>
                     </span>
@@ -868,8 +878,9 @@ export class Meeting extends Component {
                     {this.state.messages[this.state.messages.length - 1].text}
                 </Alert>;
             } else {
+                let userpic = this.state.messages[this.state.messages.length - 1].sender.pic !== "" ? <img src={this.state.messages[this.state.messages.length - 1].sender.pic} width="20" height="20" className="rounded img-fluid" /> : <></>;
                 alert = <Alert className="meetingalert" color="light" isOpen={this.state.showalert} toggle={this.onAlertDismiss}>
-                    {this.state.messages[this.state.messages.length - 1].sender.name} sent a message. <a href="#" className="alert-link" onClick={this.showChatList}>See Here</a>
+                    {userpic} {this.state.messages[this.state.messages.length - 1].sender.name} sent a message. <a href="#" className="alert-link" onClick={this.showChatList}>See Here</a>
                 </Alert>;
             }
         }
@@ -907,10 +918,11 @@ export class Meeting extends Component {
 
         this.users.forEach(function (value, key) {
             if (value.stream !== null) {
+                let userpic = value.pic !== "" ? <img src={value.pic} width="20" height="20" className="rounded ml-1 mb-1 mt-1" /> : <></>;
                 items.push(<li className="video" key={key}>
-                    <video id={'video' + value.connectionID} autoPlay={true} playsInline muted="muted"></video>
+                    <video id={'video' + value.connectionID} autoPlay={true} playsInline muted="muted" volume="0"></video>
                     <span className="ctrl">
-                        <span className="name">{value.name}</span>
+                        {userpic} <span className="name p-1">{value.name}</span>
                     </span>
                 </li>);
             }
@@ -927,7 +939,7 @@ export class Meeting extends Component {
         let myvcontainer =
             this.mystream !== null ? (
                 <div className={myvclass} id="myvideocont" style={myvstyle} >
-                    <video id="myvideo" muted="muted" playsInline onMouseDown={this.handleDrag}></video>
+                    <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag}></video>
                 </div>
             ) : null;
 
@@ -1045,17 +1057,17 @@ export class Meeting extends Component {
                     </div>
                     {messagecontent}
                     {invite}
-                    <audio id="chatbeep" muted="muted">
+                    <audio id="chatbeep" muted="muted" volume="0">
                         <source src={swiftly}></source>
                         <source src={swiftlym4r}></source>
                         <source src={swiftlyogg}></source>
                     </audio>
-                    <audio id="joinedbeep" muted="muted">
+                    <audio id="joinedbeep" muted="muted" volume="0">
                         <source src={joinedmp3}></source>
                         <source src={joinedm4r}></source>
                         <source src={joinedogg}></source>
                     </audio>
-                    <audio id="userleftbeep" muted="muted">
+                    <audio id="userleftbeep" muted="muted" volume="0">
                         <source src={userleftmp3}></source>
                         <source src={userleftm4r}></source>
                         <source src={userleftogg}></source>

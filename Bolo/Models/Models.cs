@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -6,12 +7,36 @@ using System.Threading.Tasks;
 
 namespace Bolo.Models
 {
+    /// <summary>
+    /// This enum indicates what is member current logged in status on the site
+    /// </summary>
+    public enum ActivityStatus
+    {
+        Online = 1,
+        Meeting = 2,
+        Broadcast = 3,
+        Chat = 4,
+        Offline = 5
+    }
     public enum RecordStatus
     {
         Active = 1,
         Unverified = 2,
         Inactive = 3,
         Deleted = 4
+    }
+
+    public enum MemberProfileVisibility
+    {
+        Private = 1,
+        Public = 2
+    }
+
+    public enum Gender
+    {
+        Male = 1,
+        Female = 2,
+        Other = 3
     }
     public class Member
     {
@@ -35,6 +60,26 @@ namespace Bolo.Models
         [MaxLength(100)]
         [RegularExpression("^[a-zA-Z][a-zA-Z0-9]*$", ErrorMessage = "Channel should only have english alphabets and numbers.")]
         public string Channelname { get; set; }
+
+        /// <summary>
+        /// This will tell if the member is online, in a meeting or broadcasting or offline
+        /// </summary>
+        public ActivityStatus Activity { get; set; }
+        /// <summary>
+        /// Member when online should always send a pulse at set interval
+        /// </summary>
+        public DateTime LastPulse { get; set; }
+
+        public MemberProfileVisibility Visibility { get; set; }
+
+        public Gender Gender { get; set; }
+
+        [MaxLength(1000)]
+        public string Bio { get; set; }
+
+        public string Pic { get; set; }
+
+        public int BirthYear { get; set; }
     }
 
     public class Meeting
@@ -49,7 +94,7 @@ namespace Bolo.Models
         public String Name { get; set; }
         [MaxLength(250)]
         public string Purpose { get; set; }
-        
+
     }
 
     public class CreateMeetingDTO
@@ -66,12 +111,20 @@ namespace Bolo.Models
         public string Name { get; set; }
 
         public string ChannelName { get; set; }
+        public string Bio { get; set; }
+        public int BirthYear { get; set; }
+        public Gender Gender { get; set; }
+        public ActivityStatus Activity { get; set; }
+        public MemberProfileVisibility Visibility { get; set; }
 
+        public string Pic { get; set; }
         public MemberDTO()
         {
             ID = Guid.Empty;
             Name = string.Empty;
             ChannelName = string.Empty;
+            Bio = "";
+            Pic = "";
         }
     }
 

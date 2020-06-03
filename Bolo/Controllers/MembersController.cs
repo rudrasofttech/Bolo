@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.IO;
 
 namespace Bolo.Controllers
 {
@@ -37,12 +38,12 @@ namespace Bolo.Controllers
         public async Task<ActionResult> GetOTP([FromQuery]string id)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => (t.Email.ToLower() == id.ToLower() || t.Phone == id));
-            if(member == null)
+            if (member == null)
             {
                 return NotFound();
             }
             string OTP = EncryptionHelper.Decrypt(member.OTP);
-            if(DateTime.Compare(member.OTPExpiry, DateTime.UtcNow) < 0)
+            if (DateTime.Compare(member.OTPExpiry, DateTime.UtcNow) < 0)
             {
                 OTP = Helper.Utility.GenerateOTP();
                 member.OTP = EncryptionHelper.Encrypt(OTP);
@@ -72,13 +73,13 @@ namespace Bolo.Controllers
             }
 
             var member = await _context.Members.FirstOrDefaultAsync(t => (t.Email.ToLower() == model.ID.ToLower() || t.Phone == model.ID) && t.OTP == EncryptionHelper.Encrypt(model.Passcode));
-            if(member == null)
+            if (member == null)
             {
                 return NotFound(new { error = "Invalid Credentials" });
             }
             else
             {
-                if(member.OTPExpiry < DateTime.UtcNow)
+                if (member.OTPExpiry < DateTime.UtcNow)
                 {
                     return NotFound(new { error = "OTP Expired" });
                 }
@@ -137,8 +138,39 @@ namespace Bolo.Controllers
             }
             else
             {
-                MemberDTO result = new MemberDTO() { ID = member.PublicID, Name = member.Name, ChannelName = string.IsNullOrEmpty(member.Channelname) ? "" : member.Channelname.ToLower() };
+                MemberDTO result = new MemberDTO()
+                {
+                    ID = member.PublicID,
+                    Name = member.Name,
+                    ChannelName = string.IsNullOrEmpty(member.Channelname) ? "" : member.Channelname.ToLower(),
+                    Bio = string.IsNullOrEmpty(member.Bio) ? "" : member.Bio,
+                    BirthYear = member.BirthYear,
+                    Gender = member.Gender,
+                    Activity = member.Activity,
+                    Visibility = member.Visibility,
+                    Pic = string.IsNullOrEmpty(member.Pic) ? "" : member.Pic
+                };
                 return result;
+            }
+        }
+
+        // GET: api/Members
+        [HttpGet]
+        [Route("profilepic")]
+        public async Task<ActionResult<string>> GetProfilePic(Guid id)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == id);
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else if (member.Pic != null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return member.Pic;
             }
         }
 
@@ -153,7 +185,18 @@ namespace Bolo.Controllers
             {
                 return NotFound();
             }
-            MemberDTO result = new MemberDTO() { ID = member.PublicID, Name = member.Name, ChannelName = member.Channelname };
+            MemberDTO result = new MemberDTO()
+            {
+                ID = member.PublicID,
+                Name = member.Name,
+                ChannelName = member.Channelname,
+                Bio = member.Bio,
+                BirthYear = member.BirthYear,
+                Gender = member.Gender,
+                Activity = member.Activity,
+                Visibility = member.Visibility,
+                Pic = string.IsNullOrEmpty(member.Pic) ?  "" : member.Pic
+            };
             return result;
         }
 
@@ -183,7 +226,8 @@ namespace Bolo.Controllers
             else
             {
                 int count = await _context.Members.CountAsync(t => t.Channelname == channel);
-                if(count > 0) {
+                if (count > 0)
+                {
                     return BadRequest(new { message = "Channel name is taken." });
                 }
                 else
@@ -193,6 +237,128 @@ namespace Bolo.Controllers
                     await _context.SaveChangesAsync();
                 }
                 return Ok();
+            }
+        }
+
+        [HttpPost]
+        [Route("savebio")]
+        public async Task<IActionResult> SaveBio([FromForm]string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.Bio = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savename")]
+        public async Task<IActionResult> SaveName([FromQuery]string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.Name = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savebirthyear")]
+        public async Task<IActionResult> SaveBirthYear([FromQuery]int d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.BirthYear = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savevisibility")]
+        public async Task<IActionResult> SaveProfileVisibility([FromQuery]MemberProfileVisibility d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.Visibility = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savegender")]
+        public async Task<IActionResult> SaveGender([FromQuery]Gender d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.Gender = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpPost]
+        [Route("savepic")]
+        public async Task<IActionResult> SavePic([FromForm]string pic)
+        {
+
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                try
+                {
+                    
+                    member.Pic = pic;
+                    member.ModifyDate = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                catch
+                {
+                    throw;
+                }
             }
         }
 

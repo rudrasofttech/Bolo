@@ -20,6 +20,10 @@ namespace Bolo.Models
             get;set;
         }
 
+        public string Pic
+        {
+            get; set;
+        }
         public bool VideoCapable { get; set; }
         public bool PeerCapable { get; set; }
     }

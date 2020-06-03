@@ -1,5 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
+
+var jsscompress = require("js-string-compression");
+
 export class Xtream extends Component {
     constructor(props) {
         super(props);
@@ -15,6 +18,7 @@ export class Xtream extends Component {
         this.receiveImage = this.receiveImage.bind(this);
         this.capture = this.capture.bind(this);
         this.snapAndSend = this.snapAndSend.bind(this);
+        this.handleLoadedMetaData = this.handleLoadedMetaData.bind(this);
     }
     componentDidMount() {
         this.startHub();
@@ -25,11 +29,26 @@ export class Xtream extends Component {
         }
     }
 
+    componentDidUpdate() {
+
+    }
+    handleLoadedMetaData(e) {
+        if (document.getElementById("mycanvas") != null) {
+            //var canvasstyle = { width: e.target.videoWidth, height: e.target.videoHeight };
+            document.getElementById("mycanvas").width = e.target.videoWidth;
+            document.getElementById("mycanvas").height = e.target.videoHeight;
+        }
+        if (document.getElementById("myvideo") != null) {
+            //var canvasstyle = { width: e.target.videoWidth, height: e.target.videoHeight };
+            document.getElementById("myvideo").width = e.target.videoWidth;
+            document.getElementById("myvideo").height = e.target.videoHeight;
+        }
+    }
     //call this function to gain access to camera and microphone
     getUserCam() {
         //config 
         var constraints = {
-            audio: true, video: true
+            audio: true, video: {width : 320, height : 240}
         };
         //simple feature avialability check
         if (navigator.mediaDevices.getUserMedia) {
@@ -67,7 +86,7 @@ export class Xtream extends Component {
         });
 
         if (this.streaminterval === null) {
-            this.streaminterval = setInterval(this.snapAndSend, 200);
+            this.streaminterval = setInterval(this.snapAndSend, 150);
         }
     }
 
@@ -77,8 +96,19 @@ export class Xtream extends Component {
         var ctx = canvas.getContext('2d');
 
         // Draws current image from the video element into the canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        this.hubConnection.invoke("SendImage", canvas.toDataURL("image/jpeg"));
+        ctx.drawImage(video, 0, 0, video.width, video.height);
+        var rawimg = canvas.toDataURL("image/jpeg");
+        document.getElementById("myimg").setAttribute("src", rawimg);
+        ////var hm = new jsscompress.Hauffman();
+        
+        ////var compressed = hm.compress(rawimg);
+
+        ////console.log("Raw length: " + canvas.toDataURL("image/jpeg").length);
+        ////console.log("Compressed length: " + compressed.length);
+        
+        if (this.hubConnection.connectionState == 1) {
+            this.hubConnection.invoke("SendImage", rawimg);
+        }
     }
 
     //handle error when trying to get usermedia. This may be raised when user does not allow access to camera and microphone
@@ -122,6 +152,7 @@ export class Xtream extends Component {
         }
         this.setState({ dummydate: Date.now() }, () => {
             if (document.getElementById(id + "vid") !== undefined) {
+                
                 document.getElementById(id + "vid").setAttribute("src", img);
             }
         });
@@ -133,7 +164,7 @@ export class Xtream extends Component {
         this.users.forEach(function (value, key) {
             if (value.stream !== null) {
                 items.push(<div className="col" key={key}>
-                    <img id={key + "vid"} />
+                    <img id={key + "vid"} width="100%" height="auto"/>
                 </div>);
             }
         });
@@ -142,8 +173,9 @@ export class Xtream extends Component {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col">
-                            <video id="myvideo" muted="muted" playsInline/>
-                            <canvas id="mycanvas" style={hide} />
+                            <video id="myvideo" muted="muted"  style={hide} playsInline onLoadedMetadata={this.handleLoadedMetaData}/>
+                            <canvas id="mycanvas"   style={hide} />
+                            <img id='myimg' />
                             <button type="button" onClick={this.capture}>Start Cam Stream</button> 
                         </div>
                         {items}

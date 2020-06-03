@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20200602030248_MemberColumns")]
+    partial class MemberColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,16 +111,16 @@ namespace Bolo.Migrations
                         .HasColumnType("nvarchar(15)")
                         .HasMaxLength(15);
 
-                    b.Property<string>("Pic")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("Pic")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<Guid>("PublicID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("SearchStatus")
                         .HasColumnType("int");
 
-                    b.Property<int>("Visibility")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("ID");

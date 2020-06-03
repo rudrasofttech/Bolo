@@ -1,4 +1,5 @@
-﻿using Bolo.Models;
+﻿using Bolo.Data;
+using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -12,6 +13,12 @@ namespace Bolo.Hubs
     //[Authorize]
     public class MeetingHub : Hub
     {
+        private readonly BoloContext _context;
+
+        public MeetingHub(BoloContext context)
+        {
+            _context = context;
+        }
         /// <summary>
         /// First server function that any client should invoke to join the meeting
         /// </summary>
@@ -30,6 +37,7 @@ namespace Bolo.Hubs
             };
             //This client function will set User detail in browser memory.
             await Clients.Client(Context.ConnectionId).SendAsync("SetMyself", ui);
+            
         }
 
         /// <summary>
@@ -49,7 +57,8 @@ namespace Bolo.Hubs
                 VideoCapable = u.VideoCapable,
                 PeerCapable = u.PeerCapable,
                 MemberID = Context.User.Identity.IsAuthenticated ?
-                Context.User.Identity.Name : Guid.Empty.ToString()
+                Context.User.Identity.Name : Guid.Empty.ToString(),
+                Pic = u.Pic
             };
             await Clients.OthersInGroup(room).SendAsync("NewUserArrived", ui);
         }
@@ -76,6 +85,16 @@ namespace Bolo.Hubs
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, room);
             await Clients.OthersInGroup(room).SendAsync("UserLeft", Context.ConnectionId);
+            if (Context.User.Identity.IsAuthenticated)
+            {
+                Member m = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(Context.User.Identity.Name));
+                if (m != null)
+                {
+                    m.Activity = ActivityStatus.Online;
+                    await _context.SaveChangesAsync();
+                }
+
+            }
         }
 
 
@@ -134,7 +153,23 @@ namespace Bolo.Hubs
         /// <returns></returns>
         public async Task SendPulse(string room)
         {
+            if (Context.User.Identity.IsAuthenticated)
+            {
+                Member m = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(Context.User.Identity.Name));
+                if (m != null)
+                {
+                    m.Activity = ActivityStatus.Meeting;
+                    m.LastPulse = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
+
+            }
             await Clients.OthersInGroup(room).SendAsync("ReceivePulse", Context.ConnectionId);
+        }
+
+        public Task SendImage(string img)
+        {
+            return Clients.Others.SendAsync("ReceiveImage", img, Context.ConnectionId);
         }
 
     }

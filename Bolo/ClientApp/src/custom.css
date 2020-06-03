@@ -165,8 +165,6 @@ code {
 
                 #videocont > #videolist > li > .ctrl > .name {
                     text-transform: capitalize;
-                    display: block;
-                    padding: 3px 8px;
                 }
 
             #videocont > #videolist > li > video {
@@ -177,8 +175,8 @@ code {
 
         #videocont > #videolist.video1 > li {
             max-width: 100%;
-            height: 100%;
-            height: calc(99vh - 70px);
+            max-height: 100%;
+            max-height: calc(99vh - 70px);
         }
 
         #videocont > #videolist.video2 > li {
