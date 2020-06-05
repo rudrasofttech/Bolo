@@ -15,11 +15,14 @@ namespace Bolo.Data
 
         public DbSet<Member> Members { get; set; }
         public DbSet<Meeting> Meetings { get; set; }
+
+        //public DbSet<ChatMessage> ChatMessages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
             modelBuilder.Entity<Member>().ToTable("Member");
             modelBuilder.Entity<Meeting>().ToTable("Meeting");
+            //modelBuilder.Entity<ChatMessage>().ToTable("ChatMessage");
         }
     }
 }

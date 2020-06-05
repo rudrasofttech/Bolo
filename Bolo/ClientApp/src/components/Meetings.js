@@ -3,6 +3,7 @@ import { MessageStrip } from './MessageStrip';
 import { Redirect } from 'react-router-dom';
 import { NavMenu } from './NavMenu';
 import { Progress } from 'reactstrap';
+import { HeartBeat } from './HeartBeat';
 
 export class Meetings extends Component {
     constructor(props) {
@@ -80,7 +81,8 @@ export class Meetings extends Component {
                         <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
                     </p>
 
-                </main></>);
+                </main><HeartBeat activity="1" interval="20000" />
+            </>);
         } else if (this.state.meetingid !== "") {
             return <Redirect to={'/m/' + this.state.meetingid} />;
         }
@@ -119,6 +121,7 @@ export class Meetings extends Component {
                         </div>
                         
                     </main>
+                    <HeartBeat activity="1" interval="20000" />
                     {loading}
                     {messagecontent}
                 </>);

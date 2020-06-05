@@ -153,17 +153,6 @@ namespace Bolo.Hubs
         /// <returns></returns>
         public async Task SendPulse(string room)
         {
-            if (Context.User.Identity.IsAuthenticated)
-            {
-                Member m = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(Context.User.Identity.Name));
-                if (m != null)
-                {
-                    m.Activity = ActivityStatus.Meeting;
-                    m.LastPulse = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
-                }
-
-            }
             await Clients.OthersInGroup(room).SendAsync("ReceivePulse", Context.ConnectionId);
         }
 

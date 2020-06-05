@@ -7,6 +7,7 @@ import { NavMenu } from './NavMenu';
 import { Modal, ModalBody, ModalHeader, Alert } from 'reactstrap';
 import { Link, Redirect } from 'react-router-dom';
 import { BsFillChatDotsFill, BsCameraVideoFill, BsMicFill, BsCameraVideo, BsMic } from 'react-icons/bs';
+import { HeartBeat } from './HeartBeat';
 import { IoMdSend } from 'react-icons/io';
 import swiftly from '../assets/swiftly.mp3';
 import swiftlym4r from '../assets/swiftly.m4r';
@@ -17,6 +18,7 @@ import userleftogg from '../assets/get-outta-here.ogg';
 import joinedmp3 from '../assets/got-it-done.mp3';
 import joinedm4r from '../assets/got-it-done.m4r';
 import joinedogg from '../assets/got-it-done.ogg';
+
 const Peer = require("simple-peer");
 const videoresbigscr = { width: 375, height: 812 };
 
@@ -60,6 +62,7 @@ export class Meeting extends Component {
         this.createPeer = this.createPeer.bind(this);
         this.loginHandler = this.loginHandler.bind(this);
         this.handleMyName = this.handleMyName.bind(this);
+        this.handleNameForm = this.handleNameForm.bind(this);
         this.handleJoinMeeting = this.handleJoinMeeting.bind(this);
         this.userMediaError = this.userMediaError.bind(this);
         this.inviteHandler = this.inviteHandler.bind(this);
@@ -163,10 +166,14 @@ export class Meeting extends Component {
         }
     }
 
-    handleJoinMeeting(e) {
+    handleNameForm(e) {
         e.preventDefault();
         this.myself.name = this.state.myname;
         this.setState({ joinmeeting: true }, () => { this.startHub(); });
+    }
+
+    handleJoinMeeting(e) {
+        this.setState({ joinmeeting: true });
     }
 
     handleMessageSubmit(e) {
@@ -421,7 +428,8 @@ export class Meeting extends Component {
                         v.volume = 0.8;
                         v.play();
                     }
-                }); });
+                });
+            });
 
         }
 
@@ -786,8 +794,18 @@ export class Meeting extends Component {
         //each time compoment updates scroll to bottom
         //this can be improved by identifying if new messages added
         this.scrollToBottom();
+    }
 
-        
+    renderJoinMeetingModal() {
+        return <><NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} />
+            <Modal isOpen={true} centered>
+                <ModalBody>
+                    <div className="text-center">
+                        <button type="button" className="btn btn-primary btn-lg" onClick={this.handleJoinMeeting}>Join Meeting</button>
+                    </div>
+                </ModalBody>
+            </Modal>
+        </>;
     }
 
     //modal to show if meeting id is valid, when this is shown user cannot do anything else on the page execpt move to meetings page
@@ -837,7 +855,7 @@ export class Meeting extends Component {
                             <ModalBody>
                                 {browserinfo}
                                 {mobilebrowserinfo}
-                                <form onSubmit={this.handleJoinMeeting}>
+                                <form onSubmit={this.handleNameForm}>
                                     <input type="text" required value={this.state.myname} autoFocus="on" className="form-control" maxLength="20" onChange={this.handleMyName} placeholder="Your Name Here" />
                                     <br /><button type="submit" className="btn btn-primary">Join Meeting</button>
                                 </form>
@@ -989,13 +1007,23 @@ export class Meeting extends Component {
             return <><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={false} />
                 <div>
                     <h3>Login to Join Meeting</h3>
-                </div></>;
+                </div>
+                <HeartBeat activity="2" interval="3000" />
+            </>;
         }
         else if (!this.state.idvalid) {
-            return this.renderValidateModal();
+            return <> {this.renderValidateModal()}
+                <HeartBeat activity="2" interval="3000" /></>;
         }
         else if (this.myself !== null && this.myself.name.trim() === "") {
-            return this.renderNameForm();
+            return <>{this.renderNameForm()}
+                <HeartBeat activity="2" interval="3000" />
+            </>;
+        }
+        else if (!this.state.joinmeeting) {
+            return <>{this.renderJoinMeetingModal()}
+                <HeartBeat activity="2" interval="3000" />
+            </>;
         }
         else if (this.state.joinmeeting) {
             let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">
@@ -1092,6 +1120,7 @@ export class Meeting extends Component {
                         </div>
                     </form>
                 </footer>
+                <HeartBeat activity="2" interval="3000" />
             </>);
         } else {
             return null;

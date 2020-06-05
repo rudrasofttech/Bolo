@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -80,6 +81,16 @@ namespace Bolo.Models
         public string Pic { get; set; }
 
         public int BirthYear { get; set; }
+
+        [MaxLength(100)]
+        public string Country { get; set; }
+        [MaxLength(100)]
+        public string State { get; set; }
+
+        [MaxLength(100)]
+        public string City { get; set; }
+        [MaxLength(200)]
+        public string ThoughtStatus { get; set; }
     }
 
     public class Meeting
@@ -96,6 +107,15 @@ namespace Bolo.Models
         public string Purpose { get; set; }
 
     }
+
+    //public class ChatMessage
+    //{
+    //    public int ID { get; set; }
+    //    public Member SentBy { get; set; }
+    //    public Member SentTo { get; set; }
+    //    public DateTime SentDate { get; set; }
+    //    public string Message { get; set; }
+    //}
 
     public class CreateMeetingDTO
     {
@@ -116,8 +136,11 @@ namespace Bolo.Models
         public Gender Gender { get; set; }
         public ActivityStatus Activity { get; set; }
         public MemberProfileVisibility Visibility { get; set; }
-
         public string Pic { get; set; }
+        public string Country { get; set; }
+        public string State { get; set; }
+        public string City { get; set; }
+        public string ThoughtStatus { get; set; }
         public MemberDTO()
         {
             ID = Guid.Empty;
@@ -125,6 +148,10 @@ namespace Bolo.Models
             ChannelName = string.Empty;
             Bio = "";
             Pic = "";
+            Country = "";
+            State = "";
+            City = "";
+            ThoughtStatus = "";
         }
     }
 

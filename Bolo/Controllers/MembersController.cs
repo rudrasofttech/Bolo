@@ -148,7 +148,11 @@ namespace Bolo.Controllers
                     Gender = member.Gender,
                     Activity = member.Activity,
                     Visibility = member.Visibility,
-                    Pic = string.IsNullOrEmpty(member.Pic) ? "" : member.Pic
+                    Pic = string.IsNullOrEmpty(member.Pic) ? "" : member.Pic,
+                    Country = string.IsNullOrEmpty(member.Country) ? "" : member.Country,
+                    State = string.IsNullOrEmpty(member.State) ? "" : member.State,
+                    City = string.IsNullOrEmpty(member.City) ? "" : member.City,
+                    ThoughtStatus = string.IsNullOrEmpty(member.ThoughtStatus) ? "" : member.ThoughtStatus
                 };
                 return result;
             }
@@ -195,7 +199,11 @@ namespace Bolo.Controllers
                 Gender = member.Gender,
                 Activity = member.Activity,
                 Visibility = member.Visibility,
-                Pic = string.IsNullOrEmpty(member.Pic) ?  "" : member.Pic
+                Pic = string.IsNullOrEmpty(member.Pic) ? "" : member.Pic,
+                Country = string.IsNullOrEmpty(member.Country) ? "" : member.Country,
+                State = string.IsNullOrEmpty(member.State) ? "" : member.State,
+                City = string.IsNullOrEmpty(member.City) ? "" : member.City,
+                ThoughtStatus = string.IsNullOrEmpty(member.ThoughtStatus) ? "" : member.ThoughtStatus
             };
             return result;
         }
@@ -335,6 +343,63 @@ namespace Bolo.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("savecountry")]
+        public async Task<IActionResult> SaveCountry([FromQuery]string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.Country = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savestate")]
+        public async Task<IActionResult> SaveState([FromQuery]string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.State = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savecity")]
+        public async Task<IActionResult> SaveCity([FromQuery]string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+
+                member.City = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
         [HttpPost]
         [Route("savepic")]
         public async Task<IActionResult> SavePic([FromForm]string pic)
@@ -349,7 +414,7 @@ namespace Bolo.Controllers
             {
                 try
                 {
-                    
+
                     member.Pic = pic;
                     member.ModifyDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
@@ -359,6 +424,51 @@ namespace Bolo.Controllers
                 {
                     throw;
                 }
+            }
+        }
+
+        [HttpPost]
+        [Route("savethoughtstatus")]
+        public async Task<IActionResult> SaveThoughtStatus([FromForm]string d)
+        {
+
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                try
+                {
+
+                    member.ThoughtStatus = d;
+                    member.ModifyDate = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("savepulse")]
+        public async Task<IActionResult> SavePulse([FromQuery]ActivityStatus s)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                member.Activity = s;
+                member.LastPulse = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
             }
         }
 
@@ -439,6 +549,26 @@ namespace Bolo.Controllers
                 Helper.Utility.SendSMS(model.Phone, string.Format("Your Bolo passcode is: {0}", OTP));
             }
             return Ok(); //CreatedAtAction("GetMember", new { id = m.ID }, m);
+        }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<MemberDTO>> Search(string s){
+           return _context.Members.Where(t => t.Name.Contains(s) || t.Bio.Contains(s)).Select(t => new MemberDTO()
+            {
+                ID = t.PublicID,
+                Name = t.Name,
+                ChannelName = string.IsNullOrEmpty(t.Channelname) ? "" : t.Channelname.ToLower(),
+                Bio = string.IsNullOrEmpty(t.Bio) ? "" : t.Bio,
+                BirthYear = t.BirthYear,
+                Gender = t.Gender,
+                Activity = t.Activity,
+                Visibility = t.Visibility,
+                Pic = string.IsNullOrEmpty(t.Pic) ? "" : t.Pic,
+                Country = string.IsNullOrEmpty(t.Country) ? "" : t.Country,
+                State = string.IsNullOrEmpty(t.State) ? "" : t.State,
+                City = string.IsNullOrEmpty(t.City) ? "" : t.City,
+                ThoughtStatus = string.IsNullOrEmpty(t.ThoughtStatus) ? "" : t.ThoughtStatus
+            }).ToList();
         }
 
         // DELETE: api/Members/5
