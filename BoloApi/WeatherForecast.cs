@@ -1,6 +1,6 @@
 using System;
 
-namespace Bolo
+namespace BoloApi
 {
     public class WeatherForecast
     {

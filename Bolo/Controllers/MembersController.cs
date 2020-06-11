@@ -25,7 +25,7 @@ namespace Bolo.Controllers
     public class MembersController : ControllerBase
     {
         private readonly BoloContext _context;
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
         public MembersController(BoloContext context, IConfiguration config)
         {
             _context = context;
@@ -178,12 +178,18 @@ namespace Bolo.Controllers
             }
         }
 
-        [HttpGet("{name}")]
-        [AllowAnonymous]
-        [Route("Channel")]
-        public async Task<ActionResult<MemberDTO>> GetMemberByChannel(string name)
+        // GET: api/Members/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MemberDTO>> GetMember(string id)
         {
-            var member = await _context.Members.FirstOrDefaultAsync(t => t.Channelname == name);
+            var member = new Member();
+            if (Guid.TryParse(id, out Guid idguid)){
+                member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == idguid);
+            }
+            else
+            {
+                member = await _context.Members.FirstOrDefaultAsync(t => t.Channelname.ToLower() == id.ToLower());
+            }
 
             if (member == null)
             {
@@ -206,20 +212,6 @@ namespace Bolo.Controllers
                 ThoughtStatus = string.IsNullOrEmpty(member.ThoughtStatus) ? "" : member.ThoughtStatus
             };
             return result;
-        }
-
-        // GET: api/Members/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Member>> GetMember(Guid id)
-        {
-            var member = await _context.Members.FindAsync(id);
-
-            if (member == null)
-            {
-                return NotFound();
-            }
-
-            return member;
         }
 
         [HttpGet]
@@ -536,7 +528,13 @@ namespace Bolo.Controllers
                 Phone = model.Phone,
                 OTP = EncryptionHelper.Encrypt(OTP),
                 OTPExpiry = Helper.Utility.OTPExpiry,
-                PublicID = Guid.NewGuid()
+                PublicID = Guid.NewGuid(),
+                Activity = ActivityStatus.Online,
+                Bio = "",
+                Channelname = "",
+                City="", Country="", LastPulse = DateTime.UtcNow, 
+                Pic ="", ThoughtStatus="", 
+                Visibility = MemberProfileVisibility.Public, State = ""
             };
             _context.Members.Add(m);
             await _context.SaveChangesAsync();
@@ -552,8 +550,9 @@ namespace Bolo.Controllers
         }
 
         [HttpGet]
+        [Route("search")]
         public ActionResult<IEnumerable<MemberDTO>> Search(string s){
-           return _context.Members.Where(t => t.Name.Contains(s) || t.Bio.Contains(s)).Select(t => new MemberDTO()
+           return _context.Members.Where(t => (t.Name.Contains(s) || t.Bio.Contains(s)) && t.Visibility == MemberProfileVisibility.Public && t.PublicID != new Guid(User.Identity.Name)).Select(t => new MemberDTO()
             {
                 ID = t.PublicID,
                 Name = t.Name,

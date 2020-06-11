@@ -8,15 +8,17 @@ import { BsFillChatDotsFill, BsCameraVideoFill, BsMicFill, BsCameraVideo, BsMic 
 import { IoMdSend } from 'react-icons/io';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { UserInfo, MessageInfo, MessageEnum } from './Models';
-import swiftly from '../assets/swiftly.mp3';
-import swiftlym4r from '../assets/swiftly.m4r';
-import swiftlyogg from '../assets/swiftly.ogg';
-import userleftmp3 from '../assets/get-outta-here.mp3';
-import userleftm4r from '../assets/get-outta-here.m4r';
-import userleftogg from '../assets/get-outta-here.ogg';
-import joinedmp3 from '../assets/got-it-done.mp3';
-import joinedm4r from '../assets/got-it-done.m4r';
-import joinedogg from '../assets/got-it-done.ogg';
+import swiftly from '../media/swiftly.mp3';
+import swiftlym4r from '../media/swiftly.m4r';
+import swiftlyogg from '../media/swiftly.ogg';
+import userleftmp3 from '../media/get-outta-here.mp3';
+import userleftm4r from '../media/get-outta-here.m4r';
+import userleftogg from '../media/get-outta-here.ogg';
+import joinedmp3 from '../media/got-it-done.mp3';
+import joinedm4r from '../media/got-it-done.m4r';
+import joinedogg from '../media/got-it-done.ogg';
+import { API } from './APIURL';
+
 
 const Peer = require("simple-peer");
 const MaxPeers = 50;
@@ -74,7 +76,7 @@ export class Broadcast extends Component {
     //see if user is logged in
     validate(t) {
         this.setState({ loading: true });
-        fetch('api/Members/Validate', {
+        fetch(API.GetURL() + 'api/Members/Validate', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t
@@ -392,7 +394,7 @@ export class Broadcast extends Component {
     handleChannelFormSubmit(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('api/Members/SaveChannel?channel=' + this.state.channelname, {
+        fetch(API.GetURL() + 'api/Members/SaveChannel?channel=' + this.state.channelname, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem("token"),

@@ -9,18 +9,31 @@ code {
     color: #E01A76;
 }
 
+.nopadding{
+    padding:0px !important;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #0064DA;
     border-color: #1861ac;
 }
 
-.featureahome {
-    text-decoration: none;
-    font-size: 1.9rem;
+.searchlistitem {
+    width: 100%;
+    cursor: pointer;
 }
 
-    .meetingahome:hover {
+    .searchlistitem:hover{
+        background-color:#DCF1FA;
+    }
+
+    .featureahome {
+        text-decoration: none;
+        font-size: 1.9rem;
+    }
+
+    .featureahome:hover {
         text-decoration: none;
     }
 
@@ -31,6 +44,11 @@ code {
     left: auto;
     right: 0px;
     z-index: 5000;
+}
+
+.trimpadding {
+    padding-right: 0px;
+    padding-left: 0px;
 }
 
 .noMargin {
@@ -65,19 +83,24 @@ code {
     overflow: hidden;
 }
 
-/*#inputcont {
-    
-    background-color: rgba(255, 255, 255, 0.4);
-    width: 100%;
+.searchcol{
+    position:relative;
 }
 
-    #inputcont #msginput {
-        width: calc(100% - 50px);
-    }*/
+    .searchcol .searchform{
+        position:absolute;
+        top:0px;
+        left:0px;
+        width:100%;
+        padding:0px 5px;
+    }
 
-#msginput {
-    width: 100%;
-}
+        .searchcol .searchresult{
+            padding-top:40px;
+        }
+        #msginput {
+            width: 100%;
+        }
 
 .livetextinput {
     width: calc(100% - 50px) !important;

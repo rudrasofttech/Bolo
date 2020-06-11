@@ -6,6 +6,7 @@ import { RegisterForm } from './RegisterForm';
 import { BsFillPersonLinesFill, BsBoxArrowRight, BsFillPersonPlusFill, BsBackspace, BsHouseFill, BsFillXDiamondFill } from 'react-icons/bs';
 import { FaUserCircle } from 'react-icons/fa';
 import { ManageProfile } from './ManageProfile';
+import { API } from './APIURL';
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -96,7 +97,7 @@ export class NavMenu extends Component {
     }
 
     fetchData(t) {
-        fetch('api/Members/Validate', {
+        fetch(API.GetURL() + 'api/Members/Validate', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t

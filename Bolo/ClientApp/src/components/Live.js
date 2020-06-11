@@ -7,6 +7,7 @@ import { Progress, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { MessageStrip } from './MessageStrip';
 import { UserInfo, MessageInfo, MessageEnum } from './Models';
+import { API } from './APIURL';
 const Peer = require("simple-peer");
 
 export class Live extends Component {
@@ -60,7 +61,7 @@ export class Live extends Component {
     //see if user is logged in
     validate(t) {
         this.setState({ loading: true });
-        fetch('api/Members/Validate', {
+        fetch(API.GetURL() + 'api/Members/Validate', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t

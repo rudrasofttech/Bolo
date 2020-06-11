@@ -3,6 +3,7 @@ import { NavMenu } from './NavMenu';
 import { Link } from 'react-router-dom';
 import { HeartBeat } from './HeartBeat';
 import nopic from "../assets/nopic.jpg";
+import { API } from './APIURL';
 
 export class Home extends Component {
     static displayName = Home.name;
@@ -30,7 +31,7 @@ export class Home extends Component {
     //see if user is logged in
     validate(t) {
         this.setState({ loading: true });
-        fetch('api/Members/Validate', {
+        fetch(API.GetURL() + 'api/Members/Validate', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t
@@ -74,7 +75,7 @@ export class Home extends Component {
 
         const fd = new FormData();
         fd.set("d", value);
-        fetch('api/Members/savethoughtstatus', {
+        fetch(API.GetURL() + 'api/Members/savethoughtstatus', {
             method: 'post',
             body: fd,
             headers: {
@@ -111,9 +112,9 @@ export class Home extends Component {
             let userwelcome = <><div className="position-relative overflow-hidden p-2 m-md-2 mt-md-5 text-center">
                 {pic}
                 <h1 className="m-2 mb-3">Welcome {this.state.myself.name}!</h1>
-                <input type="text" class="form-control mx-auto col-md-6 border-0 text-center" name="thoughtStatus" value={this.state.myself.thoughtStatus} placeholder="What's on your mind? Write here." maxLength="200" onChange={this.handleChange} onBlur={this.saveData} />
+                <input type="text" className="form-control mx-auto col-md-6 border-0 text-center" name="thoughtStatus" value={this.state.myself.thoughtStatus} placeholder="What's on your mind? Write here." maxLength="200" onChange={this.handleChange} onBlur={this.saveData} />
                 <Link className="btn btn-success btn-lg m-4" to="/meetings">Start A Meeting</Link>
-                <Link className="btn btn-primary btn-lg m-4" to="/">Start A Conversation</Link>
+                <Link className="btn btn-primary btn-lg m-4" to="/conversation">Start A Conversation</Link>
             </div>
             </>;
 
@@ -129,7 +130,7 @@ export class Home extends Component {
                 <h1 className="display-3 font-weight-normal">Waarta</h1>
                 <p className="lead font-weight-normal">Connecting with people, having meaningful conversation, free exchange of Idea, getting things done.</p>
                 <Link className="btn btn-success btn-lg m-2" to="/meetings">Quick Meeting</Link>
-                <Link className="btn btn-primary btn-lg m-2" to="/">Find People</Link>
+                <Link className="btn btn-primary btn-lg m-2" to="/conversation">Find People</Link>
             </div>
         </div></> : <></>;
 

@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import { API } from './APIURL';
 
 export class HeartBeat extends Component {
     constructor(props) {
@@ -35,7 +36,7 @@ export class HeartBeat extends Component {
     sendHeartbeat() {
         if (this.state.loggedin) {
             this.setState({ loading: true });
-            fetch('api/Members/savepulse?s=' + this.state.activity, {
+            fetch(API.GetURL() + 'api/Members/savepulse?s=' + this.state.activity, {
                 method: 'get',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem("token")

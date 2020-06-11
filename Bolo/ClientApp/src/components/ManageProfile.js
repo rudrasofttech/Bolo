@@ -3,6 +3,7 @@ import nopic from "../assets/nopic.jpg";
 import { Progress, Modal, ModalBody, ModalHeader, ModalFooter } from 'reactstrap';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'
+import { API } from './APIURL';
 
 export class ManageProfile extends Component {
     constructor(props) {
@@ -97,7 +98,7 @@ export class ManageProfile extends Component {
         this.setState({ loading: true });
         const fd = new FormData();
         fd.set("pic", "");
-        fetch('api/Members/savepic', {
+        fetch(API.GetURL() + 'api/Members/savepic', {
             method: 'post',
             body: fd,
             headers: {
@@ -128,7 +129,7 @@ export class ManageProfile extends Component {
             this.setState({ loading: true });
             const fd = new FormData();
             fd.set("pic", this.state.croppedImageUrl);
-            fetch('api/Members/savepic', {
+            fetch(API.GetURL() + 'api/Members/savepic', {
                 method: 'post',
                 body: fd,
                 headers: {
@@ -160,7 +161,7 @@ export class ManageProfile extends Component {
         let value = e.target.value;
         this.setState({ loading: true });
         if (name !== 'bio') {
-            fetch('api/Members/Save' + name + '?d=' + value, {
+            fetch(API.GetURL() + 'api/Members/Save' + name + '?d=' + value, {
                 method: 'get',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem("token")
@@ -186,7 +187,7 @@ export class ManageProfile extends Component {
         } else {
             const fd = new FormData();
             fd.set("d", value);
-            fetch('api/Members/savebio', {
+            fetch(API.GetURL() + 'api/Members/savebio', {
                 method: 'post',
                 body: fd,
                 headers: {
@@ -212,7 +213,7 @@ export class ManageProfile extends Component {
 
     validate(t) {
         this.setState({ loading: true });
-        fetch('api/Members/Validate', {
+        fetch(API.GetURL() + 'api/Members/Validate', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t

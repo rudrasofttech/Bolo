@@ -1,5 +1,6 @@
 ﻿import React, { Component } from 'react';
 import nopic from "../assets/nopic.jpg";
+import { API } from './APIURL';
 
 export class ViewProfile extends Component {
 
@@ -14,23 +15,49 @@ export class ViewProfile extends Component {
             loading: false, loggedin: loggedin,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             channel: this.props.channel === undefined ? '' : this.props.channel,
-            profile: null
+            profileid: this.props.profileid === undefined ? '' : this.props.profileid,
+            profile: this.props.profile === undefined ? null : this.props.profile
         };
     }
 
     componentDidMount() {
-        fetchData();
+        if (localStorage.getItem("token") !== null) {
+            this.fetchData(localStorage.getItem("token"));
+        }
     }
 
-    fetchData() {
-        this.setState({ loading: true });
-        fetch('api/Members/Channel?name=' + this.state.channel, {
-            method: 'get',
-            headers: {
-                'Authorization': 'Bearer ' + t
+    componentDidUpdate(prevProps, prevState) {
+        if ((prevState.channel !== this.state.channel || prevState.profileid !== this.state.profileid) && localStorage.getItem("token") !== null) {
+            this.fetchData(localStorage.getItem("token"));
+        }
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        if (props.channel !== state.channel || props.profileid !== state.profileid || props.profile !== state.profile) {
+            return {
+                channel: props.channel,
+                profileid: props.profileid,
+                profile: props.profile === undefined ? null : props.profile
+            };
+        }
+        return null;
+    }
+
+    fetchData(t) {
+        if (this.state.channel !== '' || this.state.profileid !== '') {
+            this.setState({ loading: true });
+            let url = "";
+            if (this.state.channel !== '') {
+                url = API.GetURL() + "api/Members/" + this.state.channel;
+            } else if (this.state.profileid !== '') {
+                url = API.GetURL() + "api/Members/" + this.state.profileid;
             }
-        })
-            .then(response => {
+            fetch(url, {
+                method: 'get',
+                headers: {
+                    'Authorization': 'Bearer ' + t
+                }
+            }).then(response => {
                 if (response.status === 401) {
                     //if token is not valid than remove token, set myself object with empty values
                     localStorage.removeItem("token");
@@ -41,30 +68,31 @@ export class ViewProfile extends Component {
                     //is set then start signalr hub
                     response.json().then(data => {
                         console.log(data);
-
                         this.setState({ loading: false, profile: data });
                     });
                 }
             });
+        }
     }
 
     render() {
         if (this.state.profile !== null) {
+            var d = new Date();
             let pic = this.state.profile.pic !== "" ? <img src={this.state.profile.pic} className="rounded mx-auto d-block img-fluid" alt="" />
                 : <img src={nopic} className="rounded mx-auto d-block img-fluid" alt="" />;
-            let age = this.state.profile.birthYear > 0 ? <p><em>{Date.now().getFullYear() - this.state.profile.birthYear} Years</em></p> : null;
+            let age = this.state.profile.birthYear > 0 ? <>{d.getFullYear() - this.state.profile.birthYear} Years Old</> : null;
+
+            let address = this.state.profile.city + ' ' + this.state.profile.state + ' ' + this.state.profile.country;
+
+            if (address.trim() !== '') {
+                address = 'From ' + address;
+            }
             return <>
-                <div className="container-fluid">
-                    <div className="row">
-                        <div className="col">
-                            {pic}
-                            <h4>{this.state.profile.name}</h4>
-                            <p>{this.state.profile.bio}</p>
-                            <p><em>This line rendered as italicized text.</em></p>
-                            <span>{age}</span>
-                            <p>{this.state.profile.city} {this.state.profile.state} {this.state.profile.country}</p>
-                        </div>
-                    </div>
+                <div className="text-center">
+                    {pic}
+                    <h4>{this.state.profile.name}</h4>
+                    <p>{this.state.profile.bio}</p>
+                    <p><em>{age} {address}</em></p>
                 </div>
             </>;
         } else {

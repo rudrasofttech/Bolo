@@ -4,6 +4,7 @@ import { Redirect } from 'react-router-dom';
 import { NavMenu } from './NavMenu';
 import { Progress } from 'reactstrap';
 import { HeartBeat } from './HeartBeat';
+import { API } from './APIURL';
 
 export class Meetings extends Component {
     constructor(props) {
@@ -27,7 +28,7 @@ export class Meetings extends Component {
 
     handleStartMeeting(e) {
         e.preventDefault();
-        fetch('api/Meetings', {
+        fetch(API.GetURL() + 'api/Meetings', {
             method: 'post',
             body: JSON.stringify({ Name: this.state.name, Purpose: this.state.purpose }),
             headers: {

@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Progress, Alert } from 'reactstrap';
+import { API } from './APIURL';
 
 export class RegisterForm extends Component {
 
@@ -43,7 +44,7 @@ export class RegisterForm extends Component {
     handleLogin(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('api/Members/Login', {
+        fetch(API.GetURL() + 'api/Members/Login', {
             method: 'post',
             body: JSON.stringify({ ID: this.state.loginemail, Passcode: this.state.OTP }),
             headers: {
@@ -79,7 +80,7 @@ export class RegisterForm extends Component {
     handleGenerateOTP(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('api/Members/OTP?id=' + this.state.loginemail, {
+        fetch(API.GetURL() + 'api/Members/OTP?id=' + this.state.loginemail, {
             method: 'get',
             headers: {
                 'Content-Type': 'application/json'
@@ -105,7 +106,7 @@ export class RegisterForm extends Component {
     handleRegisterSubmit(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('api/Members', {
+        fetch(API.GetURL() + 'api/Members', {
             method: 'post',
             body: JSON.stringify({ Name: this.state.registername, Email: this.state.registeremail, Phone: '', CountryCode: '' }),
             headers: {

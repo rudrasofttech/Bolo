@@ -1,7 +1,8 @@
 {
-  "name": "bolo",
+  "name": "waarta",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@aspnet/signalr": "^1.1.4",
     "@vardius/react-user-media": "^1.0.1",

@@ -9,15 +9,16 @@ import { Link, Redirect } from 'react-router-dom';
 import { BsFillChatDotsFill, BsCameraVideoFill, BsMicFill, BsCameraVideo, BsMic } from 'react-icons/bs';
 import { HeartBeat } from './HeartBeat';
 import { IoMdSend } from 'react-icons/io';
-import swiftly from '../assets/swiftly.mp3';
-import swiftlym4r from '../assets/swiftly.m4r';
-import swiftlyogg from '../assets/swiftly.ogg';
-import userleftmp3 from '../assets/get-outta-here.mp3';
-import userleftm4r from '../assets/get-outta-here.m4r';
-import userleftogg from '../assets/get-outta-here.ogg';
-import joinedmp3 from '../assets/got-it-done.mp3';
-import joinedm4r from '../assets/got-it-done.m4r';
-import joinedogg from '../assets/got-it-done.ogg';
+import swiftly from '../media/swiftly.mp3';
+import swiftlym4r from '../media/swiftly.m4r';
+import swiftlyogg from '../media/swiftly.ogg';
+import userleftmp3 from '../media/get-outta-here.mp3';
+import userleftm4r from '../media/get-outta-here.m4r';
+import userleftogg from '../media/get-outta-here.ogg';
+import joinedmp3 from '../media/got-it-done.mp3';
+import joinedm4r from '../media/got-it-done.m4r';
+import joinedogg from '../media/got-it-done.ogg';
+import { API } from './APIURL';
 
 const Peer = require("simple-peer");
 const videoresbigscr = { width: 375, height: 812 };
@@ -79,7 +80,7 @@ export class Meeting extends Component {
         if (this.state.id === undefined || this.state.id === null) {
             this.setState({ idvalid: false });
         } else {
-            fetch('api/Meetings/' + this.state.id, {
+            fetch(API.GetURL() + 'api/Meetings/' + this.state.id, {
                 method: 'get',
                 headers: {
                     'Authorization': 'Bearer ' + t
@@ -204,7 +205,7 @@ export class Meeting extends Component {
     //see if user is logged in
     validate(t) {
         this.setState({ loading: true });
-        fetch('api/Members/Validate', {
+        fetch(API.GetURL() + 'api/Members/Validate', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t
