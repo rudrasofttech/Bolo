@@ -90,7 +90,7 @@ namespace BoloApi
             }
             
             app.UseHttpsRedirection();
-
+            app.UseStaticFiles();
             app.UseRouting();
             app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseAuthentication();
@@ -103,6 +103,22 @@ namespace BoloApi
                 endpoints.MapHub<BroadcastHub>("/broadcasthub");
                 endpoints.MapHub<PersonChatHub>("/personchathub");
                 endpoints.MapControllerRoute(
+                    name: "m",
+                    pattern: "m/{id}",
+                    new
+                    {
+                        controller = "Home",
+                        action = "Meeting"
+                    });
+                endpoints.MapControllerRoute(
+                    name: "meetings",
+                    pattern: "meetings",
+                    new
+                    {
+                        controller = "Home",
+                        action = "Meetings"
+                    });
+                endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}",
                     new
@@ -110,6 +126,7 @@ namespace BoloApi
                         controller = "Home",
                         action = "Index"
                     });
+
             });
         }
     }

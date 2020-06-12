@@ -12,5 +12,17 @@ namespace BoloApi.Controllers
         {
             return View();
         }
+
+        public IActionResult Meetings()
+        {
+            return View();
+        }
+        
+        public IActionResult Meeting(string id)
+        {
+            ViewData["meetingid"] = id;
+            return View();
+        }
+
     }
 }

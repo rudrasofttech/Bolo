@@ -1,0 +1,22 @@
+﻿@model string;
+@{
+    ViewData["Title"] = "Meeting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="meetingdiv"></div>
+@section scripts{
+    <script src="~/js/moment.min.js"></script>
+    <script src="~/js/simplepeer.min.js"></script>
+    <script type="text/babel" src="~/js/Models.js">
+    </script>
+    <script type="text/babel" src="~/js/Meeting.js">
+    </script>
+    <script type="text/babel">
+        ReactDOM.render(
+        <Meeting meetingid="@ViewData["meetingid"]" />,
+        document.getElementById('meetingdiv')
+        );
+    </script>
+}
+

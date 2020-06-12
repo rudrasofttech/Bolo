@@ -1,0 +1,644 @@
+
+/* Provide sufficient contrast against white background */
+a {
+    color: #0366d6;
+    cursor: pointer;
+}
+
+code {
+    color: #E01A76;
+}
+
+.modal {
+    background-color: rgba(0, 0,0,0.6);
+}
+
+.nopadding {
+    padding: 0px !important;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #0064DA;
+    border-color: #1861ac;
+}
+
+.searchlistitem {
+    width: 100%;
+    cursor: pointer;
+}
+
+    .searchlistitem:hover {
+        background-color: #DCF1FA;
+    }
+
+.featureahome {
+    text-decoration: none;
+    font-size: 1.9rem;
+}
+
+    .featureahome:hover {
+        text-decoration: none;
+    }
+
+.fixedBottom {
+    position: fixed;
+    top: auto;
+    bottom: 0px;
+    left: auto;
+    right: 0px;
+    z-index: 5000;
+}
+
+.trimpadding {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.noMargin {
+    margin: 0px;
+}
+
+.noRadius {
+    border-radius: 0px;
+}
+
+.startmeeting {
+    font-size: 1em;
+}
+
+.translucent {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.fullheight {
+    min-height: 100vh;
+}
+
+.meetingvideocol {
+    padding-bottom: 50px;
+    margin-top: 60px;
+    overflow: auto;
+}
+
+.meetingchatcol {
+    height: 100%;
+    height: calc(99vh - 60px);
+    overflow: hidden;
+}
+
+.searchcol {
+    position: relative;
+}
+
+    .searchcol .searchform {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        padding: 0px 5px;
+    }
+
+    .searchcol .searchresult {
+        padding-top: 40px;
+    }
+
+#msginput {
+    width: 100%;
+}
+
+.livetextinput {
+    width: calc(100% - 50px) !important;
+    display: inline-block;
+}
+
+#videocont {
+    /*width: 100%;
+    z-index: 0;
+    height: 100vh;
+    position: relative;
+    overflow: auto;
+    left: 0px;
+    top: 0px;
+    background-color: transparent;*/
+    text-align: center;
+}
+
+    #videocont > div.full {
+        max-width: 100%;
+        width: auto;
+        max-height: 99vh;
+        position: relative;
+        display: inline-block;
+        min-width: 200px;
+        min-height: 150px;
+    }
+
+    #videocont > div.smalldocked {
+        max-width: 165px;
+        height: 125px;
+        position: fixed;
+        bottom: 100px;
+        left: 10px;
+        background: white;
+        display: inline-block;
+        z-index: 11;
+    }
+
+    #videocont > div.full > video#myvideo {
+        height: 100%;
+        /*height: calc(99vh - 70px);*/
+        max-width: 100%;
+        width: auto;
+    }
+
+    #videocont > div.smalldocked > video#myvideo {
+        max-height: 100%;
+        max-width: 100%;
+        width: auto;
+    }
+
+    #videocont > div.full > .ctrl {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        display: inline-block;
+        margin-left: -38px;
+    }
+
+    #videocont > div.smalldocked > .ctrl {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        display: inline-block;
+        margin-left: 0;
+    }
+
+    #videocont > #videolist {
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+    }
+
+        #videocont > #videolist > li {
+            display: inline-block;
+            text-align: left;
+            max-height: 100%;
+            max-width: 100%;
+            position: relative;
+            background-color: white;
+        }
+
+            #videocont > #videolist > li > .ctrl {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                display: inline-block;
+                background-color: rgba(0, 0, 0, 0.5);
+                border-radius: 5px;
+                font-size: 0.8rem;
+                color: white;
+            }
+
+                #videocont > #videolist > li > .ctrl > .name {
+                    text-transform: capitalize;
+                }
+
+            #videocont > #videolist > li > video {
+                height: 100%;
+                max-width: 100%;
+                border-right: 1px solid white;
+            }
+
+        #videocont > #videolist.video1 > li {
+            max-width: 100%;
+            max-height: 100%;
+            max-height: calc(99vh - 70px);
+        }
+
+        #videocont > #videolist.video2 > li {
+            width: 50%;
+            /*height: 50vh;*/
+        }
+
+            #videocont > #videolist.video2 > li > video {
+                height: auto;
+                max-width: 100%;
+            }
+
+        #videocont > #videolist.video3 > li,
+        #videocont > #videolist.video4 > li {
+            max-width: 33.3%;
+            /*height: 300px;
+            height: calc((99vh - 60px) / 2);*/
+        }
+
+            #videocont > #videolist.video3 > li > video,
+            #videocont > #videolist.video4 > li > video {
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+        #videocont > #videolist.video5 > li,
+        #videocont > #videolist.video6 > li {
+            width: 33%;
+            height: 200px;
+            height: calc((99vh - 60px) / 2);
+        }
+
+            #videocont > #videolist.video5 > li > video,
+            #videocont > #videolist.video6 > li > video {
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+        #videocont > #videolist.video7 > li,
+        #videocont > #videolist.video8 > li,
+        #videocont > #videolist.video9 > li {
+            width: 33%;
+            height: auto;
+        }
+
+
+
+        #videocont > #videolist.video10 > li,
+        #videocont > #videolist.video11 > li,
+        #videocont > #videolist.video12 > li {
+            width: 25%;
+            height: auto;
+        }
+
+        #videocont > #videolist.video13 > li {
+            width: 25%;
+            height: auto;
+        }
+
+            #videocont > #videolist.video7 > li > video,
+            #videocont > #videolist.video8 > li > video,
+            #videocont > #videolist.video9 > li > video,
+            #videocont > #videolist.video10 > li > video,
+            #videocont > #videolist.video11 > li > video,
+            #videocont > #videolist.video12 > li > video,
+            #videocont > #videolist.video13 > li > video {
+                height: auto;
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+#msgcont {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding-bottom: 5px;
+    z-index: 10;
+    overflow: auto;
+    border-radius: 5px;
+    display: block;
+    text-align: center;
+}
+
+
+    #msgcont > #msglist {
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+        background-color: transparent;
+        height: auto;
+        padding: 4px;
+    }
+
+        #msgcont > #msglist > li.notify {
+            text-align: center;
+            padding: 5px 0px;
+            font-style: italic;
+            font-size: 0.8em;
+        }
+
+        #msgcont > #msglist > li.receive {
+            text-align: left;
+            font-style: normal;
+            font-size: 1em;
+        }
+
+        #msgcont > #msglist > li.sent {
+            text-align: right;
+            font-style: normal;
+            font-size: 1em;
+        }
+
+
+        #msgcont > #msglist > li > span {
+            background-color: rgba(255, 255, 255, 0.5);
+            display: inline-block;
+            padding: 4px;
+            margin: 4px 0px;
+            border-radius: 5px;
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+
+            #msgcont > #msglist > li > span > small.name {
+                text-transform: capitalize;
+            }
+
+            #msgcont > #msglist > li > span > small.time {
+                display: none;
+            }
+
+            #msgcont > #msglist > li > span > small {
+                display: block;
+                font-size: 0.7em;
+                font-style: italic;
+            }
+
+        #msgcont > #msglist > li.notify > span {
+            text-transform: capitalize;
+            /*background-color: #FFF3CD;*/
+        }
+
+        #msgcont > #msglist > li.receive > span {
+            background-color: #F2F6F9; /*rgba(142, 191, 67, 0.6)*/
+            color: black;
+            padding: 4px 10px;
+        }
+
+        #msgcont > #msglist > li.sent > span {
+            background-color: #DBF4FD;
+            color: black;
+            padding: 4px 10px;
+        }
+
+
+    #msgcont #inputcont {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+.modal-title {
+    text-transform: capitalize;
+}
+
+.loaderheight {
+    height: 5px;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+
+.meetingsmain {
+    margin-top: 2rem;
+}
+
+.footer {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-top: 1px solid rgba(0, 0, 0, 0.2)
+}
+
+.meetingalert {
+    z-index: 100;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: fixed;
+    top: 65px;
+    left: 50%;
+    margin-left: -150px;
+    width: 300px;
+    padding: 0.25rem;
+}
+
+    .meetingalert .close {
+        padding: 0.2rem;
+    }
+
+#broadcastmsgcont {
+    border-left: 1px solid #DEE2E6;
+    height: calc(100vh - 105px);
+    overflow: auto;
+}
+
+    #broadcastmsgcont ul {
+        margin: 0px;
+        padding: 0px;
+        list-style: none;
+    }
+
+        #broadcastmsgcont ul > li {
+            border-bottom: 1px solid #DEE2E6;
+        }
+
+            #broadcastmsgcont ul > li.notify {
+                text-align: center;
+                padding: 5px 0px;
+                font-style: italic;
+                font-size: 0.8em;
+            }
+
+
+
+            #broadcastmsgcont ul > li.sent {
+                text-align: left;
+                font-style: normal;
+                font-size: 1em;
+            }
+
+
+            #broadcastmsgcont ul > li > span {
+                background-color: rgba(255, 255, 255, 0.5);
+                display: block;
+                padding: 4px;
+                margin: 4px 0px;
+                border-radius: 5px;
+            }
+
+                #broadcastmsgcont ul > li > span > small.name {
+                    text-transform: capitalize;
+                    display: block;
+                    color: #555555;
+                }
+
+                #broadcastmsgcont ul > li > span > small.time {
+                    display: block;
+                    font-size: 0.7em;
+                    color: #D2D2D2;
+                }
+
+
+
+
+/*Large screens*/
+@media only screen and (min-width: 1200px) {
+    #msgcont {
+        padding-bottom: 50px;
+        margin-top: 60px;
+        border-left: 1px solid #DEE2E6;
+    }
+
+        #msgcont > p {
+            display: none;
+        }
+
+        #msgcont > #msglist {
+            height: calc(100vh - 110px);
+            overflow-y: auto;
+        }
+
+    .meetingvideocol {
+        max-height: calc(100vh - 110px);
+        overflow-y: auto;
+        padding-bottom: 0px;
+    }
+
+    #videocont > div.full > video#myvideo {
+        height: calc(100vh - 130px);
+    }
+
+    #broadcastvideo, #livevideo {
+        max-width: 100%;
+        max-height: calc(100vh - 60px);
+    }
+
+    #broadcastmsgcont {
+    }
+}
+
+@media only screen and (max-width: 1024px) {
+    #broadcastmsgcont {
+        max-height: calc(100vh - 60px);
+        overflow: auto;
+    }
+
+    #msgcont {
+        width: 25%;
+        height: auto;
+        top: 70px;
+        right: 5px;
+        position: fixed;
+        background-color: white;
+        -webkit-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
+        -moz-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
+        box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0px;
+        outline: 0;
+        padding: 0px;
+    }
+
+        #msgcont > #msglist {
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+
+    #videocont > div.full > video#myvideo {
+        height: calc(100vh - 130px);
+    }
+
+    #broadcastvideo, #livevideo {
+        max-width: 100%;
+        max-height: calc(100vh - 60px);
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .meetingalert {
+        top: auto;
+        bottom: 65px;
+    }
+
+    #msgcont {
+        width: 100%;
+        height: auto;
+        background-color: rgba(255, 255, 255, 0.9);
+        right: auto;
+        left: 0;
+        bottom: 70px;
+        position: fixed;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+        background-clip: padding-box;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 0px;
+        outline: 0;
+        padding: 0px;
+    }
+
+
+        #msgcont > #msglist {
+            min-height: 300px;
+            max-height: 70%;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+    #videocont > #videolist.video1 > li,
+    #videocont > #videolist.video2 > li {
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+    }
+
+        #videocont > #videolist > li > video,
+        #videocont > #videolist.video2 > li > video,
+        #videocont > #videolist.video3 > li > video,
+        #videocont > #videolist.video4 > li > video,
+        #videocont > #videolist.video5 > li > video,
+        #videocont > #videolist.video6 > li > video,
+        #videocont > #videolist.video7 > li > video,
+        #videocont > #videolist.video8 > li > video,
+        #videocont > #videolist.video9 > li > video,
+        #videocont > #videolist.video10 > li > video,
+        #videocont > #videolist.video11 > li > video,
+        #videocont > #videolist.video12 > li > video,
+        #videocont > #videolist.video13 > li > video {
+            height: auto;
+            max-width: 100%;
+            border-right: none;
+        }
+
+    #videocont > #videolist.video3 > li,
+    #videocont > #videolist.video4 > li,
+    #videocont > #videolist.video5 > li,
+    #videocont > #videolist.video6 > li,
+    #videocont > #videolist.video7 > li,
+    #videocont > #videolist.video8 > li,
+    #videocont > #videolist.video9 > li,
+    #videocont > #videolist.video10 > li,
+    #videocont > #videolist.video11 > li,
+    #videocont > #videolist.video12 > li,
+    #videocont > #videolist.video13 > li {
+        max-width: 100%;
+        width: 50%;
+        height: auto;
+        /*height: 300px;
+            height: calc((99vh - 60px) / 2);*/
+    }
+
+    #videocont > div.smalldocked {
+        height: 65px;
+    }
+
+    #broadcastvideo, #livevideo {
+        max-width: 100%;
+        max-height: calc(100vh - 60px);
+        max-height: calc(100% - 60px);
+    }
+}
