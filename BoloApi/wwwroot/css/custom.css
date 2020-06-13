@@ -87,21 +87,16 @@ code {
     overflow: hidden;
 }
 
-.searchcol {
-    position: relative;
+
+.searchform {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    padding: 0px 5px;
 }
 
-    .searchcol .searchform {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        padding: 0px 5px;
-    }
 
-    .searchcol .searchresult {
-        padding-top: 40px;
-    }
 
 #msginput {
     width: 100%;

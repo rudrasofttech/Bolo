@@ -11,8 +11,10 @@ namespace Bolo.Models
 
     public enum BoloRelationType
     {
+        
         Temporary = 1,
-        Mutual = 2
+        Mutual = 2,
+        Search = 3
     }
     public enum ChatMessageType
     {
@@ -172,7 +174,7 @@ namespace Bolo.Models
     public class ContactDTO
     {
         public int ID { get; set; }
-        public Member Person { get; set; }
+        public MemberDTO Person { get; set; }
         public DateTime CreateDate { get; set; }
         public BoloRelationType BoloRelation { get; set; }
 

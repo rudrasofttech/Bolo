@@ -24,7 +24,7 @@
     }
 
     static getDerivedStateFromProps(props, state) {
-        if (props.person !== state.person) {
+        if (props.person.id !== state.person.id) {
             return {
                 person: props.person
             };
@@ -41,10 +41,27 @@
 
         //this function is called by server when it receives a sendtextmessage from user.
         this.hubConnection.on('ReceiveTextMessage', (ui, text, timestamp, id) => { this.receiveTextMessage(ui, text, timestamp, id); });
+
+        this.hubConnection.on('ContactSaved', (cdto) => {
+            let contactmap = new Map();
+            if (localStorage.getItem("contacts") !== null) {
+                contactmap = new Map(JSON.parse(localStorage.getItem("contacts")));
+            }
+            contactmap.set(cdto.person.id, cdto);
+            localStorage.setItem("contacts", JSON.stringify(Array.from(contactmap)));
+        });
     }
 
     sendTextMessage() {
         if (this.state.textinput.trim() !== "") {
+            
+            //check if receiver is in contact list
+            //if (this.messages.size === 0 && localStorage.getItem("contacts") !== null) {
+            //    let cl = localStorage.getItem("contacts");
+            //    for (var k in cl) {
+
+            //    }
+            //}
             this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, this.state.textinput)
                 .catch(err => { console.log("Unable to send message to group."); console.error(err); });
             this.setState({ textinput: '' });
@@ -96,7 +113,11 @@
     componentDidMount() {
         this.startHub();
     }
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.person.id !== this.state.person.id) {
+            this.messages = (localStorage.getItem(this.state.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.state.person.id))) : new Map();
+            this.setState({ dummy: Date.now() });
+        }
         //each time compoment updates scroll to bottom
         //this can be improved by identifying if new messages added
         this.scrollToBottom();
@@ -141,7 +162,7 @@
         let chatpersoninfocontstyle = { position: "absolute", top: "0px", left: "0px", height: "40px", width: "100%", margin: 0, padding: 0, background: "#F0F4F8" };
         let chatinputcontainerstyle = { position: "absolute", bottom: "0px", left: "0px", height: "30px", width: "100%", margin: 0, padding: 0 };
         let chatinputctrlcontstyle = { width: "40px" };
-        let chatmsgcontstyle = { width: "100%", margin: "0px", padding: "40px 5px", maxHeight: "100%", overflow: "auto" };
+        let chatmsgcontstyle = { width: "100%", margin: "0px", padding: "40px 5px", maxHeight: "calc(100vh - 100px)", overflow: "auto" };
 
         let profile = null;
         if (this.messages.length == 0) { profile = <ViewProfile profile={this.state.person} />; }

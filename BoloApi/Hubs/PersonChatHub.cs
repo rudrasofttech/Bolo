@@ -21,7 +21,7 @@ namespace Bolo.Hubs
             _context = context;
         }
 
-        public async Task SendTextMessage(string receiver, string sender, string text, bool iscontact)
+        public async Task SendTextMessage(string receiver, string sender, string text)
         {
             DateTime dt = DateTime.UtcNow;
             Guid d = Guid.NewGuid();
@@ -32,15 +32,39 @@ namespace Bolo.Hubs
             var mreceiver = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(receiver));
             if (msender != null && mreceiver != null && !string.IsNullOrEmpty(text))
             {
+                bool iscontact = _context.Contacts.Count(t => t.Owner.ID == msender.ID && t.Person.ID == mreceiver.ID) > 0 ? true : false;
                 //if receiver is not in contact list than add as contact
                 if (!iscontact)
                 {
                     Contact c = new Contact() { BoloRelation = BoloRelationType.Temporary, CreateDate = DateTime.UtcNow, Owner = msender, Person = mreceiver };
                     _context.Contacts.Add(c);
                     await _context.SaveChangesAsync();
+                    ContactDTO cdto = new ContactDTO()
+                    {
+                        ID = c.ID,
+                        BoloRelation = BoloRelationType.Temporary,
+                        CreateDate = c.CreateDate,
+                        Person = new MemberDTO()
+                        {
+                            ID = c.Person.PublicID,
+                            Name = c.Person.Name,
+                            ChannelName = string.IsNullOrEmpty(c.Person.Channelname) ? "" : c.Person.Channelname.ToLower(),
+                            Bio = string.IsNullOrEmpty(c.Person.Bio) ? "" : c.Person.Bio,
+                            BirthYear = c.Person.BirthYear,
+                            Gender = c.Person.Gender,
+                            Activity = c.Person.Activity,
+                            Visibility = c.Person.Visibility,
+                            Pic = string.IsNullOrEmpty(c.Person.Pic) ? "" : c.Person.Pic,
+                            Country = string.IsNullOrEmpty(c.Person.Country) ? "" : c.Person.Country,
+                            State = string.IsNullOrEmpty(c.Person.State) ? "" : c.Person.State,
+                            City = string.IsNullOrEmpty(c.Person.City) ? "" : c.Person.City,
+                            ThoughtStatus = string.IsNullOrEmpty(c.Person.ThoughtStatus) ? "" : c.Person.ThoughtStatus
+                        },
+                        RecentMessage = text,
+                        RecentMessageDate = dt
+                    };
+                    await Clients.User(sender).SendAsync("ContactSaved", cdto);
                 }
-                
-                
             }
         }
 

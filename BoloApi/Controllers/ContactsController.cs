@@ -50,11 +50,35 @@ namespace Bolo.Controllers
         public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsByMember()
         {
 
-            var contacts = await _context.Contacts.Where(t => t.Owner.PublicID == new Guid(User.Identity.Name)).OrderByDescending(t => t.CreateDate).ToListAsync();
+            var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.PublicID == new Guid(User.Identity.Name)).OrderByDescending(t => t.CreateDate).ToListAsync();
             List<ContactDTO> result = new List<ContactDTO>();
-            foreach(Contact c in contacts)
+            foreach (Contact c in contacts)
             {
-                ContactDTO cdto = new ContactDTO() { BoloRelation = c.BoloRelation, ID = c.ID, Person = c.Person, CreateDate = c.CreateDate };
+                ContactDTO cdto = new ContactDTO()
+                {
+                    BoloRelation = c.BoloRelation,
+                    ID = c.ID,
+                    Person =
+                    new MemberDTO()
+                    {
+                        ID = c.Person.PublicID,
+                        Name = c.Person.Name,
+                        ChannelName = string.IsNullOrEmpty(c.Person.Channelname) ? "" : c.Person.Channelname.ToLower(),
+                        Bio = string.IsNullOrEmpty(c.Person.Bio) ? "" : c.Person.Bio,
+                        BirthYear = c.Person.BirthYear,
+                        Gender = c.Person.Gender,
+                        Activity = c.Person.Activity,
+                        Visibility = c.Person.Visibility,
+                        Pic = string.IsNullOrEmpty(c.Person.Pic) ? "" : c.Person.Pic,
+                        Country = string.IsNullOrEmpty(c.Person.Country) ? "" : c.Person.Country,
+                        State = string.IsNullOrEmpty(c.Person.State) ? "" : c.Person.State,
+                        City = string.IsNullOrEmpty(c.Person.City) ? "" : c.Person.City,
+                        ThoughtStatus = string.IsNullOrEmpty(c.Person.ThoughtStatus) ? "" : c.Person.ThoughtStatus
+                    }
+                    ,
+                    CreateDate = c.CreateDate,
+                    RecentMessage = string.Empty
+                };
                 result.Add(cdto);
             }
             return result;
