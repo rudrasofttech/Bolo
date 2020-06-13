@@ -19,6 +19,12 @@ namespace Bolo.Models
         Text = 1
     }
 
+    public enum MemberNotificationType
+    {
+        Message = 1,
+        Call = 2
+    }
+
     public enum ChatMessageSentStatus
     {
         Sent = 1,
@@ -124,6 +130,16 @@ namespace Bolo.Models
         public string Purpose { get; set; }
 
     }
+
+    public class MemberNotification {
+        public int ID { get; set; }
+        public string SentBy { get; set; }
+        public Member SentTo { get; set; }
+        public DateTime SentDate { get; set; }
+        public string Message { get; set; }
+        public MemberNotificationType NotificationType { get; set; }
+    }
+
 
     public class ChatMessage
     {

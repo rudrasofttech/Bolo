@@ -124,7 +124,3 @@
 
 }
 
-ReactDOM.render(
-    <Meetings />,
-    document.getElementById('meetingsdiv')
-);

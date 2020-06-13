@@ -588,7 +588,7 @@
             }
         }
 
-        this.setState({ redirectto: '/' });
+        window.location.href = "//" + window.location.host;
     }
 
     detectEdgeorIE() {
@@ -1009,7 +1009,7 @@
     }
 
     render() {
-        if (!this.state.loggedin) {
+        /*if (!this.state.loggedin) {
             return <React.Fragment><NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={false} />
                 <div>
                     <h3>Login to Join Meeting</h3>
@@ -1017,7 +1017,7 @@
                 <HeartBeat activity="2" interval="3000" />
             </React.Fragment>;
         }
-        else if (!this.state.idvalid) {
+        else*/ if (!this.state.idvalid) {
             return <React.Fragment> {this.renderValidateModal()}
                 <HeartBeat activity="2" interval="3000" /></React.Fragment>;
         }

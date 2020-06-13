@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\images\nopic.jpg" />
+    <Content Remove="wwwroot\js\Conversation.js" />
     <Content Remove="wwwroot\js\HeartBeat.js" />
     <Content Remove="wwwroot\js\ManageProfile.js" />
     <Content Remove="wwwroot\js\Meeting.js" />
@@ -14,6 +15,10 @@
     <Content Remove="wwwroot\js\MessageStrip.js" />
     <Content Remove="wwwroot\js\Models.js" />
     <Content Remove="wwwroot\js\NavMenu.js" />
+    <Content Remove="wwwroot\js\PersonChat.js" />
+    <Content Remove="wwwroot\js\RecentList.js" />
+    <Content Remove="wwwroot\js\SearchPeople.js" />
+    <Content Remove="wwwroot\js\ViewProfile.js" />
     <Content Remove="wwwroot\media\get-outta-here.m4r" />
     <Content Remove="wwwroot\media\get-outta-here.mp3" />
     <Content Remove="wwwroot\media\get-outta-here.ogg" />
@@ -43,6 +48,7 @@
   <ItemGroup>
     <None Include="wwwroot\css\custom.css" />
     <None Include="wwwroot\images\nopic.jpg" />
+    <None Include="wwwroot\js\Conversation.js" />
     <None Include="wwwroot\js\HeartBeat.js" />
     <None Include="wwwroot\js\ManageProfile.js" />
     <None Include="wwwroot\js\Meeting.js" />
@@ -50,7 +56,11 @@
     <None Include="wwwroot\js\MessageStrip.js" />
     <None Include="wwwroot\js\Models.js" />
     <None Include="wwwroot\js\NavMenu.js" />
+    <None Include="wwwroot\js\PersonChat.js" />
+    <None Include="wwwroot\js\RecentList.js" />
     <None Include="wwwroot\js\RegisterForm.js" />
+    <None Include="wwwroot\js\SearchPeople.js" />
+    <None Include="wwwroot\js\ViewProfile.js" />
     <None Include="wwwroot\media\get-outta-here.m4r" />
     <None Include="wwwroot\media\get-outta-here.mp3" />
     <None Include="wwwroot\media\get-outta-here.ogg" />

@@ -187,7 +187,7 @@ class NavMenu extends React.Component {
         }
         let profilepic = null;
         if (loggedin && this.state.memberpic !== "") {
-            profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded" />
+            profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded-circle"  />
         }
         if (loggedin) {
             linkitems.push(<li className="nav-item" key={"memberlinkli"}><button type="button" className="btn btn-link text-light nav-link membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button></li>);
@@ -202,14 +202,14 @@ class NavMenu extends React.Component {
                 <header>
                     <nav className={navclassnames}>
                         <div className="container-fluid">
-                            <a className="navbar-brand" href="#">Waarta</a>
+                            <a className="navbar-brand" href="/">Waarta</a>
                             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                 <span className="navbar-toggler-icon"></span>
                             </button>
                             <div className="collapse navbar-collapse d-sm-inline-flex flex-sm-row-reverse">
                                 <ul className="navbar-nav flex-grow">
                                     <li className="nav-item">
-                                        <a className="nav-link text-light" href="/">Home</a>
+                                        <a className="nav-link text-light" href="/Chat">Chat</a>
                                     </li>
                                     <li className="nav-item">
                                         <a className="nav-link text-light" href="/Meetings">Meetings</a>

@@ -21,7 +21,7 @@ namespace Bolo.Hubs
             _context = context;
         }
 
-        public async Task SendTextMessage(string receiver, string sender, string text)
+        public async Task SendTextMessage(string receiver, string sender, string text, bool iscontact)
         {
             DateTime dt = DateTime.UtcNow;
             Guid d = Guid.NewGuid();
@@ -32,19 +32,14 @@ namespace Bolo.Hubs
             var mreceiver = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(receiver));
             if (msender != null && mreceiver != null && !string.IsNullOrEmpty(text))
             {
-                //then try to save the message to database
-                ChatMessage cm = new ChatMessage()
+                //if receiver is not in contact list than add as contact
+                if (!iscontact)
                 {
-                    Message = text,
-                    MessageType = ChatMessageType.Text,
-                    SentBy = msender,
-                    SentDate = DateTime.UtcNow,
-                    SentStatus = ChatMessageSentStatus.Sent,
-                    SentTo = mreceiver,
-                    PublicID = d
-                };
-                _context.ChatMessages.Add(cm);
-                await _context.SaveChangesAsync();
+                    Contact c = new Contact() { BoloRelation = BoloRelationType.Temporary, CreateDate = DateTime.UtcNow, Owner = msender, Person = mreceiver };
+                    _context.Contacts.Add(c);
+                    await _context.SaveChangesAsync();
+                }
+                
                 
             }
         }

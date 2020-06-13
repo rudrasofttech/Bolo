@@ -103,6 +103,14 @@ namespace BoloApi
                 endpoints.MapHub<BroadcastHub>("/broadcasthub");
                 endpoints.MapHub<PersonChatHub>("/personchathub");
                 endpoints.MapControllerRoute(
+                    name: "Chat",
+                    pattern: "chat",
+                    new
+                    {
+                        controller = "Home",
+                        action = "Chat"
+                    });
+                endpoints.MapControllerRoute(
                     name: "m",
                     pattern: "m/{id}",
                     new

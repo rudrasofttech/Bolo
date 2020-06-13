@@ -91,7 +91,7 @@
         this.setState({ loading: true });
         const fd = new FormData();
         fd.set("pic", "");
-        fetch('//' + window.location.host + 'api/Members/savepic', {
+        fetch('//' + window.location.host + '/api/Members/savepic', {
             method: 'post',
             body: fd,
             headers: {
@@ -122,7 +122,7 @@
             this.setState({ loading: true });
             const fd = new FormData();
             fd.set("pic", this.state.croppedImageUrl);
-            fetch('//' + window.location.host + 'api/Members/savepic', {
+            fetch('//' + window.location.host + '/api/Members/savepic', {
                 method: 'post',
                 body: fd,
                 headers: {
@@ -154,7 +154,7 @@
         let value = e.target.value;
         this.setState({ loading: true });
         if (name !== 'bio') {
-            fetch('//' + window.location.host + 'api/Members/Save' + name + '?d=' + value, {
+            fetch('//' + window.location.host + '/api/Members/Save' + name + '?d=' + value, {
                 method: 'get',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem("token")
@@ -180,7 +180,7 @@
         } else {
             const fd = new FormData();
             fd.set("d", value);
-            fetch('//' + window.location.host + 'api/Members/savebio', {
+            fetch('//' + window.location.host + '/api/Members/savebio', {
                 method: 'post',
                 body: fd,
                 headers: {
@@ -206,7 +206,7 @@
 
     validate(t) {
         this.setState({ loading: true });
-        fetch('//' + window.location.host + 'api/Members/Validate', {
+        fetch('//' + window.location.host + '/api/Members/Validate', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + t

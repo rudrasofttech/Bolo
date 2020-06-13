@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewData["Title"] = "Chat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div id="navdiv"></div>
+<div id="Conversationdiv"></div>
+
+@section scripts{
+<script>
+    var lin = localStorage.getItem("token") !== null ? true : false;
+</script>
+    <script src="~/libs/moment.min.js"></script>
+    <script src="~/libs/simplepeer.min.js"></script>
+
+    <script type="text/babel" src="~/js/ViewProfile.js"></script>
+    <script type="text/babel" src="~/js/PersonChat.js"></script>
+    <script type="text/babel" src="~/js/RecentList.js"></script>
+    <script type="text/babel" src="~/js/SearchPeople.js"></script>
+    <script type="text/babel" src="~/js/Conversation.js"></script>
+    <script type="text/babel">
+        ReactDOM.render(
+        <Conversation />,
+        document.getElementById('Conversationdiv')
+        );
+    </script>
+}

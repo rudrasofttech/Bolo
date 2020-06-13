@@ -17,6 +17,7 @@ namespace Bolo.Data
         public DbSet<Meeting> Meetings { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Contact> Contacts { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");

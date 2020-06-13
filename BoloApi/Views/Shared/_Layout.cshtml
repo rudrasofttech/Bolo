@@ -11,25 +11,31 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js" charset="utf-8"></script>
+
+    
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js" charset="utf-8"></script>
+    
     @RenderSection("head", false)
 </head>
 <body>
     @RenderBody()
-    <script src="~/js/signalr.min.js"></script>
-    <script src="~/js/ReactCrop.min.js"></script>
-    <script type="text/babel" src="~/js/HeartBeat.js">
-    </script>
-    <script type="text/babel" src="~/js/MessageStrip.js">
-    </script>
-    <script type="text/babel" src="~/js/RegisterForm.js">
-    </script>
-    <script type="text/babel" src="~/js/ManageProfile.js">
-    </script>
-    <script type="text/babel" src="~/js/NavMenu.js">
-    </script>
+    <script src="~/libs/signalr.min.js"></script>
+    <script src="~/libs/ReactCrop.min.js"></script>
+   
+        <script type="text/babel" src="~/js/HeartBeat.js">
+        </script>
+        <script type="text/babel" src="~/js/MessageStrip.js">
+        </script>
+        <script type="text/babel" src="~/js/RegisterForm.js">
+        </script>
+        <script type="text/babel" src="~/js/ManageProfile.js">
+        </script>
+        <script type="text/babel" src="~/js/NavMenu.js">
+        </script>
+    
+    
     @RenderSection("scripts", false)
 </body>
 </html>

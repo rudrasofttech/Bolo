@@ -6,10 +6,18 @@
 
 <div id="meetingsdiv"></div>
 @section head{
-    
+
 }
 
 @section scripts{
-    <script type="text/babel" src="~/js/Meetings.js">
-    </script>
+    
+        <script type="text/babel" src="~/js/Meetings.js">
+        </script>
+        <script type="text/babel">
+            ReactDOM.render(
+            <Meetings />,
+            document.getElementById('meetingsdiv')
+            );
+        </script>
 }
+    
