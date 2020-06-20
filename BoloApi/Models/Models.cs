@@ -8,10 +8,9 @@ using System.Threading.Tasks;
 
 namespace Bolo.Models
 {
-
     public enum BoloRelationType
     {
-        
+
         Temporary = 1,
         Mutual = 2,
         Search = 3
@@ -133,7 +132,8 @@ namespace Bolo.Models
 
     }
 
-    public class MemberNotification {
+    public class MemberNotification
+    {
         public int ID { get; set; }
         public string SentBy { get; set; }
         public Member SentTo { get; set; }
@@ -177,10 +177,22 @@ namespace Bolo.Models
         public MemberDTO Person { get; set; }
         public DateTime CreateDate { get; set; }
         public BoloRelationType BoloRelation { get; set; }
-
         public string RecentMessage { get; set; }
-
         public DateTime RecentMessageDate { get; set; }
+        public int UnseenMessageCount { get; set; }
+        
+        public ContactDTO(Contact c)
+        {
+            ID = c.ID;
+            if(c.Person != null)
+            {
+                Person = new MemberDTO(c.Person);
+            }
+            CreateDate = c.CreateDate;
+            this.BoloRelation = c.BoloRelation;
+            this.RecentMessage = string.Empty;
+            this.RecentMessageDate = DateTime.MinValue;
+        }
     }
 
     public class CreateMeetingDTO
@@ -195,7 +207,6 @@ namespace Bolo.Models
     {
         public Guid ID { get; set; }
         public string Name { get; set; }
-
         public string ChannelName { get; set; }
         public string Bio { get; set; }
         public int BirthYear { get; set; }
@@ -218,6 +229,23 @@ namespace Bolo.Models
             State = "";
             City = "";
             ThoughtStatus = "";
+        }
+
+        public MemberDTO(Member m)
+        {
+            ID = m.PublicID;
+            Name = m.Name;
+            ChannelName = string.IsNullOrEmpty(m.Channelname) ? "" : m.Channelname.ToLower();
+            Bio = string.IsNullOrEmpty(m.Bio) ? "" : m.Bio;
+            BirthYear = m.BirthYear;
+            Gender = m.Gender;
+            Activity = (m.LastPulse.AddSeconds(3) > DateTime.UtcNow) ? m.Activity : ActivityStatus.Offline;
+            Visibility = m.Visibility;
+            Pic = string.IsNullOrEmpty(m.Pic) ? "" : m.Pic;
+            Country = string.IsNullOrEmpty(m.Country) ? "" : m.Country;
+            State = string.IsNullOrEmpty(m.State) ? "" : m.State;
+            City = string.IsNullOrEmpty(m.City) ? "" : m.City;
+            ThoughtStatus = string.IsNullOrEmpty(m.ThoughtStatus) ? "" : m.ThoughtStatus;
         }
     }
 

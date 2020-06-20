@@ -115,7 +115,7 @@
                         </div>
 
                     </main>
-                    <HeartBeat activity="1" interval="10000" />
+                    <HeartBeat activity="1" interval="3000" />
                     {loading}
                     {messagecontent}
                 </div>);

@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,31 +54,8 @@ namespace Bolo.Controllers
             List<ContactDTO> result = new List<ContactDTO>();
             foreach (Contact c in contacts)
             {
-                ContactDTO cdto = new ContactDTO()
-                {
-                    BoloRelation = c.BoloRelation,
-                    ID = c.ID,
-                    Person =
-                    new MemberDTO()
-                    {
-                        ID = c.Person.PublicID,
-                        Name = c.Person.Name,
-                        ChannelName = string.IsNullOrEmpty(c.Person.Channelname) ? "" : c.Person.Channelname.ToLower(),
-                        Bio = string.IsNullOrEmpty(c.Person.Bio) ? "" : c.Person.Bio,
-                        BirthYear = c.Person.BirthYear,
-                        Gender = c.Person.Gender,
-                        Activity = c.Person.Activity,
-                        Visibility = c.Person.Visibility,
-                        Pic = string.IsNullOrEmpty(c.Person.Pic) ? "" : c.Person.Pic,
-                        Country = string.IsNullOrEmpty(c.Person.Country) ? "" : c.Person.Country,
-                        State = string.IsNullOrEmpty(c.Person.State) ? "" : c.Person.State,
-                        City = string.IsNullOrEmpty(c.Person.City) ? "" : c.Person.City,
-                        ThoughtStatus = string.IsNullOrEmpty(c.Person.ThoughtStatus) ? "" : c.Person.ThoughtStatus
-                    }
-                    ,
-                    CreateDate = c.CreateDate,
-                    RecentMessage = string.Empty
-                };
+                
+                ContactDTO cdto = new ContactDTO(c);
                 result.Add(cdto);
             }
             return result;

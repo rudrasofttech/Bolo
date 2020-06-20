@@ -25,65 +25,79 @@ namespace Bolo.Hubs
         {
             DateTime dt = DateTime.UtcNow;
             Guid d = Guid.NewGuid();
-            await Clients.User(receiver).SendAsync("ReceiveTextMessage", sender, text, dt, d);
-            await Clients.User(sender).SendAsync("ReceiveTextMessage", sender, text, dt, d);
+            _ = Clients.User(receiver).SendAsync("ReceiveTextMessage", sender, text, dt, d);
+            await Clients.User(sender).SendAsync("MessageSent", receiver, text, dt, d);
             //check if sender and receiver are valid
             var msender = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(sender));
             var mreceiver = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(receiver));
             if (msender != null && mreceiver != null && !string.IsNullOrEmpty(text))
             {
-                bool iscontact = _context.Contacts.Count(t => t.Owner.ID == msender.ID && t.Person.ID == mreceiver.ID) > 0 ? true : false;
-                //if receiver is not in contact list than add as contact
-                if (!iscontact)
+                bool isContactSenderReceiver = _context.Contacts.Count(t => t.Owner.ID == msender.ID && t.Person.ID == mreceiver.ID) > 0 ? true : false;
+                //if receiver is not in contact list of sender than add as temporary contact
+                if (!isContactSenderReceiver)
                 {
                     Contact c = new Contact() { BoloRelation = BoloRelationType.Temporary, CreateDate = DateTime.UtcNow, Owner = msender, Person = mreceiver };
                     _context.Contacts.Add(c);
                     await _context.SaveChangesAsync();
-                    ContactDTO cdto = new ContactDTO()
-                    {
-                        ID = c.ID,
-                        BoloRelation = BoloRelationType.Temporary,
-                        CreateDate = c.CreateDate,
-                        Person = new MemberDTO()
-                        {
-                            ID = c.Person.PublicID,
-                            Name = c.Person.Name,
-                            ChannelName = string.IsNullOrEmpty(c.Person.Channelname) ? "" : c.Person.Channelname.ToLower(),
-                            Bio = string.IsNullOrEmpty(c.Person.Bio) ? "" : c.Person.Bio,
-                            BirthYear = c.Person.BirthYear,
-                            Gender = c.Person.Gender,
-                            Activity = c.Person.Activity,
-                            Visibility = c.Person.Visibility,
-                            Pic = string.IsNullOrEmpty(c.Person.Pic) ? "" : c.Person.Pic,
-                            Country = string.IsNullOrEmpty(c.Person.Country) ? "" : c.Person.Country,
-                            State = string.IsNullOrEmpty(c.Person.State) ? "" : c.Person.State,
-                            City = string.IsNullOrEmpty(c.Person.City) ? "" : c.Person.City,
-                            ThoughtStatus = string.IsNullOrEmpty(c.Person.ThoughtStatus) ? "" : c.Person.ThoughtStatus
-                        },
-                        RecentMessage = text,
-                        RecentMessageDate = dt
-                    };
+                    ContactDTO cdto = new ContactDTO(c);
+                    cdto.RecentMessage = text;
+                    cdto.RecentMessageDate = dt;
                     await Clients.User(sender).SendAsync("ContactSaved", cdto);
+                }
+
+                bool isContactReceiverSender = _context.Contacts.Count(t => t.Owner.ID == mreceiver.ID && t.Person.ID == msender.ID) > 0 ? true : false;
+                //if sender in not in contact list of receiver than add as temporary conact
+                if (!isContactReceiverSender)
+                {
+                    Contact c = new Contact() { BoloRelation = BoloRelationType.Temporary, CreateDate = DateTime.UtcNow, Owner = mreceiver, Person = msender };
+                    _context.Contacts.Add(c);
+                    await _context.SaveChangesAsync();
+                    ContactDTO cdto = new ContactDTO(c);
+                    cdto.RecentMessage = text;
+                    cdto.RecentMessageDate = dt;
+                    await Clients.User(receiver).SendAsync("ContactSaved", cdto);
                 }
             }
         }
 
-        public async Task MessageReceived(string id, string to)
+        public async Task MessageStatus(string messageid, string sentby, string receivedby, int status)
         {
             //notify the sender of original message that it has been received
-            await Clients.User(to).SendAsync("MessageDelivered", id);
-            //try to remove message from data base,
-            //we do not keep copy of the message
-            //Guid g;
-            //if (Guid.TryParse(id, out g))
-            //{
-            //    var cm = _context.ChatMessages.FirstOrDefault(t => t.PublicID == g);
-            //    if (cm != null)
-            //    {
-            //        _context.ChatMessages.Remove(cm);
-            //        await _context.SaveChangesAsync();
-            //    }
-            //}
+            await Clients.User(sentby).SendAsync("MessageStatus", messageid, receivedby, status);
+        }
+
+        public async Task SendSignal(object signal, string target, string sender)
+        {
+            //ReceiveSignal Who sent, data
+            await Clients.User(target).SendAsync("ReceiveSignal", sender, signal);
+        }
+
+        /// <summary>
+        /// One who initiates the call
+        /// </summary>
+        /// <param name="caller">Who initiated the call</param>
+        /// <param name="callee">Who is suppose to answer</param>
+        /// <returns></returns>
+        public async Task InitiateCall(string caller, string callee)
+        {
+            //Notify callee that a call is initiated and its response is expected
+            await Clients.User(callee).SendAsync("InitiateCall", caller);
+        }
+
+        /// <summary>
+        /// Answer an initated call
+        /// </summary>
+        /// <param name="initiater">Who initiated the call</param>
+        /// <param name="responder">Who is answering the call</param>
+        /// <returns></returns>
+        public async Task AnswerCall(string initiater, string responder,int callstatus)
+        {
+            await Clients.User(initiater).SendAsync("AnswerCall", responder, callstatus);
+        }
+
+        public async Task EndCall(string me, string other)
+        {
+            await Clients.User(other).SendAsync("EndCall", me);
         }
     }
 }

@@ -41,6 +41,22 @@ code {
         text-decoration: none;
     }
 
+.online {
+    border: 5px solid #8EBF43;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 15px;
+}
+
+.offline {
+    border: 5px solid #E0E3E6;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 15px;
+}
+
 .fixedBottom {
     position: fixed;
     top: auto;
@@ -93,7 +109,7 @@ code {
     top: 0px;
     left: 0px;
     width: 100%;
-    padding: 0px 5px;
+    padding: 0px;
 }
 
 
@@ -476,6 +492,104 @@ code {
                 }
 
 
+.personalchatcont {
+    position: relative;
+    height: 100%;
+}
+
+    .personalchatcont td, .personalchatcont tr {
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .personalchatcont .chatpersoninfocont {
+        /*position: absolute;
+        top: 0px;
+        left: 0px;*/
+        height: 50px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #F0F4F8;
+    }
+
+    .personalchatcont .chatinputcontainer {
+        /*position: absolute;
+        bottom: 0px;
+        left: 0px;*/
+        height: 30px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #F0F4F8;
+    }
+
+        .personalchatcont .chatinputcontainer .chatinputctrlcont {
+            width: 155px;
+        }
+
+    .personalchatcont .chatmsgcont {
+        width: 100%;
+        margin: 0px;
+        /*padding: 40px 0px;*/
+        height: calc(100vh - 150px);
+        overflow: auto;
+    }
+
+    .personalchatcont .videochatcont {
+        width: 100%;
+        border: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+
+
+        .personalchatcont .videochatcont .videochatcolumn {
+            width: 70%;
+            position: relative;
+        }
+
+        .personalchatcont .videochatcont #myvideo.docked {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            border: 3px solid #E6E7E8;
+        }
+
+.searchcont {
+    min-height: calc(100vh - 60px);
+    background-color: #F0F4F8;
+    /*padding: 0px;
+    padding-top: 40px;
+    position: relative;*/
+}
+
+.searchresult > li.list-inline-item {
+    cursor: pointer;
+}
+
+.searchresult > .list-inline-item:not(:last-child) {
+    margin-right: 3px;
+}
+
+.searchresult > li.list-inline-item > .card {
+    position: relative;
+}
+
+    .searchresult > li.list-inline-item > .card > .card-body {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        background-color: rgba(0, 0, 0, 0.4);
+        width: 100%;
+        color: #fff;
+        padding: 0.25rem;
+    }
+
+    .searchresult > li.list-inline-item > .card > .card-title {
+        margin-bottom: 0px;
+    }
 
 
 /*Large screens*/

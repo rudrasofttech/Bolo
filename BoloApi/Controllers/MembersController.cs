@@ -62,7 +62,8 @@ namespace Bolo.Controllers
                 }
 
                 return Ok(OTP);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return Ok(ex.Message);
             }
@@ -144,22 +145,7 @@ namespace Bolo.Controllers
             }
             else
             {
-                MemberDTO result = new MemberDTO()
-                {
-                    ID = member.PublicID,
-                    Name = member.Name,
-                    ChannelName = string.IsNullOrEmpty(member.Channelname) ? "" : member.Channelname.ToLower(),
-                    Bio = string.IsNullOrEmpty(member.Bio) ? "" : member.Bio,
-                    BirthYear = member.BirthYear,
-                    Gender = member.Gender,
-                    Activity = member.Activity,
-                    Visibility = member.Visibility,
-                    Pic = string.IsNullOrEmpty(member.Pic) ? "" : member.Pic,
-                    Country = string.IsNullOrEmpty(member.Country) ? "" : member.Country,
-                    State = string.IsNullOrEmpty(member.State) ? "" : member.State,
-                    City = string.IsNullOrEmpty(member.City) ? "" : member.City,
-                    ThoughtStatus = string.IsNullOrEmpty(member.ThoughtStatus) ? "" : member.ThoughtStatus
-                };
+                MemberDTO result = new MemberDTO(member);
                 return result;
             }
         }
@@ -189,7 +175,8 @@ namespace Bolo.Controllers
         public async Task<ActionResult<MemberDTO>> GetMember(string id)
         {
             var member = new Member();
-            if (Guid.TryParse(id, out Guid idguid)){
+            if (Guid.TryParse(id, out Guid idguid))
+            {
                 member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == idguid);
             }
             else
@@ -201,24 +188,11 @@ namespace Bolo.Controllers
             {
                 return NotFound();
             }
-            MemberDTO result = new MemberDTO()
-            {
-                ID = member.PublicID,
-                Name = member.Name,
-                ChannelName = member.Channelname,
-                Bio = member.Bio,
-                BirthYear = member.BirthYear,
-                Gender = member.Gender,
-                Activity = member.Activity,
-                Visibility = member.Visibility,
-                Pic = string.IsNullOrEmpty(member.Pic) ? "" : member.Pic,
-                Country = string.IsNullOrEmpty(member.Country) ? "" : member.Country,
-                State = string.IsNullOrEmpty(member.State) ? "" : member.State,
-                City = string.IsNullOrEmpty(member.City) ? "" : member.City,
-                ThoughtStatus = string.IsNullOrEmpty(member.ThoughtStatus) ? "" : member.ThoughtStatus
-            };
+            MemberDTO result = new MemberDTO(member);
             return result;
         }
+
+        
 
         [HttpGet]
         [Route("SaveChannel")]
@@ -538,9 +512,13 @@ namespace Bolo.Controllers
                 Activity = ActivityStatus.Online,
                 Bio = "",
                 Channelname = "",
-                City="", Country="", LastPulse = DateTime.UtcNow, 
-                Pic ="", ThoughtStatus="", 
-                Visibility = MemberProfileVisibility.Public, State = ""
+                City = "",
+                Country = "",
+                LastPulse = DateTime.UtcNow,
+                Pic = "",
+                ThoughtStatus = "",
+                Visibility = MemberProfileVisibility.Public,
+                State = ""
             };
             _context.Members.Add(m);
             await _context.SaveChangesAsync();
@@ -557,23 +535,9 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("search")]
-        public ActionResult<IEnumerable<MemberDTO>> Search(string s){
-           return _context.Members.Where(t => (t.Name.Contains(s) || t.Bio.Contains(s)) && t.Visibility == MemberProfileVisibility.Public && t.PublicID != new Guid(User.Identity.Name)).Select(t => new MemberDTO()
-            {
-                ID = t.PublicID,
-                Name = t.Name,
-                ChannelName = string.IsNullOrEmpty(t.Channelname) ? "" : t.Channelname.ToLower(),
-                Bio = string.IsNullOrEmpty(t.Bio) ? "" : t.Bio,
-                BirthYear = t.BirthYear,
-                Gender = t.Gender,
-                Activity = t.Activity,
-                Visibility = t.Visibility,
-                Pic = string.IsNullOrEmpty(t.Pic) ? "" : t.Pic,
-                Country = string.IsNullOrEmpty(t.Country) ? "" : t.Country,
-                State = string.IsNullOrEmpty(t.State) ? "" : t.State,
-                City = string.IsNullOrEmpty(t.City) ? "" : t.City,
-                ThoughtStatus = string.IsNullOrEmpty(t.ThoughtStatus) ? "" : t.ThoughtStatus
-            }).ToList();
+        public ActionResult<IEnumerable<MemberDTO>> Search(string s)
+        {
+            return _context.Members.Where(t => (t.Name.Contains(s) || t.Bio.Contains(s)) && t.Visibility == MemberProfileVisibility.Public && t.PublicID != new Guid(User.Identity.Name)).Select(t => new MemberDTO(t)).ToList();
         }
 
         // DELETE: api/Members/5

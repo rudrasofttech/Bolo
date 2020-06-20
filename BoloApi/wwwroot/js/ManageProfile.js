@@ -692,8 +692,8 @@
                                     <label htmlFor="visibilityselect">Profile Visibility</label>
                                     <select className="custom-select" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange} onBlur={this.saveData}>
                                         <option value="0"></option>
-                                        <option value="1">Public</option>
-                                        <option value="2">Private</option>
+                                        <option value="2">Public</option>
+                                        <option value="1">Private</option>
                                     </select>
                                     <small className="form-text text-muted">Optional, but recommended. Public visibility means your profile will be visible in searches. Private visibility means your profile will not be shown in searches.</small>
                                 </div>

@@ -1,4 +1,13 @@
-﻿class PersonChat extends React.Component {
+﻿var CallStatusEnum = {
+    Idle = 1,
+    Initiated= 2,
+    Accept = 3,
+    Reject = 4,
+    Unanswered = 5,
+    End = 6
+}
+
+class PersonChat extends React.Component {
 
     constructor(props) {
         super(props);
@@ -12,15 +21,36 @@
         this.state = {
             loading: false, loggedin: loggedin,
             myself: this.props.myself !== undefined ? this.props.myself : null, bsstyle: '', message: '', person: p,
-            token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"), textinput: '', dummy: Date.now()
+            token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"), textinput: '', dummy: Date.now(),
+            videoCapable: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+            peerCapable: SimplePeer.WEBRTC_SUPPORT, videoplaying: false, audioplaying: false, callstatus: CallStatusEnum.Idle
         };
-
+        this.mystream = null;
+        this.otherstream = null;
+        this.peer = null;
         this.messages = (localStorage.getItem(p.id) !== null) ? new Map(JSON.parse(localStorage.getItem(p.id))) : new Map();
         this.hubConnection = null;
         this.handleChange = this.handleChange.bind(this);
         this.handleSend = this.handleSend.bind(this);
         this.sendTextMessage = this.sendTextMessage.bind(this);
         this.startHub = this.startHub.bind(this);
+        this.createPeer = this.createPeer.bind(this);
+        this.onPeerSignal = this.onPeerSignal.bind(this);
+        this.onPeerConnect = this.onPeerConnect.bind(this);
+        this.onPeerConnect = this.onPeerConnect.bind(this);
+        this.onPeerError = this.onPeerError.bind(this);
+        this.onPeerStream = this.onPeerStream.bind(this);
+        this.handleVideoToggle = this.handleVideoToggle.bind(this);
+        this.handleAudioToggle = this.handleAudioToggle.bind(this);
+        this.getUserCam = this.getUserCam.bind(this);
+        this.addMedia = this.addMedia.bind(this);
+        this.userMediaError = this.userMediaError.bind(this);
+        this.initiateCall = this.initiateCall.bind(this);
+        this.messageStatusEnum = {
+            Sent: 1,
+            Received: 2,
+            Seen: 3
+        }
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -29,7 +59,7 @@
                 person: props.person
             };
         }
-        return null
+        return null;
     }
 
     startHub() {
@@ -39,8 +69,33 @@
             console.log('Hub Connection started!');
         }).catch(err => console.log('Error while establishing connection :('));
 
+
         //this function is called by server when it receives a sendtextmessage from user.
-        this.hubConnection.on('ReceiveTextMessage', (ui, text, timestamp, id) => { this.receiveTextMessage(ui, text, timestamp, id); });
+        this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => { this.receiveTextMessage(sender, text, timestamp, id); });
+
+        this.hubConnection.on('MessageSent', (receiver, text, timestamp, id) => {
+            var mi = { id: id, sender: this.state.myself.id, text: text, timestamp: timestamp + " UTC", status: this.messageStatusEnum.Sent };
+            //try to add sent message to current message list
+            if (receiver.toLowerCase() === this.state.person.id.toLowerCase()) {
+                this.messages.set(id, mi);
+                this.setState({ dummy: Date.now() }, () => {
+                    localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+                });
+            }
+
+        });
+
+        this.hubConnection.on('MessageStatus', (messageid, receiver, status) => {
+            let usermsgs = localStorage.getItem(receiver.toLowerCase());
+            if (usermsgs !== null) {
+                usermsgmap = new Map(JSON.parse(usermsgs));
+
+                if (usermsgmap.get(messageid) !== undefined) {
+                    usermsgmap.get(messageid).status = status;
+                    localStorage.setItem(receiver.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
+                }
+            }
+        });
 
         this.hubConnection.on('ContactSaved', (cdto) => {
             let contactmap = new Map();
@@ -50,18 +105,58 @@
             contactmap.set(cdto.person.id, cdto);
             localStorage.setItem("contacts", JSON.stringify(Array.from(contactmap)));
         });
+
+        //this function is strictly call by server to transfer webrtc peer data
+        this.hubConnection.on('ReceiveSignal', (sender, data) => {
+            console.log("receivesignal sender : " + sender);
+            console.log("receivesignal data : " + data);
+            if (this.peer !== null) {
+                this.peer.signal(data);
+            }
+        });
+
+        this.hubConnection.on('InitiateCall', (caller) => {
+            console.log("Call Initiated By : " + caller);
+            if (this.state.person.id === caller.toLowerCase()) {
+                this.setState({ callstatus: CallStatusEnum.Initiated });
+            }
+        });
+
+        this.hubConnection.on('AnswerCall', (responder, callstatus) => {
+            console.log("Call Answered By : " + responder + ' with status ' + callstatus);
+            if (this.state.person.id === caller.toLowerCase()) {
+                switch (callstatus) {
+                    case CallStatusEnum.Accept:
+                        this.setState({ callstatus: CallStatusEnum.Accept });
+                        break;
+                    case CallStatusEnum.Reject:
+                        this.setState({ callstatus: CallStatusEnum.Reject });
+                        break;
+                    case CallStatusEnum.Unanswered:
+                        this.setState({ callstatus: CallStatusEnum.Unanswered });
+                        break;
+                    default:
+                }
+                
+            }
+        });
+
+        this.hubConnection.on('EndCall', (userid) => {
+            console.log("Call Ended  By : " + userid);
+            if (this.state.person.id === userid.toLowerCase()) {
+                this.setState({ callstatus: CallStatusEnum.End });
+            }
+        });
+    }
+
+    initiateCall() {
+        this.setState({ callstatus: CallStatusEnum.Initiated });
+        this.hubConnection.invoke("InitiateCall", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
+            .catch(err => { console.log("Unable to initiate call."); console.error(err); })
     }
 
     sendTextMessage() {
         if (this.state.textinput.trim() !== "") {
-            
-            //check if receiver is in contact list
-            //if (this.messages.size === 0 && localStorage.getItem("contacts") !== null) {
-            //    let cl = localStorage.getItem("contacts");
-            //    for (var k in cl) {
-
-            //    }
-            //}
             this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, this.state.textinput)
                 .catch(err => { console.log("Unable to send message to group."); console.error(err); });
             this.setState({ textinput: '' });
@@ -70,14 +165,92 @@
 
     receiveTextMessage(sender, text, timestamp, id) {
         var mi = { id: id, sender: sender, text: text, timestamp: timestamp + " UTC" };
-        this.messages.set(id, mi);
-        this.setState({ dummy: Date.now() }, () => {
-            localStorage.setItem(this.state.person.id, JSON.stringify(Array.from(this.messages.entries())));
-        });
-        this.playmsgbeep();
-
-
+        //if received message is from current person then show in ui else save in localstorage
+        if (sender.toLowerCase() === this.state.person.id.toLowerCase()) {
+            this.messages.set(id, mi);
+            this.setState({ dummy: Date.now() }, () => {
+                localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+            });
+            this.playmsgbeep();
+        } else {
+            if (this.props.receivedMessage !== undefined) {
+                this.props.receivedMessage(mi);
+            }
+        }
     }
+
+    detectEdgeorIE() {
+        // Internet Explorer 6-11
+        const isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+        // Edge 20+
+        const isEdge = !isIE && !!window.StyleMedia;
+
+        return (isIE || isEdge);
+    }
+
+    createPeer(initiater) {
+        //RTC Peer configuration
+        let configuration = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
+        if (window.location.hostname.toLowerCase() === "localhost") {
+            configuration = {};
+        }
+        console.log("newuserarrived stream : ");
+        console.log(this.mystream);
+        this.peer = new SimplePeer({ initiator: initiater, config: configuration, stream: this.mystream });
+        //this.peer["cid"] = u.connectionID;
+        //this.peer["hubConnection"] = this.hubConnection;
+        //this.peer["myself"] = this.myself;
+
+        //set peer event handlers
+        this.peer.on("error", this.onPeerError);
+        this.peer.on("signal", this.onPeerSignal);
+        this.peer.on("connect", this.onPeerConnect);
+        this.peer.on("stream", stream => { this.onPeerStream(stream); });
+        this.peer.on('data', data => {
+            // got a data channel message
+            console.log('got a message from peer1: ' + data)
+        });
+    }
+
+    /**
+     * Simple Peer events
+     * 
+     */
+    onPeerSignal(data) {
+        this.hubConnection
+            .invoke('SendSignal', data, this.person.id, this.myself.id)
+            .catch(err => console.error('SendSignal ' + err));
+    }
+
+    onPeerConnect() {
+        this.send(this.myself.name + ' peer connected.');
+    }
+
+    onPeerError(err) {
+        console.log(this.person.name + " peer gave error. ");
+        console.error(err);
+    }
+
+    onPeerStream(stream) {
+        console.log("received a stream"); console.log(stream);
+        this.otherstream = stream;
+        //update state so that UI changes
+        this.setState({ dummydate: Date.now() }, () => {
+            let v = document.getElementById('othervideo');
+            if (v !== null) {
+                if ('srcObject' in v) {
+                    v.srcObject = this.otherstream
+                } else {
+                    v.src = window.URL.createObjectURL(this.otherstream) // for older browsers
+                }
+                v.muted = false;
+                v.volume = 0.8;
+                v.play();
+            }
+        });
+    }
+    //simple peer events end here
 
     playmsgbeep() {
         let cb = document.getElementById("chatbeep");
@@ -87,6 +260,102 @@
             //we have to unmute the audio since it  is muted at time of loading
             cb.muted = false;
             cb.play();
+        }
+    }
+
+    //call this function to gain access to camera and microphone
+    getUserCam() {
+        //config 
+        var videoconst = true;
+        if (window.matchMedia("(max-width: 414px) and (orientation: portrait)").matches) {
+            videoconst = {
+                width: {
+                    min: 375
+                },
+                height: {
+                    min: 740
+                }
+            };
+        }
+        var constraints = {
+            audio: true, video: videoconst
+        };
+        //simple feature avialability check
+        if (navigator.mediaDevices.getUserMedia) {
+            //try to gain access and then take appropriate action
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then(this.addMedia)
+                .catch(this.userMediaError); // always check for errors at the end.
+        }
+    }
+
+    //assign media stream received from getusermedia to my video 
+    addMedia(stream) {
+        //save stream in global variable 
+        this.mystream = stream;
+        //update state so that myvideo element can be added to dom and then manipulated
+        this.setState({ dummydate: new Date() }, () => {
+            var video = document.getElementById('myvideo');
+
+            video.srcObject = this.mystream;
+            //only play when meta data is loaded from stream
+            video.onloadedmetadata = function (e) {
+                if (video !== undefined) {
+                    //provision to reduce echoe
+                    //mute the self video
+                    video.volume = 0;
+                    video.muted = 0;
+
+                    //start playing the video
+                    video.play();
+
+                    //console.log(video.width + " " + video.height);
+                }
+            };
+        });
+
+        //based on initial state enable or disable video and audio
+        //initially video will be disabled or micrphone will broadcast
+        if (this.mystream.getVideoTracks().length > 0) {
+            this.mystream.getVideoTracks()[0].enabled = this.state.videoplaying;
+        }
+        if (this.mystream.getAudioTracks().length > 0) {
+            this.mystream.getAudioTracks()[0].enabled = this.state.audioplaying;
+        }
+
+        //set stream to all existing peers
+        if (this.peer !== null) {
+            this.peer.addStream(this.mystream);
+        }
+    }
+
+    //handle error when trying to get usermedia. This may be raised when user does not allow access to camera and microphone
+    userMediaError(err) {
+        console.log("Unable to access user media");
+        console.error(err);
+        if (err.name !== undefined && err.name !== null) {
+            if (err.name.toLowerCase() === "notallowederror") {
+                alert("You have specifically denied access to camera and microphone. Please check browser title or address bar to see the notification.");
+            } else {
+                alert("Unable to access camera.");
+            }
+        }
+        this.setState({ videoplaying: false, audioplaying: false });
+        //dont know if user should be updated or not
+        //this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
+    }
+
+    showMessageStatus(status) {
+        switch (status) {
+            case this.messageStatusEnum.Received:
+                return "Received";
+            case this.messageStatusEnum.Sent:
+                return "Sent"
+            case this.messageStatusEnum.Seen:
+                return "Seen";
+            default:
+                return "";
         }
     }
 
@@ -104,9 +373,38 @@
         this.sendTextMessage();
     }
 
+    //enable or disable video track of my stream
+    handleVideoToggle(e) {
+        if (this.mystream !== null) {
+            if (this.mystream.getVideoTracks().length > 0) {
+                this.mystream.getVideoTracks()[0].enabled = !this.state.videoplaying;
+                this.setState({ videoplaying: !this.state.videoplaying });
+            }
+        } else {
+            //if there is no stream then most probably
+            //user denied permission to cam and microphone
+            this.getUserCam();
+            this.setState({ videoplaying: true });
+        }
+    }
+    //enable or disable audio track of my stream
+    handleAudioToggle(e) {
+        if (this.mystream !== null) {
+            if (this.mystream.getAudioTracks().length > 0) {
+                this.mystream.getAudioTracks()[0].enabled = !this.state.audioplaying;
+                this.setState({ audioplaying: !this.state.audioplaying });
+            }
+        } else {
+            //if there is no stream then most probably
+            //user denied permission to cam and microphone
+            this.getUserCam();
+            this.setState({ audioplaying: true });
+        }
+    }
+
     scrollToBottom = () => {
         if (this.messagesEnd !== undefined && this.messagesEnd !== null) {
-            this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+            this.messagesEnd.scrollIntoView();
         }
     }
 
@@ -120,26 +418,54 @@
         }
         //each time compoment updates scroll to bottom
         //this can be improved by identifying if new messages added
-        this.scrollToBottom();
+        //this.scrollToBottom();
+    }
+
+    componentWillUnmount() {
+        if (this.peer !== null) {
+            this.peer.destory();
+            this.peer = null;
+        }
     }
 
     renderMessages() {
         let sentlistyle = { display: "block", textAlign: 'right' };
         let reclistyle = { display: "block", textAlign: 'left' };
-        let sentmessagestyle = { margin: "2px", maxWidth: "300px", display: "inline-block", padding: "4px", background: "#fff", borderRadius: "4px" };
-        let recmessagestyle = { margin: "2px", maxWidth: "300px", display: "inline-block", background: "#F2F6F9", padding: "4px", borderRadius: "4px" };
+        let sentmessagestyle = {
+            margin: "2px", maxWidth: "50%", position: "relative",
+            padding: ".1rem 0.75rem",
+            marginBottom: "1rem",
+            border: "1px solid transparent",
+            borderRadius: ".25rem",
+            display: "inline-block",
+            color: "#383d41",
+            backgroundColor: "#e2e3e5",
+            borderColor: "#d6d8db"
+
+        };
+        let recmessagestyle = {
+            margin: "2px", maxWidth: "50%", position: "relative",
+            padding: ".1rem 0.75rem",
+            marginBottom: "1rem",
+            border: "1px solid transparent",
+            borderRadius: ".25rem",
+            display: "inline-block",
+            color: "#0c5460",
+            backgroundColor: "#d1ecf1",
+            borderColor: "#bee5eb"
+        };
         const items = [];
         for (const [key, obj] of this.messages.entries()) {
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
-                    <div style={sentmessagestyle}>
+                    <div style={sentmessagestyle} >
                         {obj.text}
-                        <span className="d-block"><small className="time">{moment(obj.timestamp, "YYYYMMDD").fromNow()}</small></span>
+                        <span className="d-block"><small className="time">{moment(obj.timestamp, "YYYYMMDD").fromNow()}</small> <small>{this.showMessageStatus(obj.status)}</small></span>
                     </div>
                 </li>);
             } else {
                 items.push(<li style={reclistyle} key={key}>
-                    <div style={recmessagestyle}>
+                    <div style={recmessagestyle} className="alert alert-info">
                         {obj.text}
                         <span className="d-block"><small className="time">{moment(obj.timestamp, "YYYYMMDD").fromNow()}</small></span>
                     </div>
@@ -157,58 +483,117 @@
     }
 
 
-    render() {
-        let chatcontainerstyle = { position: "relative", height: "100%" };
-        let chatpersoninfocontstyle = { position: "absolute", top: "0px", left: "0px", height: "40px", width: "100%", margin: 0, padding: 0, background: "#F0F4F8" };
-        let chatinputcontainerstyle = { position: "absolute", bottom: "0px", left: "0px", height: "30px", width: "100%", margin: 0, padding: 0 };
-        let chatinputctrlcontstyle = { width: "40px" };
-        let chatmsgcontstyle = { width: "100%", margin: "0px", padding: "40px 5px", maxHeight: "calc(100vh - 100px)", overflow: "auto" };
+    renderVideo() {
+        let myvideoclassname = "full";
+        let othervideo = null, myvideo = null;
+        if (this.otherstream !== null) {
+            myvideoclassname = "docked";
+            othervideo = <video id="othervideo" muted="muted" volume="0" playsInline></video>;
+        }
+        if (this.mystream !== null) {
+            myvideo = <video id="myvideo" className={myvideoclassname} muted="muted" volume="0" playsInline></video>;
+        }
 
-        let profile = null;
+        if (othervideo !== null || myvideo !== null) {
+            return <td className="videochatcolumn" valign="middle" align="center">
+                {othervideo}
+                {myvideo}
+            </td>;
+        } else {
+            return null;
+        }
+    }
+
+    render() {
+
         if (this.messages.length == 0) { profile = <ViewProfile profile={this.state.person} />; }
+
         let pic = <img src="/images/nopic.jpg" className="mx-auto d-block img-fluid" alt="" />;
         if (this.state.person !== null) {
             if (this.state.person.pic !== "") {
                 pic = <img src={this.state.person.pic} className="mx-auto d-block img-fluid" alt="" />;
             }
         }
+
+        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+            <img src="/icons/video.svg" alt="" width="24" height="24" title="Video On" />
+        </button> : <button type="button" className="btn btn-light rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+                <img src="/icons/video-off.svg" alt="" width="24" height="24" title="Video Off" />
+            </button>;
+        let audiotoggleele = this.state.audioplaying ?
+            <button type="button" className="btn btn-primary rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
+                <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone On" />
+            </button>
+            : <button type="button" className="btn btn-light rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
+                <img src="/icons/mic-off.svg" alt="" width="24" height="24" title="Microphone Off" />
+            </button>;
+        //if browser is edge or ie no need to show video or audio control button
+        if (this.detectEdgeorIE()) {
+            audiotoggleele = null;
+            videotoggleele = null;
+        }
         return (
             <React.Fragment>
-                <div style={chatcontainerstyle}>
-                    <table style={chatpersoninfocontstyle} className="border-bottom">
+                <div className="personalchatcont">
+                    <table className="videochatcont">
                         <tbody>
                             <tr>
-                                <td width="40px" className="noPadding">
-                                    {pic}
-                                </td>
-                                <td className="noPadding">
-                                    <h5>{this.state.person.name}</h5>
+                                <td colSpan="2">
+                                    <table className="chatpersoninfocont">
+                                        <tbody>
+                                            <tr>
+                                                <td width="50px" className="noPadding">
+                                                    {pic}
+                                                </td>
+                                                <td className="noPadding">
+                                                    <h5 className="ml-1">{this.state.person.name}</h5>
+                                                </td>
+                                                <td width="140px">
+                                                    <button type="button" className="btn btn-link" onClick={() => this.props.handleShowSearch(true)}>Back To Search</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-                    <div style={chatmsgcontstyle}>
-                        <ul className="list-unstyled">{this.renderMessages()}</ul>
-                    </div>
-                    <table style={chatinputcontainerstyle} className="border-top">
-                        <tbody>
                             <tr>
-                                <td>
+                                {this.renderVideo()}
+                                <td className="border-left" valign="top">
+                                    <div className="chatmsgcont">
+                                        <ul className="list-unstyled">{this.renderMessages()}</ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colSpan="2">
                                     <form onSubmit={this.handleSend}>
-                                        <input type="text" name="textinput" className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%" />
+                                        <table className="border-top chatinputcontainer">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <input type="text" name="textinput" className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%" />
+                                                    </td>
+                                                    <td className="chatinputctrlcont">
+                                                        <button type="button" id="msgsubmit" className="btn btn-primary rounded-0 " title="Send Message"><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
+                                                        {videotoggleele}
+                                                        {audiotoggleele}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </form>
-                                </td><td style={chatinputctrlcontstyle}>
-                                    <button type="button" id="msgsubmit" className="btn btn-primary" title="Send Message"><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+
                 </div>
                 <audio id="chatbeep" muted="muted" volume="0">
                     <source src="/media/swiftly.mp3"></source>
                     <source src="/media/swiftly.m4r"></source>
                     <source src="/media/swiftly.ogg"></source>
                 </audio>
+                <HeartBeat activity="4" interval="3000" />
             </React.Fragment>
         );
 
