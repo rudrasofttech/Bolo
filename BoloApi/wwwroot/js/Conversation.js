@@ -12,6 +12,7 @@
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"),
             searchtext: '', dummy: new Date(), showsearch: true
         };
+        this.hubConnection = null;
         this.contactupdateinterval = null;
         this.contactlist = new Map();
         this.loginHandler = this.loginHandler.bind(this);
@@ -23,6 +24,7 @@
         this.fetchContacts = this.fetchContacts.bind(this);
         this.handleShowSearch = this.handleShowSearch.bind(this);
         this.search = this.search.bind(this);
+        this.startHub = this.startHub.bind(this);
     }
 
     componentDidMount() {
@@ -41,6 +43,24 @@
         if (localStorage.getItem("token") != null) {
             this.validate(localStorage.getItem("token"));
         }
+    }
+
+    startHub() {
+        this.hubConnection = new signalR.HubConnectionBuilder().withUrl("/personchathub", { accessTokenFactory: () => this.state.token }).build();
+
+        this.hubConnection.start().then(() => {
+            console.log('Hub Connection started!');
+        }).catch(err => console.log('Error while establishing connection :('));
+
+
+        //this function is called by server when it receives a sendtextmessage from user.
+        this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => { this.receiveTextMessage(sender, text, timestamp, id); });
+    }
+
+    receiveTextMessage(sender, text, timestamp, id) {
+        var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: 2 /*Received*/ };
+        //if received message is from current person then show in ui else save in localstorage
+        this.handleReceivedMessage(mi);
     }
 
     //see if user is logged in
@@ -69,65 +89,9 @@
                     //fetch contacts after validation is done
                     this.fetchContacts();
                     this.contactupdateinterval = setInterval(this.fetchContacts, 5000);
+                    this.startHub();
                 }
             });
-    }
-
-    handleShowSearch(show) {
-        this.setState({ showsearch: show });
-    }
-
-    handleProfileSelect(e) {
-        this.setState({ selectedperson: e })
-    }
-
-    //handle search result item click
-    handleResultItemClick(e) {
-        //should only move forward if there is memberid and there is some profileselect action provided
-        if (e !== null && this.contactlist.get(e) !== undefined) {
-            this.setState({ selectedperson: this.contactlist.get(e).person, showsearch : false })
-        }
-    }
-
-    handleSearchSubmit(e) {
-        e.preventDefault();
-        this.search();
-    }
-
-    handleReceivedMessage(mi) {
-        let usermsgs = localStorage.getItem(mi.sender.toLowerCase());
-        let usermsgmap = null;
-        if (usermsgs !== null)
-            usermsgmap = new Map(JSON.parse(usermsgs));
-        else
-            usermsgmap = new Map();
-
-        usermsgmap.set(mi.id, mi);
-        localStorage.setItem(mi.sender.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
-
-        if (this.contactlist.get(mi.sender.toLowerCase()) !== undefined) {
-            //this.contactlist.get(mi.sender.toLowerCase()).recentMessage = mi.text;
-            this.contactlist.get(mi.sender.toLowerCase()).recentMessageDate = mi.timestamp;
-            if (this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount !== undefined) {
-                this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount += 1;
-            } else {
-                this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount = 1;
-            }
-            localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
-        }
-    }
-
-    //the usual BS requied for form fields to work in react
-    handleChange(e) {
-        switch (e.target.name) {
-            case 'searchtext':
-                if (e.target.value.trim() === "") {
-                    this.contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
-                }
-                this.setState({ searchtext: e.target.value });
-                break;
-            default:
-        }
     }
 
     fetchContacts() {
@@ -186,6 +150,65 @@
             });
     }
 
+    handleShowSearch(show) {
+        this.setState({ showsearch: show });
+    }
+
+    handleProfileSelect(e) {
+        this.setState({ selectedperson: e })
+    }
+
+    //handle search result item click
+    handleResultItemClick(e) {
+        //should only move forward if there is memberid and there is some profileselect action provided
+        if (e !== null && this.contactlist.get(e) !== undefined) {
+            this.setState({ selectedperson: this.contactlist.get(e).person, showsearch: false })
+        }
+    }
+
+    handleSearchSubmit(e) {
+        e.preventDefault();
+        this.search();
+    }
+
+    handleReceivedMessage(mi) {
+        let usermsgs = localStorage.getItem(mi.sender.toLowerCase());
+        let usermsgmap = null;
+        if (usermsgs !== null)
+            usermsgmap = new Map(JSON.parse(usermsgs));
+        else
+            usermsgmap = new Map();
+
+        usermsgmap.set(mi.id, mi);
+        localStorage.setItem(mi.sender.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
+
+        if (this.contactlist.get(mi.sender.toLowerCase()) !== undefined) {
+            //this.contactlist.get(mi.sender.toLowerCase()).recentMessage = mi.text;
+            this.contactlist.get(mi.sender.toLowerCase()).recentMessageDate = mi.timestamp;
+            if (this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount !== undefined) {
+                this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount += 1;
+            } else {
+                this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount = 1;
+            }
+            localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
+        }
+    }
+
+    //the usual BS requied for form fields to work in react
+    handleChange(e) {
+        switch (e.target.name) {
+            case 'searchtext':
+                if (e.target.value.trim() === "") {
+                    this.contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+                }
+                this.setState({ searchtext: e.target.value });
+                break;
+            default:
+        }
+    }
+
+
+
     renderPeopleList() {
         const items = [];
         const hundred = { width: "100%" };
@@ -221,7 +244,7 @@
         let personchat = null;
         if (this.state.selectedperson !== null && !this.state.showsearch) {
             personchat = <div className="col-12 p-0">
-                <PersonChat person={this.state.selectedperson} myself={this.state.myself} receivedMessage={this.handleReceivedMessage} handleShowSearch={this.handleShowSearch}/></div>
+                <PersonChat person={this.state.selectedperson} myself={this.state.myself} receivedMessage={this.handleReceivedMessage} handleShowSearch={this.handleShowSearch} /></div>
         } else {
             personchat = <HeartBeat activity="1" interval="3000" />;
         }

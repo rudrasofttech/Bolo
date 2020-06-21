@@ -1,10 +1,11 @@
 ﻿var CallStatusEnum = {
-    Idle = 1,
-    Initiated= 2,
-    Accept = 3,
-    Reject = 4,
-    Unanswered = 5,
-    End = 6
+    Idle: 1,
+    Ask: 2,
+    Waiting: 3,
+    Accept: 4,
+    Decline: 5,
+    Cancel: 6,
+    End: 7
 }
 
 class PersonChat extends React.Component {
@@ -23,7 +24,8 @@ class PersonChat extends React.Component {
             myself: this.props.myself !== undefined ? this.props.myself : null, bsstyle: '', message: '', person: p,
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"), textinput: '', dummy: Date.now(),
             videoCapable: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
-            peerCapable: SimplePeer.WEBRTC_SUPPORT, videoplaying: false, audioplaying: false, callstatus: CallStatusEnum.Idle
+            peerCapable: SimplePeer.WEBRTC_SUPPORT, videoplaying: false, audioplaying: false, callstatus: CallStatusEnum.Idle,
+            showemojimodal: false
         };
         this.mystream = null;
         this.otherstream = null;
@@ -46,6 +48,12 @@ class PersonChat extends React.Component {
         this.addMedia = this.addMedia.bind(this);
         this.userMediaError = this.userMediaError.bind(this);
         this.initiateCall = this.initiateCall.bind(this);
+        this.updateReceivedMessageStatusAll = this.updateReceivedMessageStatusAll.bind(this);
+        this.handleVideoCancel = this.handleVideoCancel.bind(this);
+        this.closeVideo = this.closeVideo.bind(this);
+        this.handleEmojiModal = this.handleEmojiModal.bind(this);
+        this.handleEmojiSelect = this.handleEmojiSelect.bind(this);
+
         this.messageStatusEnum = {
             Sent: 1,
             Received: 2,
@@ -53,14 +61,15 @@ class PersonChat extends React.Component {
         }
     }
 
-    static getDerivedStateFromProps(props, state) {
-        if (props.person.id !== state.person.id) {
-            return {
-                person: props.person
-            };
-        }
-        return null;
-    }
+    //since this component is destroyed everytime this static method is not needed each time constructor will be called
+    //static getDerivedStateFromProps(props, state) {
+    //    if (props.person.id !== state.person.id) {
+    //        return {
+    //            person: props.person
+    //        };
+    //    }
+    //    return null;
+    //}
 
     startHub() {
         this.hubConnection = new signalR.HubConnectionBuilder().withUrl("/personchathub", { accessTokenFactory: () => this.state.token }).build();
@@ -71,29 +80,27 @@ class PersonChat extends React.Component {
 
 
         //this function is called by server when it receives a sendtextmessage from user.
-        this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => { this.receiveTextMessage(sender, text, timestamp, id); });
+        this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => {
+            this.receiveTextMessage(sender, text, timestamp, id);
+        });
 
         this.hubConnection.on('MessageSent', (receiver, text, timestamp, id) => {
-            var mi = { id: id, sender: this.state.myself.id, text: text, timestamp: timestamp + " UTC", status: this.messageStatusEnum.Sent };
+            var mi = { id: id, sender: this.state.myself.id, text: text, timestamp: timestamp, status: this.messageStatusEnum.Sent };
             //try to add sent message to current message list
             if (receiver.toLowerCase() === this.state.person.id.toLowerCase()) {
                 this.messages.set(id, mi);
                 this.setState({ dummy: Date.now() }, () => {
                     localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
                 });
+                this.scrollToBottom();
             }
 
         });
 
         this.hubConnection.on('MessageStatus', (messageid, receiver, status) => {
-            let usermsgs = localStorage.getItem(receiver.toLowerCase());
-            if (usermsgs !== null) {
-                usermsgmap = new Map(JSON.parse(usermsgs));
-
-                if (usermsgmap.get(messageid) !== undefined) {
-                    usermsgmap.get(messageid).status = status;
-                    localStorage.setItem(receiver.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
-                }
+            if (this.messages.get(messageid) !== undefined) {
+                this.messages.get(messageid).status = status;
+                localStorage.setItem(receiver.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
             }
         });
 
@@ -118,7 +125,7 @@ class PersonChat extends React.Component {
         this.hubConnection.on('InitiateCall', (caller) => {
             console.log("Call Initiated By : " + caller);
             if (this.state.person.id === caller.toLowerCase()) {
-                this.setState({ callstatus: CallStatusEnum.Initiated });
+                this.setState({ callstatus: CallStatusEnum.Waiting });
             }
         });
 
@@ -129,15 +136,15 @@ class PersonChat extends React.Component {
                     case CallStatusEnum.Accept:
                         this.setState({ callstatus: CallStatusEnum.Accept });
                         break;
-                    case CallStatusEnum.Reject:
-                        this.setState({ callstatus: CallStatusEnum.Reject });
+                    case CallStatusEnum.Decline:
+                        this.setState({ callstatus: CallStatusEnum.Decline });
                         break;
                     case CallStatusEnum.Unanswered:
                         this.setState({ callstatus: CallStatusEnum.Unanswered });
                         break;
                     default:
                 }
-                
+
             }
         });
 
@@ -164,14 +171,17 @@ class PersonChat extends React.Component {
     }
 
     receiveTextMessage(sender, text, timestamp, id) {
-        var mi = { id: id, sender: sender, text: text, timestamp: timestamp + " UTC" };
+        var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: this.messageStatusEnum.Seen };
         //if received message is from current person then show in ui else save in localstorage
         if (sender.toLowerCase() === this.state.person.id.toLowerCase()) {
             this.messages.set(id, mi);
             this.setState({ dummy: Date.now() }, () => {
+
                 localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
             });
+            this.scrollToBottom();
             this.playmsgbeep();
+
         } else {
             if (this.props.receivedMessage !== undefined) {
                 this.props.receivedMessage(mi);
@@ -253,13 +263,17 @@ class PersonChat extends React.Component {
     //simple peer events end here
 
     playmsgbeep() {
-        let cb = document.getElementById("chatbeep");
-        if (cb != null) {
-            cb.currentTime = 0;
-            cb.volume = 0.15;
-            //we have to unmute the audio since it  is muted at time of loading
-            cb.muted = false;
-            cb.play();
+        try {
+            let cb = document.getElementById("chatbeep");
+            if (cb != null) {
+                cb.currentTime = 0;
+                cb.volume = 0.15;
+                //we have to unmute the audio since it  is muted at time of loading
+                cb.muted = false;
+                cb.play();
+            }
+        } catch (err) {
+            console.error(err);
         }
     }
 
@@ -346,6 +360,15 @@ class PersonChat extends React.Component {
         //this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
     }
 
+    closeVideo() {
+        if (this.mystream !== null) {
+            //const tracks = this.mystream.getTracks()
+            //for(var i = 0; i < tracks.length; i++) {
+            //    tracks[i].stop();
+            //}
+        }
+    }
+
     showMessageStatus(status) {
         switch (status) {
             case this.messageStatusEnum.Received:
@@ -359,10 +382,41 @@ class PersonChat extends React.Component {
         }
     }
 
+    //function only update message status of any messages from the sender with sent status to received in localstorage
+    //it will be responsbility of sender to get updated status from received
+    updateReceivedMessageStatusAll() {
+        for (const [key, mi] of this.messages.entries()) {
+            if (mi.sender !== this.state.myself.id && mi.status !== this.messageStatusEnum.Seen) {
+                this.messages.get(key).status = this.messageStatusEnum.Seen;
+            }
+        }
+        localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+    }
+
+    handleEmojiSelect(value) {
+        this.setState({
+            textinput: this.state.textinput + value
+        });
+
+        this.textinput.focus();
+    }
+
+    handleEmojiModal(){
+        this.setState({ showemojimodal: !this.state.showemojimodal });
+    }
+
+    handleVideoCancel() {
+        this.setState({ callstatus: CallStatusEnum.Idle }, () => { this.closeVideo(); });
+        this.hubConnection.invoke("EndCall", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
+            .catch(err => { console.log("Unable to end call."); console.error(err); })
+    }
+
     handleChange(e) {
         switch (e.target.name) {
             case 'textinput':
-                this.setState({ textinput: e.target.value });
+                this.setState({
+                    textinput: e.target.value
+                });
                 break;
             default:
         }
@@ -375,6 +429,9 @@ class PersonChat extends React.Component {
 
     //enable or disable video track of my stream
     handleVideoToggle(e) {
+        if (this.state.callstatus === CallStatusEnum.Idle) {
+            this.setState({ callstatus: CallStatusEnum.Ask });
+        }
         if (this.mystream !== null) {
             if (this.mystream.getVideoTracks().length > 0) {
                 this.mystream.getVideoTracks()[0].enabled = !this.state.videoplaying;
@@ -410,21 +467,51 @@ class PersonChat extends React.Component {
 
     componentDidMount() {
         this.startHub();
+        this.updateReceivedMessageStatusAll();
+        this.scrollToBottom();
     }
-    componentDidUpdate(prevProps, prevState) {
-        if (prevState.person.id !== this.state.person.id) {
-            this.messages = (localStorage.getItem(this.state.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.state.person.id))) : new Map();
-            this.setState({ dummy: Date.now() });
-        }
-        //each time compoment updates scroll to bottom
-        //this can be improved by identifying if new messages added
-        //this.scrollToBottom();
-    }
+    //componentDidUpdate(prevProps, prevState) {
+    //    if (prevState.person.id !== this.state.person.id) {
+    //        this.messages = (localStorage.getItem(this.state.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.state.person.id))) : new Map();
+    //        this.updateReceivedMessageStatusAll();
+    //        this.setState({ dummy: Date.now() });
+    //        //each time compoment updates scroll to bottom
+    //        //this can be improved by identifying if new messages added
+    //        this.scrollToBottom();
+    //    }
+
+    //}
 
     componentWillUnmount() {
         if (this.peer !== null) {
             this.peer.destory();
             this.peer = null;
+        }
+        this.setState({ person: null });
+    }
+
+    renderEmojiModal() {
+        if (this.state.showemojimodal) {
+            return <div style={{ position: "fixed", bottom :"42px", left:"0px"}}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+        } else {
+            return null;
+        }
+    }
+
+    renderVideoCallModal() {
+        if (this.state.callstatus === CallStatusEnum.Ask) {
+            return <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-body">
+                            <h4>Waiting For {this.state.person.name}</h4>
+                            <button type="button" className="btn btn-danger btn-lg" onClick={this.handleVideoCancel}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>;
+        } else {
+            return null;
         }
     }
 
@@ -432,9 +519,9 @@ class PersonChat extends React.Component {
         let sentlistyle = { display: "block", textAlign: 'right' };
         let reclistyle = { display: "block", textAlign: 'left' };
         let sentmessagestyle = {
-            margin: "2px", maxWidth: "50%", position: "relative",
+            margin: "2px 10px 2px 0px", maxWidth: "80%", position: "relative",
             padding: ".1rem 0.75rem",
-            marginBottom: "1rem",
+
             border: "1px solid transparent",
             borderRadius: ".25rem",
             display: "inline-block",
@@ -444,9 +531,8 @@ class PersonChat extends React.Component {
 
         };
         let recmessagestyle = {
-            margin: "2px", maxWidth: "50%", position: "relative",
+            margin: "2px 0px 2px 10px", maxWidth: "80%", position: "relative",
             padding: ".1rem 0.75rem",
-            marginBottom: "1rem",
             border: "1px solid transparent",
             borderRadius: ".25rem",
             display: "inline-block",
@@ -456,18 +542,19 @@ class PersonChat extends React.Component {
         };
         const items = [];
         for (const [key, obj] of this.messages.entries()) {
+
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
                     <div style={sentmessagestyle} >
                         {obj.text}
-                        <span className="d-block"><small className="time">{moment(obj.timestamp, "YYYYMMDD").fromNow()}</small> <small>{this.showMessageStatus(obj.status)}</small></span>
+                        <span className="d-block"><small className="time">{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
                 </li>);
             } else {
                 items.push(<li style={reclistyle} key={key}>
                     <div style={recmessagestyle} className="alert alert-info">
                         {obj.text}
-                        <span className="d-block"><small className="time">{moment(obj.timestamp, "YYYYMMDD").fromNow()}</small></span>
+                        <span className="d-block"><small className="time">{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
                 </li>);
             }
@@ -481,7 +568,6 @@ class PersonChat extends React.Component {
             </li>
         </React.Fragment>;
     }
-
 
     renderVideo() {
         let myvideoclassname = "full";
@@ -528,7 +614,7 @@ class PersonChat extends React.Component {
                 <img src="/icons/mic-off.svg" alt="" width="24" height="24" title="Microphone Off" />
             </button>;
         //if browser is edge or ie no need to show video or audio control button
-        if (this.detectEdgeorIE()) {
+        if (this.detectEdgeorIE() || true) {
             audiotoggleele = null;
             videotoggleele = null;
         }
@@ -570,11 +656,14 @@ class PersonChat extends React.Component {
                                         <table className="border-top chatinputcontainer">
                                             <tbody>
                                                 <tr>
+                                                    <td style={{width: "45px"}}>
+                                                        <button type="button" className={this.state.showemojimodal ? "btn btn-success rounded-0" : "btn btn-outline-success rounded-0"} onClick={this.handleEmojiModal}>😀</button>
+                                                    </td>
                                                     <td>
-                                                        <input type="text" name="textinput" className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%" />
+                                                        <input type="text" ref={(input) => { this.textinput = input; }}  name="textinput" autoComplete="off" className="form-control rounded-0" value={this.state.textinput} onChange={this.handleChange} width="100%" />
                                                     </td>
                                                     <td className="chatinputctrlcont">
-                                                        <button type="button" id="msgsubmit" className="btn btn-primary rounded-0 " title="Send Message"><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
+                                                        <button type="button" id="msgsubmit" className="btn btn-primary rounded-0 " title="Send Message" onClick={(e) => this.sendTextMessage()}><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
                                                         {videotoggleele}
                                                         {audiotoggleele}
                                                     </td>
@@ -586,7 +675,8 @@ class PersonChat extends React.Component {
                             </tr>
                         </tbody>
                     </table>
-
+                    {this.renderVideoCallModal()}
+                    {this.renderEmojiModal()}
                 </div>
                 <audio id="chatbeep" muted="muted" volume="0">
                     <source src="/media/swiftly.mp3"></source>

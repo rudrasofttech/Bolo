@@ -52,7 +52,7 @@ namespace Bolo.Helper
                 using (SmtpClient client = new SmtpClient())
                 {
                     client.Connect("smtp.gmail.com", 465, true);
-                    client.Authenticate("contactus@rudrasofttech.com", "Welcome1!");
+                    client.Authenticate("waarta@rudrasofttech.com", "hjgTY23#@sd");
                     client.Send(message);
                     client.Disconnect(true);
                     client.Dispose();

@@ -12,7 +12,7 @@
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             id: this.props.meetingid === null ? '' : this.props.meetingid,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            dummydate: new Date(), idvalid: true, showchatlist: this.detectXtralargeScreen(), showalert: !this.detectXtralargeScreen()
+            dummydate: new Date(), idvalid: true, showchatlist: this.detectXtralargeScreen(), showalert: !this.detectXtralargeScreen(), showemojimodal: false
         };
 
         this.validateMeeting(this.state.token);
@@ -49,6 +49,8 @@
         this.showChatList = this.showChatList.bind(this);
         this.hideChatList = this.hideChatList.bind(this);
         this.onPeerStream = this.onPeerStream.bind(this);
+        this.handleEmojiModal = this.handleEmojiModal.bind(this);
+        this.handleEmojiSelect = this.handleEmojiSelect.bind(this);
     }
 
     validateMeeting(t) {
@@ -155,6 +157,18 @@
     handleMessageSubmit(e) {
         e.preventDefault();
         this.sendTextMessage();
+    }
+
+    handleEmojiSelect(value) {
+        this.setState({
+            textinput: this.state.textinput + value
+        });
+
+        this.textinput.focus();
+    }
+
+    handleEmojiModal() {
+        this.setState({ showemojimodal: !this.state.showemojimodal });
     }
 
     onAlertDismiss() {
@@ -772,6 +786,14 @@
         this.scrollToBottom();
     }
 
+    renderEmojiModal() {
+        if (this.state.showemojimodal) {
+            return <div style={{ position: "fixed", bottom: "42px", left: "0px", zIndex: '10' }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+        } else {
+            return null;
+        }
+    }
+
     renderJoinMeetingModal() {
         return (
             <React.Fragment>
@@ -1108,25 +1130,30 @@
                             <source src="/media/get-outta-here.ogg"></source>
                         </audio>
                     </div>
-                    <footer className="footer fixed-bottom py-2">
+                    <footer className="footer fixed-bottom">
                         <form className="form-inline" onSubmit={this.handleMessageSubmit}>
-                            <div className="container-fluid">
-                                <div className="row">
-                                    <div className="col-sm-8 col-lg-10">
-                                        <input type="text" placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
-                                            onChange={this.handleChange} className="form-control form-control-sm mb-1" id="msginput" />
-                                    </div>
-                                    <div className="col-sm-4 col-lg-2 text-center">
-                                        <button type="submit" id="msgsubmit" className="btn btn-primary" title="Send Message"><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
-                                        {videotoggleele}
-                                        {audiotoggleele}
-                                        <button type="button" className="btn btn-primary d-xl-none" title="Show Chat Window" onClick={this.showChatList}><img src="/icons/message-square.svg" alt="" width="24" height="24" title="Chat Window" /></button>
-
-                                    </div>
-                                </div>
-                            </div>
+                            <table style={{ width : "100%", padding: 0}}>
+                                <tbody>
+                                    <tr>
+                                        <td style={{ width: "45px" }}>
+                                            <button type="button" className={this.state.showemojimodal ? "btn btn-success" : "btn btn-outline-success"} onClick={this.handleEmojiModal}>😀</button>
+                                        </td>
+                                        <td>
+                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
+                                                onChange={this.handleChange} className="form-control mb-1" id="msginput" />
+                                        </td>
+                                        <td align="center" style={{ width: "170px", padding: 0 }}>
+                                            <button type="submit" id="msgsubmit" className="btn btn-primary" title="Send Message"><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
+                                            {videotoggleele}
+                                            {audiotoggleele}
+                                            <button type="button" className="btn btn-primary d-xl-none" title="Show Chat Window" onClick={this.showChatList}><img src="/icons/message-square.svg" alt="" width="24" height="24" title="Chat Window" /></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </form>
                     </footer>
+                    {this.renderEmojiModal()}
                     <HeartBeat activity="2" interval="3000" />
                 </React.Fragment>
             );

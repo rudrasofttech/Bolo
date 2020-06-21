@@ -61,11 +61,11 @@ namespace Bolo.Controllers
                     Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta passcode is: {0}", OTP));
                 }
 
-                return Ok(OTP);
+                return Ok();
             }
             catch (Exception ex)
             {
-                return Ok(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 

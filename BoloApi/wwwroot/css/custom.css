@@ -112,7 +112,9 @@ code {
     padding: 0px;
 }
 
-
+.emojicont span{
+    cursor:pointer;
+}
 
 #msginput {
     width: 100%;
@@ -525,7 +527,8 @@ code {
     }
 
         .personalchatcont .chatinputcontainer .chatinputctrlcont {
-            width: 155px;
+            /*width: 155px;*/
+            width:40px;
         }
 
     .personalchatcont .chatmsgcont {

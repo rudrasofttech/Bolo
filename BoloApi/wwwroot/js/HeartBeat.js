@@ -7,10 +7,10 @@
         }
 
         this.state = {
-            loading: false, loggedin: loggedin, 
+            loading: false, loggedin: loggedin,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             activity: this.props.activity === undefined ? 1 : this.props.activity,
-            interval: this.props.interval === undefined ? 3000: this.props.interval
+            interval: this.props.interval === undefined ? 3000 : this.props.interval
         };
 
         this.pulseinterval = null;
@@ -40,7 +40,9 @@
                 }
             })
                 .then(response => {
+
                     this.setState({ loading: false });
+
                 });
         }
     }
