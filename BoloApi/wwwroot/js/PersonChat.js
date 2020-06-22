@@ -498,6 +498,31 @@ class PersonChat extends React.Component {
         }
     }
 
+    transformMediaInMessages(text) {
+        var reglink = /\bhttps?:\/\/\S+/gi;
+        //let config = [{
+        //    regex: /(http|https):\/\/(\S+)\.([a-z]{2,}?)(.*?)( |\,|$|\.)/gim,
+        //    fn: (key, result) => <span key={key}>
+        //        <a target="_blank" href={`${result[1]}://${result[2]}.${result[3]}${result[4]}`}>{result[2]}.{result[3]}{result[4]}</a>{result[5]}
+        //    </span>
+        //}, {
+        //    regex: /(\S+)\.([a-z]{2,}?)(.*?)( |\,|$|\.)/gim,
+        //    fn: (key, result) => <span key={key}>
+        //        <a target="_blank" href={`http://${result[1]}.${result[2]}${result[3]}`}>{result[1]}.{result[2]}{result[3]}</a>{result[4]}
+        //    </span>
+        //}];
+        //return processString(config)(text)
+        var links = reglink.exec(text);
+        if (links !== null) {
+            for (var i = 0; i < links.length; i++) {
+                var l = links[i];
+                let anchor = "<a href='" + l + "' target='_blank'>" + l + "</a>";
+                text = text.replace(l, anchor);
+            }
+        }
+        return text;
+    }
+
     renderVideoCallModal() {
         if (this.state.callstatus === CallStatusEnum.Ask) {
             return <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -521,12 +546,12 @@ class PersonChat extends React.Component {
         let sentmessagestyle = {
             margin: "2px 10px 2px 0px", maxWidth: "80%", position: "relative",
             padding: ".1rem 0.75rem",
-
+            fontSize: "1.2rem",
             border: "1px solid transparent",
             borderRadius: ".25rem",
             display: "inline-block",
             color: "#383d41",
-            backgroundColor: "#e2e3e5",
+            backgroundColor: "#F0F0F0",
             borderColor: "#d6d8db"
 
         };
@@ -535,6 +560,7 @@ class PersonChat extends React.Component {
             padding: ".1rem 0.75rem",
             border: "1px solid transparent",
             borderRadius: ".25rem",
+            fontSize: "1.2rem",
             display: "inline-block",
             color: "#0c5460",
             backgroundColor: "#d1ecf1",
@@ -546,15 +572,15 @@ class PersonChat extends React.Component {
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
                     <div style={sentmessagestyle} >
-                        {obj.text}
-                        <span className="d-block"><small className="time">{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
+                        <span dangerouslySetInnerHTML={{ __html: this.transformMediaInMessages(obj.text)}}></span>
+                        <span className="d-block"><small style={{fontSize: "0.75rem"}}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
                 </li>);
             } else {
                 items.push(<li style={reclistyle} key={key}>
                     <div style={recmessagestyle} className="alert alert-info">
-                        {obj.text}
-                        <span className="d-block"><small className="time">{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
+                        <span dangerouslySetInnerHTML={{ __html: this.transformMediaInMessages(obj.text) }}></span>
+                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
                 </li>);
             }

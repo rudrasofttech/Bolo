@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Bolo.Hubs
 {
@@ -23,10 +24,11 @@ namespace Bolo.Hubs
 
         public async Task SendTextMessage(string receiver, string sender, string text)
         {
+            string encodedtext = HttpUtility.HtmlEncode(text);
             DateTime dt = DateTime.UtcNow;
             Guid d = Guid.NewGuid();
-            _ = Clients.User(receiver).SendAsync("ReceiveTextMessage", sender, text, dt, d);
-            await Clients.User(sender).SendAsync("MessageSent", receiver, text, dt, d);
+            _ = Clients.User(receiver).SendAsync("ReceiveTextMessage", sender, encodedtext, dt, d);
+            await Clients.User(sender).SendAsync("MessageSent", receiver, encodedtext, dt, d);
             //check if sender and receiver are valid
             var msender = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(sender));
             var mreceiver = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(receiver));
