@@ -903,7 +903,7 @@
                 items.push(<li className="notify" key={k}><span>{obj.text}</span></li>);
             } else if (obj.sender.connectionID === this.myself.connectionID) {
                 items.push(<li className="sent" key={k}>
-                    <span>{obj.text}
+                    <span><span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text) }}></span>
                         <small className="time">{moment(obj.timeStamp, "YYYYMMDD").fromNow()}</small>
                     </span>
                 </li>);
@@ -912,7 +912,7 @@
                 items.push(<li className="receive" key={k}>
                     <span>
                         <small className="name">{userpic} {obj.sender.name} says</small>
-                        {obj.text}
+                        <span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text) }}></span>
                         <small className="time">{moment(obj.timeStamp, "YYYYMMDD").fromNow()}</small>
                     </span>
                 </li>);

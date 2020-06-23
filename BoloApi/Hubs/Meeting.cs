@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Bolo.Hubs
 {
@@ -120,7 +121,7 @@ namespace Bolo.Hubs
         /// <returns></returns>
         public async Task SendTextMessage(string room, UserInfo sender, string text)
         {
-            await Clients.Group(room).SendAsync("ReceiveTextMessage", sender, text, DateTime.UtcNow);
+            await Clients.Group(room).SendAsync("ReceiveTextMessage", sender, HttpUtility.HtmlEncode(text), DateTime.UtcNow);
         }
 
 
