@@ -23,11 +23,13 @@
         this.handleReceivedMessage = this.handleReceivedMessage.bind(this);
         this.fetchContacts = this.fetchContacts.bind(this);
         this.handleShowSearch = this.handleShowSearch.bind(this);
+        this.checkContactPulse = this.checkContactPulse.bind(this);
         this.search = this.search.bind(this);
         this.startHub = this.startHub.bind(this);
     }
 
     componentDidMount() {
+        this.contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
         if (localStorage.getItem("token") != null) {
             this.validate(localStorage.getItem("token"));
         }
@@ -55,6 +57,18 @@
 
         //this function is called by server when it receives a sendtextmessage from user.
         this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => { this.receiveTextMessage(sender, text, timestamp, id); });
+
+        //this function is called by server when it receives a sendtextmessage from user.
+        this.hubConnection.on('ContactUpdated', (dto) => {
+            if (this.contactlist.get(dto.id) !== undefined) {
+                let p = this.contactlist.get(dto.id).person
+                if (p.name !== dto.name || p.activity !== dto.activity || p.city !== dto.city
+                    || p.state !== dto.state || p.country !== dto.country || p.pic !== dto.pic) {
+                    this.contactlist.get(dto.id).person = dto;
+                    this.setState({ dummy: Date.now() });
+                }
+            }
+        });
     }
 
     receiveTextMessage(sender, text, timestamp, id) {
@@ -88,10 +102,21 @@
 
                     //fetch contacts after validation is done
                     this.fetchContacts();
-                    this.contactupdateinterval = setInterval(this.fetchContacts, 5000);
+                    this.contactupdateinterval = setInterval(this.checkContactPulse, 5000);
                     this.startHub();
                 }
             });
+    }
+
+    //function checks if any contact has not send pulse for last 5 seconds then deem them offline
+    checkContactPulse() {
+        for (const [key, contact] of this.contactlist.entries()) {
+            var dt = new Date(contact.lastPulse);
+            dt.setSeconds(dt.getSeconds() + 5);
+            if (dt < Date.now()) {
+                contact.activity = 5;
+            } 
+        }
     }
 
     fetchContacts() {
@@ -112,7 +137,7 @@
                             } else {
                                 this.contactlist.get(data[k].person.id).recentMessage = data[k].recentMessage;
                                 this.contactlist.get(data[k].person.id).recentMessageDate = data[k].recentMessageDate;
-                                this.contactlist.get(data[k].person.id).person.activity = data[k].person.activity;
+                                this.contactlist.get(data[k].person.id).person = data[k].person;
                             }
                         }
                         localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
@@ -151,6 +176,9 @@
     }
 
     handleShowSearch(show) {
+        if (show) {
+            this.contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+        }
         this.setState({ showsearch: show });
     }
 
@@ -191,6 +219,7 @@
                 this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount = 1;
             }
             localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
+            this.setState({ dummy: Date.now() });
         }
     }
 
@@ -207,8 +236,6 @@
         }
     }
 
-
-
     renderPeopleList() {
         const items = [];
         const hundred = { width: "100%" };
@@ -223,7 +250,7 @@
                 : <img src="/images/nopic.jpg" className="card-img-top" alt="" />;
 
             items.push(<li className="list-inline-item" key={key} onClick={() => this.handleResultItemClick(obj.id)}>
-                <div className="card " style={{ width: "13rem" }}>
+                <div className="card " style={{ width: "13rem", height : "13rem" }}>
                     {pic}
                     <div className="card-body">
                         <h6 className="card-title">{online} {obj.name} {unseenmsgcount}</h6>

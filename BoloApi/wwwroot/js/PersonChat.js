@@ -1,14 +1,4 @@
-﻿var CallStatusEnum = {
-    Idle: 1,
-    Ask: 2,
-    Waiting: 3,
-    Accept: 4,
-    Decline: 5,
-    Cancel: 6,
-    End: 7
-}
-
-class PersonChat extends React.Component {
+﻿class PersonChat extends React.Component {
 
     constructor(props) {
         super(props);
@@ -24,12 +14,12 @@ class PersonChat extends React.Component {
             myself: this.props.myself !== undefined ? this.props.myself : null, bsstyle: '', message: '', person: p,
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"), textinput: '', dummy: Date.now(),
             videoCapable: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
-            peerCapable: SimplePeer.WEBRTC_SUPPORT, videoplaying: false, audioplaying: false, callstatus: CallStatusEnum.Idle,
-            showemojimodal: false
+            peerCapable: SimplePeer.WEBRTC_SUPPORT, videoplaying: false, audioplaying: false, showemojimodal: false, peerconnected : false
         };
         this.mystream = null;
         this.otherstream = null;
         this.peer = null;
+        this.checkPersonPulseInterval = null;
         this.messages = (localStorage.getItem(p.id) !== null) ? new Map(JSON.parse(localStorage.getItem(p.id))) : new Map();
         this.hubConnection = null;
         this.handleChange = this.handleChange.bind(this);
@@ -39,7 +29,7 @@ class PersonChat extends React.Component {
         this.createPeer = this.createPeer.bind(this);
         this.onPeerSignal = this.onPeerSignal.bind(this);
         this.onPeerConnect = this.onPeerConnect.bind(this);
-        this.onPeerConnect = this.onPeerConnect.bind(this);
+        this.onPeerClose = this.onPeerClose.bind(this);
         this.onPeerError = this.onPeerError.bind(this);
         this.onPeerStream = this.onPeerStream.bind(this);
         this.handleVideoToggle = this.handleVideoToggle.bind(this);
@@ -47,13 +37,15 @@ class PersonChat extends React.Component {
         this.getUserCam = this.getUserCam.bind(this);
         this.addMedia = this.addMedia.bind(this);
         this.userMediaError = this.userMediaError.bind(this);
-        this.initiateCall = this.initiateCall.bind(this);
+        this.sayHello = this.sayHello.bind(this);
+        this.answerHello = this.answerHello.bind(this);
+        this.saysHello = this.saysHello.bind(this);
         this.updateReceivedMessageStatusAll = this.updateReceivedMessageStatusAll.bind(this);
         this.handleVideoCancel = this.handleVideoCancel.bind(this);
         this.closeVideo = this.closeVideo.bind(this);
         this.handleEmojiModal = this.handleEmojiModal.bind(this);
         this.handleEmojiSelect = this.handleEmojiSelect.bind(this);
-
+        this.checkPersonPulse = this.checkPersonPulse.bind(this);
         this.messageStatusEnum = {
             Sent: 1,
             Received: 2,
@@ -76,6 +68,8 @@ class PersonChat extends React.Component {
 
         this.hubConnection.start().then(() => {
             console.log('Hub Connection started!');
+            //send a hello
+            this.sayHello();
         }).catch(err => console.log('Error while establishing connection :('));
 
 
@@ -115,51 +109,66 @@ class PersonChat extends React.Component {
 
         //this function is strictly call by server to transfer webrtc peer data
         this.hubConnection.on('ReceiveSignal', (sender, data) => {
-            console.log("receivesignal sender : " + sender);
-            console.log("receivesignal data : " + data);
+            //console.log("receivesignal sender : " + sender);
+            //console.log("receivesignal data : " + data);
             if (this.peer !== null) {
                 this.peer.signal(data);
             }
         });
 
-        this.hubConnection.on('InitiateCall', (caller) => {
-            console.log("Call Initiated By : " + caller);
-            if (this.state.person.id === caller.toLowerCase()) {
-                this.setState({ callstatus: CallStatusEnum.Waiting });
-            }
+        this.hubConnection.on('SaysHello', (caller) => {
+            console.log("SaysHello By : " + caller);
+            this.saysHello(caller);
         });
 
-        this.hubConnection.on('AnswerCall', (responder, callstatus) => {
-            console.log("Call Answered By : " + responder + ' with status ' + callstatus);
-            if (this.state.person.id === caller.toLowerCase()) {
-                switch (callstatus) {
-                    case CallStatusEnum.Accept:
-                        this.setState({ callstatus: CallStatusEnum.Accept });
-                        break;
-                    case CallStatusEnum.Decline:
-                        this.setState({ callstatus: CallStatusEnum.Decline });
-                        break;
-                    case CallStatusEnum.Unanswered:
-                        this.setState({ callstatus: CallStatusEnum.Unanswered });
-                        break;
-                    default:
+        this.hubConnection.on('AnswerHello', (responder) => {
+            console.log("Call Answered By : " + responder);
+            this.answerHello(responder);
+        });
+
+        this.hubConnection.on('EndPeer', (id) => {
+            if (this.state.person.id.toLowerCase() === id.toLowerCase()) {
+                if (this.peer !== null) {
+                    this.peer.destroy();
+                    this.peer = null;
+                    console.log("EndPeer By : " + id);
                 }
-
             }
         });
 
-        this.hubConnection.on('EndCall', (userid) => {
-            console.log("Call Ended  By : " + userid);
-            if (this.state.person.id === userid.toLowerCase()) {
-                this.setState({ callstatus: CallStatusEnum.End });
+        //this function is called by server when it receives a sendtextmessage from user.
+        this.hubConnection.on('ContactUpdated', (dto) => {
+            if (this.state.person.id === dto.id) {
+                this.setState({ person: dto });
             }
         });
     }
 
-    initiateCall() {
-        this.setState({ callstatus: CallStatusEnum.Initiated });
-        this.hubConnection.invoke("InitiateCall", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
-            .catch(err => { console.log("Unable to initiate call."); console.error(err); })
+    //say hello when hub connection is established, this will begin a handshake which will
+    //eventually lead to rtc peer connection
+    sayHello() {
+        this.hubConnection.invoke("sayHello", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
+            .catch(err => { console.log("Unable to say hello."); console.error(err); })
+    }
+
+    //catch the hello other user sent and answer it.
+    //main purpose of this function is to notify that your are here to 
+    //receive peer connection
+    saysHello(caller) {
+        if (caller.toLowerCase() === this.state.person.id.toLowerCase()) {
+            this.createPeer(true);
+            //answer hello by provided your id
+            this.hubConnection.invoke("AnswerHello", caller, this.state.myself.id.toLowerCase());
+        }
+    }
+
+    answerHello(responder) {
+        //check if answer to your hello came from the person your are chating at present
+        if (this.state.person.id === responder.toLowerCase()) {
+
+            //try create a peer connection
+            this.createPeer(false);
+        }
     }
 
     sendTextMessage() {
@@ -186,6 +195,17 @@ class PersonChat extends React.Component {
             if (this.props.receivedMessage !== undefined) {
                 this.props.receivedMessage(mi);
             }
+        }
+    }
+
+    //function checks if person has not send pulse for last 5 seconds then deem person offline
+    checkPersonPulse() {
+        var dt = new Date(this.state.person.lastPulse);
+        dt.setSeconds(dt.getSeconds() + 5);
+        if (dt < Date.now()) {
+            let p = this.state.person;
+            p.activity = 5;
+            this.setState({person : p})
         }
     }
 
@@ -216,6 +236,7 @@ class PersonChat extends React.Component {
         this.peer.on("error", this.onPeerError);
         this.peer.on("signal", this.onPeerSignal);
         this.peer.on("connect", this.onPeerConnect);
+        this.peer.on("close", this.onPeerClose);
         this.peer.on("stream", stream => { this.onPeerStream(stream); });
         this.peer.on('data', data => {
             // got a data channel message
@@ -229,17 +250,23 @@ class PersonChat extends React.Component {
      */
     onPeerSignal(data) {
         this.hubConnection
-            .invoke('SendSignal', data, this.person.id, this.myself.id)
+            .invoke('SendSignal', data, this.state.person.id, this.state.myself.id)
             .catch(err => console.error('SendSignal ' + err));
     }
 
     onPeerConnect() {
-        this.send(this.myself.name + ' peer connected.');
+        this.peer.send(this.state.myself.name + ' peer connected.');
     }
 
     onPeerError(err) {
-        console.log(this.person.name + " peer gave error. ");
+        console.log(this.state.person.name + " peer gave error. ");
         console.error(err);
+    }
+
+    onPeerClose() {
+        console.log("Peer Closed");
+        this.hubConnection.invoke("EndPeer", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
+            .catch(err => console.error('Endpeer ' + err));
     }
 
     onPeerStream(stream) {
@@ -401,12 +428,12 @@ class PersonChat extends React.Component {
         this.textinput.focus();
     }
 
-    handleEmojiModal(){
+    handleEmojiModal() {
         this.setState({ showemojimodal: !this.state.showemojimodal });
     }
 
     handleVideoCancel() {
-        this.setState({ callstatus: CallStatusEnum.Idle }, () => { this.closeVideo(); });
+        this.closeVideo();
         this.hubConnection.invoke("EndCall", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
             .catch(err => { console.log("Unable to end call."); console.error(err); })
     }
@@ -429,9 +456,6 @@ class PersonChat extends React.Component {
 
     //enable or disable video track of my stream
     handleVideoToggle(e) {
-        if (this.state.callstatus === CallStatusEnum.Idle) {
-            this.setState({ callstatus: CallStatusEnum.Ask });
-        }
         if (this.mystream !== null) {
             if (this.mystream.getVideoTracks().length > 0) {
                 this.mystream.getVideoTracks()[0].enabled = !this.state.videoplaying;
@@ -469,7 +493,15 @@ class PersonChat extends React.Component {
         this.startHub();
         this.updateReceivedMessageStatusAll();
         this.scrollToBottom();
+        this.checkPersonPulseInterval = setInterval(this.checkPersonPulse, 5000);
+        //set unseenmessage count of person to zero and save
+        let clist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+        if (clist.get(this.state.person.id.toLowerCase()) !== undefined) {
+            clist.get(this.state.person.id.toLowerCase()).unseenMessageCount = 0;
+        }
+        localStorage.setItem("contacts", JSON.stringify(Array.from(clist)));
     }
+
     //componentDidUpdate(prevProps, prevState) {
     //    if (prevState.person.id !== this.state.person.id) {
     //        this.messages = (localStorage.getItem(this.state.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.state.person.id))) : new Map();
@@ -483,60 +515,65 @@ class PersonChat extends React.Component {
     //}
 
     componentWillUnmount() {
+
+        //destroy peer and signalr connection since the component will unmount
         if (this.peer !== null) {
-            this.peer.destory();
+            this.peer.destroy();
             this.peer = null;
         }
-        this.setState({ person: null });
+        this.hubConnection.stop();
+        if (this.checkPersonPulseInterval !== null) {
+            clearInterval(this.checkPersonPulseInterval);
+        }
     }
 
     renderEmojiModal() {
         if (this.state.showemojimodal) {
-            return <div style={{ position: "fixed", bottom :"42px", left:"0px"}}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+            return <div style={{ position: "fixed", bottom: "42px", left: "0px" }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
         } else {
             return null;
         }
     }
 
-   renderVideoCallModal() {
-        if (this.state.callstatus === CallStatusEnum.Ask) {
-            return <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-body">
-                            <h4>Waiting For {this.state.person.name}</h4>
-                            <button type="button" className="btn btn-danger btn-lg" onClick={this.handleVideoCancel}>Cancel</button>
-                        </div>
+    renderVideoCallModal() {
+
+        return <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div className="modal-dialog">
+                <div className="modal-content">
+                    <div className="modal-body">
+                        <h4>Waiting For {this.state.person.name}</h4>
+                        <button type="button" className="btn btn-danger btn-lg" onClick={this.handleVideoCancel}>Cancel</button>
                     </div>
                 </div>
-            </div>;
-        } else {
-            return null;
-        }
+            </div>
+        </div>;
+
     }
 
     renderMessages() {
         let sentlistyle = { display: "block", textAlign: 'right' };
         let reclistyle = { display: "block", textAlign: 'left' };
         let sentmessagestyle = {
-            margin: "2px 10px 2px 0px", maxWidth: "80%", position: "relative",
-            padding: ".1rem 0.75rem",
+            margin: "4px", maxWidth: "80%", position: "relative",
+            padding: ".2rem",
             fontSize: "1rem",
             border: "none",
             borderRadius: ".25rem",
             display: "inline-block",
             color: "#000",
-            backgroundColor: "#DBF4FD"
+            backgroundColor: "#DBF4FD",
+            wordWrap: "break-word"
         };
         let recmessagestyle = {
-            margin: "2px 0px 2px 10px", maxWidth: "80%", position: "relative",
-            padding: ".1rem 0.75rem",
+            margin: "4px", maxWidth: "80%", position: "relative",
+            padding: ".2rem",
             border: "none",
             borderRadius: ".25rem",
             fontSize: "1rem",
             display: "inline-block",
             color: "#000",
-            backgroundColor: "#F2F6F9"
+            backgroundColor: "#F2F6F9",
+            wordWrap: "break-word"
         };
         const items = [];
         for (const [key, obj] of this.messages.entries()) {
@@ -544,8 +581,8 @@ class PersonChat extends React.Component {
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
                     <div style={sentmessagestyle} >
-                        <span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text)}}></span>
-                        <span className="d-block"><small style={{fontSize: "0.75rem"}}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
+                        <span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text) }}></span>
+                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
                 </li>);
             } else {
@@ -612,9 +649,13 @@ class PersonChat extends React.Component {
                 <img src="/icons/mic-off.svg" alt="" width="24" height="24" title="Microphone Off" />
             </button>;
         //if browser is edge or ie no need to show video or audio control button
-        if (this.detectEdgeorIE() || true) {
+        if (this.detectEdgeorIE()) {
             audiotoggleele = null;
             videotoggleele = null;
+        }
+        let online = <span className="offline"></span>;
+        if (this.state.person.activity !== 5) {
+            online = <span className="online"></span>;
         }
         return (
             <React.Fragment>
@@ -630,7 +671,7 @@ class PersonChat extends React.Component {
                                                     {pic}
                                                 </td>
                                                 <td className="noPadding">
-                                                    <h5 className="ml-1">{this.state.person.name}</h5>
+                                                    <h5 className="ml-1">{online} {this.state.person.name}</h5>
                                                 </td>
                                                 <td width="140px">
                                                     <button type="button" className="btn btn-link" onClick={() => this.props.handleShowSearch(true)}>Back To Search</button>
@@ -654,11 +695,11 @@ class PersonChat extends React.Component {
                                         <table className="border-top chatinputcontainer">
                                             <tbody>
                                                 <tr>
-                                                    <td style={{width: "45px"}}>
+                                                    <td style={{ width: "45px" }}>
                                                         <button type="button" className={this.state.showemojimodal ? "btn btn-success rounded-0" : "btn btn-outline-success rounded-0"} onClick={this.handleEmojiModal}>😀</button>
                                                     </td>
                                                     <td>
-                                                        <input type="text" ref={(input) => { this.textinput = input; }}  name="textinput" autoComplete="off" className="form-control rounded-0" value={this.state.textinput} onChange={this.handleChange} width="100%" />
+                                                        <input type="text" ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" className="form-control rounded-0" value={this.state.textinput} onChange={this.handleChange} width="100%" />
                                                     </td>
                                                     <td className="chatinputctrlcont">
                                                         <button type="button" id="msgsubmit" className="btn btn-primary rounded-0 " title="Send Message" onClick={(e) => this.sendTextMessage()}><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
@@ -673,7 +714,7 @@ class PersonChat extends React.Component {
                             </tr>
                         </tbody>
                     </table>
-                    {this.renderVideoCallModal()}
+
                     {this.renderEmojiModal()}
                 </div>
                 <audio id="chatbeep" muted="muted" volume="0">

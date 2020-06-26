@@ -16,6 +16,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.IO;
+using Microsoft.AspNetCore.SignalR;
+using Bolo.Hubs;
 
 namespace Bolo.Controllers
 {
@@ -26,10 +28,12 @@ namespace Bolo.Controllers
     {
         private readonly BoloContext _context;
         private readonly IConfiguration _config;
-        public MembersController(BoloContext context, IConfiguration config)
+        private readonly IHubContext<PersonChatHub> _hubContext;
+        public MembersController(BoloContext context, IConfiguration config, IHubContext<PersonChatHub> hubContext)
         {
             _context = context;
             _config = config;
+            _hubContext = hubContext;
         }
 
         [HttpGet()]
@@ -113,7 +117,7 @@ namespace Bolo.Controllers
                 new Claim(ClaimTypes.Name, m.PublicID.ToString()),
         //new Claim(JwtRegisteredClaimNames.Sub, m.PublicID.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, m.Email),
-        new Claim(JwtRegisteredClaimNames.Exp, Helper.Utility.OTPExpiry.ToString("yyyy-MM-dd")),
+        new Claim(JwtRegisteredClaimNames.Exp, Helper.Utility.TokenExpiry.ToString("yyyy-MM-dd")),
         new Claim(JwtRegisteredClaimNames.Jti, m.PublicID.ToString())
     };
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
@@ -235,6 +239,13 @@ namespace Bolo.Controllers
                 member.Bio = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
                 return Ok();
             }
         }
@@ -254,6 +265,13 @@ namespace Bolo.Controllers
                 member.Name = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+                
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
                 return Ok();
             }
         }
@@ -273,6 +291,14 @@ namespace Bolo.Controllers
                 member.BirthYear = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
+
                 return Ok();
             }
         }
@@ -311,6 +337,14 @@ namespace Bolo.Controllers
                 member.Gender = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
+
                 return Ok();
             }
         }
@@ -330,6 +364,14 @@ namespace Bolo.Controllers
                 member.Country = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
+
                 return Ok();
             }
         }
@@ -349,6 +391,14 @@ namespace Bolo.Controllers
                 member.State = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
+
                 return Ok();
             }
         }
@@ -368,6 +418,13 @@ namespace Bolo.Controllers
                 member.City = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
                 return Ok();
             }
         }
@@ -386,10 +443,16 @@ namespace Bolo.Controllers
             {
                 try
                 {
-
                     member.Pic = pic;
                     member.ModifyDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
+
+                    var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                    foreach (Contact c in contacts)
+                    {
+                        MemberDTO mdto = new MemberDTO(member);
+                        _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                    }
                     return Ok();
                 }
                 catch
@@ -440,6 +503,14 @@ namespace Bolo.Controllers
                 member.Activity = s;
                 member.LastPulse = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
+                foreach (Contact c in contacts)
+                {
+                    MemberDTO mdto = new MemberDTO(member);
+                    _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
+                }
+
                 return Ok();
             }
         }

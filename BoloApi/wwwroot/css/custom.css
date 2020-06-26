@@ -527,8 +527,8 @@ code {
     }
 
         .personalchatcont .chatinputcontainer .chatinputctrlcont {
-            /*width: 155px;*/
-            width:40px;
+            width: 155px;
+            min-width:40px;
         }
 
     .personalchatcont .chatmsgcont {

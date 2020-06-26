@@ -25,6 +25,14 @@ namespace Bolo.Helper
             }
         }
 
+        public static DateTime TokenExpiry
+        {
+            get
+            {
+                return DateTime.UtcNow.AddYears(20);
+            }
+        }
+
         public static string GenerateOTP()
         {
             Random r = new Random();

@@ -218,6 +218,8 @@ namespace Bolo.Models
         public string State { get; set; }
         public string City { get; set; }
         public string ThoughtStatus { get; set; }
+
+        public DateTime LastPulse { get; set; }
         public MemberDTO()
         {
             ID = Guid.Empty;
@@ -240,6 +242,7 @@ namespace Bolo.Models
             BirthYear = m.BirthYear;
             Gender = m.Gender;
             Activity = (m.LastPulse.AddSeconds(3) > DateTime.UtcNow) ? m.Activity : ActivityStatus.Offline;
+            LastPulse = m.LastPulse;
             Visibility = m.Visibility;
             Pic = string.IsNullOrEmpty(m.Pic) ? "" : m.Pic;
             Country = string.IsNullOrEmpty(m.Country) ? "" : m.Country;

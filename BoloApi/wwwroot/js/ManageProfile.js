@@ -222,8 +222,7 @@
                     //set state joinmeeting to true so that it does not ask for name and other info from user. Once the state
                     //is set then start signalr hub
                     response.json().then(data => {
-                        console.log(data);
-
+                        //console.log(data);
                         this.setState({ loggedin: true, loading: false, myself: data });
                     });
                 }

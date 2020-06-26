@@ -80,10 +80,10 @@ namespace Bolo.Hubs
         /// <param name="caller">Who initiated the call</param>
         /// <param name="callee">Who is suppose to answer</param>
         /// <returns></returns>
-        public async Task InitiateCall(string caller, string callee)
+        public async Task SayHello(string caller, string callee)
         {
             //Notify callee that a call is initiated and its response is expected
-            await Clients.User(callee).SendAsync("InitiateCall", caller);
+            await Clients.User(callee).SendAsync("SaysHello", caller);
         }
 
         /// <summary>
@@ -92,14 +92,15 @@ namespace Bolo.Hubs
         /// <param name="initiater">Who initiated the call</param>
         /// <param name="responder">Who is answering the call</param>
         /// <returns></returns>
-        public async Task AnswerCall(string initiater, string responder,int callstatus)
+        public async Task AnswerHello(string initiater, string responder)
         {
-            await Clients.User(initiater).SendAsync("AnswerCall", responder, callstatus);
+            await Clients.User(initiater).SendAsync("AnswerHello", responder);
         }
 
-        public async Task EndCall(string me, string other)
+        public async Task EndPeer(string caller, string callee)
         {
-            await Clients.User(other).SendAsync("EndCall", me);
+            await Clients.User(callee).SendAsync("EndPeer", caller);
         }
+
     }
 }

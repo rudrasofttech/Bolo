@@ -20,7 +20,7 @@
     for (l of links) {
         var imgreg = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/g;
         if (imgreg.test(l)) {
-            let img = "<a href='" + l + "' target='_blank'><img src='" + l + "' class='img-fluid d-block m-2 img-thumbnail' style='max-width:300px'/></a>";
+            let img = "<a href='" + l + "' target='_blank'><img src='" + l + "' class='img-fluid d-block mt-1 mb-1 img-thumbnail' style='width:300px; '/></a>";
             text = text.replaceAllOccurence(l, img, true);
         } else {
             let anchor = "<a href='" + l + "' target='_blank'>" + l + "</a>";
