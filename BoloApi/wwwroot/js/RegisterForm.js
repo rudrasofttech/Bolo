@@ -1,13 +1,13 @@
-﻿ class RegisterForm extends React.Component {
+﻿class RegisterForm extends React.Component {
 
-    
+
     constructor(props) {
         super(props);
         let loggedin = true;
         if (localStorage.getItem("token") == null) {
             loggedin = false;
         }
-        
+
         this.state = { showregisterform: props.beginWithRegister, GenerateOTPButton: true, loginemail: '', OTP: '', registername: '', registeremail: '', loading: false, message: '', bsstyle: '', loggedin: loggedin };
         this.handleChange = this.handleChange.bind(this);
         this.handleGenerateOTP = this.handleGenerateOTP.bind(this);
@@ -180,15 +180,17 @@
     }
 
     render() {
-        let loading = this.state.loading ?<div> Loading... </div>: null;
+        let loading = this.state.loading ? <div className="progress">
+            <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%; height:5px;"></div>
+        </div> : null;
         let messagecontent = this.state.message !== "" ? <div color={this.state.bsstyle} className="mt-1">
             {this.state.message}
-      </div> : null;
+        </div> : null;
 
         let logincontents = this.state.GenerateOTPButton ?
             this.renderOTPForm()
             : this.renderLoginForm();
-        
+
         let formcontents = this.state.showregisterform ?
             <div>
                 <h3>Register</h3>
@@ -203,10 +205,10 @@
                             <input type="email" className="form-control" required name="registeremail" value={this.state.registeremail} onChange={this.handleChange} placeholder="me@bolo.com" />
                             <small className="form-text text-muted">We'll never share your email with anyone else.</small>
                         </div>
-                        
+
                         <button className="btn btn-primary" type="submit">Submit</button>
                     </form>
-                    
+
                     <p className="text-center mt-2">
                         Already a Member! <button type="button" onClick={this.handleLoginClickHere} className="btn btn-success btn-sm">Login Here</button> </p>
                     {messagecontent}
@@ -226,7 +228,7 @@
         return (
             <div>
                 {formcontents}
-           </div>
+            </div>
         );
     }
 }

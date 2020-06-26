@@ -153,13 +153,10 @@ class NavMenu extends React.Component {
                 <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-scrollable modal-lg">
                         <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Profile</h5>
-                                <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}>
+                            <div className="modal-body">
+                                <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}>
                                     <span aria-hidden="true">&times;</span>
                                 </button>
-                            </div>
-                            <div className="modal-body">
                                 <ManageProfile onProfileChange={this.handleProfileChange} />
                             </div>
                         </div>
