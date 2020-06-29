@@ -32,7 +32,6 @@
 
     sendHeartbeat() {
         if (this.state.loggedin) {
-            this.setState({ loading: true });
             fetch('//' + window.location.host + '/api/Members/savepulse?s=' + this.state.activity, {
                 method: 'get',
                 headers: {
@@ -40,9 +39,6 @@
                 }
             })
                 .then(response => {
-
-                    this.setState({ loading: false });
-
                 });
         }
     }

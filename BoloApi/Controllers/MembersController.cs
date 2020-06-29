@@ -123,7 +123,7 @@ namespace Bolo.Controllers
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
               claims,
-              expires: Helper.Utility.OTPExpiry,
+              expires: Helper.Utility.TokenExpiry,
               signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

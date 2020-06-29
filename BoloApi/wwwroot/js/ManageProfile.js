@@ -366,8 +366,8 @@
         if (this.state.loggedin && this.state.myself !== null) {
             
 
-            let loading = this.state.loading ? <div className="progress">
-                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%', height : "5px" }}></div>
+            let loading = this.state.loading ? <div className="progress" style={{ height: "5px"}}>
+                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%' }}></div>
             </div> : null;
             let pic = this.state.myself.pic !== "" ? <React.Fragment><img src={this.state.myself.pic} className="rounded mx-auto d-block img-fluid" alt="" />
                 <button type="button" className="btn btn-sm btn-light m-1" onClick={this.removeProfilePicture}>Remove Picture</button></React.Fragment> : <img src="/images/nopic.jpg" className="rounded mx-auto d-block img-fluid" alt="" />;

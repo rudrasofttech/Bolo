@@ -92,8 +92,8 @@ code {
 }
 
 .meetingvideocol {
-    padding-bottom: 50px;
-    margin-top: 60px;
+    /*padding-bottom: 50px;
+    margin-top: 60px;*/
     overflow: auto;
 }
 
@@ -303,11 +303,12 @@ code {
 #msgcont {
     background-color: rgba(255, 255, 255, 0.8);
     padding-bottom: 5px;
-    z-index: 10;
+    /*z-index: 10;*/
     overflow: auto;
-    border-radius: 5px;
+    border-radius: 0px;
     display: block;
     text-align: center;
+    position:relative;
 }
 
 
@@ -598,8 +599,8 @@ code {
 /*Large screens*/
 @media only screen and (min-width: 1200px) {
     #msgcont {
-        padding-bottom: 50px;
-        margin-top: 60px;
+        /*padding-bottom: 50px;
+        margin-top: 60px;*/
         border-left: 1px solid #DEE2E6;
     }
 
@@ -608,7 +609,7 @@ code {
         }
 
         #msgcont > #msglist {
-            height: calc(100vh - 110px);
+            height: calc(100vh - 150px);
             overflow-y: auto;
         }
 
@@ -640,14 +641,14 @@ code {
     #msgcont {
         width: 25%;
         height: auto;
-        top: 70px;
+        /*top: 70px;
         right: 5px;
         position: fixed;
         background-color: white;
         -webkit-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
         -moz-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
         box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
-        background-clip: padding-box;
+        background-clip: padding-box;*/
         border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 0px;
         outline: 0;
@@ -679,10 +680,10 @@ code {
         width: 100%;
         height: auto;
         background-color: rgba(255, 255, 255, 0.9);
-        right: auto;
+        /*right: auto;
         left: 0;
         bottom: 70px;
-        position: fixed;
+        position: fixed;*/
         -webkit-box-shadow: none;
         -moz-box-shadow: none;
         box-shadow: none;

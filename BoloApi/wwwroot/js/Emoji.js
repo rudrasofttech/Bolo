@@ -10,7 +10,7 @@
     }
 
     render() {
-        return <div className="emojicont p-2 border-top border-right border-left bg-light" style={{ maxWidth: "450px" }}>
+        return <div className="emojicont p-2 border-top border-bottom border-right border-left bg-light" style={{ maxWidth: "410px" }}>
             <ul className="list-inline mb-1">
                 <li className="list-inline-item"><span title="GRINNING FACE" onClick={() => this.onEmojiClick('😀')}>😀</span></li>
                 <li className="list-inline-item"><span title="GRINNING FACE WITH SMILING EYES" onClick={() => this.onEmojiClick('😁')}>😁</span></li>

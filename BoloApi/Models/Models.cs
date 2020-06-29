@@ -22,8 +22,9 @@ namespace Bolo.Models
 
     public enum MemberNotificationType
     {
+        None = 0,
         Message = 1,
-        Call = 2
+        System = 2
     }
 
     public enum ChatMessageSentStatus
@@ -134,14 +135,43 @@ namespace Bolo.Models
 
     public class MemberNotification
     {
-        public int ID { get; set; }
-        public string SentBy { get; set; }
+        public Guid ID { get; set; }
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+        public Member? SentBy { get; set; }
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public Member SentTo { get; set; }
         public DateTime SentDate { get; set; }
         public string Message { get; set; }
         public MemberNotificationType NotificationType { get; set; }
     }
 
+
+    public class MemberNotificationDTO
+    {
+        public Guid ID { get; set; }
+        public MemberDTO SentByMember { get; set; }
+        public DateTime SentDate { get; set; }
+        public string Message { get; set; }
+        public MemberNotificationType NotificationType { get; set; }
+
+        public MemberNotificationDTO()
+        {
+            ID = Guid.Empty;
+            SentByMember = null;
+            SentDate = DateTime.MinValue;
+            Message = string.Empty;
+            NotificationType = MemberNotificationType.None;
+        }
+
+        public MemberNotificationDTO(MemberNotification mn)
+        {
+            ID = mn.ID;
+            SentByMember = mn.SentBy != null ? new MemberDTO(mn.SentBy) : null;
+            SentDate = mn.SentDate;
+            Message = mn.Message;
+            NotificationType = mn.NotificationType;
+        }
+    }
 
     public class ChatMessage
     {
@@ -180,11 +210,11 @@ namespace Bolo.Models
         public string RecentMessage { get; set; }
         public DateTime RecentMessageDate { get; set; }
         public int UnseenMessageCount { get; set; }
-        
+
         public ContactDTO(Contact c)
         {
             ID = c.ID;
-            if(c.Person != null)
+            if (c.Person != null)
             {
                 Person = new MemberDTO(c.Person);
             }

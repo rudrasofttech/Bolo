@@ -40,7 +40,16 @@
 var MessageEnum = {
     Text: 1,
     MemberAdd: 2,
-    MemberLeave: 3
+    MemberLeave: 3,
+    File: 4
+}
+
+var MessageStatusEnum = {
+    notify:0, 
+    inqueue: 1,
+    inprogress: 2,
+    sent: 3,
+    error : 4
 }
 
 class MessageInfo {
@@ -52,4 +61,13 @@ class MessageInfo {
     type;
     //message body 
     text;
+    status;
+    progresspercent;
+    file;
+
+    constructor() {
+        this.progresspercent = 0;
+        this.status = MessageStatusEnum.inprogress;
+        this.file = null;
+    }
 }

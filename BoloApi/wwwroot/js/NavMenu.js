@@ -30,9 +30,9 @@ class NavMenu extends React.Component {
         this.loginHandler = this.loginHandler.bind(this);
         this.handleRegister = this.handleRegister.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
-        this.handleOnInvite = this.handleOnInvite.bind(this);
+        //this.handleOnInvite = this.handleOnInvite.bind(this);
         this.closeRegisterModal = this.closeRegisterModal.bind(this);
-        this.handleLeaveMeeting = this.handleLeaveMeeting.bind(this);
+        //this.handleLeaveMeeting = this.handleLeaveMeeting.bind(this);
         this.toggleProfileModal = this.toggleProfileModal.bind(this);
         this.handleProfileChange = this.handleProfileChange.bind(this);
     }
@@ -57,17 +57,17 @@ class NavMenu extends React.Component {
 
     }
 
-    handleOnInvite(e) {
-        if (this.props.onInvite !== undefined) {
-            this.props.onInvite();
-        }
-    }
+    //handleOnInvite(e) {
+    //    if (this.props.onInvite !== undefined) {
+    //        this.props.onInvite();
+    //    }
+    //}
 
-    handleLeaveMeeting(e) {
-        if (this.props.onLeaveMeeting !== undefined) {
-            this.props.onLeaveMeeting();
-        }
-    }
+    //handleLeaveMeeting(e) {
+    //    if (this.props.onLeaveMeeting !== undefined) {
+    //        this.props.onLeaveMeeting();
+    //    }
+    //}
 
     handleRegister(e) {
         e.preventDefault();
@@ -176,12 +176,12 @@ class NavMenu extends React.Component {
         if (token === null) {
             loggedin = false;
         }
-        if (this.state.showinvite) {
-            linkitems.push(<li className="nav-item" key={"showinviteli"}><button type="button" className="btn btn-link text-light bg-info mr-2 ml-2 nav-link" onClick={this.handleOnInvite}>Invite <img src="/icons/plus-circle.svg" alt="" width="24" height="24" title="Invite" /></button></li>);
-        }
-        if (this.state.showleavemeeting) {
-            linkitems.push(<li className="nav-item" key={"showleavemeetingli"}><button type="button" className="btn btn-link text-light bg-danger mr-2 ml-2 nav-link" onClick={this.handleLeaveMeeting}>Leave <img src="/icons/user-minus.svg" alt="" width="24" height="24" title="Leave Meeting" /></button></li>);
-        }
+        //if (this.state.showinvite) {
+        //    linkitems.push(<li className="nav-item" key={"showinviteli"}><button type="button" className="btn btn-link text-light bg-info mr-2 ml-2 nav-link" onClick={this.handleOnInvite}>Invite <img src="/icons/plus-circle.svg" alt="" width="24" height="24" title="Invite" /></button></li>);
+        //}
+        //if (this.state.showleavemeeting) {
+        //    linkitems.push(<li className="nav-item" key={"showleavemeetingli"}><button type="button" className="btn btn-link text-light bg-danger mr-2 ml-2 nav-link" onClick={this.handleLeaveMeeting}>Leave <img src="/icons/user-minus.svg" alt="" width="24" height="24" title="Leave Meeting" /></button></li>);
+        //}
         let profilepic = null;
         if (loggedin && this.state.memberpic !== "") {
             profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded-circle"  />
@@ -200,10 +200,11 @@ class NavMenu extends React.Component {
                     <nav className={navclassnames}>
                         <div className="container-fluid">
                             <a className="navbar-brand" href="/">Waarta</a>
-                            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu"
+                                aria-expanded="false" aria-label="Toggle navigation">
                                 <span className="navbar-toggler-icon"></span>
                             </button>
-                            <div className="collapse navbar-collapse d-sm-inline-flex flex-sm-row-reverse">
+                            <div className="collapse navbar-collapse d-sm-inline-flex flex-sm-row-reverse" id="navbarMainMenu">
                                 <ul className="navbar-nav flex-grow">
                                     <li className="nav-item">
                                         <a className="nav-link text-light" href="/Chat">Chat</a>

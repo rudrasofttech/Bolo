@@ -59,6 +59,12 @@ namespace Bolo.Hubs
                     cdto.RecentMessageDate = dt;
                     await Clients.User(receiver).SendAsync("ContactSaved", cdto);
                 }
+
+                MemberDTO recedto = new MemberDTO(mreceiver);
+                if(recedto.Activity == ActivityStatus.Offline)
+                {
+                   //add to database here
+                }
             }
         }
 

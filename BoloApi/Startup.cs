@@ -37,7 +37,7 @@ namespace BoloApi
             services.AddCors(c => c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod()));
             services.AddDbContext<BoloContext>(options =>
         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            
+
             services.AddControllersWithViews();
 
             services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
@@ -73,8 +73,14 @@ namespace BoloApi
                         }
                     };
                 });
-            
-            services.AddSignalR(o => { o.EnableDetailedErrors = true; });
+
+            services.AddSignalR(o =>
+            {
+                o.EnableDetailedErrors = true;
+                o.KeepAliveInterval = TimeSpan.FromMinutes(1);
+                o.MaximumReceiveMessageSize = null;
+            });
+
             services.Configure<HubOptions>(options =>
             {
                 options.MaximumReceiveMessageSize = null;
@@ -88,7 +94,7 @@ namespace BoloApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();

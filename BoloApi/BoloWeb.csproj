@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200626125049_MemberNotificationTable.cs" />
+    <Compile Remove="Migrations\20200626125049_MemberNotificationTable.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="wwwroot\images\nopic.jpg" />
     <Content Remove="wwwroot\js\Conversation.js" />
     <Content Remove="wwwroot\js\HeartBeat.js" />
@@ -35,6 +40,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
@@ -66,6 +72,11 @@
     <None Include="wwwroot\media\swiftly.m4r" />
     <None Include="wwwroot\media\swiftly.mp3" />
     <None Include="wwwroot\media\swiftly.ogg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+    <Folder Include="wwwroot\data\meeting\" />
   </ItemGroup>
 
 

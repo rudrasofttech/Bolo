@@ -7,7 +7,7 @@
             loggedin = false;
         }
         this.state = {
-            joinmeeting: false, redirectto: '', myname: '', textinput: '', messages: [],
+            joinmeeting: false, redirectto: '', meetingname: '', myname: '', textinput: '', messages: [],
             showinvite: false, videoplaying: false, audioplaying: false,
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             id: this.props.meetingid === null ? '' : this.props.meetingid,
@@ -24,6 +24,7 @@
         this.myself = null;
         this.mystream = null;
         this.hubConnection = null;
+        this.freader = new FileReader();
         this.handleMessageSubmit = this.handleMessageSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.leaveMeeting = this.leaveMeeting.bind(this);
@@ -51,6 +52,11 @@
         this.onPeerStream = this.onPeerStream.bind(this);
         this.handleEmojiModal = this.handleEmojiModal.bind(this);
         this.handleEmojiSelect = this.handleEmojiSelect.bind(this);
+        this.handlePhotoClick = this.handlePhotoClick.bind(this);
+        this.handleDocClick = this.handleDocClick.bind(this);
+        this.handleFileInput = this.handleFileInput.bind(this);
+        this.processFileUpload = this.processFileUpload.bind(this);
+        this.uploadFile = this.uploadFile.bind(this);
     }
 
     validateMeeting(t) {
@@ -67,18 +73,27 @@
                     if (response.status === 200) {
                         response.json().then(data => {
                             let mlist = this.state.messages;
+                            if (data.name !== null && data.name !== '') {
+                                document.title = data.name;
+                                var mi = new MessageInfo();
+                                mi.sender = null;
+                                mi.text = data.name;
+                                mi.type = MessageEnum.Text;
+                                mi.timeStamp = new Date();
+                                mi.status = MessageStatusEnum.sent;
+                                mlist.push(mi);
+                            }
                             if (data.purpose !== null && data.purpose !== '') {
                                 var mi = new MessageInfo();
                                 mi.sender = null;
                                 mi.text = data.purpose;
                                 mi.type = MessageEnum.Text;
                                 mi.timeStamp = new Date();
+                                mi.status = MessageStatusEnum.sent;
                                 mlist.push(mi);
                             }
+
                             this.setState({ idvalid: true, loading: false, messages: mlist });
-                            if (data.name !== null && data.name !== '') {
-                                document.title = data.name;
-                            }
                         });
                     } else {
                         this.setState({ idvalid: false });
@@ -171,6 +186,57 @@
         this.setState({ showemojimodal: !this.state.showemojimodal });
     }
 
+    handlePhotoClick(e) {
+        e.preventDefault();
+        this.fileinput.click();
+    }
+
+    handleDocClick(e) {
+        e.preventDefault();
+        this.fileinput.click();
+    }
+
+    handleFileInput(e) {
+        alert("Soon you will be able to share files.");
+        return;
+        if (this.fileinput.files.length > 20) {
+            alert("Only 20 files at a time.");
+            return;
+        }
+        for (var i = 0; i < this.fileinput.files.length; i++) {
+            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 10) {
+                alert("File size cannot exceed 10 MB");
+                return;
+            }
+        }
+
+        let mlist = this.state.messages;
+        for (var i = 0; i < this.fileinput.files.length; i++) {
+            let msg = new MessageInfo();
+            msg.sender = this.myself;
+            msg.file = this.fileinput.files[i];
+            msg.text = msg.file.name;
+            msg.type = MessageEnum.File;
+            msg.status = MessageStatusEnum.inqueue;
+            msg.sfilename = "";
+            mlist.push(msg);
+        }
+        this.setState({ messages: mlist });
+
+        this.fileinput.value = "";
+        this.processFileUpload();
+    }
+
+    returnFileSize(number) {
+        if (number < 1024) {
+            return number + 'bytes';
+        } else if (number >= 1024 && number < 1048576) {
+            return (number / 1024).toFixed(1) + 'KB';
+        } else if (number >= 1048576) {
+            return (number / 1048576).toFixed(1) + 'MB';
+        }
+    }
+
     onAlertDismiss() {
         this.setState({ showalert: false });
     }
@@ -185,6 +251,67 @@
         this.setState({ showchatlist: false });
     }
 
+    processFileUpload() {
+        let m = null;
+        for (var i = 0; i < this.state.messages.length; i++) {
+            if (this.state.messages[i].type === MessageEnum.File && this.state.messages[i].status === MessageStatusEnum.inqueue) {
+                m = this.state.messages[i];
+                break;
+            }
+        }
+
+        if (m !== null) {
+            this.freader = new FileReader();
+            this.freader.uploadFile = this.uploadFile;
+            this.uploadFile(this.state.id, m, 0);
+        }
+    }
+
+    uploadFile(meetingid, msg, start) {
+        const slice_size = 1000 * 1024;
+        var next_slice = start + slice_size + 1;
+        var blob = msg.file.slice(start, next_slice);
+        var mid = meetingid;
+        this.freader.onloadend = function (event) {
+            if (event.target.readyState !== FileReader.DONE) {
+                return;
+            }
+            const fd = new FormData();
+            fd.set("f", event.target.result);
+            fd.set("meetingid", meetingid);
+            fd.set("filename", start === 0 ? msg.file.name : msg.sfilename);
+            fd.set("gfn", start === 0 ? true : false);
+            fetch('//' + window.location.host + '/api/meetings/uploadfile', {
+                method: 'post',
+                body: fd,
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem("token")
+                }
+            }).then(response => {
+                if (response.status === 200) {
+                    var size_done = start + slice_size;
+                    msg.progresspercent = Math.floor((size_done / msg.file.size) * 100);
+                    msg.status = MessageStatusEnum.inprogress;
+                    response.json().then(data => {
+                        msg.sfilename = data.filename;
+                        if (next_slice < msg.file.size) {
+                            // More to upload, call function recursively
+                            this.uploadFile(meetingid, msg, next_slice);
+                        } else {
+                            msg.file = null;
+                            // Update upload progress
+                            alert('Upload Complete You can send it as msg now');
+                        }
+                    });
+
+                }
+            });
+        };
+
+        this.freader.readAsDataURL(blob);
+    }
+    handleFileChunkLoadInReader(e) {
+    }
     //check if browser supports access to camera and microphone
     hasVideoAudioCapability() {
         return !!(navigator.mediaDevices &&
@@ -321,6 +448,7 @@
                 msg.sender = null;
                 msg.text = u.name + " has left the meeting.";
                 msg.type = MessageEnum.MemberLeave;
+                msg.status = MessageStatusEnum.sent;
                 let mlist = this.state.messages;
                 mlist.push(msg);
                 this.users.delete(u.connectionID);
@@ -447,6 +575,7 @@
             msg.text = msg.text + " No Video/Audio Capability.";
         }
         msg.type = MessageEnum.MemberAdd;
+        msg.status = MessageStatusEnum.notify;
         let mlist = this.state.messages;
         mlist.push(msg);
 
@@ -482,6 +611,8 @@
         mi.text = text;
         mi.type = MessageEnum.Text;
         mi.timeStamp = timestamp;
+        mi.status = MessageStatusEnum.sent;
+
         let mlist = this.state.messages;
         mlist.push(mi);
         this.setState({ messages: mlist, showalert: !this.state.showchatlist });
@@ -494,6 +625,7 @@
         msg.sender = null;
         msg.text = u.name + " has left.";
         msg.type = MessageEnum.MemberLeave;
+        msg.status = MessageStatusEnum.notify;
         let mlist = this.state.messages;
         mlist.push(msg);
         this.users.delete(cid);
@@ -515,6 +647,7 @@
                 msg.sender = null;
                 msg.text = oldname + " has changed name to " + u.name + ".";
                 msg.type = MessageEnum.Text;
+                msg.status = MessageStatusEnum.notify;
                 var mlist = this.state.messages;
                 mlist.push(msg);
                 this.setState({ messages: mlist, showalert: !this.state.showchatlist });
@@ -554,6 +687,7 @@
             mi.text = mi.text + " No Video/Audio Capability.";
         }
         mi.type = MessageEnum.Text;
+        mi.status = MessageStatusEnum.sent;
 
         let mlist = this.state.messages;
         mlist.push(mi);
@@ -631,16 +765,16 @@
     getUserCam() {
         //config 
         var videoconst = true;
-        if (window.matchMedia("(max-width: 414px) and (orientation: portrait)").matches) {
-            videoconst = {
-                width: {
-                    min: 375
-                },
-                height: {
-                    min: 740
-                }
-            };
-        }
+        //if (window.matchMedia("(max-width: 414px) and (orientation: portrait)").matches) {
+        //    videoconst = {
+        //        width: {
+        //            min: 375
+        //        },
+        //        height: {
+        //            min: 740
+        //        }
+        //    };
+        //}
         var constraints = {
             audio: true, video: videoconst
         };
@@ -788,7 +922,7 @@
 
     renderEmojiModal() {
         if (this.state.showemojimodal) {
-            return <div style={{ position: "fixed", bottom: "42px", left: "0px", zIndex: '10' }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+            return <div style={{ position: "fixed", bottom: "50px", right: "10px", zIndex: '15' }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
         } else {
             return null;
         }
@@ -895,6 +1029,7 @@
     }
 
     renderMessageList(hasVideos) {
+
         let alert = <React.Fragment></React.Fragment>;
         const items = [];
         for (var k in this.state.messages) {
@@ -927,7 +1062,7 @@
                 let userpic = this.state.messages[this.state.messages.length - 1].sender.pic !== "" ? <img src={this.state.messages[this.state.messages.length - 1].sender.pic} width="20" height="20" className="rounded img-fluid" /> : null;
                 alert = this.state.showalert ? <div className="alert alert-light meetingalert" role="alert">
                     {userpic} {this.state.messages[this.state.messages.length - 1].sender.name} sent a message. <a href="#" className="alert-link" onClick={this.showChatList}>See Here</a>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" onClick={this.onAlertDismiss}>
+                    <button type="button" className="close" data-dismiss="alert" aria-label="Close" onClick={this.onAlertDismiss}>
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div> : null;
@@ -938,25 +1073,43 @@
         if (this.detectEdgeorIE()) {
             cn = "col-md-12";
         } else if (hasVideos) {
-            cn = "col-xl-3";
+            cn = "col-xl-4";
         }
-        if (this.state.showchatlist) {
+        if (this.state.showchatlist || true) {
             return (
                 <React.Fragment>
-                    {alert}
                     <div id="msgcont" className={cn}>
-                        <p className="h5 text-left pl-1">Chat <button onClick={this.hideChatList} type="button" className="btn btn-sm float-right btn-dark rounded-0">Close</button></p>
-                        <ul id="msglist" className="pt-1">
+                        <p className="h5 text-left pl-1">Chat</p>
+                        <ul id="msglist" className="pt-1" style={{ marginBottom : "45px"}}>
                             {items}
                             <li style={{ float: "left", clear: "both" }}
                                 ref={(el) => { this.messagesEnd = el; }}>
                             </li>
                         </ul>
+                        <div style={{ position: "absolute", bottom: "0px", left: "0px", width: "100%" }}>
+                            <form className="form-inline" onSubmit={this.handleMessageSubmit}>
+                                <div className="container-fluid">
+                                    <div className="row">
+                                        <div className="col-12">
+                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
+                                                onChange={this.handleChange} className="form-control mb-1" id="msginput" />
+
+                                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} style={{ position: "absolute", right: "60px", bottom: "7px" }} onClick={this.handleEmojiModal}>😀</button>
+                                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary" title="Send Message" style={{ position: "absolute", right: "20px", bottom: "7px" }}>
+                                                <img src="/icons/send.svg" alt="" width="15" height="15" title="Send Message" />
+                                            </button>
+                                            <button type="button" className="btn btn-primary d-none" title="Show Chat Window" onClick={this.showChatList}><img src="/icons/message-square.svg" alt="" width="24" height="24" title="Chat Window" /></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
+
                 </React.Fragment>
             );
         } else {
-            return <React.Fragment>{alert}</React.Fragment>;
+            return null;
         }
     }
 
@@ -965,16 +1118,26 @@
         let videocontcss = "";
         const items = [];
         let myvclass = "";
-
+        let noofvideo = 0;
+        if (this.mystream !== null) {
+            noofvideo++;
+        }
         this.users.forEach(function (value, key) {
             if (value.stream !== null) {
+                noofvideo++;
                 let userpic = value.pic !== "" ? <img src={value.pic} width="20" height="20" className="rounded ml-1 mb-1 mt-1" /> : null;
-                items.push(<li className="video" key={key}>
-                    <video id={'video' + value.connectionID} autoPlay={true} playsInline muted="muted" volume="0"></video>
-                    <span className="ctrl">
+                //items.push(<li className="video" key={key}>
+                //    <video id={'video' + value.connectionID} autoPlay={true} playsInline muted="muted" volume="0"></video>
+                //    <span className="ctrl">
+                //        {userpic} <span className="name p-1">{value.name}</span>
+                //    </span>
+                //</li>);
+                items.push(<div className={noofvideo > 1 ? "col-6" : "col-12"} style={{ position: "relative" }} key={key}>
+                    <video id={'video' + value.connectionID} autoPlay={true} className="img-fluid" playsInline muted="muted" volume="0" style={{ maxHeight: "70vh" }}></video>
+                    <span style={{ position: "absolute", left: "0px", top: "0px", backgroundColor: "rgba(255,255, 255, 0.5)", padding: "0px 15px" }}>
                         {userpic} <span className="name p-1">{value.name}</span>
                     </span>
-                </li>);
+                </div>);
             }
         });
         //beyond thirteen participant will all have same dimensions, 
@@ -986,20 +1149,26 @@
 
         const myvstyle = (items.length === 0) ? { left: 0, top: 0 } : {};
 
+        //let myvcontainer =
+        //    this.mystream !== null ? <div className={myvclass} id="myvideocont" style={myvstyle} >
+        //        <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag}></video>
+        //    </div> : null;
+
         let myvcontainer =
-            this.mystream !== null ? <div className={myvclass} id="myvideocont" style={myvstyle} >
-                <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag}></video>
+            this.mystream !== null ? <div className={noofvideo > 1 ? "col-6" : "col-12"}>
+                <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag} className="img-fluid" style={{ maxHeight: "70vh" }}></video>
             </div> : null;
 
         //Video should only be show if participants have a stream or myself have a stream
         if (items.length > 0 || this.mystream !== null) {
-            return <div className="col-lg-12 col-xl-9 meetingvideocol">
-                <div id="videocont">
-                    {myvcontainer}
-                    <ul id="videolist" className={videocontcss}>
-                        {items}</ul>
-                </div>
-            </div>;
+            return <div className="col-lg-12 col-xl-8 meetingvideocol"><div className="row">{items}{myvcontainer}</div></div>;
+            //return <div className="col-lg-12 col-xl-9 meetingvideocol">
+            //    <div id="videocont">
+            //        {myvcontainer}
+            //        <ul id="videolist" className={videocontcss}>
+            //            {items}</ul>
+            //    </div>
+            //</div>;
         } else { return null; }
     }
 
@@ -1064,39 +1233,39 @@
             let videotoggleele = this.state.videoplaying ? (
                 <button
                     type="button"
-                    className="btn btn-primary mr-1 ml-2 videoctrl"
+                    className="btn btn-primary btn-sm videoctrl"
                     onClick={this.handleVideoToggle}
                     onMouseDown={(e) => e.stopPropagation()}
                 >
-                    <img src="/icons/video.svg" alt="" width="24" height="24" title="Video On" />
+                    <img src="/icons/video.svg" alt="" width="15" height="15" title="Video On" />
                 </button>
             ) : (
                     <button
                         type="button"
-                        className="btn btn-light mr-1 ml-2 videoctrl"
+                        className="btn btn-light btn-sm videoctrl"
                         onClick={this.handleVideoToggle}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
-                        <img src="/icons/video-off.svg" alt="" width="24" height="24" title="Video Off" />
+                        <img src="/icons/video-off.svg" alt="" width="15" height="15" title="Video Off" />
                     </button>
                 );
             let audiotoggleele = this.state.audioplaying ? (
                 <button
                     type="button"
-                    className="btn btn-primary mr-1 audioctrl"
+                    className="btn btn-primary btn-sm audioctrl"
                     onClick={this.handleAudioToggle}
                     onMouseDown={(e) => e.stopPropagation()}
                 >
-                    <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone On" />
+                    <img src="/icons/mic.svg" alt="" width="15" height="15" title="Microphone On" />
                 </button>
             ) : (
                     <button
                         type="button"
-                        className="btn btn-light mr-1 audioctrl"
+                        className="btn btn-light btn-sm audioctrl"
                         onClick={this.handleAudioToggle}
                         onMouseDown={(e) => e.stopPropagation()}
                     >
-                        <img src="/icons/mic-off.svg" alt="" width="24" height="24" title="Microphone Off" />
+                        <img src="/icons/mic-off.svg" alt="" width="15" height="15" title="Microphone Off" />
                     </button>
                 );
             //if browser is edge or ie no need to show video or audio control button
@@ -1106,7 +1275,35 @@
             }
             return (
                 <React.Fragment>
-                    <NavMenu onLogin={this.loginHandler} onInvite={this.inviteHandler} onLeaveMeeting={this.leaveMeeting} fixed={true} />
+                    <NavMenu onLogin={this.loginHandler} fixed={false} />
+                    <nav className="bg-light border-bottom" style={{ padding: "4px", textAlign: "center" }}>
+                        <ul className="list-inline" style={{ marginBottom: "0px" }}>
+
+                            <li className="list-inline-item">
+                                <div className="dropdown">
+                                    <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <img src="/icons/file-plus.svg" alt="" width="15" height="15" title="Invite" /></a>
+
+                                    <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
+                                        <a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
+                                        <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
+                                    </div>
+                                </div>
+                            </li>
+                            <li className="list-inline-item">
+                                {videotoggleele}
+                            </li>
+                            <li className="list-inline-item">
+                                {audiotoggleele}</li>
+                            <li className="list-inline-item">
+                                <button type="button" className="btn btn-info btn-sm " onClick={this.inviteHandler}>Invite <img src="/icons/plus-circle.svg" alt="" width="15" height="15" title="Invite" /></button>
+                            </li>
+                            <li className="list-inline-item">
+                                <button type="button" className="btn btn-danger btn-sm" onClick={this.leaveMeeting}>Leave <img src="/icons/user-minus.svg" alt="" width="15" height="15" title="Leave Meeting" /></button>
+                            </li>
+                        </ul>
+                    </nav>
                     <div className="container-fluid">
                         <div className="row">
                             {vhtml}
@@ -1131,27 +1328,7 @@
                         </audio>
                     </div>
                     <footer className="footer fixed-bottom">
-                        <form className="form-inline" onSubmit={this.handleMessageSubmit}>
-                            <table style={{ width : "100%", padding: 0}}>
-                                <tbody>
-                                    <tr>
-                                        <td style={{ width: "45px" }}>
-                                            <button type="button" className={this.state.showemojimodal ? "btn btn-success" : "btn btn-outline-success"} onClick={this.handleEmojiModal}>😀</button>
-                                        </td>
-                                        <td>
-                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
-                                                onChange={this.handleChange} className="form-control mb-1" id="msginput" />
-                                        </td>
-                                        <td align="center" style={{ width: "170px", padding: 0 }}>
-                                            <button type="submit" id="msgsubmit" className="btn btn-primary" title="Send Message"><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
-                                            {videotoggleele}
-                                            {audiotoggleele}
-                                            <button type="button" className="btn btn-primary d-xl-none" title="Show Chat Window" onClick={this.showChatList}><img src="/icons/message-square.svg" alt="" width="24" height="24" title="Chat Window" /></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </form>
+
                     </footer>
                     {this.renderEmojiModal()}
                     <HeartBeat activity="2" interval="3000" />

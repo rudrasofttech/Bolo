@@ -46,6 +46,9 @@
         this.handleEmojiModal = this.handleEmojiModal.bind(this);
         this.handleEmojiSelect = this.handleEmojiSelect.bind(this);
         this.checkPersonPulse = this.checkPersonPulse.bind(this);
+        this.attachMyStreamToVideo = this.attachMyStreamToVideo.bind(this);
+        this.attachOtherStreamToVideo = this.attachOtherStreamToVideo.bind(this);
+
         this.messageStatusEnum = {
             Sent: 1,
             Received: 2,
@@ -337,23 +340,24 @@
         this.mystream = stream;
         //update state so that myvideo element can be added to dom and then manipulated
         this.setState({ dummydate: new Date() }, () => {
-            var video = document.getElementById('myvideo');
+            this.attachMyStreamToVideo();
+            //var video = document.getElementById('myvideo');
 
-            video.srcObject = this.mystream;
-            //only play when meta data is loaded from stream
-            video.onloadedmetadata = function (e) {
-                if (video !== undefined) {
-                    //provision to reduce echoe
-                    //mute the self video
-                    video.volume = 0;
-                    video.muted = 0;
+            //video.srcObject = this.mystream;
+            ////only play when meta data is loaded from stream
+            //video.onloadedmetadata = function (e) {
+            //    if (video !== undefined) {
+            //        //provision to reduce echoe
+            //        //mute the self video
+            //        video.volume = 0;
+            //        video.muted = 0;
 
-                    //start playing the video
-                    video.play();
+            //        //start playing the video
+            //        video.play();
 
-                    //console.log(video.width + " " + video.height);
-                }
-            };
+            //        //console.log(video.width + " " + video.height);
+            //    }
+            //};
         });
 
         //based on initial state enable or disable video and audio
@@ -368,6 +372,46 @@
         //set stream to all existing peers
         if (this.peer !== null) {
             this.peer.addStream(this.mystream);
+        }
+    }
+
+    attachMyStreamToVideo() {
+        if (this.state.videoplaying || this.state.audioplaying) {
+            var video = document.getElementById('myvideo');
+            if (video !== null) {
+                video.srcObject = this.mystream;
+                //only play when meta data is loaded from stream
+                video.onloadedmetadata = function (e) {
+                    if (video !== undefined) {
+                        //provision to reduce echoe
+                        //mute the self video
+                        video.volume = 0;
+                        video.muted = 0;
+
+                        //start playing the video
+                        video.play();
+                    }
+                };
+            }
+        }
+    }
+
+    attachOtherStreamToVideo() {
+        var video = document.getElementById('othervideo');
+        if (video !== null) {
+            video.srcObject = this.otherstream;
+            //only play when meta data is loaded from stream
+            video.onloadedmetadata = function (e) {
+                if (video !== undefined) {
+                    //provision to reduce echoe
+                    //mute the self video
+                    video.volume = 0;
+                    video.muted = 0;
+
+                    //start playing the video
+                    video.play();
+                }
+            };
         }
     }
 
@@ -459,7 +503,7 @@
         if (this.mystream !== null) {
             if (this.mystream.getVideoTracks().length > 0) {
                 this.mystream.getVideoTracks()[0].enabled = !this.state.videoplaying;
-                this.setState({ videoplaying: !this.state.videoplaying });
+                this.setState({ videoplaying: !this.state.videoplaying }, () => {  this.attachMyStreamToVideo(); });
             }
         } else {
             //if there is no stream then most probably
@@ -473,7 +517,7 @@
         if (this.mystream !== null) {
             if (this.mystream.getAudioTracks().length > 0) {
                 this.mystream.getAudioTracks()[0].enabled = !this.state.audioplaying;
-                this.setState({ audioplaying: !this.state.audioplaying });
+                this.setState({ audioplaying: !this.state.audioplaying }, () => { this.attachMyStreamToVideo(); });
             }
         } else {
             //if there is no stream then most probably
@@ -607,12 +651,30 @@
     renderVideo() {
         let myvideoclassname = "full";
         let othervideo = null, myvideo = null;
+        let hasstream = false;
         if (this.otherstream !== null) {
-            myvideoclassname = "docked";
-            othervideo = <video id="othervideo" muted="muted" volume="0" playsInline></video>;
+            for (var i = 0; i < this.otherstream.getTracks().length; i++) {
+                if (this.otherstream.getTracks()[i].enabled) {
+                    hasstream = true;
+                    break;
+                }
+            }
+            if (hasstream) {
+                myvideoclassname = "docked";
+                othervideo = <video id="othervideo" muted="muted" volume="0" playsInline></video>;
+            }
         }
         if (this.mystream !== null) {
-            myvideo = <video id="myvideo" className={myvideoclassname} muted="muted" volume="0" playsInline></video>;
+            hasstream = false;
+            for (var i = 0; i < this.mystream.getTracks().length; i++) {
+                if (this.mystream.getTracks()[i].enabled) {
+                    hasstream = true;
+                    break;
+                }
+            }
+            if (hasstream) {
+                myvideo = <video id="myvideo" className={myvideoclassname} muted="muted" volume="0" playsInline></video>;
+            }
         }
 
         if (othervideo !== null || myvideo !== null) {

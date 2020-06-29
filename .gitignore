@@ -338,3 +338,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/BoloApi/wwwroot/data/meeting/eb6f805540185c3f

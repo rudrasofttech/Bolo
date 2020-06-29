@@ -9,6 +9,8 @@ using Bolo.Data;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Text;
+using System.IO;
+using Org.BouncyCastle.Ocsp;
 
 namespace Bolo.Controllers
 {
@@ -26,7 +28,7 @@ namespace Bolo.Controllers
 
         // GET: api/Meetings
         [HttpGet]
-        
+
         public async Task<ActionResult<IEnumerable<Meeting>>> GetMeetings()
         {
             return await _context.Meetings.ToListAsync();
@@ -100,7 +102,56 @@ namespace Bolo.Controllers
             return Ok(new { id = meeting.PublicID });
         }
 
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="f"></param>
+        /// <param name="meetingid"></param>
+        /// <param name="filename"></param>
+        /// <param name="gfn">Generate File Name</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("UploadFile")]
+        public ActionResult PostFile([FromForm] string f, [FromForm] string meetingid, [FromForm] string filename, [FromForm] bool gfn)
+        {
+            if (f == null || f.Length == 0)
+                return Content("file not selected");
+
+            if (gfn)
+                filename = Guid.NewGuid().ToString().ToLower() + Path.GetExtension(filename);
+
+            var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", meetingid);
+            if (!Directory.Exists(meetingpath))
+            {
+                Directory.CreateDirectory(meetingpath);
+            }
+            var path = Path.Combine(meetingpath, filename);
+
+
+            string[] arr = f.Split(";base64,");
+            if (arr.Length == 2)
+            {
+                //byte[] barr = br.ReadBytes((int)stream.Length);
+                byte[] barr = Convert.FromBase64String(arr[1]);
+                if (System.IO.File.Exists(path))
+                {
+                    using (FileStream fs = new FileStream(path, FileMode.Append))
+                    {
+                        fs.Write(barr, 0, barr.Length);
+                    }
+                }
+                else
+                {
+                    using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                    {
+                        fs.Write(barr, 0, barr.Length);
+                    }
+                }
+            }
+
+
+            return Ok(new { filename = filename });
+        }
 
         // DELETE: api/Meetings/5
         [HttpDelete("{id}")]

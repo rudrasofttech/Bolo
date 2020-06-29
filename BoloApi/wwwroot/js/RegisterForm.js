@@ -39,7 +39,7 @@
     handleLogin(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('api/Members/Login', {
+        fetch('//' + window.location.host + '/api/Members/Login', {
             method: 'post',
             body: JSON.stringify({ ID: this.state.loginemail, Passcode: this.state.OTP }),
             headers: {
@@ -75,7 +75,7 @@
     handleGenerateOTP(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('api/Members/OTP?id=' + this.state.loginemail, {
+        fetch('//' + window.location.host + '/api/Members/OTP?id=' + this.state.loginemail, {
             method: 'get',
             headers: {
                 'Content-Type': 'application/json'
@@ -101,7 +101,7 @@
     handleRegisterSubmit(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('api/Members', {
+        fetch('//' + window.location.host + '/api/Members', {
             method: 'post',
             body: JSON.stringify({ Name: this.state.registername, Email: this.state.registeremail, Phone: '', CountryCode: '' }),
             headers: {
@@ -180,8 +180,8 @@
     }
 
     render() {
-        let loading = this.state.loading ? <div className="progress">
-            <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%; height:5px;"></div>
+        let loading = this.state.loading ? <div className="progress" style={{ height: "5px"}}>
+            <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
         </div> : null;
         let messagecontent = this.state.message !== "" ? <div color={this.state.bsstyle} className="mt-1">
             {this.state.message}
