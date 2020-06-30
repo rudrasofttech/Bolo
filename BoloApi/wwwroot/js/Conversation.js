@@ -115,7 +115,7 @@
             dt.setSeconds(dt.getSeconds() + 5);
             if (dt < Date.now()) {
                 contact.activity = 5;
-            } 
+            }
         }
     }
 
@@ -249,19 +249,19 @@
             let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img-top" alt="" />
                 : <img src="/images/nopic.jpg" className="card-img-top" alt="" />;
 
-            items.push(<li className="list-inline-item" key={key} onClick={() => this.handleResultItemClick(obj.id)}>
-                <div className="card " style={{ width: "13rem", height : "13rem" }}>
+            items.push(<div className="col-6 col-sm-3 col-md-3 col-lg-2" key={key} onClick={() => this.handleResultItemClick(obj.id)}>
+                <div className="card mt-1" style={{ width: "100%" }}>
                     {pic}
                     <div className="card-body">
                         <h6 className="card-title">{online} {obj.name} {unseenmsgcount}</h6>
                         <p className="card-text"><small>{obj.city} {obj.state} {obj.country}</small></p>
                     </div>
                 </div>
-            </li>);
+            </div>);
         }
 
         if (items.length > 0) {
-            return <ul className="list-inline searchresult">{items}</ul>;
+            return <div className="row searchresult">{items}</div>;
         } else {
             return null;
         }

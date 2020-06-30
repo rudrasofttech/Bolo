@@ -204,7 +204,7 @@ class NavMenu extends React.Component {
                                 aria-expanded="false" aria-label="Toggle navigation">
                                 <span className="navbar-toggler-icon"></span>
                             </button>
-                            <div className="collapse navbar-collapse d-sm-inline-flex flex-sm-row-reverse" id="navbarMainMenu">
+                            <div className="collapse navbar-collapse " id="navbarMainMenu">
                                 <ul className="navbar-nav flex-grow">
                                     <li className="nav-item">
                                         <a className="nav-link text-light" href="/Chat">Chat</a>

@@ -543,7 +543,7 @@ code {
     .personalchatcont .videochatcont {
         width: 100%;
         border: none;
-        padding: 0px;
+        /*padding: 0px;*/
         margin: 0px;
     }
 
@@ -556,9 +556,10 @@ code {
 
         .personalchatcont .videochatcont #myvideo.docked {
             position: absolute;
-            bottom: 10px;
+            bottom: 50px;
             left: 10px;
             border: 3px solid #E6E7E8;
+            width:100px;
         }
 
 .searchcont {
@@ -671,6 +672,10 @@ code {
 }
 
 @media only screen and (max-width: 768px) {
+
+    .personalchatcont .chatmsgcont{
+        height:50vh;
+    }
     .meetingalert {
         top: auto;
         bottom: 65px;

@@ -14,7 +14,7 @@
             myself: this.props.myself !== undefined ? this.props.myself : null, bsstyle: '', message: '', person: p,
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"), textinput: '', dummy: Date.now(),
             videoCapable: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
-            peerCapable: SimplePeer.WEBRTC_SUPPORT, videoplaying: false, audioplaying: false, showemojimodal: false, peerconnected : false
+            peerCapable: SimplePeer.WEBRTC_SUPPORT, videoplaying: false, audioplaying: false, showemojimodal: false, peerconnected: false
         };
         this.mystream = null;
         this.otherstream = null;
@@ -208,7 +208,7 @@
         if (dt < Date.now()) {
             let p = this.state.person;
             p.activity = 5;
-            this.setState({person : p})
+            this.setState({ person: p })
         }
     }
 
@@ -311,16 +311,16 @@
     getUserCam() {
         //config 
         var videoconst = true;
-        if (window.matchMedia("(max-width: 414px) and (orientation: portrait)").matches) {
-            videoconst = {
-                width: {
-                    min: 375
-                },
-                height: {
-                    min: 740
-                }
-            };
-        }
+        //if (window.matchMedia("(max-width: 414px) and (orientation: portrait)").matches) {
+        //    videoconst = {
+        //        width: {
+        //            min: 375
+        //        },
+        //        height: {
+        //            min: 740
+        //        }
+        //    };
+        //}
         var constraints = {
             audio: true, video: videoconst
         };
@@ -503,7 +503,7 @@
         if (this.mystream !== null) {
             if (this.mystream.getVideoTracks().length > 0) {
                 this.mystream.getVideoTracks()[0].enabled = !this.state.videoplaying;
-                this.setState({ videoplaying: !this.state.videoplaying }, () => {  this.attachMyStreamToVideo(); });
+                this.setState({ videoplaying: !this.state.videoplaying }, () => { this.attachMyStreamToVideo(); });
             }
         } else {
             //if there is no stream then most probably
@@ -580,7 +580,6 @@
     }
 
     renderVideoCallModal() {
-
         return <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div className="modal-dialog">
                 <div className="modal-content">
@@ -591,7 +590,6 @@
                 </div>
             </div>
         </div>;
-
     }
 
     renderMessages() {
@@ -621,7 +619,6 @@
         };
         const items = [];
         for (const [key, obj] of this.messages.entries()) {
-
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
                     <div style={sentmessagestyle} >
@@ -661,7 +658,7 @@
             }
             if (hasstream) {
                 myvideoclassname = "docked";
-                othervideo = <video id="othervideo" muted="muted" volume="0" playsInline></video>;
+                othervideo = <video id="othervideo" muted="muted" volume="0" playsInline style={{ maxWidth: "100%", maxHeight:"70vh" }}></video>;
             }
         }
         if (this.mystream !== null) {
@@ -673,15 +670,15 @@
                 }
             }
             if (hasstream) {
-                myvideo = <video id="myvideo" className={myvideoclassname} muted="muted" volume="0" playsInline></video>;
+                myvideo = <video id="myvideo" className={myvideoclassname} muted="muted" volume="0" playsInline style={{ maxWidth: "100%", maxHeight: "70vh" }}></video>;
             }
         }
 
         if (othervideo !== null || myvideo !== null) {
-            return <td className="videochatcolumn" valign="middle" align="center">
+            return <div className="col col-sm-7 videochatcolumn" style={{ padding: "0px 5px",textAlign : "center" }}>
                 {othervideo}
                 {myvideo}
-            </td>;
+            </div>;
         } else {
             return null;
         }
@@ -698,17 +695,17 @@
             }
         }
 
-        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
-            <img src="/icons/video.svg" alt="" width="24" height="24" title="Video On" />
-        </button> : <button type="button" className="btn btn-light rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
-                <img src="/icons/video-off.svg" alt="" width="24" height="24" title="Video Off" />
+        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary btn-sm rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+            <img src="/icons/video.svg" alt="" width="15" height="15" title="Video On" />
+        </button> : <button type="button" className="btn btn-light btn-sm rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+                <img src="/icons/video-off.svg" alt="" width="15" height="15" title="Video Off" />
             </button>;
         let audiotoggleele = this.state.audioplaying ?
-            <button type="button" className="btn btn-primary rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
-                <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone On" />
+            <button type="button" className="btn btn-primary btn-sm rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
+                <img src="/icons/mic.svg" alt="" width="15" height="15" title="Microphone On" />
             </button>
-            : <button type="button" className="btn btn-light rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
-                <img src="/icons/mic-off.svg" alt="" width="24" height="24" title="Microphone Off" />
+            : <button type="button" className="btn btn-light btn-sm rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
+                <img src="/icons/mic-off.svg" alt="" width="15" height="15" title="Microphone Off" />
             </button>;
         //if browser is edge or ie no need to show video or audio control button
         if (this.detectEdgeorIE()) {
@@ -722,61 +719,43 @@
         return (
             <React.Fragment>
                 <div className="personalchatcont">
-                    <table className="videochatcont">
+                    <table className="chatpersoninfocont">
                         <tbody>
                             <tr>
-                                <td colSpan="2">
-                                    <table className="chatpersoninfocont">
-                                        <tbody>
-                                            <tr>
-                                                <td width="50px" className="noPadding">
-                                                    {pic}
-                                                </td>
-                                                <td className="noPadding">
-                                                    <h5 className="ml-1">{online} {this.state.person.name}</h5>
-                                                </td>
-                                                <td width="140px">
-                                                    <button type="button" className="btn btn-link" onClick={() => this.props.handleShowSearch(true)}>Back To Search</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <td width="40px" align="right">
+                                    <button type="button" className="btn btn-light" onClick={() => this.props.handleShowSearch(true)}>⇐</button>
                                 </td>
-                            </tr>
-                            <tr>
-                                {this.renderVideo()}
-                                <td className="border-left" valign="top">
-                                    <div className="chatmsgcont">
-                                        <ul className="list-unstyled">{this.renderMessages()}</ul>
-                                    </div>
+                                <td width="40px" className="noPadding">
+                                    {pic}
                                 </td>
-                            </tr>
-                            <tr>
-                                <td colSpan="2">
-                                    <form onSubmit={this.handleSend}>
-                                        <table className="border-top chatinputcontainer">
-                                            <tbody>
-                                                <tr>
-                                                    <td style={{ width: "45px" }}>
-                                                        <button type="button" className={this.state.showemojimodal ? "btn btn-success rounded-0" : "btn btn-outline-success rounded-0"} onClick={this.handleEmojiModal}>😀</button>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" className="form-control rounded-0" value={this.state.textinput} onChange={this.handleChange} width="100%" />
-                                                    </td>
-                                                    <td className="chatinputctrlcont">
-                                                        <button type="button" id="msgsubmit" className="btn btn-primary rounded-0 " title="Send Message" onClick={(e) => this.sendTextMessage()}><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
-                                                        {videotoggleele}
-                                                        {audiotoggleele}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </form>
+                                <td className="noPadding">
+                                    <h5 className="ml-1">{online} {this.state.person.name}</h5>
+                                </td>
+                                <td width="37px">
+                                    {videotoggleele}
+                                </td><td width="37px">
+                                    {audiotoggleele}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-
+                    <div className="videochatcont container-fluid">
+                        <div className="row">
+                            {this.renderVideo()}
+                            <div className="col-sm border-left" style={{ padding: "0px 5px" }}>
+                                <div className="chatmsgcont">
+                                    <ul className="list-unstyled">{this.renderMessages()}</ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form onSubmit={this.handleSend}>
+                        <div className="border-top chatinputcontainer" style={{ position: "relative", height : "40px" }}>
+                            <input type="text" ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" className="form-control mb-1" value={this.state.textinput} onChange={this.handleChange} width="100%" />
+                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "45px", bottom: "5px" }} >😀</button>
+                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "5px" }}><img src="/icons/send.svg" alt="" width="15" height="15" title="Send Message" /></button>
+                        </div>
+                    </form>
                     {this.renderEmojiModal()}
                 </div>
                 <audio id="chatbeep" muted="muted" volume="0">
@@ -785,7 +764,7 @@
                     <source src="/media/swiftly.ogg"></source>
                 </audio>
                 <HeartBeat activity="4" interval="3000" />
-            </React.Fragment>
+            </React.Fragment >
         );
 
 
