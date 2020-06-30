@@ -67,7 +67,10 @@
     //}
 
     startHub() {
-        this.hubConnection = new signalR.HubConnectionBuilder().withUrl("/personchathub", { accessTokenFactory: () => this.state.token }).build();
+        this.hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/personchathub", { accessTokenFactory: () => this.state.token })
+            .withAutomaticReconnect()
+            .build();
 
         this.hubConnection.start().then(() => {
             console.log('Hub Connection started!');

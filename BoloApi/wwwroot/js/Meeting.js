@@ -57,6 +57,9 @@
         this.handleFileInput = this.handleFileInput.bind(this);
         this.processFileUpload = this.processFileUpload.bind(this);
         this.uploadFile = this.uploadFile.bind(this);
+        this.hubConnectionClosed = this.hubConnectionClosed.bind(this);
+        this.hubConnectionReconnecting = this.hubConnectionReconnecting.bind(this);
+        this.hubConnectionReconnected = this.hubConnectionReconnected.bind(this);
     }
 
     validateMeeting(t) {
@@ -227,6 +230,36 @@
         this.processFileUpload();
     }
 
+    hubConnectionClosed(err) {
+        console.log("Hub connection is closed");
+        if (this.pulseInterval !== null) {
+            clearInterval(this.pulseInterval);
+        }
+
+        this.hubConnection.start().then(() => {
+            console.log('Hub Connection started!');
+            //join meeting room
+            this.hubConnection
+                .invoke('JoinMeeting', this.state.id, this.myself.name)
+                .catch(err => console.error(err));
+
+            //set pulse interval, this will call the function that will send 
+            //pulse to other in meeting about current users existance
+            this.pulseInterval = setInterval(this.sendPulse, 3000);
+        }).catch(err => console.log('Error while establishing connection :('));
+    }
+
+    hubConnectionReconnecting(err) {
+        console.log("Hub connection is reconnecting");
+    }
+
+    hubConnectionReconnected(connectionid) {
+        console.log("Hub Connection Reconnected");
+        this.hubConnection
+            .invoke('JoinMeeting', this.state.id, this.myself.name)
+            .catch(err => console.error(err));
+    }
+
     returnFileSize(number) {
         if (number < 1024) {
             return number + 'bytes';
@@ -356,8 +389,11 @@
 
     //start signalr hub invoke preliminary functions and set on event handlers
     startHub() {
-        this.hubConnection = new signalR.HubConnectionBuilder().withUrl("/meetinghub", { accessTokenFactory: () => this.state.token }).build();
-
+        this.hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/meetinghub", { accessTokenFactory: () => this.state.token })
+            .withAutomaticReconnect()
+            .build();
+        this.hubConnection.serverTimeoutInMilliseconds = 100000; // 1 second
         this.hubConnection.start().then(() => {
             console.log('Hub Connection started!');
             //join meeting room
@@ -369,6 +405,13 @@
             //pulse to other in meeting about current users existance
             this.pulseInterval = setInterval(this.sendPulse, 3000);
         }).catch(err => console.log('Error while establishing connection :('));
+
+
+        this.hubConnection.onclose(this.hubConnectionClosed);
+
+        this.hubConnection.onreconnecting(this.hubConnectionReconnecting);
+
+        this.hubConnection.onreconnected(this.hubConnectionReconnected);
 
         //Handle New User Arrived server call
         //userinfo paramt will be sent by server as provided by other
@@ -482,7 +525,7 @@
     //meeting
     sendPulse() {
         console.log("SendPulse Hubconnection State:" + this.hubConnection.connectionState);
-        if (this.hubConnection.connectionState === 1) {
+        if (this.hubConnection.state === signalR.HubConnectionState.Connected) {
             this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.error('sendPulse ' + err));
         }
     }
@@ -1209,10 +1252,12 @@
             </React.Fragment>;
         }
         else*/ if (!this.state.idvalid) {
+            //if meeding ID is not valid than show valid id modal
             return <React.Fragment> {this.renderValidateModal()}
                 <HeartBeat activity="2" interval="3000" /></React.Fragment>;
         }
         else if (this.myself !== null && this.myself.name.trim() === "") {
+            //if user is not logged in then ask for name
             return <React.Fragment>{this.renderNameForm()}
                 <HeartBeat activity="2" interval="3000" />
             </React.Fragment>;

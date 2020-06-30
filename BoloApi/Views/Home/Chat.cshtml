@@ -3,13 +3,9 @@
     ViewData["Title"] = "Chat";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div id="navdiv"></div>
 <div id="Conversationdiv"></div>
 
 @section scripts{
-    <script>
-        var lin = localStorage.getItem("token") !== null ? true : false;
-    </script>
     <script src="~/libs/moment.min.js"></script>
     <script src="~/libs/simplepeer.min.js"></script>
     <script src="~/js/TranformMessage.js"></script>
