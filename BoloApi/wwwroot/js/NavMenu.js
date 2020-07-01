@@ -205,7 +205,7 @@ class NavMenu extends React.Component {
                                 <span className="navbar-toggler-icon"></span>
                             </button>
                             <div className="collapse navbar-collapse " id="navbarMainMenu">
-                                <ul className="navbar-nav flex-grow">
+                                <ul className="nav navbar-nav ml-auto">
                                     <li className="nav-item">
                                         <a className="nav-link text-light" href="/Chat">Chat</a>
                                     </li>
