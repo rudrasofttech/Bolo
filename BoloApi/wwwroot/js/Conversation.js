@@ -253,9 +253,9 @@
                 : <img src="/images/nopic.jpg" className="card-img-top" alt="" />;
 
             items.push(<div className="col-6 col-sm-3 col-md-3 col-lg-2" key={key} onClick={() => this.handleResultItemClick(obj.id)}>
-                <div className="card mt-1" style={{ width: "100%" }}>
+                <div className="card mt-1" style={{ width: "100%", cursor : "pointer" }}>
                     {pic}
-                    <div className="card-body">
+                    <div className="card-body" style={{position: "absolute", backgroundColor: "rgba(0, 0,0,0.3)", width: "100%", bottom: "0px", color: "#fff", padding: "0.25rem"}}>
                         <h6 className="card-title">{online} {obj.name} {unseenmsgcount}</h6>
                         <p className="card-text"><small>{obj.city} {obj.state} {obj.country}</small></p>
                     </div>
