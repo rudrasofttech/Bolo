@@ -48,6 +48,9 @@
         this.checkPersonPulse = this.checkPersonPulse.bind(this);
         this.attachMyStreamToVideo = this.attachMyStreamToVideo.bind(this);
         this.attachOtherStreamToVideo = this.attachOtherStreamToVideo.bind(this);
+        this.hubConnectionClosed = this.hubConnectionClosed.bind(this);
+        this.hubConnectionReconnecting = this.hubConnectionReconnecting.bind(this);
+        this.hubConnectionReconnected = this.hubConnectionReconnected.bind(this);
 
         this.messageStatusEnum = {
             Sent: 1,
@@ -66,6 +69,25 @@
     //    return null;
     //}
 
+    hubConnectionClosed(err) {
+        console.log("Hub connection is closed");
+        
+        this.hubConnection.start().then(() => {
+            console.log('Hub Connection started!');
+            //join meeting room
+            this.sayHello();
+        }).catch(err => console.log('Error while establishing connection :('));
+    }
+
+    hubConnectionReconnecting(err) {
+        console.log("Hub connection is reconnecting");
+    }
+
+    hubConnectionReconnected(connectionid) {
+        console.log("Hub Connection Reconnected");
+        this.sayHello();
+    }
+
     startHub() {
         this.hubConnection = new signalR.HubConnectionBuilder()
             .withUrl("/personchathub", { accessTokenFactory: () => this.state.token })
@@ -78,6 +100,11 @@
             this.sayHello();
         }).catch(err => console.log('Error while establishing connection :('));
 
+        this.hubConnection.onclose(this.hubConnectionClosed);
+
+        this.hubConnection.onreconnecting(this.hubConnectionReconnecting);
+
+        this.hubConnection.onreconnected(this.hubConnectionReconnected);
 
         //this function is called by server when it receives a sendtextmessage from user.
         this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => {
