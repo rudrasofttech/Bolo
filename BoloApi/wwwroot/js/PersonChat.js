@@ -72,11 +72,11 @@
     hubConnectionClosed(err) {
         console.log("Hub connection is closed");
         
-        this.hubConnection.start().then(() => {
-            console.log('Hub Connection started!');
-            //join meeting room
-            this.sayHello();
-        }).catch(err => console.log('Error while establishing connection :('));
+        //this.hubConnection.start().then(() => {
+        //    console.log('Hub Connection started!');
+        //    //join meeting room
+        //    //this.sayHello();
+        //}).catch(err => console.log('Error while establishing connection :('));
     }
 
     hubConnectionReconnecting(err) {
@@ -85,7 +85,7 @@
 
     hubConnectionReconnected(connectionid) {
         console.log("Hub Connection Reconnected");
-        this.sayHello();
+        //this.sayHello();
     }
 
     startHub() {
@@ -536,10 +536,11 @@
                 this.setState({ videoplaying: !this.state.videoplaying }, () => { this.attachMyStreamToVideo(); });
             }
         } else {
+            this.setState({ videoplaying: true, audioplaying : true });
             //if there is no stream then most probably
             //user denied permission to cam and microphone
             this.getUserCam();
-            this.setState({ videoplaying: true });
+            
         }
     }
     //enable or disable audio track of my stream
@@ -666,7 +667,6 @@
             }
         }
 
-
         return <React.Fragment>
             {items}
             <li style={{ float: "left", clear: "both" }}
@@ -725,17 +725,17 @@
             }
         }
 
-        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary btn-sm rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
-            <img src="/icons/video.svg" alt="" width="15" height="15" title="Video On" />
-        </button> : <button type="button" className="btn btn-light btn-sm rounded-0 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
-                <img src="/icons/video-off.svg" alt="" width="15" height="15" title="Video Off" />
+        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-primary mr-1 ml-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+            <img src="/icons/video.svg" alt="" width="24" height="24" title="Video On" />
+        </button> : <button type="button" className="btn btn-secondary mr-1 ml-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+                <img src="/icons/video.svg" alt="" width="24" height="24" title="Video Off" />
             </button>;
         let audiotoggleele = this.state.audioplaying ?
-            <button type="button" className="btn btn-primary btn-sm rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
-                <img src="/icons/mic.svg" alt="" width="15" height="15" title="Microphone On" />
+            <button type="button" className="btn btn-primary mr-1 ml-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
+                <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone On" />
             </button>
-            : <button type="button" className="btn btn-light btn-sm rounded-0 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
-                <img src="/icons/mic-off.svg" alt="" width="15" height="15" title="Microphone Off" />
+            : <button type="button" className="btn btn-secondary mr-1 ml-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
+                <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone Off" />
             </button>;
         //if browser is edge or ie no need to show video or audio control button
         if (this.detectEdgeorIE()) {
@@ -749,7 +749,7 @@
         return (
             <React.Fragment>
                 <div className="personalchatcont">
-                    <table className="chatpersoninfocont">
+                    <table className="chatpersoninfocont sticky-top">
                         <tbody>
                             <tr>
                                 <td width="40px" align="right">
@@ -759,7 +759,7 @@
                                     {pic}
                                 </td>
                                 <td className="noPadding">
-                                    <h5 className="ml-1">{online} {this.state.person.name}</h5>
+                                    <h5 className="ml-1" style={{ maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={this.state.person.name}>{online} {this.state.person.name}</h5>
                                 </td>
                                 <td width="37px">
                                     {videotoggleele}
@@ -782,8 +782,8 @@
                     <form onSubmit={this.handleSend}>
                         <div className="border-top chatinputcontainer" style={{ position: "relative", height : "40px" }}>
                             <input type="text" ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" className="form-control mb-1" value={this.state.textinput} onChange={this.handleChange} width="100%" />
-                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "45px", bottom: "5px" }} >😀</button>
-                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "5px" }}><img src="/icons/send.svg" alt="" width="15" height="15" title="Send Message" /></button>
+                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "4px" }} >😀</button>
+                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
                         </div>
                     </form>
                     {this.renderEmojiModal()}

@@ -10,22 +10,20 @@
         this.state = {
             loading: false, loggedin: loggedin,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            channel: this.props.channel === undefined ? '' : this.props.channel,
-            profileid: this.props.profileid === undefined ? '' : this.props.profileid,
             profile: this.props.profile === undefined ? null : this.props.profile
         };
     }
 
     componentDidMount() {
-        if (localStorage.getItem("token") !== null) {
-            this.fetchData(localStorage.getItem("token"));
-        }
+        //if (localStorage.getItem("token") !== null) {
+        //    this.fetchData(localStorage.getItem("token"));
+        //}
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if ((prevState.channel !== this.state.channel || prevState.profileid !== this.state.profileid) && localStorage.getItem("token") !== null) {
-            this.fetchData(localStorage.getItem("token"));
-        }
+        //if ((prevState.channel !== this.state.channel || prevState.profileid !== this.state.profileid) && localStorage.getItem("token") !== null) {
+        //    this.fetchData(localStorage.getItem("token"));
+        //}
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -39,37 +37,39 @@
         return null;
     }
 
-    fetchData(t) {
-        if (this.state.channel !== '' || this.state.profileid !== '') {
-            this.setState({ loading: true });
-            let url = "";
-            if (this.state.channel !== '') {
-                url = "//" + window.location.host + "/api/Members/" + this.state.channel;
-            } else if (this.state.profileid !== '') {
-                url = "//" + window.location.host + "/api/Members/" + this.state.profileid;
-            }
-            fetch(url, {
-                method: 'get',
-                headers: {
-                    'Authorization': 'Bearer ' + t
-                }
-            }).then(response => {
-                if (response.status === 401) {
-                    //if token is not valid than remove token, set myself object with empty values
-                    localStorage.removeItem("token");
-                    this.setState({ loggedin: false, loading: false });
-                } else if (response.status === 200) {
-                    //if token is valid vet user information from response and set "myself" object with member id and name.
-                    //set state joinmeeting to true so that it does not ask for name and other info from user. Once the state
-                    //is set then start signalr hub
-                    response.json().then(data => {
-                        console.log(data);
-                        this.setState({ loading: false, profile: data });
-                    });
-                }
-            });
-        }
-    }
+    //fetchData(t) {
+    //    if (this.state.channel !== '' || this.state.profileid !== '') {
+    //        this.setState({ loading: true });
+    //        let url = "";
+    //        if (this.state.channel !== '') {
+    //            url = "//" + window.location.host + "/api/Members/" + this.state.channel;
+    //        } else if (this.state.profileid !== '') {
+    //            url = "//" + window.location.host + "/api/Members/" + this.state.profileid;
+    //        }
+    //        if (url !== "") {
+    //            fetch(url, {
+    //                method: 'get',
+    //                headers: {
+    //                    'Authorization': 'Bearer ' + t
+    //                }
+    //            }).then(response => {
+    //                if (response.status === 401) {
+    //                    //if token is not valid than remove token, set myself object with empty values
+    //                    localStorage.removeItem("token");
+    //                    this.setState({ loggedin: false, loading: false });
+    //                } else if (response.status === 200) {
+    //                    //if token is valid vet user information from response and set "myself" object with member id and name.
+    //                    //set state joinmeeting to true so that it does not ask for name and other info from user. Once the state
+    //                    //is set then start signalr hub
+    //                    response.json().then(data => {
+    //                        console.log(data);
+    //                        this.setState({ loading: false, profile: data });
+    //                    });
+    //                }
+    //            });
+    //        }
+    //    }
+    //}
 
     render() {
         if (this.state.profile !== null) {

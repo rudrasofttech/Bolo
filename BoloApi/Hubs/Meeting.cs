@@ -76,6 +76,11 @@ namespace Bolo.Hubs
             await Clients.Group(room).SendAsync("UpdateUser", u);
         }
 
+        public async Task NotifyAction(string room, UserInfo u, string action)
+        {
+            await Clients.OthersInGroup(room).SendAsync("ReceiveActionNotification", u, action);
+        }
+
         /// <summary>
         /// This server function will remove a member from meeting and let other client 
         /// know that a user has left
@@ -94,7 +99,6 @@ namespace Bolo.Hubs
                     m.Activity = ActivityStatus.Online;
                     await _context.SaveChangesAsync();
                 }
-
             }
         }
 
@@ -155,11 +159,6 @@ namespace Bolo.Hubs
         public async Task SendPulse(string room)
         {
             await Clients.OthersInGroup(room).SendAsync("ReceivePulse", Context.ConnectionId);
-        }
-
-        public Task SendImage(string img)
-        {
-            return Clients.Others.SendAsync("ReceiveImage", img, Context.ConnectionId);
         }
 
     }

@@ -7,7 +7,7 @@
             loggedin = false;
         }
         this.state = {
-            joinmeeting: false, redirectto: '', meetingname: '', myname: '', textinput: '', messages: [],
+            joinmeeting: false, redirectto: '', meetingname: '', myname: '', textinput: '', messages: [], filestoupload: [],
             showinvite: false, videoplaying: false, audioplaying: false,
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             id: this.props.meetingid === null ? '' : this.props.meetingid,
@@ -47,19 +47,21 @@
         this.handleVideoToggle = this.handleVideoToggle.bind(this);
         this.handleAudioToggle = this.handleAudioToggle.bind(this);
         this.onAlertDismiss = this.onAlertDismiss.bind(this);
-        this.showChatList = this.showChatList.bind(this);
-        this.hideChatList = this.hideChatList.bind(this);
         this.onPeerStream = this.onPeerStream.bind(this);
+        this.onPeerClose = this.onPeerClose.bind(this);
         this.handleEmojiModal = this.handleEmojiModal.bind(this);
         this.handleEmojiSelect = this.handleEmojiSelect.bind(this);
         this.handlePhotoClick = this.handlePhotoClick.bind(this);
         this.handleDocClick = this.handleDocClick.bind(this);
         this.handleFileInput = this.handleFileInput.bind(this);
+        this.handleFileChunkUpload = this.handleFileChunkUpload.bind(this);
         this.processFileUpload = this.processFileUpload.bind(this);
         this.uploadFile = this.uploadFile.bind(this);
         this.hubConnectionClosed = this.hubConnectionClosed.bind(this);
         this.hubConnectionReconnecting = this.hubConnectionReconnecting.bind(this);
         this.hubConnectionReconnected = this.hubConnectionReconnected.bind(this);
+        this.handleFileUploadCancel = this.handleFileUploadCancel.bind(this);
+        this.receiveActionNotification = this.receiveActionNotification.bind(this);
     }
 
     validateMeeting(t) {
@@ -118,13 +120,19 @@
         if (this.mystream !== null) {
             if (this.mystream.getVideoTracks().length > 0) {
                 this.mystream.getVideoTracks()[0].enabled = !this.state.videoplaying;
-                this.setState({ videoplaying: !this.state.videoplaying });
+                this.setState({ videoplaying: !this.state.videoplaying }, () => {
+                    this.hubConnection
+                        .invoke('NotifyAction', this.state.id, this.state.myself, "2")
+                        .catch(err => console.error(err));
+                });
             }
         } else {
+            //when you first ask for video persmission play audio as well
+            this.setState({ videoplaying: true, audioplaying: true });
             //if there is no stream then most probably
             //user denied permission to cam and microphone
             this.getUserCam();
-            this.setState({ videoplaying: true });
+            
         }
     }
     //enable or disable audio track of my stream
@@ -132,13 +140,21 @@
         if (this.mystream !== null) {
             if (this.mystream.getAudioTracks().length > 0) {
                 this.mystream.getAudioTracks()[0].enabled = !this.state.audioplaying;
-                this.setState({ audioplaying: !this.state.audioplaying });
+                this.setState({ audioplaying: !this.state.audioplaying }, () => {
+                    this.hubConnection
+                        .invoke('NotifyAction', this.state.id, this.state.myself, "1")
+                        .catch(err => console.error(err));
+                });
             }
         } else {
             //if there is no stream then most probably
             //user denied permission to cam and microphone
             this.getUserCam();
-            this.setState({ audioplaying: true });
+            this.setState({ audioplaying: true }, () => {
+                this.hubConnection
+                    .invoke('NotifyAction', this.state.id, this.state.myself, "1")
+                    .catch(err => console.log(err));
+            });
         }
     }
 
@@ -191,40 +207,57 @@
 
     handlePhotoClick(e) {
         e.preventDefault();
-        this.fileinput.click();
+        if (!this.state.loggedin) {
+            alert("Log in to use this feature. Share files upto 50 MB in size.");
+        } else {
+            this.fileinput.click();
+        }
     }
 
     handleDocClick(e) {
         e.preventDefault();
-        this.fileinput.click();
+        if (!this.state.loggedin) {
+            alert("Log in to use this feature. Share files upto 50 MB in size.");
+        } else {
+            this.fileinput.click();
+        }
+    }
+
+    handleFileUploadCancel(event, fname) {
+        //remove the targeted file
+        let flist = this.state.filestoupload;
+        for (var i = 0; flist.length > i; i++) {
+            let cfile = flist[i];
+            if (cfile.name === fname) {
+                flist.splice(i, 1);
+                //cfile.cancel = true;
+                this.setState({ filestoupload: flist });
+                break;
+            }
+        }
     }
 
     handleFileInput(e) {
-        alert("Soon you will be able to share files.");
-        return;
-        if (this.fileinput.files.length > 20) {
-            alert("Only 20 files at a time.");
+        
+        //alert("Soon you will be able to share files.");
+        //return;
+        if (this.fileinput.files.length > 10) {
+            alert("Only 10 files at a time.");
             return;
         }
         for (var i = 0; i < this.fileinput.files.length; i++) {
-            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 10) {
-                alert("File size cannot exceed 10 MB");
+            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 50) {
+                alert("File size cannot exceed 50 MB");
                 return;
             }
         }
 
-        let mlist = this.state.messages;
+        let flist = this.state.filestoupload;
         for (var i = 0; i < this.fileinput.files.length; i++) {
-            let msg = new MessageInfo();
-            msg.sender = this.myself;
-            msg.file = this.fileinput.files[i];
-            msg.text = msg.file.name;
-            msg.type = MessageEnum.File;
-            msg.status = MessageStatusEnum.inqueue;
-            msg.sfilename = "";
-            mlist.push(msg);
+            let f = { name: this.fileinput.files[i].name, filedata: this.fileinput.files[i], progresspercent: 0, serverfname: "", cancel: false };
+            flist.push(f);
         }
-        this.setState({ messages: mlist });
+        this.setState({ filestoupload: flist });
 
         this.fileinput.value = "";
         this.processFileUpload();
@@ -241,7 +274,7 @@
             //join meeting room
             this.hubConnection
                 .invoke('JoinMeeting', this.state.id, this.myself.name)
-                .catch(err => console.error(err));
+                .catch(err => console.log(err));
 
             //set pulse interval, this will call the function that will send 
             //pulse to other in meeting about current users existance
@@ -257,7 +290,7 @@
         console.log("Hub Connection Reconnected");
         this.hubConnection
             .invoke('JoinMeeting', this.state.id, this.myself.name)
-            .catch(err => console.error(err));
+            .catch(err => console.log(err));
     }
 
     returnFileSize(number) {
@@ -274,24 +307,12 @@
         this.setState({ showalert: false });
     }
 
-    showChatList(e) {
-        e.preventDefault();
-        this.setState({ showchatlist: true, showalert: false });
-    }
-
-    hideChatList(e) {
-        e.preventDefault();
-        this.setState({ showchatlist: false });
-    }
-
     processFileUpload() {
         let m = null;
-        for (var i = 0; i < this.state.messages.length; i++) {
-            if (this.state.messages[i].type === MessageEnum.File && this.state.messages[i].status === MessageStatusEnum.inqueue) {
-                m = this.state.messages[i];
-                break;
-            }
+        if (this.state.filestoupload.length > 0) {
+            m = this.state.filestoupload[0];
         }
+
 
         if (m !== null) {
             this.freader = new FileReader();
@@ -303,48 +324,64 @@
     uploadFile(meetingid, msg, start) {
         const slice_size = 1000 * 1024;
         var next_slice = start + slice_size + 1;
-        var blob = msg.file.slice(start, next_slice);
+        var blob = msg.filedata.slice(start, next_slice);
         var mid = meetingid;
-        this.freader.onloadend = function (event) {
+        this.freader.onloadend = event => {
             if (event.target.readyState !== FileReader.DONE) {
                 return;
             }
-            const fd = new FormData();
-            fd.set("f", event.target.result);
-            fd.set("meetingid", meetingid);
-            fd.set("filename", start === 0 ? msg.file.name : msg.sfilename);
-            fd.set("gfn", start === 0 ? true : false);
-            fetch('//' + window.location.host + '/api/meetings/uploadfile', {
-                method: 'post',
-                body: fd,
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem("token")
-                }
-            }).then(response => {
-                if (response.status === 200) {
-                    var size_done = start + slice_size;
-                    msg.progresspercent = Math.floor((size_done / msg.file.size) * 100);
-                    msg.status = MessageStatusEnum.inprogress;
-                    response.json().then(data => {
-                        msg.sfilename = data.filename;
-                        if (next_slice < msg.file.size) {
-                            // More to upload, call function recursively
-                            this.uploadFile(meetingid, msg, next_slice);
-                        } else {
-                            msg.file = null;
-                            // Update upload progress
-                            alert('Upload Complete You can send it as msg now');
-                        }
-                    });
-
-                }
-            });
+            this.handleFileChunkUpload(event.target.result, msg, start, next_slice, slice_size);
         };
 
         this.freader.readAsDataURL(blob);
     }
-    handleFileChunkLoadInReader(e) {
+
+    handleFileChunkUpload(data, msg, start, next_slice, slice_size) {
+
+        const fd = new FormData();
+        fd.set("f", data);
+        fd.set("meetingid", this.state.id);
+        fd.set("filename", start === 0 ? msg.name : msg.serverfname);
+        fd.set("gfn", start === 0 ? true : false);
+        fetch('//' + window.location.host + '/api/meetings/uploadfile', {
+            method: 'post',
+            body: fd,
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 200) {
+
+                response.json().then(data => {
+                    msg.serverfname = data.filename;
+                    let flist = this.state.filestoupload;
+                    for (var i = 0; flist.length > i; i++) {
+                        let cfile = flist[i];
+                        if (cfile.name === msg.name) {
+                            var size_done = start + slice_size;
+                            msg.progresspercent = Math.floor((size_done / msg.filedata.size) * 100);
+                            cfile.progresspercent = msg.progresspercent;
+                            if (next_slice > msg.filedata.size) {
+                                flist.splice(i, 1);
+                                msg.filedata = null;
+                                this.hubConnection.invoke("SendTextMessage", this.state.id, this.myself, 'https://' + window.location.host + '/data/meeting/' + this.state.id + '/' + msg.serverfname)
+                                    .catch(err => { console.log("Unable to send file message to group."); console.log(err); });
+                                this.setState({ filestoupload: flist });
+                                this.processFileUpload();
+                            } else {
+                                this.setState({ filestoupload: flist });
+                                //if there is more to file than call upload file again
+                                this.uploadFile(this.state.id, msg, next_slice);
+                            }
+                            break;
+                        }
+                    }
+                });
+
+            }
+        });
     }
+
     //check if browser supports access to camera and microphone
     hasVideoAudioCapability() {
         return !!(navigator.mediaDevices &&
@@ -381,13 +418,17 @@
                         this.myself.videoCapable = this.hasVideoAudioCapability() && !this.detectEdgeorIE() && !this.detectMobileorTablet();
                         this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT && !this.detectEdgeorIE() && !this.detectMobileorTablet();
                         this.myself.pic = data.pic;
-                        this.setState({ loggedin: true, loading: false, joinmeeting: false }, () => { this.startHub(); });
+                        this.setState({ loggedin: true, loading: false, joinmeeting: this.state.joinmeeting }, () => {
+                            if (this.hubConnection === null) {
+                                this.startHub();
+                            }
+                        });
                     });
                 }
             });
     }
 
-    //start signalr hub invoke preliminary functions and set on event handlers
+    //start SignalR hub invoke preliminary functions and set on event handlers
     startHub() {
         this.hubConnection = new signalR.HubConnectionBuilder()
             .withUrl("/meetinghub", { accessTokenFactory: () => this.state.token })
@@ -399,7 +440,7 @@
             //join meeting room
             this.hubConnection
                 .invoke('JoinMeeting', this.state.id, this.myself.name)
-                .catch(err => console.error(err));
+                .catch(err => console.log(err));
 
             //set pulse interval, this will call the function that will send 
             //pulse to other in meeting about current users existance
@@ -440,17 +481,17 @@
         //so that new user can add existing users to its list
         this.hubConnection.on('UserSaidHello', (u) => { this.userSaidHello(u); });
 
-        //this function is called by server when user invokes joinmeting function on server
-        //setmyself recieves userinfo from server, like if user is logged then its public id, name and signalr connection id
+        //this function is called by server when user invokes joinmeeting function on server
+        //setmyself receives userinfo from server, like if user is logged then its public id, name and signalr connection id
         this.hubConnection.on('SetMySelf', (u) => { this.setMySelf(u); });
 
         //this function is called by server when it receives a sendtextmessage from user.
         this.hubConnection.on('ReceiveTextMessage', (ui, text, timestamp) => { this.receiveTextMessage(ui, text, timestamp); });
 
-        //this function is strictly call by server to transfer webrtc peer data
+        //this function is strictly call by server to transfer WebRTC peer data
         this.hubConnection.on('ReceiveSignal', (sender, data) => {
-            console.log("receivesignal sender : " + sender);
-            console.log("receivesignal data : " + data);
+            //console.log("receivesignal sender : " + sender);
+            //console.log("receivesignal data : " + data);
             if (this.peers.get(sender.connectionID) !== undefined) {
                 this.peers.get(sender.connectionID).signal(data);
             }
@@ -461,10 +502,12 @@
             //console.log(cid);
             this.receivePulse(cid);
         });
+
+        this.hubConnection.on("ReceiveActionNotification", (sender, action) => { this.receiveActionNotification(sender, action); });
     }
 
-    //call this function when on receivepulse call from server 
-    //and set the lastpulse date of the target user
+    //call this function when on receive pulse call from server 
+    //and set the last pulse date of the target user
     receivePulse(cid) {
         if (this.users.get(cid) !== undefined) {
             this.users.get(cid).lastpulse = Date.now();
@@ -476,29 +519,29 @@
     //call this function at regular interval to clean up dead users.
     //dead users are those whose last pulse date is older by 5 seconds
     collectDeadUsers() {
-        for (const [key, u] of this.users.entries()) {
-            if (!u.isAlive()) {
-                if (this.peers.get(u.connectionID) !== null) {
-                    console.log(u.connectionID + " peer about to be destoryed");
-                    if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
-                        this.peers.get(u.connectionID).destroy();
-                        this.peers.delete(u.connectionID);
-                    }
-                }
+        //for (const [key, u] of this.users.entries()) {
+        //    if (!u.isAlive()) {
+        //        if (this.peers.get(u.connectionID) !== null) {
+        //            console.log(u.connectionID + " peer about to be destroyed");
+        //            if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
+        //                this.peers.get(u.connectionID).destroy();
+        //                this.peers.delete(u.connectionID);
+        //            }
+        //        }
 
-                //add a message
-                let msg = new MessageInfo();
-                msg.sender = null;
-                msg.text = u.name + " has left the meeting.";
-                msg.type = MessageEnum.MemberLeave;
-                msg.status = MessageStatusEnum.sent;
-                let mlist = this.state.messages;
-                mlist.push(msg);
-                this.users.delete(u.connectionID);
-                this.setState({ messages: mlist, showalert: !this.state.showchatlist });
-                this.playmsgbeep();
-            }
-        }
+        //        //add a message
+        //        let msg = new MessageInfo();
+        //        msg.sender = null;
+        //        msg.text = u.name + " has left the meeting.";
+        //        msg.type = MessageEnum.MemberLeave;
+        //        msg.status = MessageStatusEnum.sent;
+        //        let mlist = this.state.messages;
+        //        mlist.push(msg);
+        //        this.users.delete(u.connectionID);
+        //        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
+        //        this.playmsgbeep();
+        //    }
+        //}
     }
 
     setMySelf(u) {
@@ -514,7 +557,7 @@
         }
         this.hubConnection
             .invoke('NotifyPresence', this.state.id, this.myself)
-            .catch(err => console.error(err));
+            .catch(err => console.log(err));
         if (this.myself.videoCapable) {
             //this.getUserCam();
         }
@@ -526,7 +569,7 @@
     sendPulse() {
         console.log("SendPulse Hubconnection State:" + this.hubConnection.connectionState);
         if (this.hubConnection.state === signalR.HubConnectionState.Connected) {
-            this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.error('sendPulse ' + err));
+            this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.log('sendPulse ' + err));
         }
     }
 
@@ -544,6 +587,7 @@
         p.on("error", this.onPeerError);
         p.on("signal", this.onPeerSignal);
         p.on("connect", this.onPeerConnect);
+        p.on("close", this.onPeerClose);
         p.on("stream", stream => { this.onPeerStream(stream, p.cid); });
         p.on('data', data => {
             // got a data channel message
@@ -559,7 +603,7 @@
     onPeerSignal(data) {
         this.hubConnection
             .invoke('SendSignal', data, this.cid, this.myself, this.meetingid)
-            .catch(err => console.error('SendSignal ' + err));
+            .catch(err => console.log('SendSignal ' + err));
     }
 
     onPeerConnect() {
@@ -568,7 +612,7 @@
 
     onPeerError(err) {
         console.log(this.cid + " peer gave error. ");
-        console.error(err);
+        console.log(err);
     }
 
     onPeerStream(stream, connectionid) {
@@ -594,6 +638,12 @@
 
         }
 
+    }
+
+    onPeerClose() {
+        console.log("Peer Closed");
+        //this.hubConnection.invoke("EndPeer", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
+        //    .catch(err => console.log('Endpeer ' + err));
     }
     //simple peer events end here
 
@@ -625,7 +675,7 @@
         this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         this.playjoinbeep();
         this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u.connectionID)
-            .catch(err => { console.log("Unable to say hello to new user."); console.error(err); });
+            .catch(err => { console.log("Unable to say hello to new user."); console.log(err); });
 
         if (this.myself.peerCapable && temp.peerCapable) {
             try {
@@ -660,6 +710,19 @@
         mlist.push(mi);
         this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         this.playmsgbeep();
+    }
+
+    receiveActionNotification(sender, action) {
+        //change in microphone status
+        if (action == "1") {
+            //just update state
+            this.setState({ dummydate: Date.now() });
+        }
+        //change in video status
+        else if (action === "2") {
+            //just update state
+            this.setState({ dummydate: Date.now() });
+        }
     }
 
     userLeft(cid) {
@@ -856,10 +919,6 @@
             };
         });
 
-        for (var i = 0; i < document.getElementsByClassName("sample").length; i++) {
-            document.getElementsByClassName("sample")[i].srcObject = this.mystream;
-        }
-
         //based on initial state enable or disable video and audio
         //initially video will be disabled or micrphone will broadcast
         if (this.mystream.getVideoTracks().length > 0) {
@@ -961,6 +1020,40 @@
         //each time compoment updates scroll to bottom
         //this can be improved by identifying if new messages added
         this.scrollToBottom();
+    }
+
+    renderFileUploadProcessModal() {
+        let items = [];
+        for (var i = 0; i < this.state.filestoupload.length; i++) {
+            let f = this.state.filestoupload[i];
+            items.push(
+                <div className="row" key={i}>
+                    <div className="col-10">
+                        <div className="progress">
+                            <div className="progress-bar progress-bar-animated" role="progressbar" aria-valuenow={f.progresspercent} aria-valuemin="0" aria-valuemax="100" style={{ width: f.progresspercent + "%" }}></div>
+                        </div>
+                    </div>
+                    <div className="col-2"><button type="button" className="btn btn-sm btn-light" onClick={(e) => this.handleFileUploadCancel(e, f.name)}>Cancel</button></div>
+                </div>
+            );
+        }
+        if (this.state.filestoupload.length > 0) {
+            return (
+                <React.Fragment>
+                    <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-body">
+                                    {items}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </React.Fragment>
+            );
+        } else {
+            return null;
+        }
     }
 
     renderEmojiModal() {
@@ -1072,7 +1165,6 @@
     }
 
     renderMessageList(hasVideos) {
-
         let alert = <React.Fragment></React.Fragment>;
         const items = [];
         for (var k in this.state.messages) {
@@ -1116,14 +1208,14 @@
         if (this.detectEdgeorIE()) {
             cn = "col-md-12";
         } else if (hasVideos) {
-            cn = "col-xl-4";
+            cn = "col-lg-3 col-xl-3";
         }
         if (this.state.showchatlist || true) {
             return (
                 <React.Fragment>
                     <div id="msgcont" className={cn}>
                         <p className="h5 text-left pl-1">Chat</p>
-                        <ul id="msglist" className="pt-1" style={{ marginBottom : "45px"}}>
+                        <ul id="msglist" className="pt-1" style={{ marginBottom: "45px" }}>
                             {items}
                             <li style={{ float: "left", clear: "both" }}
                                 ref={(el) => { this.messagesEnd = el; }}>
@@ -1134,7 +1226,7 @@
                                 <div className="container-fluid">
                                     <div className="row">
                                         <div className="col-12">
-                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="On"
+                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="off"
                                                 onChange={this.handleChange} className="form-control mb-1" id="msginput" />
 
                                             <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} style={{ position: "absolute", right: "60px", bottom: "7px" }} onClick={this.handleEmojiModal}>😀</button>
@@ -1169,34 +1261,21 @@
             if (value.stream !== null) {
                 noofvideo++;
                 let userpic = value.pic !== "" ? <img src={value.pic} width="20" height="20" className="rounded ml-1 mb-1 mt-1" /> : null;
-                //items.push(<li className="video" key={key}>
-                //    <video id={'video' + value.connectionID} autoPlay={true} playsInline muted="muted" volume="0"></video>
-                //    <span className="ctrl">
-                //        {userpic} <span className="name p-1">{value.name}</span>
-                //    </span>
-                //</li>);
+                let ismuted = null;
+                for (var i = 0; i < value.stream.getAudioTracks().length; i++) {
+                    if (value.stream.getAudioTracks()[i].enabled === false || value.stream.getAudioTracks()[i].muted) {
+                        ismuted = <span className="badge badge-danger"><img src="/icons/mic-off.svg" alt="" width="15" height="15" title="Microphone Off" /></span>;
+                    }
+                }
                 items.push(<div className={noofvideo > 1 ? "col-6" : "col-12"} style={{ position: "relative" }} key={key}>
                     <video id={'video' + value.connectionID} autoPlay={true} className="img-fluid" playsInline muted="muted" volume="0" style={{ maxHeight: "70vh" }}></video>
                     <span style={{ position: "absolute", left: "0px", top: "0px", backgroundColor: "rgba(255,255, 255, 0.5)", padding: "0px 15px" }}>
-                        {userpic} <span className="name p-1">{value.name}</span>
+                        {userpic} <span className="name p-1">{value.name} </span>
                     </span>
                 </div>);
             }
         });
-        //beyond thirteen participant will all have same dimensions, 
-        //less than 13 will change dimension based on number of participants
-        videocontcss = (items.length < 13) ? "video" + items.length : "video13"
-
-        //myvideo css class, if no participant show full screen else small docked on bottom left
-        myvclass = (items.length === 0) ? "full" : "smalldocked";
-
-        const myvstyle = (items.length === 0) ? { left: 0, top: 0 } : {};
-
-        //let myvcontainer =
-        //    this.mystream !== null ? <div className={myvclass} id="myvideocont" style={myvstyle} >
-        //        <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag}></video>
-        //    </div> : null;
-
+        
         let myvcontainer =
             this.mystream !== null ? <div className={noofvideo > 1 ? "col-6" : "col-12"}>
                 <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag} className="img-fluid" style={{ maxHeight: "70vh" }}></video>
@@ -1204,14 +1283,7 @@
 
         //Video should only be show if participants have a stream or myself have a stream
         if (items.length > 0 || this.mystream !== null) {
-            return <div className="col-lg-12 col-xl-8 meetingvideocol"><div className="row">{items}{myvcontainer}</div></div>;
-            //return <div className="col-lg-12 col-xl-9 meetingvideocol">
-            //    <div id="videocont">
-            //        {myvcontainer}
-            //        <ul id="videolist" className={videocontcss}>
-            //            {items}</ul>
-            //    </div>
-            //</div>;
+            return <div className="col-md-12 col-lg-9 col-xl-9 meetingvideocol"><div className="row">{items}{myvcontainer}</div></div>;
         } else { return null; }
     }
 
@@ -1252,7 +1324,7 @@
             </React.Fragment>;
         }
         else*/ if (!this.state.idvalid) {
-            //if meeding ID is not valid than show valid id modal
+            //if meeting ID is not valid than show valid id modal
             return <React.Fragment> {this.renderValidateModal()}
                 <HeartBeat activity="2" interval="3000" /></React.Fragment>;
         }
@@ -1276,41 +1348,21 @@
             let vhtml = this.renderVideoTags();
             let mhtml = this.renderMessageList(vhtml == null ? false : true);
             let videotoggleele = this.state.videoplaying ? (
-                <button
-                    type="button"
-                    className="btn btn-primary btn-sm videoctrl"
-                    onClick={this.handleVideoToggle}
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    <img src="/icons/video.svg" alt="" width="15" height="15" title="Video On" />
+                <button type="button" className="btn btn-primary ml-1 mr-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()}>
+                    <img src="/icons/video.svg" alt="" width="24" height="24" title="Video On" />
                 </button>
             ) : (
-                    <button
-                        type="button"
-                        className="btn btn-light btn-sm videoctrl"
-                        onClick={this.handleVideoToggle}
-                        onMouseDown={(e) => e.stopPropagation()}
-                    >
-                        <img src="/icons/video-off.svg" alt="" width="15" height="15" title="Video Off" />
+                    <button type="button" className="btn btn-secondary ml-1 mr-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()}>
+                        <img src="/icons/video.svg" alt="" width="24" height="24" title="Video Off" />
                     </button>
                 );
             let audiotoggleele = this.state.audioplaying ? (
-                <button
-                    type="button"
-                    className="btn btn-primary btn-sm audioctrl"
-                    onClick={this.handleAudioToggle}
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    <img src="/icons/mic.svg" alt="" width="15" height="15" title="Microphone On" />
+                <button type="button" className="btn btn-primary ml-1 mr-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
+                    <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone On" />
                 </button>
             ) : (
-                    <button
-                        type="button"
-                        className="btn btn-light btn-sm audioctrl"
-                        onClick={this.handleAudioToggle}
-                        onMouseDown={(e) => e.stopPropagation()}
-                    >
-                        <img src="/icons/mic-off.svg" alt="" width="15" height="15" title="Microphone Off" />
+                    <button type="button" className="btn btn-secondary ml-1 mr-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
+                        <img src="/icons/mic-off.svg" alt="" width="24" height="24" title="Microphone Off" />
                     </button>
                 );
             //if browser is edge or ie no need to show video or audio control button
@@ -1323,12 +1375,11 @@
                     <NavMenu onLogin={this.loginHandler} fixed={false} />
                     <nav className="bg-light border-bottom" style={{ padding: "4px", textAlign: "center" }}>
                         <ul className="list-inline" style={{ marginBottom: "0px" }}>
-
                             <li className="list-inline-item">
                                 <div className="dropdown">
                                     <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <img src="/icons/file-plus.svg" alt="" width="15" height="15" title="Invite" /></a>
-
+                                        <img src="/icons/file-plus.svg" alt="" width="15" height="15" title="Invite" />
+                                    </a>
                                     <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                                         <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
                                         <a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
@@ -1340,7 +1391,8 @@
                                 {videotoggleele}
                             </li>
                             <li className="list-inline-item">
-                                {audiotoggleele}</li>
+                                {audiotoggleele}
+                            </li>
                             <li className="list-inline-item">
                                 <button type="button" className="btn btn-info btn-sm " onClick={this.inviteHandler}>Invite <img src="/icons/plus-circle.svg" alt="" width="15" height="15" title="Invite" /></button>
                             </li>
@@ -1372,9 +1424,7 @@
                             <source src="/media/get-outta-here.ogg"></source>
                         </audio>
                     </div>
-                    <footer className="footer fixed-bottom">
-
-                    </footer>
+                    {this.renderFileUploadProcessModal()}
                     {this.renderEmojiModal()}
                     <HeartBeat activity="2" interval="3000" />
                 </React.Fragment>

@@ -10,7 +10,7 @@
             loading: false, loggedin: loggedin,
             myself: null, bsstyle: '', message: '', selectedperson: null,
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"),
-            searchtext: '', dummy: new Date(), showsearch: true
+            searchtext: '', dummy: new Date(), showsearch: true, showprofilemodal: false, profiletoshow: null
         };
         this.hubConnection = null;
         this.contactupdateinterval = null;
@@ -26,10 +26,12 @@
         this.checkContactPulse = this.checkContactPulse.bind(this);
         this.search = this.search.bind(this);
         this.startHub = this.startHub.bind(this);
+        this.handleProfileModalClose = this.handleProfileModalClose.bind(this);
+        this.handleProfileItemClick = this.handleProfileItemClick.bind(this);
     }
 
     componentDidMount() {
-        this.contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+        this.contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
         if (localStorage.getItem("token") != null) {
             this.validate(localStorage.getItem("token"));
         }
@@ -76,7 +78,7 @@
 
     receiveTextMessage(sender, text, timestamp, id) {
         var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: 2 /*Received*/ };
-        //if received message is from current person then show in ui else save in localstorage
+        //if received message is from current person then show in ui else save in local storage
         this.handleReceivedMessage(mi);
     }
 
@@ -106,12 +108,14 @@
                     //fetch contacts after validation is done
                     this.fetchContacts();
                     this.contactupdateinterval = setInterval(this.checkContactPulse, 5000);
-                    this.startHub();
+                    if (this.hubConnection === null) {
+                        this.startHub();
+                    }
                 }
             });
     }
 
-    //function checks if any contact has not send pulse for last 5 seconds then deem them offline
+    //function checks if any contact has not send pulse for last 5 seconds then deem them off-line
     checkContactPulse() {
         for (const [key, contact] of this.contactlist.entries()) {
             var dt = new Date(contact.lastPulse);
@@ -180,7 +184,7 @@
 
     handleShowSearch(show) {
         if (show) {
-            this.contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+            this.contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
         }
         this.setState({ showsearch: show });
     }
@@ -189,11 +193,30 @@
         this.setState({ selectedperson: e })
     }
 
+    handleProfileModalClose() {
+        this.setState({ profiletoshow: null, showprofilemodal: false });
+    }
+
+    //handle search result item click
+    handleProfileItemClick(e) {
+        
+            //should only move forward if there is memberid and there is some profileselect action provided
+            if (e !== null && this.contactlist.get(e) !== undefined) {
+                this.setState({ profiletoshow: this.contactlist.get(e).person, showprofilemodal: true });
+            }
+        
+    }
+
     //handle search result item click
     handleResultItemClick(e) {
-        //should only move forward if there is memberid and there is some profileselect action provided
-        if (e !== null && this.contactlist.get(e) !== undefined) {
-            this.setState({ selectedperson: this.contactlist.get(e).person, showsearch: false })
+        if (this.state.loggedin) {
+            //should only move forward if there is memberid and there is some profileselect action provided
+            if (e !== null && this.contactlist.get(e) !== undefined) {
+                this.setState({ selectedperson: this.contactlist.get(e).person, showsearch: false, showprofilemodal : false })
+            }
+        }
+        else {
+            alert("Please log in to gain full access.");
         }
     }
 
@@ -226,12 +249,12 @@
         }
     }
 
-    //the usual BS requied for form fields to work in react
+    //the usual BS required for form fields to work in react
     handleChange(e) {
         switch (e.target.name) {
             case 'searchtext':
                 if (e.target.value.trim() === "") {
-                    this.contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+                    this.contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
                 }
                 this.setState({ searchtext: e.target.value });
                 break;
@@ -244,23 +267,37 @@
         const hundred = { width: "100%" };
         for (const [key, contact] of this.contactlist.entries()) {
             let obj = contact.person;
-            let online = <span className="offline"></span>;
-            if (obj.activity !== 5) {
-                online = <span className="online"></span>;
-            }
-            let unseenmsgcount = contact.unseenMessageCount > 0 ? <span className="badge badge-primary">{contact.unseenMessageCount}</span> : null;
-            let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img-top" alt="" />
-                : <img src="/images/nopic.jpg" className="card-img-top" alt="" />;
+            if (this.state.myself === null || obj.id !== this.state.myself.id) {
+                let thought = null;
+                if (obj.thoughtStatus !== "") {
+                    thought = <p className="card-text"><small>{obj.thoughtStatus}</small></p>
+                }
+                let online = <span className="offline"></span>;
+                if (obj.activity !== 5) {
+                    online = <span className="online"></span>;
+                }
+                let unseenmsgcount = contact.unseenMessageCount > 0 ? <span className="badge badge-primary">{contact.unseenMessageCount}</span> : null;
+                let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img-top" alt="" />
+                    : <img src="/images/nopic.jpg" className="card-img-top" alt="" />;
 
-            items.push(<div className="col-6 col-sm-3 col-md-3 col-lg-2" key={key} onClick={() => this.handleResultItemClick(obj.id)}>
-                <div className="card mt-1" style={{ width: "100%", cursor : "pointer" }}>
-                    {pic}
-                    <div className="card-body" style={{position: "absolute", backgroundColor: "rgba(0, 0,0,0.3)", width: "100%", bottom: "0px", color: "#fff", padding: "0.25rem"}}>
-                        <h6 className="card-title">{online} {obj.name} {unseenmsgcount}</h6>
-                        <p className="card-text"><small>{obj.city} {obj.state} {obj.country}</small></p>
+                items.push(<div className="col-6 col-sm-3 col-md-3 col-lg-2" key={key} >
+                    <div className="card mt-1" style={{ width: "100%", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
+                        <div className="btn-group" style={{ position: "absolute", right: "5px", top: "5px" }} onClick={(e) => e.stopPropagation()}>
+                            <button className="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></button>
+                            <div className="dropdown-menu dropdown-menu-right " aria-labelledby="dropdownMenuButton">
+                                <a className="dropdown-item" href="#" onClick={() => this.handleProfileItemClick(obj.id)}>Profile</a>
+                                <a className="dropdown-item" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>
+                            </div>
+                        </div>
+                        {pic}
+                        <div className="card-body" style={{ position: "absolute", backgroundColor: "rgba(0, 0,0,0.3)", width: "100%", bottom: "0px", color: "#fff", padding: "0.25rem" }}>
+                            <h6 className="card-title" style={{ marginBottom: "0.3rem" }}>{online} {obj.name} {unseenmsgcount} </h6>
+                            <p className="card-text"><small>{obj.city} {obj.state} {obj.country}</small></p>
+                            {thought}
+                        </div>
                     </div>
-                </div>
-            </div>);
+                </div>);
+            }
         }
 
         if (items.length > 0) {
@@ -271,19 +308,38 @@
     }
 
     render() {
-        let personchat = null;
+        let personchatorprofile = null;
         if (this.state.selectedperson !== null && !this.state.showsearch) {
-            personchat = <div className="col-12 p-0">
+            personchatorprofile = <div className="col-12 p-0">
                 <PersonChat person={this.state.selectedperson} myself={this.state.myself} receivedMessage={this.handleReceivedMessage} handleShowSearch={this.handleShowSearch} /></div>
-        } else {
-            personchat = <HeartBeat activity="1" interval="3000" />;
+        }
+        else if (this.state.profiletoshow !== null && this.state.showprofilemodal) {
+            personchatorprofile = <div className="modal d-block" tabIndex="-1" role="dialog">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-body">
+                            <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.handleProfileModalClose}>
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <ViewProfile profile={this.state.profiletoshow} />
+                        </div>
+                    </div>
+                </div>
+            </div>;
+        }
+        else {
+            personchatorprofile = <HeartBeat activity="1" interval="3000" />;
         }
 
         let searchhtml = null;
         if (this.state.showsearch) {
             searchhtml = <div className="col-12 searchcont">
-                <form onSubmit={this.handleSearchSubmit} className="searchform1 mt-2 mb-2">
-                    <input type="search" className="form-control rounded-0" name="searchtext" id="search-input" onChange={this.handleChange} title="Find People by Name, Location, Profession etc." placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..." autoComplete="off" spellCheck="false" />
+                <form onSubmit={this.handleSearchSubmit} className="searchform1 form-inline mt-2 mb-2">
+                    <input type="search" className="form-control rounded-0" name="searchtext" id="search-input"
+                        onChange={this.handleChange} title="Find People by Name, Location, Profession etc."
+                        placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
+                        autoComplete="off" spellCheck="false" style={{ width: "calc(100% - 50px)" }} />
+                    <button type="submit" className="btn btn-light"><img src="/icons/search.svg" alt="" width="24" height="24" title="Search People" /></button>
                 </form>
                 {this.renderPeopleList()}
             </div>;
@@ -291,11 +347,11 @@
 
         return (
             <React.Fragment>
-                <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} register={!this.state.loggedin} fixed={false} />
+                <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
                 <div className="container-fluid">
                     <div className="row">
                         {searchhtml}
-                        {personchat}
+                        {personchatorprofile}
                     </div>
                 </div>
             </React.Fragment>

@@ -39,7 +39,7 @@ namespace Bolo.Controllers
         [HttpGet()]
         [AllowAnonymous]
         [Route("OTP")]
-        public async Task<ActionResult> GetOTP([FromQuery]string id)
+        public async Task<ActionResult> GetOTP([FromQuery] string id)
         {
             try
             {
@@ -196,11 +196,11 @@ namespace Bolo.Controllers
             return result;
         }
 
-        
+
 
         [HttpGet]
         [Route("SaveChannel")]
-        public async Task<IActionResult> SaveChannelName([FromQuery]string channel)
+        public async Task<IActionResult> SaveChannelName([FromQuery] string channel)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -226,7 +226,7 @@ namespace Bolo.Controllers
 
         [HttpPost]
         [Route("savebio")]
-        public async Task<IActionResult> SaveBio([FromForm]string d)
+        public async Task<IActionResult> SaveBio([FromForm] string d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -252,7 +252,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savename")]
-        public async Task<IActionResult> SaveName([FromQuery]string d)
+        public async Task<IActionResult> SaveName([FromQuery] string d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -265,7 +265,7 @@ namespace Bolo.Controllers
                 member.Name = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
-                
+
                 var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.ID == member.ID).ToListAsync();
                 foreach (Contact c in contacts)
                 {
@@ -278,7 +278,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savebirthyear")]
-        public async Task<IActionResult> SaveBirthYear([FromQuery]int d)
+        public async Task<IActionResult> SaveBirthYear([FromQuery] int d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -305,7 +305,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savevisibility")]
-        public async Task<IActionResult> SaveProfileVisibility([FromQuery]MemberProfileVisibility d)
+        public async Task<IActionResult> SaveProfileVisibility([FromQuery] MemberProfileVisibility d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -324,7 +324,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savegender")]
-        public async Task<IActionResult> SaveGender([FromQuery]Gender d)
+        public async Task<IActionResult> SaveGender([FromQuery] Gender d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -351,7 +351,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savecountry")]
-        public async Task<IActionResult> SaveCountry([FromQuery]string d)
+        public async Task<IActionResult> SaveCountry([FromQuery] string d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -378,7 +378,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savestate")]
-        public async Task<IActionResult> SaveState([FromQuery]string d)
+        public async Task<IActionResult> SaveState([FromQuery] string d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -405,7 +405,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savecity")]
-        public async Task<IActionResult> SaveCity([FromQuery]string d)
+        public async Task<IActionResult> SaveCity([FromQuery] string d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -431,7 +431,7 @@ namespace Bolo.Controllers
 
         [HttpPost]
         [Route("savepic")]
-        public async Task<IActionResult> SavePic([FromForm]string pic)
+        public async Task<IActionResult> SavePic([FromForm] string pic)
         {
 
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
@@ -464,7 +464,7 @@ namespace Bolo.Controllers
 
         [HttpPost]
         [Route("savethoughtstatus")]
-        public async Task<IActionResult> SaveThoughtStatus([FromForm]string d)
+        public async Task<IActionResult> SaveThoughtStatus([FromForm] string d)
         {
 
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
@@ -491,7 +491,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("savepulse")]
-        public async Task<IActionResult> SavePulse([FromQuery]ActivityStatus s)
+        public async Task<IActionResult> SavePulse([FromQuery] ActivityStatus s)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -606,9 +606,16 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("search")]
+        [AllowAnonymous]
         public ActionResult<IEnumerable<MemberDTO>> Search(string s)
         {
-            return _context.Members.Where(t => (t.Name.Contains(s) || t.Bio.Contains(s)) && t.Visibility == MemberProfileVisibility.Public && t.PublicID != new Guid(User.Identity.Name)).Select(t => new MemberDTO(t)).ToList();
+            var query = _context.Members.Where(t => (t.Name.Contains(s) || t.Bio.Contains(s) || t.City.ToLower() == s.ToLower() || t.State.ToLower() == s.ToLower()
+            || t.Country.ToLower() == s.ToLower() || t.ThoughtStatus.Contains(s)) && t.Visibility == MemberProfileVisibility.Public);
+            if (User.Identity.IsAuthenticated)
+            {
+                query = query.Where(t => t.PublicID != new Guid(User.Identity.Name));
+            }
+            return query.Select(t => new MemberDTO(t)).ToList();
         }
 
         // DELETE: api/Members/5

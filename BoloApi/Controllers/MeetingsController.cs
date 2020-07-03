@@ -85,6 +85,7 @@ namespace Bolo.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult> PostMeeting(CreateMeetingDTO m)
         {
             Meeting meeting = new Meeting();
@@ -92,7 +93,14 @@ namespace Bolo.Controllers
             meeting.Status = RecordStatus.Active;
             meeting.Name = m.Name;
             meeting.Purpose = m.Purpose;
-            meeting.Owner = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            if (User.Identity.IsAuthenticated)
+            {
+                meeting.Owner = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            }
+            else
+            {
+                meeting.Owner = null;
+            }
             _context.Meetings.Add(meeting);
             await _context.SaveChangesAsync();
             string id = Guid.NewGuid().ToString().Replace("-", "");

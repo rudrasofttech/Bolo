@@ -65,7 +65,7 @@
                 else if (response.status === 404) {
                     response.json().then(data => {
                         //console.log(data);
-                        this.setState({ bsstyle: 'warning', message: data.error, loading: false });
+                        this.setState({ bsstyle: 'danger', message: data.error, loading: false });
                     });
 
                 }
@@ -88,12 +88,12 @@
                         GenerateOTPButton: false,
                         loading: false,
                         bsstyle: 'success',
-                        message: 'An OTP has been sent to your email address. Please verify and login.'
+                        message: 'An OTP has been sent to your email address from waarta@rudrasofttech.com. Please verify and login. Please do check SPAM folder of your email.'
                     });
 
                 }
                 else {
-                    this.setState({ bsstyle: 'warning', message: 'Email is not registered with us.', loading: false });
+                    this.setState({ bsstyle: 'danger', message: 'Email is not registered with us.', loading: false });
                 }
             });
     }
@@ -114,7 +114,7 @@
                     this.setState({
                         loading: false,
                         bsstyle: 'success',
-                        message: 'Your registration is complete, an OTP has been sent to your email address. Please verify and login. Please do check spam folder of your email.',
+                        message: 'Your registration is complete, an OTP has been sent to your email address from waarta@rudrasofttech.com. Please verify and login. Please do check SPAM folder of your email.',
                         loggedin: false,
                         loginemail: this.state.registeremail,
                         showregisterform: false
@@ -123,7 +123,7 @@
                     response.json().then(data => {
                         this.setState({
                             loading: false,
-                            bsstyle: 'warning',
+                            bsstyle: 'danger',
                             message: data.Error[0]
                         });
                     });
@@ -131,7 +131,7 @@
                 else {
                     this.setState({
                         loading: false,
-                        bsstyle: 'warning',
+                        bsstyle: 'danger',
                         message: 'Unable to process your request please try again.',
                     });
                 }
@@ -141,11 +141,11 @@
     }
 
     handleRegisterClickHere() {
-        this.setState({ showregisterform: true });
+        this.setState({ showregisterform: true, message: "" });
     }
 
     handleLoginClickHere() {
-        this.setState({ showregisterform: false });
+        this.setState({ showregisterform: false, message : "" });
     }
 
     renderOTPForm() {
@@ -183,7 +183,7 @@
         let loading = this.state.loading ? <div className="progress" style={{ height: "5px"}}>
             <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
         </div> : null;
-        let messagecontent = this.state.message !== "" ? <div color={this.state.bsstyle} className="mt-1">
+        let messagecontent = this.state.message !== "" ? <div className={"mt-1 alert alert-" + this.state.bsstyle}>
             {this.state.message}
         </div> : null;
 
