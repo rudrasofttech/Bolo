@@ -618,6 +618,57 @@ namespace Bolo.Controllers
             return query.Select(t => new MemberDTO(t)).ToList();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="f"></param>
+        /// <param name="meetingid"></param>
+        /// <param name="filename"></param>
+        /// <param name="gfn">Generate File Name</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("UploadFile")]
+        public ActionResult PostFile([FromForm] string f, [FromForm] string filename, [FromForm] bool gfn)
+        {
+            if (f == null || f.Length == 0)
+                return Content("file not selected");
+
+            if (gfn)
+                filename = Guid.NewGuid().ToString().ToLower() + Path.GetExtension(filename);
+
+            var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", User.Identity.Name);
+            if (!Directory.Exists(meetingpath))
+            {
+                Directory.CreateDirectory(meetingpath);
+            }
+            var path = Path.Combine(meetingpath, filename);
+
+
+            string[] arr = f.Split(";base64,");
+            if (arr.Length == 2)
+            {
+                //byte[] barr = br.ReadBytes((int)stream.Length);
+                byte[] barr = Convert.FromBase64String(arr[1]);
+                if (System.IO.File.Exists(path))
+                {
+                    using (FileStream fs = new FileStream(path, FileMode.Append))
+                    {
+                        fs.Write(barr, 0, barr.Length);
+                    }
+                }
+                else
+                {
+                    using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                    {
+                        fs.Write(barr, 0, barr.Length);
+                    }
+                }
+            }
+
+
+            return Ok(new { filename = filename });
+        }
+
         // DELETE: api/Members/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Member>> DeleteMember(int id)

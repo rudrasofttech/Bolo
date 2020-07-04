@@ -208,7 +208,7 @@
     handlePhotoClick(e) {
         e.preventDefault();
         if (!this.state.loggedin) {
-            alert("Log in to use this feature. Share files upto 50 MB in size.");
+            alert("Log in to use this feature. Share files upto 100 MB in size.");
         } else {
             this.fileinput.click();
         }
@@ -217,7 +217,7 @@
     handleDocClick(e) {
         e.preventDefault();
         if (!this.state.loggedin) {
-            alert("Log in to use this feature. Share files upto 50 MB in size.");
+            alert("Log in to use this feature. Share files upto 100 MB in size.");
         } else {
             this.fileinput.click();
         }
@@ -246,8 +246,8 @@
             return;
         }
         for (var i = 0; i < this.fileinput.files.length; i++) {
-            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 50) {
-                alert("File size cannot exceed 50 MB");
+            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 100) {
+                alert("File size cannot exceed 100 MB");
                 return;
             }
         }

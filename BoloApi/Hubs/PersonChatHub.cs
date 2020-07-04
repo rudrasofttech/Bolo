@@ -63,7 +63,18 @@ namespace Bolo.Hubs
                 MemberDTO recedto = new MemberDTO(mreceiver);
                 if(recedto.Activity == ActivityStatus.Offline)
                 {
-                   //add to database here
+                    //add to database here
+                    ChatMessage cm = new ChatMessage() { 
+                    Message = text,
+                    MessageType= ChatMessageType.Text,
+                    PublicID = d,
+                    SentBy = msender,
+                    SentDate = dt,
+                    SentStatus = ChatMessageSentStatus.Sent,
+                    SentTo = mreceiver
+                    };
+                    _context.ChatMessages.Add(cm);
+                    await _context.SaveChangesAsync();
                 }
             }
         }
