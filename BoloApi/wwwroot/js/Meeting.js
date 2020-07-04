@@ -132,7 +132,7 @@
             //if there is no stream then most probably
             //user denied permission to cam and microphone
             this.getUserCam();
-            
+
         }
     }
     //enable or disable audio track of my stream
@@ -238,7 +238,7 @@
     }
 
     handleFileInput(e) {
-        
+
         //alert("Soon you will be able to share files.");
         //return;
         if (this.fileinput.files.length > 10) {
@@ -642,6 +642,18 @@
 
     onPeerClose() {
         console.log("Peer Closed");
+
+        for (const [key, u] of this.users.entries()) {
+            if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
+                if (!this.peers.get(u.connectionID).connected && this.peers.get(u.connectionID).destroyed) {
+                    this.peers.delete(u.connectionID);
+                }
+            }
+            this.users.delete(u.connectionID);
+            this.setState({ dummydate : Date.now() });
+            this.playmsgbeep();
+        }
+
         //this.hubConnection.invoke("EndPeer", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
         //    .catch(err => console.log('Endpeer ' + err));
     }
@@ -1258,7 +1270,7 @@
             noofvideo++;
         }
         this.users.forEach(function (value, key) {
-            if (value.stream !== null) {
+            if (value.stream !== null && value.stream.active) {
                 noofvideo++;
                 let userpic = value.pic !== "" ? <img src={value.pic} width="20" height="20" className="rounded ml-1 mb-1 mt-1" /> : null;
                 let ismuted = null;
@@ -1275,7 +1287,7 @@
                 </div>);
             }
         });
-        
+
         let myvcontainer =
             this.mystream !== null ? <div className={noofvideo > 1 ? "col-6" : "col-12"}>
                 <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag} className="img-fluid" style={{ maxHeight: "70vh" }}></video>
@@ -1373,12 +1385,12 @@
             return (
                 <React.Fragment>
                     <NavMenu onLogin={this.loginHandler} fixed={false} />
-                    <nav className="bg-light border-bottom" style={{ padding: "4px", textAlign: "center" }}>
+                    <nav className="bg-light border-bottom sticky-top" style={{ padding: "4px", textAlign: "center" }}>
                         <ul className="list-inline" style={{ marginBottom: "0px" }}>
                             <li className="list-inline-item">
                                 <div className="dropdown">
-                                    <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <img src="/icons/file-plus.svg" alt="" width="15" height="15" title="Invite" />
+                                    <a className="btn btn-light dropdown-toggle" href="#" role="button" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <img src="/icons/file-plus.svg" alt="" width="24" height="24" title="Share Files" />
                                     </a>
                                     <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                                         <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
@@ -1394,10 +1406,10 @@
                                 {audiotoggleele}
                             </li>
                             <li className="list-inline-item">
-                                <button type="button" className="btn btn-info btn-sm " onClick={this.inviteHandler}>Invite <img src="/icons/plus-circle.svg" alt="" width="15" height="15" title="Invite" /></button>
+                                <button type="button" className="btn btn-info" onClick={this.inviteHandler}><span className="d-none d-sm-inline">Invite </span><img src="/icons/plus-circle.svg" alt="" width="24" height="24" title="Invite" /></button>
                             </li>
                             <li className="list-inline-item">
-                                <button type="button" className="btn btn-danger btn-sm" onClick={this.leaveMeeting}>Leave <img src="/icons/user-minus.svg" alt="" width="15" height="15" title="Leave Meeting" /></button>
+                                <button type="button" className="btn btn-danger" onClick={this.leaveMeeting}><span className="d-none d-sm-inline">Leave </span><img src="/icons/user-minus.svg" alt="" width="24" height="24" title="Leave Meeting" /></button>
                             </li>
                         </ul>
                     </nav>
