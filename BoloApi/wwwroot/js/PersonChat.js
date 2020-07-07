@@ -61,6 +61,7 @@
         this.hubConnectionReconnected = this.hubConnectionReconnected.bind(this);
         this.handleProfileModalClose = this.handleProfileModalClose.bind(this);
         this.handleProfileImageClick = this.handleProfileImageClick.bind(this);
+        this.deleteMyMessagesFromServer = this.deleteMyMessagesFromServer.bind(this);
 
         this.messageStatusEnum = {
             Sent: 1,
@@ -485,6 +486,21 @@
             }
         }
         localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+
+        //remove messages from server
+    }
+
+    deleteMyMessagesFromServer() {
+        fetch('//' + window.location.host + '/api/chatmessages/MemberMessages/' + this.state.person.id, {
+            method: 'delete',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 200) {
+                console.log("messages deleted from server");
+            }
+        });
     }
 
     processFileUpload() {
@@ -700,8 +716,9 @@
 
     componentDidMount() {
         this.startHub();
-        this.updateReceivedMessageStatusAll();
         this.scrollToBottom();
+        this.updateReceivedMessageStatusAll();
+        this.deleteMyMessagesFromServer();
         this.checkPersonPulseInterval = setInterval(this.checkPersonPulse, 5000);
         //set unseenmessage count of person to zero and save
         let clist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
@@ -954,7 +971,7 @@
                                             <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
                                                 <a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
-                                                <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
+                                                <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,.xls,.xlsx,.docx,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
                                             </div>
                                         </div>
                                     </li>

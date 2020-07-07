@@ -1,10 +1,18 @@
 ﻿function transformMessage(text) {
     try {
         const reglink = /([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi;
+        let match;
+
+        //while ((match = reglink.exec(text)) !== null) {
+        //    console.log(`Found ${match[0]} start=${match.index} end=${reglink.lastIndex}.`);
+        //    // expected output: "Found football start=6 end=14."
+        //    // expected output: "Found foosball start=16 end=24."
+        //}
         var links = [];
         //find all urls in the text
-        const matches = text.matchAll(reglink);
-        for (const match of matches) {
+        //const matches = text.matchAll(reglink);
+        //for (const match of matches) {
+        while ((match = reglink.exec(text)) !== null) {
             isthere = false;
             for (link of links) {
                 if (link === match[0].trim()) {
@@ -19,7 +27,7 @@
         }
         //finally replace url with appropriate tags
         for (l of links) {
-            var imgreg = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/g;
+            var imgreg = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png|jpeg)/g;
             if (imgreg.test(l)) {
                 let img = "<a href='" + l + "' target='_blank'><img src='" + l + "' class='img-fluid d-block mt-1 mb-1 img-thumbnail' style='width:300px; '/></a>";
                 text = text.replaceAllOccurence(l, img, true);

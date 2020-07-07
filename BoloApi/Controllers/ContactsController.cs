@@ -49,15 +49,17 @@ namespace Bolo.Controllers
         [Route("Member")]
         public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsByMember()
         {
-
+            List<ChatMessage> cmlist = new List<ChatMessage>();
+            cmlist.AddRange(await _context.ChatMessages.Include(t => t.SentBy).Where(t => t.SentTo.PublicID == new Guid(User.Identity.Name)).OrderByDescending(t => t.SentDate).ToListAsync());
             var contacts = await _context.Contacts.Include(t => t.Person).Where(t => t.Owner.PublicID == new Guid(User.Identity.Name)).OrderByDescending(t => t.CreateDate).ToListAsync();
             List<ContactDTO> result = new List<ContactDTO>();
             foreach (Contact c in contacts)
             {
-                
                 ContactDTO cdto = new ContactDTO(c);
+                cdto.MessagesOnServer.AddRange(cmlist.Where(t => t.SentBy.PublicID == c.Person.PublicID).OrderBy(t => t.SentDate).Select(t => new ChatMessageDTO(t)).ToList());
                 result.Add(cdto);
             }
+
             return result;
         }
 

@@ -54,16 +54,20 @@
             .withUrl("/personchathub", { accessTokenFactory: () => this.state.token })
             .withAutomaticReconnect()
             .build();
-
         this.hubConnection.start().then(() => {
             console.log('Hub Connection started!');
         }).catch(err => console.log('Error while establishing connection :('));
 
 
         //this function is called by server when it receives a sendtextmessage from user.
-        this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => { this.receiveTextMessage(sender, text, timestamp, id); });
+        this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => {
+            var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: 2 /*Received*/ };
+            //if received message is from current person then show in ui else save in local storage
+            this.handleReceivedMessage(mi);});
 
-        //this function is called by server when it receives a sendtextmessage from user.
+        //update local contact list when some contact updates their information
+        //if member is logged changes will be reflected immediately 
+        //other wise when member log in latest contact info wil be fetched from db
         this.hubConnection.on('ContactUpdated', (dto) => {
             if (this.contactlist.get(dto.id) !== undefined) {
                 let p = this.contactlist.get(dto.id).person
@@ -74,12 +78,6 @@
                 }
             }
         });
-    }
-
-    receiveTextMessage(sender, text, timestamp, id) {
-        var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: 2 /*Received*/ };
-        //if received message is from current person then show in ui else save in local storage
-        this.handleReceivedMessage(mi);
     }
 
     //see if user is logged in
@@ -127,7 +125,7 @@
     }
 
     fetchContacts() {
-        //if (localStorage.getItem("contacts") === null) {
+
         fetch('//' + window.location.host + '/api/Contacts/Member', {
             method: 'get',
             headers: {
@@ -139,12 +137,32 @@
                     response.json().then(data => {
                         //console.log(data);
                         for (var k in data) {
+
+
                             if (this.contactlist.get(data[k].person.id) === undefined) {
-                                this.contactlist.set(data[k].person.id, data[k]);
+                                this.contactlist.set(data[k].person.id.toLowerCase(), data[k]);
                             } else {
                                 this.contactlist.get(data[k].person.id).recentMessage = data[k].recentMessage;
                                 this.contactlist.get(data[k].person.id).recentMessageDate = data[k].recentMessageDate;
                                 this.contactlist.get(data[k].person.id).person = data[k].person;
+                            }
+
+                            if (data[k].messagesOnServer.length > 0) {
+                                var msgs = localStorage.getItem(data[k].person.id) !== null ? new Map(JSON.parse(localStorage.getItem(data[k].person.id))) : new Map();
+                                for (var i in data[k].messagesOnServer) {
+                                    if (msgs.get(data[k].messagesOnServer[i].id) === undefined) {
+                                        var mi = { id: data[k].messagesOnServer[i].id, sender: data[k].messagesOnServer[i].sentBy.id, text: data[k].messagesOnServer[i].message, timestamp: data[k].messagesOnServer[i].sentDate, status: 2 /*Received*/ };
+                                        msgs.set(mi.id, mi);
+
+                                        this.contactlist.get(data[k].person.id).recentMessageDate = mi.timestamp;
+                                        if (this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount !== undefined) {
+                                            this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount += 1;
+                                        } else {
+                                            this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount = 1;
+                                        }
+                                    }
+                                }
+                                localStorage.setItem(data[k].person.id, JSON.stringify(Array.from(msgs)));
                             }
                         }
                         localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
@@ -154,7 +172,6 @@
                     this.setState({ loading: false, message: 'Unable to search.', bsstyle: 'danger' });
                 }
             });
-        //} 
     }
 
     //search for members
@@ -197,14 +214,12 @@
         this.setState({ profiletoshow: null, showprofilemodal: false });
     }
 
-    //handle search result item click
+    //handle profile menu item click
     handleProfileItemClick(e) {
-        
-            //should only move forward if there is memberid and there is some profileselect action provided
-            if (e !== null && this.contactlist.get(e) !== undefined) {
-                this.setState({ profiletoshow: this.contactlist.get(e).person, showprofilemodal: true });
-            }
-        
+        //should only move forward if there is memberid and there is some profileselect action provided
+        if (e !== null && this.contactlist.get(e) !== undefined) {
+            this.setState({ profiletoshow: this.contactlist.get(e).person, showprofilemodal: true });
+        }
     }
 
     //handle search result item click
@@ -212,7 +227,7 @@
         if (this.state.loggedin) {
             //should only move forward if there is memberid and there is some profileselect action provided
             if (e !== null && this.contactlist.get(e) !== undefined) {
-                this.setState({ selectedperson: this.contactlist.get(e).person, showsearch: false, showprofilemodal : false })
+                this.setState({ selectedperson: this.contactlist.get(e).person, showsearch: false, showprofilemodal: false })
             }
         }
         else {
@@ -225,6 +240,7 @@
         this.search();
     }
 
+    //if user is not chating to receiver  at present than add received message to message list and increase unseen message count of the contact
     handleReceivedMessage(mi) {
         let usermsgs = localStorage.getItem(mi.sender.toLowerCase());
         let usermsgmap = null;

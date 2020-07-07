@@ -185,7 +185,11 @@
     }
 
     handleJoinMeeting(e) {
-        this.setState({ joinmeeting: true });
+        this.setState({ joinmeeting: true }, () => {
+            if (this.hubConnection === null) {
+                this.startHub();
+            }
+        });
     }
 
     handleMessageSubmit(e) {
@@ -403,8 +407,8 @@
                     localStorage.removeItem("token");
                     this.myself = new UserInfo();
                     this.myself.name = "";
-                    this.myself.videoCapable = this.hasVideoAudioCapability() && !this.detectEdgeorIE() && !this.detectMobileorTablet();
-                    this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT && !this.detectEdgeorIE() && !this.detectMobileorTablet();
+                    this.myself.videoCapable = this.hasVideoAudioCapability() && !this.detectEdgeorIE();
+                    this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT && !this.detectEdgeorIE();
                     this.setState({ loggedin: false, loading: false });
                 } else if (response.status === 200) {
                     //if token is valid vet user information from response and set "myself" object with member id and name.
@@ -415,14 +419,10 @@
                         this.myself = new UserInfo();
                         this.myself.memberID = data.id;
                         this.myself.name = data.name;
-                        this.myself.videoCapable = this.hasVideoAudioCapability() && !this.detectEdgeorIE() && !this.detectMobileorTablet();
-                        this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT && !this.detectEdgeorIE() && !this.detectMobileorTablet();
+                        this.myself.videoCapable = this.hasVideoAudioCapability() && !this.detectEdgeorIE();
+                        this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT && !this.detectEdgeorIE();
                         this.myself.pic = data.pic;
-                        this.setState({ loggedin: true, loading: false, joinmeeting: this.state.joinmeeting }, () => {
-                            if (this.hubConnection === null) {
-                                this.startHub();
-                            }
-                        });
+                        this.setState({ loggedin: true, loading: false, joinmeeting: this.state.joinmeeting });
                     });
                 }
             });
@@ -445,7 +445,7 @@
             //set pulse interval, this will call the function that will send 
             //pulse to other in meeting about current users existance
             this.pulseInterval = setInterval(this.sendPulse, 3000);
-        }).catch(err => console.log('Error while establishing connection :('));
+        }).catch(err => { console.log('Error while establishing connection :('); console.log(err); });
 
 
         this.hubConnection.onclose(this.hubConnectionClosed);
@@ -551,16 +551,14 @@
         this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT;
         //support for video and peer to peer on IE, Edge, Mobile and Tablets is dicy it
         //is better to forbid it altogether.
-        if (this.detectEdgeorIE() || this.detectMobileorTablet()) {
+        if (this.detectEdgeorIE()) {
             this.myself.videoCapable = false;
             this.myself.peerCapable = false;
         }
         this.hubConnection
             .invoke('NotifyPresence', this.state.id, this.myself)
             .catch(err => console.log(err));
-        if (this.myself.videoCapable) {
-            //this.getUserCam();
-        }
+
     }
 
     //send your pulse to other clients
@@ -611,7 +609,7 @@
     }
 
     onPeerError(err) {
-        console.log(this.cid + " peer gave error. ");
+        console.log(this.cid + " peer gave error. connected:" + this.connected + " destroyed:" + this.destroyed);
         console.log(err);
     }
 
@@ -650,54 +648,58 @@
                 }
             }
             this.users.delete(u.connectionID);
-            this.setState({ dummydate : Date.now() });
-            this.playmsgbeep();
+            this.setState({ dummydate: Date.now() });
         }
-
-        //this.hubConnection.invoke("EndPeer", this.state.myself.id.toLowerCase(), this.state.person.id.toLowerCase())
-        //    .catch(err => console.log('Endpeer ' + err));
+        this.hubConnection
+            .invoke('NotifyPresence', this.state.id, this.myself)
+            .catch(err => console.log(err));
+        
     }
     //simple peer events end here
 
     //call this function when hub says new user has arrived
     //u is user info sent by the server
     newUserArrived(u) {
-        //create a user object for the new user that has arrived
-        let temp = new UserInfo();
-        temp.connectionID = u.connectionID;
-        temp.memberID = u.memberID;
-        temp.name = u.name;
-        temp.pic = u.pic;
-        temp.videoCapable = u.videoCapable;
-        temp.peerCapable = u.peerCapable;
-        this.users.set(u.connectionID, temp);
+        //create new peer and add this user only if use
+        if (this.peers.get(u.connectionID) === undefined) {
 
-        //add a message
-        let msg = new MessageInfo();
-        msg.sender = null;
-        msg.text = temp.name + " has joined the meeting.";
-        if (!temp.videoCapable && !temp.peerCapable) {
-            msg.text = msg.text + " No Video/Audio Capability.";
-        }
-        msg.type = MessageEnum.MemberAdd;
-        msg.status = MessageStatusEnum.notify;
-        let mlist = this.state.messages;
-        mlist.push(msg);
+            //create a user object for the new user that has arrived
+            let temp = new UserInfo();
+            temp.connectionID = u.connectionID;
+            temp.memberID = u.memberID;
+            temp.name = u.name;
+            temp.pic = u.pic;
+            temp.videoCapable = u.videoCapable;
+            temp.peerCapable = u.peerCapable;
+            this.users.set(u.connectionID, temp);
 
-        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
-        this.playjoinbeep();
-        this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u.connectionID)
-            .catch(err => { console.log("Unable to say hello to new user."); console.log(err); });
+            //add a message
+            let msg = new MessageInfo();
+            msg.sender = null;
+            msg.text = temp.name + " has joined the meeting.";
+            if (!temp.videoCapable && !temp.peerCapable) {
+                msg.text = msg.text + " No Video/Audio Capability.";
+            }
+            msg.type = MessageEnum.MemberAdd;
+            msg.status = MessageStatusEnum.notify;
+            let mlist = this.state.messages;
+            mlist.push(msg);
 
-        if (this.myself.peerCapable && temp.peerCapable) {
-            try {
-                this.createPeer(true, u);
-            } catch (err) {
-                console.log("Unable to create a new peer when newuserarrived");
-                //disable capability
-                this.myself.peerCapable = false;
-                //notify other about my capability change
-                this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
+            this.setState({ messages: mlist, showalert: !this.state.showchatlist });
+            this.playjoinbeep();
+            this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u.connectionID)
+                .catch(err => { console.log("Unable to say hello to new user."); console.log(err); });
+
+            if (this.myself.peerCapable && temp.peerCapable) {
+                try {
+                    this.createPeer(true, u);
+                } catch (err) {
+                    console.log("Unable to create a new peer when newuserarrived");
+                    //disable capability
+                    this.myself.peerCapable = false;
+                    //notify other about my capability change
+                    this.hubConnection.invoke("UpdateUser", this.state.id, this.myself);
+                }
             }
         }
     }
@@ -868,15 +870,14 @@
     }
 
     detectMobileorTablet() {
+        //check based on useragent and device width
         let check = false;
         (function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true; })(navigator.userAgent || navigator.vendor || window.opera);
-        //return check;
-        //return check || window.matchMedia("(max-width: 768px)").matches;
-        return false;
+        return check || window.matchMedia("(max-width: 768px)").matches;
     }
 
     detectXtralargeScreen() {
-        return window.matchMedia("(min-width: 1200px)").matches;
+        return window.matchMedia("(min-width: 1024px)").matches;
     }
 
     //call this function to gain access to camera and microphone
@@ -1150,8 +1151,7 @@
     renderNameForm() {
         let browserinfo = this.detectEdgeorIE() ? <p>You are using either EDGE or INTERNET EXPLORER.
             Your access is <strong>restricted</strong> to text chat only. You will have full feature access on <strong>chrome, firefox or safari</strong>.</p> : null;
-        let mobilebrowserinfo = this.detectMobileorTablet() ? <p>You can join meeting on Mobile and Tablet device in <strong>Text Chat</strong> mode only. Please open the meeting
-            link in a laptop or desktop computer or other bigger screen device.</p> : null;
+
         return (
             <div className="container">
                 <div className="row">
@@ -1161,7 +1161,6 @@
                                 <div className="modal-content">
                                     <div className="modal-body">
                                         {browserinfo}
-                                        {mobilebrowserinfo}
                                         <form onSubmit={this.handleNameForm}>
                                             <input type="text" required value={this.state.myname} autoFocus="on" className="form-control" maxLength="20" onChange={this.handleMyName} placeholder="Your Name Here" />
                                             <br /><button type="submit" className="btn btn-primary">Join Meeting</button>
@@ -1261,17 +1260,33 @@
     }
 
     renderVideoTags() {
-        //this cssclass will decide who to place user videos
-        let videocontcss = "";
+
+        let columnpartition = "";
         const items = [];
-        let myvclass = "";
         let noofvideo = 0;
         if (this.mystream !== null) {
             noofvideo++;
         }
+        //at first count number of active video/audio streams
         this.users.forEach(function (value, key) {
             if (value.stream !== null && value.stream.active) {
                 noofvideo++;
+            }
+        });
+
+        if (noofvideo > 3 && this.detectXtralargeScreen()) {
+            columnpartition = "col-3";
+        }
+        else if (noofvideo === 3 && this.detectXtralargeScreen()) {
+            columnpartition = "col-4";
+        }
+        else if (noofvideo > 1) {
+            columnpartition = "col-6";
+        } else {
+            columnpartition = "col-12";
+        }
+        this.users.forEach(function (value, key) {
+            if (value.stream !== null && value.stream.active) {
                 let userpic = value.pic !== "" ? <img src={value.pic} width="20" height="20" className="rounded ml-1 mb-1 mt-1" /> : null;
                 let ismuted = null;
                 for (var i = 0; i < value.stream.getAudioTracks().length; i++) {
@@ -1279,8 +1294,8 @@
                         ismuted = <span className="badge badge-danger"><img src="/icons/mic-off.svg" alt="" width="15" height="15" title="Microphone Off" /></span>;
                     }
                 }
-                items.push(<div className={noofvideo > 1 ? "col-6" : "col-12"} style={{ position: "relative" }} key={key}>
-                    <video id={'video' + value.connectionID} autoPlay={true} className="img-fluid" playsInline muted="muted" volume="0" style={{ maxHeight: "70vh" }}></video>
+                items.push(<div className={columnpartition} style={{ position: "relative" }} key={key}>
+                    <video id={'video' + value.connectionID} autoPlay={true} className="img-fluid" playsInline muted="muted" volume="0" style={{ maxHeight: "480px" }}></video>
                     <span style={{ position: "absolute", left: "0px", top: "0px", backgroundColor: "rgba(255,255, 255, 0.5)", padding: "0px 15px" }}>
                         {userpic} <span className="name p-1">{value.name} </span>
                     </span>
@@ -1289,13 +1304,13 @@
         });
 
         let myvcontainer =
-            this.mystream !== null ? <div className={noofvideo > 1 ? "col-6" : "col-12"}>
+            this.mystream !== null ? <div className={columnpartition}>
                 <video id="myvideo" muted="muted" volume="0" playsInline onMouseDown={this.handleDrag} className="img-fluid" style={{ maxHeight: "70vh" }}></video>
             </div> : null;
 
         //Video should only be show if participants have a stream or myself have a stream
         if (items.length > 0 || this.mystream !== null) {
-            return <div className="col-md-12 col-lg-9 col-xl-9 meetingvideocol"><div className="row">{items}{myvcontainer}</div></div>;
+            return <div className="col-md-12 col-lg-9 col-xl-9 meetingvideocol"><div className="row  align-items-center justify-content-center">{items}{myvcontainer}</div></div>;
         } else { return null; }
     }
 
@@ -1395,7 +1410,7 @@
                                     <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                                         <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
                                         <a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
-                                        <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
+                                        <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,.xls,.xlsx,.docx,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
                                     </div>
                                 </div>
                             </li>

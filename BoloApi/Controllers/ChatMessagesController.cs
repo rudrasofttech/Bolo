@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Bolo.Data;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.AccessControl;
 
 namespace Bolo.Controllers
 {
@@ -44,38 +45,6 @@ namespace Bolo.Controllers
             return chatMessage;
         }
 
-        // PUT: api/ChatMessages/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutChatMessage(int id, ChatMessage chatMessage)
-        //{
-        //    if (id != chatMessage.ID)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(chatMessage).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ChatMessageExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
         // POST: api/ChatMessages
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
@@ -87,6 +56,18 @@ namespace Bolo.Controllers
 
         //    return CreatedAtAction("GetChatMessage", new { id = chatMessage.ID }, chatMessage);
         //}
+
+        [HttpDelete("{id}")]
+        [Route("MemberMessages/{id}")]
+        public async Task<ActionResult> DeleteMemberMessages(Guid id)
+        {
+            var msgs = await _context.ChatMessages.Where(t => t.SentBy.PublicID == id && t.SentTo.PublicID == new Guid(User.Identity.Name)).ToListAsync();
+            _context.ChatMessages.RemoveRange(msgs);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+
+        }
 
         // DELETE: api/ChatMessages/5
         [HttpDelete("{id}")]

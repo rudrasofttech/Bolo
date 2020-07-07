@@ -1,10 +1,13 @@
 ﻿using Bolo.Data;
+using Bolo.Helper;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
@@ -42,7 +45,7 @@ namespace Bolo.Hubs
                     _context.Contacts.Add(c);
                     await _context.SaveChangesAsync();
                     ContactDTO cdto = new ContactDTO(c);
-                    cdto.RecentMessage = text;
+                    cdto.RecentMessage = encodedtext;
                     cdto.RecentMessageDate = dt;
                     await Clients.User(sender).SendAsync("ContactSaved", cdto);
                 }
@@ -55,17 +58,17 @@ namespace Bolo.Hubs
                     _context.Contacts.Add(c);
                     await _context.SaveChangesAsync();
                     ContactDTO cdto = new ContactDTO(c);
-                    cdto.RecentMessage = text;
+                    cdto.RecentMessage = encodedtext;
                     cdto.RecentMessageDate = dt;
                     await Clients.User(receiver).SendAsync("ContactSaved", cdto);
                 }
 
                 MemberDTO recedto = new MemberDTO(mreceiver);
-                if(recedto.Activity == ActivityStatus.Offline)
+                if(recedto.Activity == ActivityStatus.Offline || recedto.Activity == ActivityStatus.Meeting)
                 {
                     //add to database here
                     ChatMessage cm = new ChatMessage() { 
-                    Message = text,
+                    Message = encodedtext,
                     MessageType= ChatMessageType.Text,
                     PublicID = d,
                     SentBy = msender,
@@ -75,6 +78,8 @@ namespace Bolo.Hubs
                     };
                     _context.ChatMessages.Add(cm);
                     await _context.SaveChangesAsync();
+                    string email = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
+                    Utility.SendEmail(mreceiver.Email, mreceiver.Name, msender.Email, msender.Name, String.Format("{0} sent a message on Waarta.", msender.Name), email);
                 }
             }
         }

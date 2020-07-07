@@ -50,7 +50,7 @@ namespace Bolo.Helper
 
                 MailboxAddress to = new MailboxAddress(toname, toemail);
                 message.To.Add(to);
-
+                message.ReplyTo.Add(from);
                 message.Subject = Subject;
                 BodyBuilder bodyBuilder = new BodyBuilder();
                 bodyBuilder.HtmlBody = Body;

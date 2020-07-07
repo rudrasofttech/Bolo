@@ -192,6 +192,32 @@ namespace Bolo.Models
         }
     }
 
+    public class ChatMessageDTO
+    {
+        public Guid ID { get; set; }
+        public MemberDTO SentBy { get; set; }
+        public DateTime SentDate { get; set; }
+        public string Message { get; set; }
+        public ChatMessageType MessageType { get; set; }
+        public ChatMessageSentStatus SentStatus { get; set; }
+
+        public ChatMessageDTO()
+        {
+
+        }
+
+        public ChatMessageDTO(ChatMessage cm)
+        {
+            ID = cm.PublicID;
+            SentBy = new MemberDTO(cm.SentBy);
+            SentDate = cm.SentDate;
+            SentStatus = cm.SentStatus;
+            Message = cm.Message;
+            MessageType = cm.MessageType;
+
+        }
+    }
+
     public class Contact
     {
         public int ID { get; set; }
@@ -211,6 +237,8 @@ namespace Bolo.Models
         public DateTime RecentMessageDate { get; set; }
         public int UnseenMessageCount { get; set; }
 
+        public List<ChatMessageDTO> MessagesOnServer { get; set; }
+
         public ContactDTO(Contact c)
         {
             ID = c.ID;
@@ -222,6 +250,7 @@ namespace Bolo.Models
             this.BoloRelation = c.BoloRelation;
             this.RecentMessage = string.Empty;
             this.RecentMessageDate = DateTime.MinValue;
+            this.MessagesOnServer = new List<ChatMessageDTO>();
         }
     }
 
@@ -308,7 +337,7 @@ namespace Bolo.Models
 
     public class LoginReturnDTO
     {
-        public Member Member { get; set; }
+        public MemberDTO Member { get; set; }
         public string Token { get; set; }
     }
 

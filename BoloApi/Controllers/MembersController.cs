@@ -98,12 +98,12 @@ namespace Bolo.Controllers
                 {
                     member.Status = RecordStatus.Active;
                     await _context.SaveChangesAsync();
-                    //this data is changed just to avoid sending confidetial information to client.
-                    //it is not saved in db
-                    member.ID = 0;
-                    member.OTP = "";
-                    member.OTPExpiry = DateTime.UtcNow.AddDays(-365);
-                    LoginReturnDTO result = new LoginReturnDTO() { Member = member, Token = GenerateJSONWebToken(member) };
+                    ////this data is changed just to avoid sending confidetial information to client.
+                    ////it is not saved in db
+                    //member.ID = 0;
+                    //member.OTP = "";
+                    //member.OTPExpiry = DateTime.UtcNow.AddDays(-365);
+                    LoginReturnDTO result = new LoginReturnDTO() { Member = new MemberDTO(member), Token = GenerateJSONWebToken(member) };
                     return result;
                 }
             }
