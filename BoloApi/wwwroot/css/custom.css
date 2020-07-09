@@ -610,7 +610,7 @@ code {
         }
 
         #msgcont > #msglist {
-            height: calc(100vh - 150px);
+            height: calc(100vh - 160px);
             overflow-y: auto;
         }
 

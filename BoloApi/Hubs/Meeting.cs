@@ -125,7 +125,7 @@ namespace Bolo.Hubs
         /// <returns></returns>
         public async Task SendTextMessage(string room, UserInfo sender, string text)
         {
-            await Clients.Group(room).SendAsync("ReceiveTextMessage", sender, HttpUtility.HtmlEncode(text), DateTime.UtcNow);
+            await Clients.Group(room).SendAsync("ReceiveTextMessage", sender, text, DateTime.UtcNow);
         }
 
 

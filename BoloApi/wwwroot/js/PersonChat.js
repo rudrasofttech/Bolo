@@ -62,6 +62,7 @@
         this.handleProfileModalClose = this.handleProfileModalClose.bind(this);
         this.handleProfileImageClick = this.handleProfileImageClick.bind(this);
         this.deleteMyMessagesFromServer = this.deleteMyMessagesFromServer.bind(this);
+        this.updateTextInputHeight = this.updateTextInputHeight.bind(this);
 
         this.messageStatusEnum = {
             Sent: 1,
@@ -219,7 +220,8 @@
         if (this.state.textinput.trim() !== "") {
             this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, this.state.textinput)
                 .catch(err => { console.log("Unable to send message to group."); console.error(err); });
-            this.setState({ textinput: '' });
+            this.setState({ textinput: '' }, () => { this.updateTextInputHeight(); });
+            
         }
     }
 
@@ -532,6 +534,30 @@
         this.freader.readAsDataURL(blob);
     }
 
+    updateTextInputHeight() {
+        if (this.state.textinput !== "") {
+            // Reset field height
+            this.textinput.style.height = 'inherit';
+
+            // Get the computed styles for the element
+            const computed = window.getComputedStyle(this.textinput);
+
+            // Calculate the height
+            const height = parseInt(computed.getPropertyValue('border-top-width'), 10)
+                + parseInt(computed.getPropertyValue('padding-top'), 10)
+                + this.textinput.scrollHeight
+                + parseInt(computed.getPropertyValue('padding-bottom'), 10)
+                + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
+
+            //this.textinput.style.height = `${height}px`;
+
+            this.textinput.style.minHeight = `${this.textinput.scrollHeight}px`;
+        } else {
+            this.textinput.style.height = "40px";
+            this.textinput.style.minHeight = "40px";
+        }
+    }
+
     handleFileChunkUpload(data, msg, start, next_slice, slice_size) {
 
         const fd = new FormData();
@@ -580,7 +606,7 @@
     handlePhotoClick(e) {
         e.preventDefault();
         if (!this.state.loggedin) {
-            alert("Log in to use this feature. Share files upto 100 MB in size.");
+            alert("Log in to use this feature. Share files upto 300 MB in size.");
         } else {
             this.fileinput.click();
         }
@@ -589,7 +615,7 @@
     handleDocClick(e) {
         e.preventDefault();
         if (!this.state.loggedin) {
-            alert("Log in to use this feature. Share files upto 100 MB in size.");
+            alert("Log in to use this feature. Share files upto 300 MB in size.");
         } else {
             this.fileinput.click();
         }
@@ -618,8 +644,8 @@
             return;
         }
         for (var i = 0; i < this.fileinput.files.length; i++) {
-            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 100) {
-                alert("File size cannot exceed 100 MB");
+            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 300) {
+                alert("File size cannot exceed 300 MB");
                 return;
             }
         }
@@ -658,7 +684,8 @@
             case 'textinput':
                 this.setState({
                     textinput: e.target.value
-                });
+                }, () => { this.updateTextInputHeight(); });
+                
                 break;
             default:
         }
@@ -714,6 +741,8 @@
         this.setState({ profiletoshow: this.state.person, showprofilemodal: true });
     }
 
+    
+
     componentDidMount() {
         this.startHub();
         this.scrollToBottom();
@@ -755,7 +784,7 @@
 
     renderEmojiModal() {
         if (this.state.showemojimodal) {
-            return <div style={{ position: "fixed", bottom: "42px", left: "0px" }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+            return <div style={{ position: "fixed", bottom: "42px", right: "0px" }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
         } else {
             return null;
         }
@@ -772,6 +801,38 @@
                 </div>
             </div>
         </div>;
+    }
+
+    renderLinksInMessage(msg) {
+        var tempmid = msg.id;
+        if (msg.text.startsWith("https://" + window.location.host + "/api/meetings/media/")) {
+            if (msg.text.toLowerCase().endsWith(".jpg") || msg.text.toLowerCase().endsWith(".jpeg") || msg.text.toLowerCase().endsWith(".png") || msg.text.toLowerCase().endsWith(".gif") || msg.text.toLowerCase().endsWith(".bmp")) {
+                return <span id={tempmid}>
+                    <img src={msg.text} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "260px" }} />
+                </span>;
+            }
+            else if (msg.text.toLowerCase().endsWith(".mp3")) {
+                return <span id={tempmid}>
+                    <audio src={msg.text} controls playsInline style={{ maxWidth: "260px" }} />
+                </span>;
+            }
+            else if (msg.text.toLowerCase().endsWith(".ogg") || msg.text.toLowerCase().endsWith(".mp4") || msg.text.toLowerCase().endsWith(".webm") || msg.text.toLowerCase().endsWith(".mov")) {
+                return <span id={tempmid}>
+                    <video src={msg.text.toLowerCase()} controls playsInline style={{ maxWidth: "260px" }} />
+                </span>;
+            }
+            else {
+                return <span id={tempmid}>
+                    <a href={msg.text} target="_blank">
+                        <img src="/icons/download-cloud.svg" className='img-fluid' title="download file" />
+                        <br />
+                        {this.getFileExtensionBasedName(msg.text.toLowerCase())}
+                    </a>
+                </span>;
+            }
+        } else {
+            return <span id={tempmid}>{msg.text}</span>
+        }
     }
 
     renderMessages() {
@@ -804,14 +865,14 @@
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
                     <div style={sentmessagestyle} >
-                        <span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text) }}></span>
+                        {this.renderLinksInMessage(obj)}
                         <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
                 </li>);
             } else {
                 items.push(<li style={reclistyle} key={key}>
                     <div style={recmessagestyle} className="alert alert-info">
-                        <span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text) }}></span>
+                        {this.renderLinksInMessage(obj)}
                         <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
                 </li>);
@@ -996,8 +1057,11 @@
                     </div>
                     <form onSubmit={this.handleSend}>
                         <div className="border-top chatinputcontainer" style={{ position: "relative", height: "40px" }}>
-                            <input type="text" ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" className="form-control mb-1" value={this.state.textinput} onChange={this.handleChange} width="100%" />
-                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "4px" }} >😀</button>
+                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off"
+                                className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
+                                style={{ height: "40px", overflow: "hidden", resize: "none", position : "absolute", bottom :"0px", left: "0px", maxHeight:"200px" }}
+                                onKeyDown={this.handleKeyDown}></textarea>
+                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} >😀</button>
                             <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
                         </div>
                     </form>

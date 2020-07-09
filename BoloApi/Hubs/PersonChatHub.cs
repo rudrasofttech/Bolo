@@ -27,7 +27,7 @@ namespace Bolo.Hubs
 
         public async Task SendTextMessage(string receiver, string sender, string text)
         {
-            string encodedtext = HttpUtility.HtmlEncode(text);
+            string encodedtext = text; //HttpUtility.HtmlEncode(text);
             DateTime dt = DateTime.UtcNow;
             Guid d = Guid.NewGuid();
             _ = Clients.User(receiver).SendAsync("ReceiveTextMessage", sender, encodedtext, dt, d);

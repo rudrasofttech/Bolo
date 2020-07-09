@@ -1,4 +1,4 @@
-﻿function transformMessage(text) {
+﻿function transformMessage(text, id) {
     try {
         const reglink = /([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi;
         let match;

@@ -110,6 +110,50 @@ namespace Bolo.Controllers
             return Ok(new { id = meeting.PublicID });
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("media/{id}")]
+        public ActionResult GetMedia(string id,[FromQuery]string f)
+        {
+            var fpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, f);
+            switch (Path.GetExtension(fpath).ToLower())
+            {
+                case ".jpg":
+                    return PhysicalFile(fpath, "image/jpg");
+                case ".jpeg":
+                    return PhysicalFile(fpath, "image/jpg");
+                case ".png":
+                    return PhysicalFile(fpath, "image/png");
+                case ".gif":
+                    return PhysicalFile(fpath, "image/gif");
+                case ".mp3":
+                    return PhysicalFile(fpath, "audio/mp3");
+                case ".webm":
+                    return PhysicalFile(fpath, "video/webm");
+                case ".mp4":
+                    return PhysicalFile(fpath, "video/mp4");
+                case ".ogg":
+                    return PhysicalFile(fpath, "video/ogg");
+                case ".mov":
+                    return PhysicalFile(fpath, "video/mov");
+                case ".doc":
+                case ".docx":
+                case ".pdf":
+                case ".htm":
+                case ".html":
+                case ".txt":
+                case ".css":
+                case ".zip":
+                case ".xls":
+                case ".xlsx":
+                    return PhysicalFile(fpath, "application/*");
+
+                default:
+                    return PhysicalFile(fpath, "application/*");
+            }
+            
+        }
+
         /// <summary>
         /// 
         /// </summary>

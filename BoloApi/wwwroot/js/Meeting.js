@@ -77,25 +77,31 @@
                 .then(response => {
                     if (response.status === 200) {
                         response.json().then(data => {
-                            let mlist = this.state.messages;
-                            if (data.name !== null && data.name !== '') {
-                                document.title = data.name;
-                                var mi = new MessageInfo();
-                                mi.sender = null;
-                                mi.text = data.name;
-                                mi.type = MessageEnum.Text;
-                                mi.timeStamp = new Date();
-                                mi.status = MessageStatusEnum.sent;
-                                mlist.push(mi);
-                            }
-                            if (data.purpose !== null && data.purpose !== '') {
-                                var mi = new MessageInfo();
-                                mi.sender = null;
-                                mi.text = data.purpose;
-                                mi.type = MessageEnum.Text;
-                                mi.timeStamp = new Date();
-                                mi.status = MessageStatusEnum.sent;
-                                mlist.push(mi);
+                            //now that we have validated meeting id then set messages from local storage if there are any 
+                            let mlist = localStorage.getItem(this.state.id) === null ? [] : JSON.parse(localStorage.getItem(this.state.id)); //this.state.messages;
+                            //if there aren't any messages in localstorage then set name and purpose of the meeing
+                            if (mlist.length === 0) {
+                                if (data.name !== null && data.name !== '') {
+                                    document.title = data.name;
+                                    var mi = new MessageInfo();
+                                    mi.sender = null;
+                                    mi.text = data.name;
+                                    mi.type = MessageEnum.Text;
+                                    mi.timeStamp = new Date();
+                                    mi.status = MessageStatusEnum.sent;
+                                    mlist.push(mi);
+                                }
+                                if (data.purpose !== null && data.purpose !== '') {
+                                    var mi = new MessageInfo();
+                                    mi.sender = null;
+                                    mi.text = data.purpose;
+                                    mi.type = MessageEnum.Text;
+                                    mi.timeStamp = new Date();
+                                    mi.status = MessageStatusEnum.sent;
+                                    mlist.push(mi);
+                                }
+
+                                localStorage.setItem(this.state.id, JSON.stringify(mlist));
                             }
 
                             this.setState({ idvalid: true, loading: false, messages: mlist });
@@ -212,7 +218,7 @@
     handlePhotoClick(e) {
         e.preventDefault();
         if (!this.state.loggedin) {
-            alert("Log in to use this feature. Share files upto 100 MB in size.");
+            alert("Log in to use this feature. Share files upto 300 MB in size.");
         } else {
             this.fileinput.click();
         }
@@ -221,7 +227,7 @@
     handleDocClick(e) {
         e.preventDefault();
         if (!this.state.loggedin) {
-            alert("Log in to use this feature. Share files upto 100 MB in size.");
+            alert("Log in to use this feature. Share files upto 300 MB in size.");
         } else {
             this.fileinput.click();
         }
@@ -250,8 +256,8 @@
             return;
         }
         for (var i = 0; i < this.fileinput.files.length; i++) {
-            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 100) {
-                alert("File size cannot exceed 100 MB");
+            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 300) {
+                alert("File size cannot exceed 300 MB");
                 return;
             }
         }
@@ -368,7 +374,7 @@
                             if (next_slice > msg.filedata.size) {
                                 flist.splice(i, 1);
                                 msg.filedata = null;
-                                this.hubConnection.invoke("SendTextMessage", this.state.id, this.myself, 'https://' + window.location.host + '/data/meeting/' + this.state.id + '/' + msg.serverfname)
+                                this.hubConnection.invoke("SendTextMessage", this.state.id, this.myself, 'https://' + window.location.host + '/api/meetings/media/' + this.state.id + '?f=' + msg.serverfname)
                                     .catch(err => { console.log("Unable to send file message to group."); console.log(err); });
                                 this.setState({ filestoupload: flist });
                                 this.processFileUpload();
@@ -565,7 +571,7 @@
     //this will indicate that you are still alive in 
     //meeting
     sendPulse() {
-        console.log("SendPulse Hubconnection State:" + this.hubConnection.connectionState);
+        //console.log("SendPulse Hubconnection State:" + this.hubConnection.connectionState);
         if (this.hubConnection.state === signalR.HubConnectionState.Connected) {
             this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.log('sendPulse ' + err));
         }
@@ -653,7 +659,7 @@
         this.hubConnection
             .invoke('NotifyPresence', this.state.id, this.myself)
             .catch(err => console.log(err));
-        
+
     }
     //simple peer events end here
 
@@ -722,7 +728,7 @@
 
         let mlist = this.state.messages;
         mlist.push(mi);
-        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
+        this.setState({ messages: mlist, showalert: !this.state.showchatlist }, () => { localStorage.setItem(this.state.id, JSON.stringify(mlist)); });
         this.playmsgbeep();
     }
 
@@ -1024,8 +1030,10 @@
     //scroll to bottom of chat window when a new message is added.
     //important feature to have.
     scrollToBottom = () => {
-        if (this.messagesEnd !== undefined && this.messagesEnd !== null) {
-            this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+        if (!this.detectMobileorTablet()) {
+            if (this.messagesEnd !== undefined && this.messagesEnd !== null) {
+                this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+            }
         }
     }
 
@@ -1041,12 +1049,12 @@
             let f = this.state.filestoupload[i];
             items.push(
                 <div className="row" key={i}>
-                    <div className="col-10">
+                    <div className="col-9 col-sm-10">
                         <div className="progress">
                             <div className="progress-bar progress-bar-animated" role="progressbar" aria-valuenow={f.progresspercent} aria-valuemin="0" aria-valuemax="100" style={{ width: f.progresspercent + "%" }}></div>
                         </div>
                     </div>
-                    <div className="col-2"><button type="button" className="btn btn-sm btn-light" onClick={(e) => this.handleFileUploadCancel(e, f.name)}>Cancel</button></div>
+                    <div className="col-3 col-sm-2"><button type="button" className="btn btn-sm btn-light" onClick={(e) => this.handleFileUploadCancel(e, f.name)}>Cancel</button></div>
                 </div>
             );
         }
@@ -1175,6 +1183,55 @@
         );
     }
 
+    getFileExtensionBasedName(filename) {
+        if (filename.endsWith(".doc") || filename.endsWith(".docx")) {
+            return "Document";
+        } else if (filename.endsWith(".xls") || filename.endsWith(".xlsx")) {
+            return "Excel WorkBook";
+        } else if (filename.endsWith(".pdf")) {
+            return "PDF Document";
+        } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
+            return "HTML Document";
+        }
+        else if (filename.endsWith(".txt")) {
+            return "Text Document";
+        } else if (filename.endsWith(".zip")) {
+            return "Compressed Archive";
+        }
+    }
+
+    renderLinksInMessage(msg) {
+        var tempmid = Date.now();
+        if (msg.text.startsWith("https://" + window.location.host + "/api/meetings/media/")) {
+            if (msg.text.toLowerCase().endsWith(".jpg") || msg.text.toLowerCase().endsWith(".jpeg") || msg.text.toLowerCase().endsWith(".png") || msg.text.toLowerCase().endsWith(".gif") || msg.text.toLowerCase().endsWith(".bmp")) {
+                return <span id={tempmid}>
+                    <img src={msg.text} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "260px" }} />
+                </span>;
+            }
+            else if (msg.text.toLowerCase().endsWith(".mp3")) {
+                return <span id={tempmid}>
+                    <audio src={msg.text} controls playsInline style={{ maxWidth: "260px" }} />
+                </span>;
+            }
+            else if (msg.text.toLowerCase().endsWith(".ogg") || msg.text.toLowerCase().endsWith(".mp4") || msg.text.toLowerCase().endsWith(".webm") || msg.text.toLowerCase().endsWith(".mov")) {
+                return <span id={tempmid}>
+                    <video src={msg.text.toLowerCase()} controls playsInline style={{ maxWidth: "260px" }} />
+                </span>;
+            }
+            else {
+                return <span id={tempmid}>
+                    <a href={msg.text} target="_blank">
+                        <img src="/icons/download-cloud.svg" className='img-fluid' title="download file" />
+                        <br />
+                        {this.getFileExtensionBasedName(msg.text.toLowerCase()) }
+                    </a>
+                </span>;
+            }
+        } else {
+            return <span id={tempmid}>{msg.text}</span>
+        }
+    }
+
     renderMessageList(hasVideos) {
         let alert = <React.Fragment></React.Fragment>;
         const items = [];
@@ -1184,7 +1241,8 @@
                 items.push(<li className="notify" key={k}><span>{obj.text}</span></li>);
             } else if (obj.sender.connectionID === this.myself.connectionID) {
                 items.push(<li className="sent" key={k}>
-                    <span><span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text) }}></span>
+                    <span>
+                        {this.renderLinksInMessage(obj)}
                         <small className="time">{moment(obj.timeStamp, "YYYYMMDD").fromNow()}</small>
                     </span>
                 </li>);
@@ -1192,8 +1250,8 @@
                 let userpic = obj.sender.pic !== "" ? <img src={obj.sender.pic} width="20" height="20" className="rounded img-fluid" /> : null;
                 items.push(<li className="receive" key={k}>
                     <span>
-                        <small className="name">{userpic} {obj.sender.name} says</small>
-                        <span dangerouslySetInnerHTML={{ __html: transformMessage(obj.text) }}></span>
+                        <small className="name">{userpic} {obj.sender.name} -</small>
+                        {this.renderLinksInMessage(obj)}
                         <small className="time">{moment(obj.timeStamp, "YYYYMMDD").fromNow()}</small>
                     </span>
                 </li>);
@@ -1237,7 +1295,7 @@
                                 <div className="container-fluid">
                                     <div className="row">
                                         <div className="col-12">
-                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On" autoFocus="off"
+                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On"
                                                 onChange={this.handleChange} className="form-control mb-1" id="msginput" />
 
                                             <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} style={{ position: "absolute", right: "60px", bottom: "7px" }} onClick={this.handleEmojiModal}>😀</button>
