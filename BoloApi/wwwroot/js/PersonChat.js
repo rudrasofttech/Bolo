@@ -1059,8 +1059,7 @@
                         <div className="border-top chatinputcontainer" style={{ position: "relative", height: "40px" }}>
                             <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off"
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
-                                style={{ height: "40px", overflow: "hidden", resize: "none", position : "absolute", bottom :"0px", left: "0px", maxHeight:"200px" }}
-                                onKeyDown={this.handleKeyDown}></textarea>
+                                style={{ height: "40px", overflow: "hidden", resize: "none", position : "absolute", bottom :"0px", left: "0px", maxHeight:"200px" }}></textarea>
                             <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} >😀</button>
                             <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
                         </div>

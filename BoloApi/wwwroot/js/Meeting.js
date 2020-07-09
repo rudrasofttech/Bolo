@@ -62,6 +62,7 @@
         this.hubConnectionReconnected = this.hubConnectionReconnected.bind(this);
         this.handleFileUploadCancel = this.handleFileUploadCancel.bind(this);
         this.receiveActionNotification = this.receiveActionNotification.bind(this);
+        this.updateTextInputHeight = this.updateTextInputHeight.bind(this);
     }
 
     validateMeeting(t) {
@@ -121,6 +122,30 @@
         this.setState({ showinvite: true });
     }
 
+    updateTextInputHeight() {
+        if (this.state.textinput !== "") {
+            // Reset field height
+            this.textinput.style.height = 'inherit';
+
+            // Get the computed styles for the element
+            const computed = window.getComputedStyle(this.textinput);
+
+            // Calculate the height
+            const height = parseInt(computed.getPropertyValue('border-top-width'), 10)
+                + parseInt(computed.getPropertyValue('padding-top'), 10)
+                + this.textinput.scrollHeight
+                + parseInt(computed.getPropertyValue('padding-bottom'), 10)
+                + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
+
+            //this.textinput.style.height = `${height}px`;
+
+            this.textinput.style.minHeight = `${this.textinput.scrollHeight}px`;
+        } else {
+            this.textinput.style.height = "40px";
+            this.textinput.style.minHeight = "40px";
+        }
+    }
+
     //enable or disable video track of my stream
     handleVideoToggle(e) {
         if (this.mystream !== null) {
@@ -178,7 +203,7 @@
     handleChange(e) {
         switch (e.target.name) {
             case 'textinput':
-                this.setState({ textinput: e.target.value });
+                this.setState({ textinput: e.target.value }, () => { this.updateTextInputHeight(); });
                 break;
             default:
         }
@@ -714,7 +739,7 @@
         if (this.state.textinput.trim() !== "") {
             this.hubConnection.invoke("SendTextMessage", this.state.id, this.myself, this.state.textinput)
                 .catch(err => { console.log("Unable to send message to group."); console.error(err); });
-            this.setState({ textinput: '' });
+            this.setState({ textinput: '' }, () => { this.updateTextInputHeight(); });
         }
     }
 
@@ -1079,7 +1104,7 @@
 
     renderEmojiModal() {
         if (this.state.showemojimodal) {
-            return <div style={{ position: "fixed", bottom: "50px", right: "10px", zIndex: '15' }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+            return <div style={{ position: "fixed", bottom: "45px", right: "15px", zIndex: '15' }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
         } else {
             return null;
         }
@@ -1295,11 +1320,11 @@
                                 <div className="container-fluid">
                                     <div className="row">
                                         <div className="col-12">
-                                            <input type="text" ref={(input) => { this.textinput = input; }} placeholder="Type a text message..." name="textinput" value={this.state.textinput} autoComplete="off" autoCorrect="On"
-                                                onChange={this.handleChange} className="form-control mb-1" id="msginput" />
-
-                                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} style={{ position: "absolute", right: "60px", bottom: "7px" }} onClick={this.handleEmojiModal}>😀</button>
-                                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary" title="Send Message" style={{ position: "absolute", right: "20px", bottom: "7px" }}>
+                                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" id="msginput" placeholder="Type a text message..." autoComplete="off"
+                                                className="form-control" value={this.state.textinput} onChange={this.handleChange} rows="1" width="100%"
+                                                style={{ height: "40px", overflow: "hidden", resize: "none", maxHeight: "200px" }}></textarea>
+                                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} style={{ position: "absolute", right: "60px", bottom: "5px" }} onClick={this.handleEmojiModal}>😀</button>
+                                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary" title="Send Message" style={{ position: "absolute", right: "20px", bottom: "5px" }}>
                                                 <img src="/icons/send.svg" alt="" width="15" height="15" title="Send Message" />
                                             </button>
                                             <button type="button" className="btn btn-primary d-none" title="Show Chat Window" onClick={this.showChatList}><img src="/icons/message-square.svg" alt="" width="24" height="24" title="Chat Window" /></button>
