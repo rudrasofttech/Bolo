@@ -494,7 +494,7 @@
 
     deleteMyMessagesFromServer() {
         fetch('//' + window.location.host + '/api/chatmessages/MemberMessages/' + this.state.person.id, {
-            method: 'delete',
+            method: 'post',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem("token")
             }

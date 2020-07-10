@@ -63,7 +63,8 @@
         this.hubConnection.on('ReceiveTextMessage', (sender, text, timestamp, id) => {
             var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: 2 /*Received*/ };
             //if received message is from current person then show in ui else save in local storage
-            this.handleReceivedMessage(mi);});
+            this.handleReceivedMessage(mi);
+        });
 
         //update local contact list when some contact updates their information
         //if member is logged changes will be reflected immediately 
@@ -78,6 +79,25 @@
                 }
             }
         });
+    }
+
+    compare_contact(a, b) {
+        // a should come before b in the sorted order
+        console.log(a);
+        if (a[1].unseenMessageCount > b[1].unseenMessageCount) {
+            return -1;
+
+        } else if (a[1].person.activity !== 5 && b[1].person.activity === 5) {
+            return -1;
+        }
+        else if (a[1].person.activity === 5 && b[1].person.activity !== 5) {
+            // a should come after b in the sorted order
+            return 1;
+        }
+        else {
+            // a and b are the same
+            return 0;
+        }
     }
 
     //see if user is logged in
@@ -281,7 +301,8 @@
     renderPeopleList() {
         const items = [];
         const hundred = { width: "100%" };
-        for (const [key, contact] of this.contactlist.entries()) {
+        var sortedcontacts = new Map([...this.contactlist.entries()].sort(this.compare_contact));
+        for (const [key, contact] of sortedcontacts.entries()) {
             let obj = contact.person;
             if (this.state.myself === null || obj.id !== this.state.myself.id) {
                 let thought = null;

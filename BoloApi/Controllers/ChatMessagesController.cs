@@ -57,7 +57,7 @@ namespace Bolo.Controllers
         //    return CreatedAtAction("GetChatMessage", new { id = chatMessage.ID }, chatMessage);
         //}
 
-        [HttpDelete("{id}")]
+        [HttpPost]
         [Route("MemberMessages/{id}")]
         public async Task<ActionResult> DeleteMemberMessages(Guid id)
         {
