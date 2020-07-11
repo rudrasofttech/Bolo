@@ -5,6 +5,7 @@ using MailKit.Net.Smtp;
 using MimeKit;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace Bolo.Helper
 {

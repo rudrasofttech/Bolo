@@ -157,8 +157,6 @@
                     response.json().then(data => {
                         //console.log(data);
                         for (var k in data) {
-
-
                             if (this.contactlist.get(data[k].person.id) === undefined) {
                                 this.contactlist.set(data[k].person.id.toLowerCase(), data[k]);
                             } else {
@@ -340,7 +338,23 @@
         if (items.length > 0) {
             return <div className="row searchresult">{items}</div>;
         } else {
-            return null;
+            return <div className="row justify-content-center">
+                <div className="col-12 col-sm-4">
+                    <div class="alert alert-light" role="alert">
+                        No profiles to show here. Search for people based on their name, location, profession or gender etc.
+                        Here are some examples of search phrases.
+                        <ul>
+                            <li>Raj Kiran Singh</li>
+                            <li>Raj From India</li>
+                            <li>Software Developer in Noida</li>
+                            <li>Women in India</li>
+                            <li>Men in India</li>
+                            <li>Mumbai Maharashtra</li>
+                            <li>Delhi Mumbai Kolkatta</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>;
         }
     }
 

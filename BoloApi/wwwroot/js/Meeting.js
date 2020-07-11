@@ -897,7 +897,9 @@
         // Edge 20+
         const isEdge = !isIE && !!window.StyleMedia;
 
-        return (isIE || isEdge);
+        //return (isIE || isEdge);
+
+        return false;
     }
 
     detectMobileorTablet() {

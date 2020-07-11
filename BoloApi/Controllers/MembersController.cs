@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System.IO;
 using Microsoft.AspNetCore.SignalR;
 using Bolo.Hubs;
+using Org.BouncyCastle.Operators;
 
 namespace Bolo.Controllers
 {
@@ -462,9 +463,9 @@ namespace Bolo.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("savethoughtstatus")]
-        public async Task<IActionResult> SaveThoughtStatus([FromForm] string d)
+        public async Task<IActionResult> SaveThoughtStatus([FromQuery] string d)
         {
 
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
@@ -609,13 +610,36 @@ namespace Bolo.Controllers
         [AllowAnonymous]
         public ActionResult<IEnumerable<MemberDTO>> Search(string s)
         {
-            var query = _context.Members.Where(t => (t.Name.Contains(s) || t.Bio.Contains(s) || t.City.ToLower() == s.ToLower() || t.State.ToLower() == s.ToLower()
-            || t.Country.ToLower() == s.ToLower() || t.ThoughtStatus.Contains(s)) && t.Visibility == MemberProfileVisibility.Public);
+            string[] keywords = s.Trim().Split(" ".ToCharArray());
+            List<string> avoid = "a,an,the,in,of,is,it,there,their,where,were,do,you,from".Split(",".ToCharArray()).ToList<string>();
+            List<string> males = "man,boy,male,men".Split(",".ToCharArray()).ToList<string>();
+            List<string> females = "woman,girl,female,women".Split(",".ToCharArray()).ToList<string>();
+            var query = _context.Members.Where(t => t.Visibility == MemberProfileVisibility.Public);
+            foreach(var k in keywords)
+            {
+                if (avoid.Contains(k.Trim()))
+                {
+                    continue;
+                }
+                else if(males.Contains(k.Trim().ToLower()))
+                {
+                    query = query.Where(t => t.Gender == Gender.Male);
+                }
+                else if (females.Contains(k.Trim().ToLower()))
+                {
+                    query = query.Where(t => t.Gender == Gender.Female);
+                }
+                else if (!string.IsNullOrEmpty(k.Trim()))
+                {
+                    query = query.Where(t => t.Name.Contains(k) || t.Bio.Contains(k) || t.City.Contains(k) || t.State.Contains(k) || t.Country.Contains(k) || t.ThoughtStatus.Contains(k));
+                }
+            }
+            
             if (User.Identity.IsAuthenticated)
             {
                 query = query.Where(t => t.PublicID != new Guid(User.Identity.Name));
             }
-            return query.Select(t => new MemberDTO(t)).ToList();
+            return query.Select(t => new MemberDTO(t)).Take(30).ToList();
         }
 
         /// <summary>
