@@ -194,6 +194,7 @@
 
     //search for members
     search() {
+        this.setState({ loading: true});
         fetch('//' + window.location.host + '/api/Members/search?s=' + this.state.searchtext, {
             method: 'get',
             headers: {
@@ -327,7 +328,7 @@
                         {pic}
                         <div className="card-body" style={{ position: "absolute", backgroundColor: "rgba(0, 0,0,0.3)", width: "100%", bottom: "0px", color: "#fff", padding: "0.25rem" }}>
                             <h6 className="card-title" style={{ marginBottom: "0.3rem" }}>{online} {obj.name} {unseenmsgcount} </h6>
-                            <p className="card-text"><small>{obj.city} {obj.state} {obj.country}</small></p>
+                            <p className="card-text mb-0"><small>{obj.city} {obj.state} {obj.country}</small></p>
                             {thought}
                         </div>
                     </div>
@@ -339,9 +340,11 @@
             return <div className="row searchresult">{items}</div>;
         } else {
             return <div className="row justify-content-center">
-                <div className="col-12 col-sm-4">
+                <div className="col-12">
                     <div class="alert alert-light" role="alert">
-                        No profiles to show here. Search for people based on their name, location, profession or gender etc.
+                        No profiles to show here. 
+                        <br />
+                        Search for people based on their name, location, profession or gender etc.
                         Here are some examples of search phrases.
                         <ul>
                             <li>Raj Kiran Singh</li>
@@ -359,6 +362,9 @@
     }
 
     render() {
+        let loading = this.state.loading ? <div className="progress" style={{ height: "5px" }}>
+            <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
+        </div> : null;
         let personchatorprofile = null;
         if (this.state.selectedperson !== null && !this.state.showsearch) {
             personchatorprofile = <div className="col-12 p-0">
@@ -402,6 +408,7 @@
                 <div className="container-fluid">
                     <div className="row">
                         {searchhtml}
+                        {loading}
                         {personchatorprofile}
                     </div>
                 </div>

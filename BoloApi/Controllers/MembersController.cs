@@ -44,7 +44,7 @@ namespace Bolo.Controllers
         {
             try
             {
-                var member = await _context.Members.FirstOrDefaultAsync(t => (t.Email.ToLower() == id.ToLower() || t.Phone == id));
+                var member = await _context.Members.FirstOrDefaultAsync(t => (t.Email.ToLower() == id.ToLower() || (t.Phone == id && id.Length == 10)));
                 if (member == null)
                 {
                     return NotFound();
@@ -631,7 +631,10 @@ namespace Bolo.Controllers
                 }
                 else if (!string.IsNullOrEmpty(k.Trim()))
                 {
-                    query = query.Where(t => t.Name.Contains(k) || t.Bio.Contains(k) || t.City.Contains(k) || t.State.Contains(k) || t.Country.Contains(k) || t.ThoughtStatus.Contains(k));
+                    query = query.Where(t => t.Name.Contains(k) || t.Bio.Contains(k) || 
+                    t.City.Contains(k) || t.State.Contains(k) || 
+                    t.Country.Contains(k) || t.ThoughtStatus.Contains(k) ||
+                    t.Phone == k || t.Email.ToLower() == k.ToLower());
                 }
             }
             

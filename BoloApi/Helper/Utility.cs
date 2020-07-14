@@ -6,6 +6,10 @@ using MimeKit;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Diagnostics;
+using System.Web;
+using System.IO;
+using System.Net;
+using System.Text;
 
 namespace Bolo.Helper
 {
@@ -72,9 +76,37 @@ namespace Bolo.Helper
             }
         }
 
-        public static void SendSMS(string phone, string sms)
+        public static string SendSMS(string phone, string message)
         {
-
+            string url = "http://login.bulksmsgateway.in/sendmessage.php";
+            string result = "";
+            message = System.Web.HttpUtility.UrlPathEncode(message);
+            String strPost = "?user=" + System.Web.HttpUtility.UrlPathEncode("rajkiran.singh") + "&password=" + System.Web.HttpUtility.UrlPathEncode("Welcome1!") + "&sender=" + System.Web.HttpUtility.UrlPathEncode("WAARTA") + "&mobile=" + System.Web.HttpUtility.UrlPathEncode(phone) + "&type=" + HttpUtility.UrlPathEncode("3") + "&message=" + message;
+            StreamWriter myWriter = null;
+            HttpWebRequest objRequest = (HttpWebRequest)WebRequest.Create(url + strPost);
+            objRequest.Method = "POST";
+            objRequest.ContentLength = Encoding.UTF8.GetByteCount(strPost);
+            objRequest.ContentType = "application/x-www-form-urlencoded";
+            try
+            {
+                myWriter = new StreamWriter(objRequest.GetRequestStream());
+                myWriter.Write(strPost);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                myWriter.Close();
+            }
+            HttpWebResponse objResponse = (HttpWebResponse)objRequest.GetResponse();
+            using (StreamReader sr = new StreamReader(objResponse.GetResponseStream()))
+            {
+                result = sr.ReadToEnd();
+                // Close and clean up the StreamReader sr.Close();
+            }
+            return result;
         }
     }
 }

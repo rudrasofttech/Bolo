@@ -151,8 +151,8 @@
     renderOTPForm() {
         return <form autoComplete="off" onSubmit={this.handleGenerateOTP}>
             <div className="form-group">
-                <label>Email</label>
-                <input type="email" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Your email" />
+                <label>Mobile or Email</label>
+                <input type="text" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Mobile or Email" />
             </div>
             <button className="btn btn-primary" type="submit">Generate OTP</button>
         </form>;
@@ -161,8 +161,8 @@
     renderLoginForm() {
         return <form onSubmit={this.handleLogin}>
             <div className="form-group">
-                <label>Email</label>
-                <input type="email" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Registered email" />
+                <label>Mobile or Email</label>
+                <input type="text" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Mobile or Email" />
             </div>
             <div className="form-group">
                 <label>OTP</label>
