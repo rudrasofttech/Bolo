@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Waarta.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Style x:Key="primaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#0064DA" />
+                <Setter Property="BorderColor" Value="#1861ac" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#ffffff" />
+            </Style>
+            <Style x:Key="successButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#28a745" />
+                <Setter Property="BorderColor" Value="#28a745" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#ffffff" />
+            </Style>
+            <Style x:Key="textboxStyle" TargetType="Entry">
+                <Setter Property="TextColor" Value="#495057" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

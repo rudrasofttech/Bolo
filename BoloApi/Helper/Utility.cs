@@ -57,9 +57,11 @@ namespace Bolo.Helper
                 message.To.Add(to);
                 message.ReplyTo.Add(from);
                 message.Subject = Subject;
-                BodyBuilder bodyBuilder = new BodyBuilder();
-                bodyBuilder.HtmlBody = Body;
-                bodyBuilder.TextBody = Body;
+                BodyBuilder bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = Body,
+                    TextBody = Body
+                };
                 //bodyBuilder.Attachments.Add(env.WebRootPath + "\\file.png");
                 message.Body = bodyBuilder.ToMessageBody();
                 using (SmtpClient client = new SmtpClient())

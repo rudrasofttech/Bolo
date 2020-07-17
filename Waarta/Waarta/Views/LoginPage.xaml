@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Waarta.Views.LoginPage"
+             Title="Login">
+    <ContentPage.Content>
+        <StackLayout Margin="20">
+            <Entry Style="{StaticResource textboxStyle}" x:Name="MobileTxt" TextChanged="MobileTxt_TextChanged" Completed="MobileTxt_Completed" />
+            <Button Style="{StaticResource primaryButtonStyle}" IsVisible="true" x:Name="GenerateOTPBtn" Clicked="GenerateOTPBtn_Clicked" />
+            <Entry Style="{StaticResource textboxStyle}" IsVisible="false" IsPassword="True" TextChanged="OTPTxt_TextChanged" x:Name="OTPTxt" Completed="OTPTxt_Completed" />
+            <Button Style="{StaticResource primaryButtonStyle}" IsVisible="false" x:Name="LoginBtn" Clicked="LoginBtn_ClickedAsync" />
+        </StackLayout>
+        
+    </ContentPage.Content>
+</ContentPage>

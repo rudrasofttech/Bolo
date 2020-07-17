@@ -26,6 +26,7 @@ namespace Bolo.Controllers
 
         // GET: api/Contacts
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
         {
             return await _context.Contacts.ToListAsync();
@@ -33,6 +34,7 @@ namespace Bolo.Controllers
 
         // GET: api/Contacts/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Contact>> GetContact(int id)
         {
             var contact = await _context.Contacts.FindAsync(id);
@@ -99,6 +101,7 @@ namespace Bolo.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Contact>> PostContact(Contact contact)
         {
             _context.Contacts.Add(contact);
@@ -109,6 +112,7 @@ namespace Bolo.Controllers
 
         // DELETE: api/Contacts/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Contact>> DeleteContact(int id)
         {
             var contact = await _context.Contacts.FindAsync(id);

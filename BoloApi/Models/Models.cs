@@ -317,7 +317,6 @@ namespace Bolo.Models
         [Required(ErrorMessage = "Name is missing.")]
         public string Name { get; set; }
         [EmailAddress(ErrorMessage = "Incorrect Email")]
-        [Required(ErrorMessage = "Email is missing")]
         public string Email { get; set; }
         [MaxLength(15, ErrorMessage = "Phone too long")]
         public string Phone { get; set; }

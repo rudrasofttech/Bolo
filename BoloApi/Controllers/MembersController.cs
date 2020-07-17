@@ -39,6 +39,66 @@ namespace Bolo.Controllers
 
         [HttpGet()]
         [AllowAnonymous]
+        [Route("OTPMobile")]
+        public async Task<ActionResult> GetOTPMobile([FromQuery] string phone, [FromQuery] string code)
+        {
+            try
+            {
+                var member = await _context.Members.FirstOrDefaultAsync(t =>(t.Phone == phone && t.CountryCode == code));
+                if (member == null)
+                {
+                    member = new Member()
+                    {
+                        CountryCode = code,
+                        Status = RecordStatus.Unverified,
+                        CreateDate = DateTime.UtcNow,
+                        Email = string.Empty,
+                        Name = string.Empty,
+                        Phone = phone,
+                        OTP = EncryptionHelper.Encrypt(Helper.Utility.GenerateOTP()),
+                        OTPExpiry = Helper.Utility.OTPExpiry,
+                        PublicID = Guid.NewGuid(),
+                        Activity = ActivityStatus.Online,
+                        Bio = "",
+                        Channelname = "",
+                        City = "",
+                        Country = "",
+                        LastPulse = DateTime.UtcNow,
+                        Pic = "",
+                        ThoughtStatus = "",
+                        Visibility = MemberProfileVisibility.Public,
+                        State = ""
+                    };
+                    _context.Members.Add(member);
+                    await _context.SaveChangesAsync();
+                }
+                string OTP = EncryptionHelper.Decrypt(member.OTP);
+                if (DateTime.Compare(member.OTPExpiry, DateTime.UtcNow) < 0)
+                {
+                    OTP = Helper.Utility.GenerateOTP();
+                    member.OTP = EncryptionHelper.Encrypt(OTP);
+                    member.OTPExpiry = Helper.Utility.OTPExpiry;
+                    await _context.SaveChangesAsync();
+                }
+                if (!string.IsNullOrEmpty(member.Email))
+                {
+                    Helper.Utility.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
+                }
+                if (!string.IsNullOrEmpty(member.Phone))
+                {
+                    Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta OTP is: {0}", OTP));
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet()]
+        [AllowAnonymous]
         [Route("OTP")]
         public async Task<ActionResult> GetOTP([FromQuery] string id)
         {
@@ -59,11 +119,11 @@ namespace Bolo.Controllers
                 }
                 if (!string.IsNullOrEmpty(member.Email))
                 {
-                    Helper.Utility.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("You passcode is: {0}", OTP));
+                    Helper.Utility.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
                 }
                 if (!string.IsNullOrEmpty(member.Phone))
                 {
-                    Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta passcode is: {0}", OTP));
+                    Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta OTP is: {0}", OTP));
                 }
 
                 return Ok();
@@ -678,22 +738,18 @@ namespace Bolo.Controllers
                 byte[] barr = Convert.FromBase64String(arr[1]);
                 if (System.IO.File.Exists(path))
                 {
-                    using (FileStream fs = new FileStream(path, FileMode.Append))
-                    {
-                        fs.Write(barr, 0, barr.Length);
-                    }
+                    using FileStream fs = new FileStream(path, FileMode.Append);
+                    fs.Write(barr, 0, barr.Length);
                 }
                 else
                 {
-                    using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
-                    {
-                        fs.Write(barr, 0, barr.Length);
-                    }
+                    using FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
+                    fs.Write(barr, 0, barr.Length);
                 }
             }
 
 
-            return Ok(new { filename = filename });
+            return Ok(new { filename });
         }
 
         // DELETE: api/Members/5
