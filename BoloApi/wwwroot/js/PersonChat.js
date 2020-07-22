@@ -221,6 +221,9 @@
             this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, this.state.textinput)
                 .catch(err => { console.log("Unable to send message to group."); console.error(err); });
             this.setState({ textinput: '' }, () => { this.updateTextInputHeight(); });
+            if (this.detectXtralargeScreen()) {
+                this.textinput.focus();
+            }
             
         }
     }
@@ -263,6 +266,10 @@
         const isEdge = !isIE && !!window.StyleMedia;
 
         return (isIE || isEdge);
+    }
+
+    detectXtralargeScreen() {
+        return window.matchMedia("(min-width: 1024px)").matches;
     }
 
     createPeer(initiater) {
@@ -1057,11 +1064,11 @@
                     </div>
                     <form onSubmit={this.handleSend}>
                         <div className="border-top chatinputcontainer" style={{ position: "relative", height: "40px" }}>
-                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off"
+                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accesskey="t" title="Keyboard Shortcut ALT + t"
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
                                 style={{ height: "40px", overflow: "hidden", resize: "none", position : "absolute", bottom :"0px", left: "0px", maxHeight:"200px" }}></textarea>
-                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} >😀</button>
-                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Send Message" /></button>
+                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accesskey="e" title="Keyboard Shortcut ALT + e" >😀</button>
+                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + e" accesskey="s" /></button>
                         </div>
                     </form>
                     {this.renderEmojiModal()}

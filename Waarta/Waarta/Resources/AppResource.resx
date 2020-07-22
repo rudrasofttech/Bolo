@@ -165,8 +165,14 @@
   <data name="UniNotFound" xml:space="preserve">
     <value>Not Found</value>
   </data>
+  <data name="UniOfflineText" xml:space="preserve">
+    <value>Offline</value>
+  </data>
   <data name="UniOK" xml:space="preserve">
     <value>OK</value>
+  </data>
+  <data name="UniOnlineText" xml:space="preserve">
+    <value>Online</value>
   </data>
   <data name="UniServerErrorMsg" xml:space="preserve">
     <value>Trouble brewing on server.</value>

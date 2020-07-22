@@ -341,7 +341,7 @@
         } else {
             return <div className="row justify-content-center">
                 <div className="col-12">
-                    <div class="alert alert-light" role="alert">
+                    <div className="alert alert-light" role="alert">
                         No profiles to show here. 
                         <br />
                         Search for people based on their name, location, profession or gender etc.

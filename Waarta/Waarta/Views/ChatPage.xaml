@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:Waarta.Helpers"
+             mc:Ignorable="d"
+             x:Class="Waarta.Views.ChatPage" BackgroundColor="White"  Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
+    
+    <StackLayout Margin="0" Padding="0">
+        <Grid Padding="0" Margin="0" HorizontalOptions="StartAndExpand" VerticalOptions="StartAndExpand" BackgroundColor="Black">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="20" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Grid.RowSpan="2" Text="❮" TextColor="White" FontSize="20" FontAttributes="Bold" Padding="0" Margin="0" BorderWidth="0" x:Name="BackBtn" Clicked="BackBtn_Clicked" WidthRequest="50" BackgroundColor="Transparent" HeightRequest="50"></Button>
+            <Image Grid.Column="1" Grid.RowSpan="2" x:Name="ProPic"  HeightRequest="50" WidthRequest="50" Margin="0" />
+            <Label Grid.Column="2" Grid.Row="0" FontSize="20" x:Name="NameTxt" TextColor="White" HorizontalOptions="Start" VerticalTextAlignment="Center" HorizontalTextAlignment="Start" FontAttributes="Bold" />
+            <Label Grid.Column="2" Grid.Row="1" FontSize="10" x:Name="OnlineStatusTxt" TextColor="White" HorizontalOptions="Start" VerticalTextAlignment="Center" HorizontalTextAlignment="Start" FontAttributes="None" />
+        </Grid>
+        <ScrollView x:Name="ScrollViewSV" HorizontalOptions="FillAndExpand" Margin="0" Padding="0" FlowDirection="LeftToRight" Rotation="180" VerticalOptions="FillAndExpand" HeightRequest="2000">
+            <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Rotation="180"  HorizontalOptions="FillAndExpand" Margin="0" Padding="0" VerticalOptions="FillAndExpand" x:Name="MsgStack">
+
+            </StackLayout>
+        </ScrollView>
+        <Grid Padding="0" Margin="0" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" BackgroundColor="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto"/>
+
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Text="+" FontSize="40"  Padding="0" Margin="0" BorderWidth="0" x:Name="OptionsBtn"  WidthRequest="40" BackgroundColor="Transparent" HeightRequest="40"></Button>
+            <Entry Grid.Column="1" x:Name="MessageTxt" />
+            <Button Grid.Column="2" x:Name="SendBtn" FontSize="40" FontAttributes="Bold" HeightRequest="40" WidthRequest="40" Padding="0,0,5,0" Margin="0" BorderWidth="0" Text="&#8618;" BackgroundColor="Transparent" TextColor="Black" Clicked="SendBtn_Clicked"></Button>
+        </Grid>
+    </StackLayout>
+
+</ContentPage>

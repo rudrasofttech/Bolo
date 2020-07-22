@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using Plugin.Settings;
 using Plugin.Settings.Abstractions;
+using Waarta.Models;
 using Xamarin.Forms;
 
 namespace Waarta.Helpers
@@ -53,6 +54,26 @@ namespace Waarta.Helpers
             set
             {
                 AppSettings.AddOrUpdateValue("token", value);
+            }
+        }
+
+        public static ActivityStatus Activity
+        {
+            get
+            {
+                string a = AppSettings.GetValueOrDefault("activity", SettingsDefault);
+                if(string.IsNullOrEmpty(a))
+                {
+                    return ActivityStatus.Offline;
+                }
+                else
+                {
+                    return (ActivityStatus)Enum.Parse(typeof(ActivityStatus), a);
+                }
+            }
+            set
+            {
+                AppSettings.AddOrUpdateValue("activity", value.ToString());
             }
         }
 

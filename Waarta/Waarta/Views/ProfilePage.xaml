@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Waarta.Views.ProfilePage" BindingContext="Waarta.Model.MemberDTO" Appearing="ContentPage_Appearing">
+    <ContentPage.Content>
+        <StackLayout>
+            <Image Source="{Binding Image}" Aspect="Fill" VerticalOptions="Start" HorizontalOptions="Center" x:Name="ProfilePic" />
+            <Label Text="{Binding Name}" FontSize="Title" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+            <Label Text="{Binding Location}" x:Name="LocationLbl" FontSize="Small" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+            <Label Text="{Binding ThoughtStatus}" x:Name="ThoughtStatusLbl"  FontAttributes="Italic" FontSize="Body" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+            <Label Text="{Binding Bio}" x:Name="BioLbl" FontSize="Body" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

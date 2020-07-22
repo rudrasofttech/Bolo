@@ -205,11 +205,29 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Offline.
+        /// </summary>
+        internal static string UniOfflineText {
+            get {
+                return ResourceManager.GetString("UniOfflineText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OK.
         /// </summary>
         internal static string UniOK {
             get {
                 return ResourceManager.GetString("UniOK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Online.
+        /// </summary>
+        internal static string UniOnlineText {
+            get {
+                return ResourceManager.GetString("UniOnlineText", resourceCulture);
             }
         }
         

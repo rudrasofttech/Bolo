@@ -16,7 +16,7 @@ namespace Waarta.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class LoginPage : ContentPage
     {
-        LoginDTO model;
+        readonly LoginDTO model;
         public LoginPage()
         {
             InitializeComponent();

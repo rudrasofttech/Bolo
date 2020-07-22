@@ -5,27 +5,43 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="Waarta.Views.Conversations"
-             Title="" Appearing="ContentPage_Appearing">
+             Title="" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
     <ContentPage.Content>
         <StackLayout>
             <SearchBar x:Name="SearchBar" SearchButtonPressed="SearchBar_SearchButtonPressed" TextChanged="SearchBar_TextChanged"   />
-            <ListView x:Name="ContactListView" HasUnevenRows="true" ItemSelected="ListView_ItemSelected" ItemTapped="ListView_ItemTapped" >
+            <ListView x:Name="ContactListView" HasUnevenRows="true" ItemTapped="ListView_ItemTapped" IsPullToRefreshEnabled="True" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <Grid Padding="10">
+                            <ViewCell.ContextActions>
+                                <MenuItem Clicked="ChatMenuItem_Clicked" CommandParameter="{Binding .}" Text="Chat" />
+                                <MenuItem Text="Profile" Clicked="ProfileMenuItem_Clicked" CommandParameter="{Binding .}"  />
+                                <MenuItem Text="Clear" Clicked="ClearMenuItem_Clicked" CommandParameter="{Binding .}" IsDestructive="True"  />
+                            </ViewCell.ContextActions>
+                            <Grid Padding="5">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
+                                    
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"  />
+                                    <ColumnDefinition Width="Auto"  />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <Image Grid.RowSpan="2" Source="{Binding Path=Value.Person.Image}"  HeightRequest="40" WidthRequest="40"  Aspect="AspectFill" HorizontalOptions="Center" VerticalOptions="Center" />
-                                <Label Grid.Column="1" FontSize="15" Text="{Binding Path=Value.Person.Name}" FontAttributes="Bold" />
-                                <Label Grid.Row="1" Grid.Column="1" FontSize="13" Text="{Binding Path=Value.ShortIntro}" VerticalOptions="End" />
+                                <Image Grid.RowSpan="2" Source="{Binding Path=Value.Person.Image}"  HeightRequest="40" WidthRequest="40" HorizontalOptions="Center" VerticalOptions="Center" />
+                                
+                                <Label Grid.Row="0" Grid.Column="1" FontSize="15" Text="{Binding Path=Value.Person.Name}" FontAttributes="Bold" VerticalOptions="Start" TextColor="Black" />
+                                <Label Grid.Row="0" Grid.Column="2" FontSize="10" Text="{Binding Path=Value.Person.OnlineStatus}" VerticalOptions="Center" HorizontalOptions="Start" TextColor="Black" />
+                                <Frame Grid.Row="0" Grid.Column="3" IsVisible="{Binding Path=Value.HasUnseenMessages}" CornerRadius="10" Padding="3" BackgroundColor="DarkBlue" Margin="0" WidthRequest="15" HeightRequest="15" HasShadow="False"  VerticalOptions="Start" HorizontalOptions="Start">
+                                    <Label  FontSize="12" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="{Binding Path=Value.UnseenMessageCount}" TextColor="White"  />
+                                </Frame>
+                                
+                                
+                                <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" FontSize="15" Text="{Binding Path=Value.ShortIntro}" VerticalOptions="Start" TextColor="Black" />
+                                
                             </Grid>
                         </ViewCell>
                     </DataTemplate>

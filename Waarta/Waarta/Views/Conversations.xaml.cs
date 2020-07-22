@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -19,23 +21,37 @@ namespace Waarta.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Conversations : ContentPage
     {
-        ContactsService cService;
+        readonly HubConnection hc;
+        readonly WaartaDataStore ds;
+         ContactsService cService;
         MemberService mService;
         public Dictionary<Guid, ContactDTO> ContactDictionary { get; private set; }
         MemberDTO mdto = null;
         public Conversations()
         {
             InitializeComponent();
-
+            ds = new WaartaDataStore();
             this.Title = AppResource.ConTitle;
             SearchBar.Placeholder = AppResource.ConSearchBarPH;
             ContactDictionary = new Dictionary<Guid, ContactDTO>();
+            
             BindingContext = this;
+            
+            hc = new HubConnectionBuilder().WithUrl("https://waarta.com/personchathub", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(Waarta.Helpers.Settings.Token);
+            }).WithAutomaticReconnect().Build();
+
+            hc.Closed += async (error) =>
+            {
+                await Task.Delay(new Random().Next(0, 5) * 1000);
+                await hc.StartAsync();
+            };
         }
 
         private async void ContentPage_Appearing(object sender, EventArgs e)
         {
-
+            Waarta.Helpers.Settings.Activity = ActivityStatus.Online;
             if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
             {
                 mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
@@ -45,27 +61,81 @@ namespace Waarta.Views
             if (mdto == null)
             {
                 await Navigation.PushModalAsync(new LoginPage());
-                mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
+                return;
             }
             //load contacts from local data store
             this.LoadContactsfromFile();
 
-            if (ContactDictionary.Count == 0)
+            ContactListView.RefreshCommand = new Command(async () => {
+                await LoadContactsfromServer();
+                ContactListView.ItemsSource = null;
+                ContactListView.ItemsSource = ContactDictionary;
+                ContactListView.IsRefreshing = false;
+            });
+            try
             {
-                try
+                _ = ConnectHub();
+                SetHubconnectionOnFuncs();
+            }
+            catch { }
+        }
+
+        async Task ConnectHub()
+        {
+            await hc.StartAsync();
+        }
+        async Task DisconnectHub()
+        {
+
+            await hc.StopAsync();
+        }
+
+        private void SetHubconnectionOnFuncs()
+        {
+            hc.Remove("ReceiveTextMessage");
+            hc.Remove("ContactUpdated");
+            hc.On<Guid, string, DateTime, Guid>("ReceiveTextMessage", (sender, text, timestamp, id) =>
+            {
+            ReceiveTextMessage(sender, text, timestamp, id);
+            });
+
+
+            hc.On<MemberDTO>("ContactUpdated", (temp) =>
+            {
+                if (ContactDictionary.ContainsKey(temp.ID))
                 {
-                    //load contact from server without waiting
-                    //you will get latest of contacts info and 
-                    //latest unread messages from server
-                    await LoadContactsfromServer();
+                    ContactDictionary[temp.ID].Person.Activity = temp.Activity;
+                    ContactDictionary[temp.ID].Person.Bio = temp.Bio;
+                    ContactDictionary[temp.ID].Person.BirthYear = temp.BirthYear;
+                    ContactDictionary[temp.ID].Person.ChannelName = temp.ChannelName;
+                    ContactDictionary[temp.ID].Person.City = temp.City;
+                    ContactDictionary[temp.ID].Person.Country = temp.Country;
+                    ContactDictionary[temp.ID].Person.Gender = temp.Gender;
+                    ContactDictionary[temp.ID].Person.LastPulse = temp.LastPulse;
+                    ContactDictionary[temp.ID].Person.Name = temp.Name;
+                    ContactDictionary[temp.ID].Person.Pic = temp.Pic;
+                    ContactDictionary[temp.ID].Person.State = temp.State;
+                    ContactDictionary[temp.ID].Person.ThoughtStatus = temp.ThoughtStatus;
+                    ContactDictionary[temp.ID].Person.Visibility = temp.Visibility;
                     ContactListView.ItemsSource = ContactDictionary;
                 }
-                catch (ServerErrorException)
-                {
+            });
+        }
 
-                }
+        void ReceiveTextMessage(Guid sender, string text, DateTime timestamp, Guid id)
+        {
+            ChatMessage cm = new ChatMessage() { ID = id, Sender = sender, Text = text, TimeStamp = timestamp, Status = ChatMessageSentStatus.Seen };
+            if (ContactDictionary.ContainsKey(sender))
+            {
+                cm.Status = ChatMessageSentStatus.Received;
+                Dictionary<Guid, ChatMessage> temp = ds.LoadMessagesFromFile(mdto, ContactDictionary[sender].Person);
+                temp.Add(cm.ID, cm);
+                ds.SaveMessagestoFile(mdto, ContactDictionary[sender].Person, temp);
+                ContactDictionary[sender].UnseenMessageCount++;
+                
+                ContactListView.ItemsSource = null;
+                ContactListView.ItemsSource = ContactDictionary;
             }
-            
 
         }
 
@@ -73,23 +143,14 @@ namespace Waarta.Views
         /// Function loads current member contacts from local file storage.
         /// </summary>
         private void LoadContactsfromFile()
-        {
-            ContactDictionary.Clear();
-            string filePath = Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, string.Format("Contacts{0}.txt", mdto.ID.ToString().ToLower()));
-            if (File.Exists(filePath))
-            {
-                ContactDictionary = (Dictionary<Guid, ContactDTO>)JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(Dictionary<Guid, ContactDTO>));
-            }
-            else
-            {
-                ContactDictionary = new Dictionary<Guid, ContactDTO>();
-            }
+        {            
+            ContactDictionary = ds.LoadContactsfromFile(mdto);
+            
             ContactListView.ItemsSource = ContactDictionary;
         }
 
         private async Task LoadContactsfromServer()
         {
-            string filePath = Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, string.Format("Contacts{0}.txt", mdto.ID.ToString().ToLower()));
             List<ContactDTO> temp = await cService.GetContacts();
             foreach (ContactDTO t in temp)
             {
@@ -106,17 +167,7 @@ namespace Waarta.Views
 
                 if (t.MessagesOnServer.Count > 0)
                 {
-                    Dictionary<Guid, ChatMessage> msgs = new Dictionary<Guid, ChatMessage>();
-                    //local message file path
-                    string lmfpath = Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, string.Format("{0}{1}.txt", mdto.ID.ToString().ToLower(), t.Person.ID.ToString().ToLower()));
-                    if (File.Exists(lmfpath))
-                    {
-                        try
-                        {
-                            msgs = (Dictionary<Guid, ChatMessage>)JsonConvert.DeserializeObject(File.ReadAllText(lmfpath), typeof(Dictionary<Guid, ChatMessage>));
-                        }
-                        catch { }
-                    }
+                    Dictionary<Guid, ChatMessage> msgs = ds.LoadMessagesFromFile(mdto, t.Person);
                     foreach (ChatMessageDTO i in t.MessagesOnServer)
                     {
                         if (!msgs.ContainsKey(i.ID))
@@ -129,23 +180,38 @@ namespace Waarta.Views
 
                         }
                     }
-                    string msgsstr = JsonConvert.SerializeObject(msgs);
-                    File.WriteAllText(lmfpath, msgsstr);
+                    ds.SaveMessagestoFile(mdto, t.Person, msgs);
                 }
             }
-
-            File.WriteAllText(filePath, JsonConvert.SerializeObject(ContactDictionary));
-
+            ds.SaveContactstoFile(mdto, ContactDictionary);
         }
 
-        private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void OpenChatPage(MemberDTO m)
         {
 
+            ChatPage cp = new ChatPage
+            {
+                Other = m,
+                Myself = mdto
+            };
+            cp.UnseenMessageStatusUpdated += Cp_UnseenMessageStatusUpdated;
+            await Navigation.PushModalAsync(cp);
         }
-
+        
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
+            KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)e.Item;
+            OpenChatPage(item.Value.Person);
+        }
 
+        private void Cp_UnseenMessageStatusUpdated(object sender, MemberDTO e)
+        {
+            if (ContactDictionary.ContainsKey(e.ID))
+            {
+                ContactDictionary[e.ID].UnseenMessageCount = 0;
+                ContactListView.ItemsSource = null;
+                ContactListView.ItemsSource = ContactDictionary;
+            }
         }
 
         private async void SearchBar_SearchButtonPressed(object sender, EventArgs e)
@@ -180,6 +246,41 @@ namespace Waarta.Views
         {
             if (string.IsNullOrEmpty(SearchBar.Text)){
                 this.LoadContactsfromFile();
+            }
+        }
+
+        private void ContentPage_Disappearing(object sender, EventArgs e)
+        {
+            //_ = DisconnectHub();
+        }
+
+        private void ChatMenuItem_Clicked(object sender, EventArgs e)
+        {
+            var mi = ((MenuItem)sender);
+            KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)mi.CommandParameter;
+            OpenChatPage(item.Value.Person);
+        }
+
+        private void ProfileMenuItem_Clicked(object sender, EventArgs e)
+        {
+            var mi = ((MenuItem)sender);
+            KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)mi.CommandParameter;
+            //Debug.WriteLine("More Context Action clicked: " + mi.CommandParameter);
+            ProfilePage pp = new ProfilePage() {
+                BindingContext = item.Value.Person
+            };
+            Navigation.PushAsync(pp);
+        }
+
+        private async void ClearMenuItem_Clicked(object sender, EventArgs e)
+        {
+            bool answer = await DisplayAlert("Are you sure?", "All messages from this contact will be removed.", "Yes", "No");
+            Debug.WriteLine("Answer: " + answer);
+            if (answer)
+            {
+                var mi = ((MenuItem)sender);
+                KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)mi.CommandParameter;
+                ds.ClearMessagesFromFile(mdto, item.Value.Person);
             }
         }
     }

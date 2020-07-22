@@ -13,9 +13,9 @@ namespace Waarta.Services
 {
     public class MemberService
     {
-        HttpClient _client;
-        string apiurl = "https://waarta.com/api/members/";
-        string _token;
+        readonly HttpClient _client;
+        readonly string apiurl = "https://waarta.com/api/members/";
+        readonly string _token;
         
         public MemberService()
         {

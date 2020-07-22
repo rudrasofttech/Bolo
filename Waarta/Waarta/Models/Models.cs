@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
+using Waarta.Resources;
 using Xamarin.Forms;
 
 namespace Waarta.Models
@@ -51,9 +52,11 @@ namespace Waarta.Models
     }
     public enum ChatMessageSentStatus
     {
+        Pending = 0,
         Sent = 1,
         Received = 2,
-        Seen = 3
+        Seen = 3,
+
     }
 
     public class ContactDTO
@@ -76,7 +79,8 @@ namespace Waarta.Models
                 if (!string.IsNullOrEmpty(RecentMessage))
                 {
                     return RecentMessage.Substring(0, RecentMessage.Length > 50 ? 50 : RecentMessage.Length);
-                }else if (!string.IsNullOrEmpty(Person.ThoughtStatus))
+                }
+                else if (!string.IsNullOrEmpty(Person.ThoughtStatus))
                 {
                     return Person.ThoughtStatus;
                 }
@@ -102,6 +106,15 @@ namespace Waarta.Models
                 }
             }
         }
+        [JsonIgnore]
+        public bool HasUnseenMessages
+        {
+            get
+            {
+                return UnseenMessageCount > 0;
+            }
+        }
+
     }
 
     public class CreateMeetingDTO
@@ -150,7 +163,7 @@ namespace Waarta.Models
                 if (!string.IsNullOrEmpty(Pic))
                 {
                     string temp = Pic;
-                    if(Pic.IndexOf("base64,") > -1)
+                    if (Pic.IndexOf("base64,") > -1)
                     {
                         temp = Pic.Substring(Pic.IndexOf("base64,") + 7, Pic.Length - (Pic.IndexOf("base64,") + 7));
                     }
@@ -163,7 +176,48 @@ namespace Waarta.Models
             }
         }
 
-        
+        [JsonIgnore]
+        public String OnlineStatus
+        {
+            get
+            {
+                if (Activity == ActivityStatus.Offline)
+                {
+                    return AppResource.UniOfflineText;
+                }
+                else
+                {
+                    return AppResource.UniOnlineText;
+                }
+            }
+        }
+
+        [JsonIgnore]
+        public string Location
+        {
+            get
+            {
+
+                StringBuilder sb = new StringBuilder();
+                if (!string.IsNullOrEmpty(City))
+                {
+                    sb.Append(City);
+                    sb.Append(" ");
+                }
+                if (!string.IsNullOrEmpty(State))
+                {
+                    sb.Append(State);
+                    sb.Append(" ");
+                }
+                if (!string.IsNullOrEmpty(Country))
+                {
+                    sb.Append(Country);
+                }
+
+                return sb.ToString();
+
+            }
+        }
     }
 
     public class RegisterDTO
