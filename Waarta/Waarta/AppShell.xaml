@@ -32,9 +32,11 @@
     </Shell.Resources>
 
     <!-- Your Pages -->
-    <TabBar>
+    <TabBar >
         <Tab Title="Chat">
-            <ShellContent ContentTemplate="{DataTemplate local:Conversations}" />
+            <ShellContent Route="Chat" >
+                <local:Conversations/>
+            </ShellContent>
         </Tab>
         <Tab Title="Meetings">
             <ShellContent ContentTemplate="{DataTemplate local:Meetings}" />

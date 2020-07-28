@@ -1,14 +1,19 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
+using Plugin.Media;
+using Plugin.Media.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Xml;
 using Waarta.Helpers;
 using Waarta.Models;
 using Waarta.Resources;
@@ -25,35 +30,41 @@ namespace Waarta.Views
     {
         readonly HubConnection hc;
         readonly WaartaDataStore ds;
-        bool hadUnseenMessages;
+        readonly MemberService ms;
         public MemberDTO Other { get; set; }
         public MemberDTO Myself { get; set; }
         public Dictionary<Guid, ChatMessage> MessageList { get; set; }
-        
+        public bool ShouldCreateMessageGrid;
+
         public event EventHandler<MemberDTO> UnseenMessageStatusUpdated;
         public ChatPage()
         {
             InitializeComponent();
             ds = new WaartaDataStore();
-
+            ms = new MemberService();
             hc = new HubConnectionBuilder().WithUrl("https://waarta.com/personchathub", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(Waarta.Helpers.Settings.Token);
                 options.CloseTimeout = TimeSpan.FromMinutes(2);
             }).WithAutomaticReconnect().Build();
-
+            SetHubconnectionOnFuncs();
             hc.Closed += async (error) =>
             {
                 await Task.Delay(new Random().Next(0, 5) * 1000);
                 await hc.StartAsync();
             };
-
         }
 
         #region PersonalChatHub
         async Task Connect()
         {
-            await hc.StartAsync();
+            if (hc != null)
+            {
+                if (hc.State == HubConnectionState.Disconnected)
+                {
+                    await hc.StartAsync();
+                }
+            }
         }
         async Task Disconnect()
         {
@@ -93,7 +104,7 @@ namespace Waarta.Views
 
         bool SendTextMessage(string text)
         {
-            ChatMessage cm = new ChatMessage() { ID = Guid.NewGuid(), Sender = Myself.ID, Status = ChatMessageSentStatus.Pending, Text = text, TimeStamp = DateTime.Now };
+            ChatMessage cm = new ChatMessage() { ID = Guid.NewGuid(), Sender = Myself.ID, MessageType = ChatMessageType.Text, Status = ChatMessageSentStatus.Pending, Text = text, TimeStamp = DateTime.Now };
             MessageList.Add(cm.ID, cm);
             AddMsgToStack(cm);
             ds.SaveMessagestoFile(Myself, Other, MessageList);
@@ -120,31 +131,32 @@ namespace Waarta.Views
 
         private void BackBtn_Clicked(object sender, EventArgs e)
         {
-            Navigation.PopModalAsync(true);
+            Navigation.PopModalAsync();
         }
 
         private async void ContentPage_Appearing(object sender, EventArgs e)
         {
             Waarta.Helpers.Settings.Activity = ActivityStatus.Chat;
             BindUIControls();
-            MessageList = ds.LoadMessagesFromFile(Myself, Other);
-            foreach (ChatMessage cm in MessageList.Values)
+            if (ShouldCreateMessageGrid)
             {
-                if (cm.Status == ChatMessageSentStatus.Received)
+                MessageList = ds.LoadMessagesFromFile(Myself, Other);
+                foreach (ChatMessage cm in MessageList.Values)
                 {
-                    cm.Status = ChatMessageSentStatus.Seen;
-                    hadUnseenMessages = true;
+                    if (cm.Status == ChatMessageSentStatus.Received)
+                    {
+                        cm.Status = ChatMessageSentStatus.Seen;
+
+                    }
+                    cm.Text = cm.Text;
+                    AddMsgToStack(cm);
                 }
-                AddMsgToStack(cm);
+                ShouldCreateMessageGrid = false;
+                UnseenMessageStatusUpdated?.Invoke(this, Other);
             }
-            //if there were unseenmessages from this member, then only update contact list file
-            if (hadUnseenMessages)
-            {
-                UnseenMessageStatusUpdated?.Invoke(this, Other);   
-            }
-            
+
             SetHubconnectionOnFuncs();
-            
+
             await Connect();
 
             //var lastChild = MsgStack.Children.LastOrDefault();
@@ -183,7 +195,7 @@ namespace Waarta.Views
 
             hc.On<MemberDTO>("ContactUpdated", (dto) =>
             {
-                MemberDTO temp = dto; 
+                MemberDTO temp = dto;
                 if (Other.ID == temp.ID)
                 {
                     Other.Activity = temp.Activity;
@@ -202,7 +214,7 @@ namespace Waarta.Views
                     }
                     Other.State = temp.State;
                     Other.ThoughtStatus = temp.ThoughtStatus;
-                    Other.Visibility = temp.Visibility;   
+                    Other.Visibility = temp.Visibility;
                 }
             });
         }
@@ -218,29 +230,462 @@ namespace Waarta.Views
             }
         }
 
-        private void AddMsgToStack(ChatMessage cm)
+        private void AddUploadPhotoMsgToStack(string path)
         {
+            ChatMessage cm = new ChatMessage() { ID = Guid.NewGuid(), Sender = Myself.ID, MessageType = ChatMessageType.Photo, Status = ChatMessageSentStatus.Pending, Text = string.Format("https://waarta.com/data/{0}/{1}", Myself.ID.ToString().ToLower(), Path.GetFileName(path)), LocalPath = path, TimeStamp = DateTime.Now };
+            Grid mgrid = AddMsgToStack(cm);
+            mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+            mgrid.RowDefinitions.Add(new RowDefinition() { Height = 5 });
 
-            int colno, rowno;
-            Grid mgrid = new Grid();
-            mgrid.RowDefinitions.Add(new RowDefinition());
-            mgrid.BindingContext = cm;
-            if (cm.Sender == Myself.ID)
+            ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3) };
+            mgrid.Children.Add(pb, 1, 2);
+            FileInfo fi = new FileInfo(path);
+            Label lsize = new Label() { Text = fi.Exists ? GetBytesReadable(fi.Length) : "", FontSize = 10, HeightRequest = 20, Margin = new Thickness(3), VerticalOptions = LayoutOptions.Start, HorizontalOptions = LayoutOptions.End };
+            mgrid.Children.Add(lsize, 1, 1);
+            UploadFile(Path.GetFileName(path), path, mgrid, cm);
+
+            MessageList.Add(cm.ID, cm);
+
+            if (hc.State == HubConnectionState.Connected)
             {
-                mgrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(40, GridUnitType.Absolute) });
-                mgrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
-                colno = 1; rowno = 0;
+                try
+                {
+                    _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Error while sending photo message");
+                    Debug.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        private void AddUploadVideoMsgToStack(string path, string thumbpath)
+        {
+            ChatMessage cm = new ChatMessage()
+            {
+                ID = Guid.NewGuid(),
+                MessageType = ChatMessageType.Video,
+                Sender = Myself.ID,
+                Status = ChatMessageSentStatus.Pending,
+                Text = string.Format("https://waarta.com/data/{0}/{1}", Myself.ID.ToString().ToLower(), Path.GetFileName(path)),
+                LocalPath = path,
+                TimeStamp = DateTime.Now
+            };
+
+            Grid mgrid = AddMsgToStack(cm);
+            mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+            mgrid.RowDefinitions.Add(new RowDefinition() { Height = 5 });
+
+            ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3) };
+            mgrid.Children.Add(pb, 1, 2);
+            FileInfo fi = new FileInfo(path);
+            Label lsize = new Label() { Text = GetBytesReadable(fi.Length), FontSize = 10, HeightRequest = 20, Margin = new Thickness(3), VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.End, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
+            mgrid.Children.Add(lsize, 1, 1);
+
+            UploadFile(Path.GetFileName(path), path, mgrid, cm, thumbpath);
+
+            MessageList.Add(cm.ID, cm);
+        }
+
+        public string GetBytesReadable(long i)
+        {
+            // Get absolute value
+            long absolute_i = (i < 0 ? -i : i);
+            // Determine the suffix and readable value
+            string suffix;
+            double readable;
+            if (absolute_i >= 0x1000000000000000) // Exabyte
+            {
+                suffix = "EB";
+                readable = (i >> 50);
+            }
+            else if (absolute_i >= 0x4000000000000) // Petabyte
+            {
+                suffix = "PB";
+                readable = (i >> 40);
+            }
+            else if (absolute_i >= 0x10000000000) // Terabyte
+            {
+                suffix = "TB";
+                readable = (i >> 30);
+            }
+            else if (absolute_i >= 0x40000000) // Gigabyte
+            {
+                suffix = "GB";
+                readable = (i >> 20);
+            }
+            else if (absolute_i >= 0x100000) // Megabyte
+            {
+                suffix = "MB";
+                readable = (i >> 10);
+            }
+            else if (absolute_i >= 0x400) // Kilobyte
+            {
+                suffix = "KB";
+                readable = i;
             }
             else
             {
-                mgrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Star });
+                return i.ToString("0 B"); // Byte
+            }
+            // Divide by 1024 to get fractional value
+            readable /= 1024;
+            // Return formatted number with suffix
+            return readable.ToString("0.### ") + suffix;
+        }
+
+        async void DownloadFile(ChatMessageDownloadModel cmdm)
+        {
+            Grid grid = cmdm.Grid;
+            ChatMessage cm = cmdm.Message;
+            ProgressBar bar = null;
+            Label lb = null;
+            foreach (View v in grid.Children)
+            {
+                if (v is ProgressBar)
+                {
+                    bar = v as ProgressBar;
+
+                }
+                if (v is Label)
+                {
+                    lb = v as Label;
+
+                }
+            }
+
+            string filepathshort = cm.Text.ToLower().TrimStart("https://waarta.com/data/".ToCharArray());
+            string targetfpath = Path.Combine(ds.GetDataFolderPath(Myself, Other), Path.GetFileName(filepathshort));
+            if (File.Exists(targetfpath))
+            {
+                File.Delete(targetfpath);
+            }
+            cmdm.Position = 0;
+            if (lb != null)
+            {
+                lb.Text = AppResource.CPCancelDownloadVideoLabel;
+            }
+            while (cmdm.Position > -1 && (cmdm.Status == DownloadStatus.Downloading || cmdm.Status == DownloadStatus.Pending))
+            {
+                try
+                {
+                    cmdm.Status = DownloadStatus.Downloading;
+                    DownloadedChunk dc = await ms.DownloadChunk(filepathshort, cmdm.Position);
+
+                    cmdm.Position = dc.Position;
+                    cmdm.Length = dc.Length;
+                    if (File.Exists(targetfpath))
+                    {
+                        using (FileStream stream = File.Open(targetfpath, FileMode.Append, FileAccess.Write))
+                        {
+                            byte[] arr = Convert.FromBase64String(dc.Data);
+                            stream.Write(arr, 0, arr.Length);
+                        }
+                    }
+                    else
+                    {
+                        using (FileStream stream = File.Open(targetfpath, FileMode.OpenOrCreate, FileAccess.Write))
+                        {
+                            byte[] arr = Convert.FromBase64String(dc.Data);
+                            stream.Write(arr, 0, arr.Length);
+                        }
+                    }
+                    if (bar != null)
+                    {
+                        bar.IsVisible = true;
+                        _ = bar.ProgressTo((double)cmdm.Position / dc.Length, 500, Easing.Linear);
+                    }
+                    if (dc.Position >= dc.Length)
+                    {
+                        cmdm.Status = DownloadStatus.Completed;
+                        cm.LocalPath = targetfpath;
+                        lb.Text = AppResource.CPTapVideoLabel;
+                        //DependencyService.Get<IVideoPicker>().GenerateThumbnail(cm.LocalPath, cm.LocalPath.ToLower().Replace(Path.GetExtension(cm.LocalPath), "-thumb.jpg"));
+                        await ms.DownloadChunk(cm.LocalPath.ToLower().Replace(Path.GetExtension(cm.LocalPath), "-thumb.jpg"), 0);
+                        if (bar != null)
+                        {
+                            bar.IsVisible = false;
+                        }
+                        break;
+                    }
+                }
+                catch
+                {
+                    cmdm.Status = DownloadStatus.Canceled;
+                    break;
+                }
+            }
+            if (cmdm.Status == DownloadStatus.Canceled)
+            {
+                File.Delete(targetfpath);
+                cmdm.Position = 0;
+                if (bar != null)
+                {
+                    bar.IsVisible = false;
+                    bar.Progress = 0;
+                }
+                if (lb != null)
+                {
+                    lb.Text = AppResource.CPDownloadVideoLabel;
+                }
+            }
+        }
+
+        private async void UploadFile(string filename, string filePath, Grid grid, ChatMessage cm, string thumbpath = "")
+        {
+            ProgressBar bar = null;
+            foreach (View v in grid.Children)
+            {
+                if (v is ProgressBar)
+                {
+                    bar = v as ProgressBar;
+                    break;
+                }
+            }
+            using (Stream objStream = File.OpenRead(filePath))
+            {
+                // Read data from file
+                byte[] arrData = { };
+
+                // Read data from file until read position is not equals to length of file
+                while (objStream.Position != objStream.Length)
+                {
+                    // Read number of remaining bytes to read
+                    long lRemainingBytes = objStream.Length - objStream.Position;
+
+                    // If bytes to read greater than 2 mega bytes size create array of 2 mega bytes
+                    // Else create array of remaining bytes
+                    if (lRemainingBytes > 262144)
+                    {
+                        arrData = new byte[262144];
+                    }
+                    else
+                    {
+                        arrData = new byte[lRemainingBytes];
+                    }
+
+                    // Read data from file
+                    objStream.Read(arrData, 0, arrData.Length);
+
+                    // Other code whatever you want to deal with read data
+                    await ms.UploadChunk(Convert.ToBase64String(arrData), filename, false);
+
+                    await bar.ProgressTo((double)objStream.Position / objStream.Length, 500, Easing.Linear);
+                }
+                grid.Children.Remove(bar);
+                //upload thumbnail image
+                if (File.Exists(thumbpath))
+                {
+                    await ms.UploadChunk(Convert.ToBase64String(File.ReadAllBytes(thumbpath)), Path.GetFileName(thumbpath), false);
+                }
+                if (hc.State == HubConnectionState.Connected)
+                {
+                    try
+                    {
+                        _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
+                        cm.Status = ChatMessageSentStatus.Sent;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Error while sending photo message");
+                        Debug.WriteLine(ex.Message);
+                    }
+                }
+            }
+
+        }
+        private Grid AddMsgToStack(ChatMessage cm)
+        {
+            int colno, rowno;
+            Grid mgrid = new Grid() { VerticalOptions = LayoutOptions.Start, Padding = new Thickness(5), WidthRequest = 300 };
+            mgrid.RowDefinitions.Add(new RowDefinition());
+            mgrid.BindingContext = cm;
+
+            ImageButton MsgOptBtn = new ImageButton()
+            {
+                WidthRequest = 35,
+                HeightRequest = 35,
+                Aspect = Aspect.AspectFit,
+                Opacity = 0.7,
+                Source = ImageSource.FromFile("verticalellipsis.png"),
+                CommandParameter = cm.ID,
+                VerticalOptions = LayoutOptions.Center,
+                BackgroundColor = Color.White,
+                CornerRadius = 15
+            };
+
+            MsgOptBtn.Clicked += MsgOptBtn_Clicked;
+
+            if (cm.Sender == Myself.ID)
+            {
+                mgrid.BackgroundColor = Color.FromRgb(219, 244, 253);
+                mgrid.HorizontalOptions = LayoutOptions.End;
+                mgrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(40, GridUnitType.Absolute) });
+                mgrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(260, GridUnitType.Absolute) });
+                colno = 1; rowno = 0;
+                MsgOptBtn.HorizontalOptions = LayoutOptions.End;
+                mgrid.Children.Add(MsgOptBtn, 0, rowno);
+            }
+            else
+            {
+                mgrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(260, GridUnitType.Absolute) });
                 mgrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(40, GridUnitType.Absolute) });
                 colno = 0; rowno = 0;
+                MsgOptBtn.HorizontalOptions = LayoutOptions.Start;
+                mgrid.Children.Add(MsgOptBtn, 1, rowno);
+                mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
             }
-            
-            mgrid.Children.Add(textlbl, colno, rowno);
+
+            switch (cm.MessageType)
+            {
+                case ChatMessageType.Text:
+                    mgrid.Children.Add(GetLabelForMessage(cm), colno, rowno);
+                    break;
+                case ChatMessageType.Photo:
+                    DownloadFile(new ChatMessageDownloadModel() { Grid = mgrid, Message = cm });
+                    mgrid.Children.Add(GetImageForMessage(cm), colno, rowno);
+                    break;
+                case ChatMessageType.Video:
+                    ImageButton ib = GetVideoForMessage(cm);
+                    mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+                    Label lsize = new Label() { Text = AppResource.CPDownloadVideoLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
+                    mgrid.Children.Add(lsize, 0, 1);
+                    if (File.Exists(cm.LocalPath))
+                    {
+                        ib.Clicked += VideoThumbBtn_Clicked;
+                        lsize.Text = AppResource.CPTapVideoLabel;
+                    }
+                    else
+                    {
+
+                        mgrid.RowDefinitions.Add(new RowDefinition() { Height = 11 });
+                        ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, HorizontalOptions = LayoutOptions.CenterAndExpand };
+                        mgrid.Children.Add(pb, 0, 2);
+
+                        ChatMessageDownloadModel cmdm = new ChatMessageDownloadModel()
+                        {
+                            Grid = mgrid,
+                            Length = 0,
+                            Position = -1,
+                            LocalPath = string.Empty,
+                            Message = cm
+                        };
+                        ib.CommandParameter = cmdm;
+                        ib.Clicked += VideoDownloadBtn_Clicked;
+                    }
+                    mgrid.Children.Add(ib, colno, rowno);
+                    break;
+                case ChatMessageType.Audio:
+                    mgrid.Children.Add(GetAudioForMessage(cm), colno, rowno);
+                    break;
+                case ChatMessageType.Document:
+
+                    break;
+                default:
+                    mgrid.Children.Add(GetLabelForMessage(cm), colno, rowno);
+                    break;
+            }
             MsgStack.Children.Add(mgrid);
-            
+
+            return mgrid;
+        }
+
+        ImageButton GetVideoForMessage(ChatMessage cm)
+        {
+            ImageButton VideoThumbBtn = new ImageButton()
+            {
+                WidthRequest = 200,
+                HeightRequest = 200,
+                Aspect = Aspect.AspectFill,
+                Source = cm.Thumbnail,
+                CommandParameter = cm,
+                VerticalOptions = LayoutOptions.Center,
+                BackgroundColor = Color.Transparent
+            };
+
+            if (cm.Sender == Myself.ID)
+            {
+                VideoThumbBtn.HorizontalOptions = LayoutOptions.End;
+                VideoThumbBtn.Margin = new Thickness(0, 3, 10, 2);
+            }
+            else
+            {
+                VideoThumbBtn.HorizontalOptions = LayoutOptions.Start;
+                VideoThumbBtn.Margin = new Thickness(10, 3, 0, 2);
+            }
+
+            return VideoThumbBtn;
+        }
+
+        private void VideoDownloadBtn_Clicked(object sender, EventArgs e)
+        {
+            ImageButton btn = (sender as ImageButton);
+            if (btn.CommandParameter is ChatMessageDownloadModel)
+            {
+                ChatMessageDownloadModel cmdm = btn.CommandParameter as ChatMessageDownloadModel;
+                if (cmdm.Status == DownloadStatus.Completed)
+                {
+                    ShowVideo(cmdm.Message);
+                }
+                else
+                {
+                    if (cmdm.Status == DownloadStatus.Downloading)
+                    {
+                        cmdm.Status = DownloadStatus.Canceled;
+                    }
+                    else
+                    {
+                        cmdm.Status = DownloadStatus.Pending;
+                    }
+
+                    DownloadFile(cmdm);
+                }
+            }
+        }
+
+        private void VideoThumbBtn_Clicked(object sender, EventArgs e)
+        {
+            ChatMessage cm = (ChatMessage)(sender as ImageButton).CommandParameter;
+            ShowVideo(cm);
+        }
+
+        private async void ShowVideo(ChatMessage cm)
+        {
+            VideoPage vp = new VideoPage();
+
+            if (File.Exists(cm.LocalPath))
+            {
+                FileInfo fi = new FileInfo(cm.LocalPath);
+                Console.WriteLine(fi.Length);
+            }
+            vp.VideoUri = !string.IsNullOrEmpty(cm.LocalPath) ? new Uri(cm.LocalPath.Trim()) : new Uri(cm.Text.Trim());
+            await Navigation.PushModalAsync(vp);
+        }
+
+        InTheHand.Forms.MediaElement GetAudioForMessage(ChatMessage cm)
+        {
+            InTheHand.Forms.MediaElement me = new InTheHand.Forms.MediaElement()
+            {
+                Source = new Uri(cm.Text.Trim()),
+                ShowsPlaybackControls = true,
+                HeightRequest = 100,
+                WidthRequest = 200,
+                AutoPlay = false
+            };
+
+            if (cm.Sender == Myself.ID)
+            {
+                me.HorizontalOptions = LayoutOptions.End;
+                me.Margin = new Thickness(0, 3, 10, 2);
+            }
+            else
+            {
+                me.HorizontalOptions = LayoutOptions.Start;
+                me.Margin = new Thickness(10, 3, 0, 2);
+            }
+
+            return me;
         }
 
         Label GetLabelForMessage(ChatMessage cm)
@@ -271,9 +716,46 @@ namespace Waarta.Views
             return textlbl;
         }
 
+        Image GetImageForMessage(ChatMessage cm)
+        {
+            Image img = new Image()
+            {
+                Source = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.LocalPath),
+                WidthRequest = 200,
+                Aspect = Aspect.AspectFit
+            };
+
+
+
+            if (cm.Sender == Myself.ID)
+            {
+                img.HorizontalOptions = LayoutOptions.End;
+                img.Margin = new Thickness(0, 3, 10, 2);
+            }
+            else
+            {
+                img.HorizontalOptions = LayoutOptions.Start;
+                img.Margin = new Thickness(10, 3, 0, 2);
+            }
+
+            return img;
+        }
+
+        void DeleteChatMessage(Guid id)
+        {
+            if (MessageList.ContainsKey(id))
+            {
+                if (File.Exists(MessageList[id].LocalPath))
+                {
+                    File.Delete(MessageList[id].LocalPath);
+                }
+                MessageList.Remove(id);
+            }
+        }
+
         private void ContentPage_Disappearing(object sender, EventArgs e)
         {
-            
+
             ds.SaveMessagestoFile(Myself, Other, MessageList);
             //try
             //{
@@ -281,5 +763,114 @@ namespace Waarta.Views
             //}
             //catch { }
         }
+
+        private async void OptionsBtn_Clicked(object sender, EventArgs e)
+        {
+            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniPhotosText, AppResource.UniVideosText, AppResource.UniDocText);
+            Console.WriteLine("Action: " + action);
+            if (action == AppResource.UniPhotosText)
+            {
+
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsPickPhotoSupported)
+                {
+                    return;
+                }
+                var mediaOptions = new PickMediaOptions()
+                {
+                    PhotoSize = PhotoSize.Small,
+                    CompressionQuality = 50
+                };
+                var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
+                if (selectedImage != null)
+                {
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedImage.AlbumPath, selectedImage.Path))));
+                    //File.Copy(selectedImage.Path, path, true);
+                    using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
+                    {
+                        selectedImage.GetStream().CopyTo(outputFileStream);
+                    }
+                    AddUploadPhotoMsgToStack(path);
+                }
+
+            }
+            else if (action == AppResource.UniVideosText)
+            {
+                //string filename = await DependencyService.Get<IVideoPicker>().GetVideoFileAsync();
+
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsPickVideoSupported)
+                {
+                    return;
+                }
+
+
+                var selectedVideo = await CrossMedia.Current.PickVideoAsync();
+                if (selectedVideo != null)
+                {
+                    int videolength = DependencyService.Get<IVideoPicker>().GetVideoLengthInMinutes(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path));
+                    if (videolength > 10000)
+                    {
+                        await DisplayAlert(AppResource.ChatVideoLengthExceedTitle, AppResource.ChatVideoLengthExceedMsg, AppResource.UniCancelText);
+                        return;
+                    }
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path))));
+
+                    File.Copy(selectedVideo.Path, path, true);
+                    //string finalpath = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path))));
+                    //await DependencyService.Get<IVideoPicker>().CompressVideo(path, finalpath);
+
+                    //if (File.Exists(finalpath))
+                    //{
+                    //    Console.WriteLine("Done");
+                    //}
+                    string thumbnailpath = path.Replace(Path.GetExtension(path), "-thumb.jpg");
+                    DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
+                    if (File.Exists(thumbnailpath))
+                        AddUploadVideoMsgToStack(path, thumbnailpath);
+                }
+            }
+        }
+
+        private async void MsgOptBtn_Clicked(object sender, EventArgs e)
+        {
+            string action = await DisplayActionSheet("Message Options", "Cancel", null, "Delete");
+
+            switch (action)
+            {
+                case "Delete":
+                    ImageButton ib = (sender as ImageButton);
+                    Guid mid = new Guid(ib.CommandParameter.ToString());
+                    DeleteChatMessage(mid);
+                    MsgStack.Children.Remove((View)ib.Parent);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public class ChatMessageDownloadModel
+    {
+        public ChatMessage Message { get; set; }
+        public Grid Grid { get; set; }
+
+        public string LocalPath { get; set; }
+        public long Length { get; set; }
+        public long Position { get; set; }
+        public DownloadStatus Status { get; set; }
+
+        public ChatMessageDownloadModel()
+        {
+            Status = DownloadStatus.Pending;
+        }
+    }
+
+    public enum DownloadStatus
+    {
+        Pending,
+        Downloading,
+        Canceled,
+        Completed
     }
 }

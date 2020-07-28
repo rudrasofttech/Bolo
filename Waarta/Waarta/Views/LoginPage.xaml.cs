@@ -16,6 +16,7 @@ namespace Waarta.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class LoginPage : ContentPage
     {
+        public event EventHandler<MemberDTO> LoggedIn;
         readonly LoginDTO model;
         public LoginPage()
         {
@@ -51,6 +52,8 @@ namespace Waarta.Views
                 {
                     Waarta.Helpers.Settings.Token = result.Token;
                     Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(result.Member);
+                    LoggedIn?.Invoke(this, result.Member);
+                    
                     await Navigation.PopModalAsync();
                 }
             }
@@ -103,6 +106,14 @@ namespace Waarta.Views
                 await DisplayAlert(AppResource.UniServerErrorTitle, AppResource.UniServerErrorMsg, AppResource.UniOK);
             }
             GenerateOTPBtn.IsEnabled = true;
+        }
+
+        private void ContentPage_Appearing(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Token))
+            {
+                Navigation.PopModalAsync();
+            }
         }
     }
 }

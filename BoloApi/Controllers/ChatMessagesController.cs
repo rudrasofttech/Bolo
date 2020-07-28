@@ -85,9 +85,9 @@ namespace Bolo.Controllers
             return chatMessage;
         }
 
-        private bool ChatMessageExists(int id)
-        {
-            return _context.ChatMessages.Any(e => e.ID == id);
-        }
+        //private bool ChatMessageExists(int id)
+        //{
+        //    return _context.ChatMessages.Any(e => e.ID == id);
+        //}
     }
 }

@@ -595,6 +595,8 @@
                                 this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, 'https://' + window.location.host + '/data/' + this.state.myself.id + '/' + msg.serverfname)
                                     .catch(err => { console.log("Unable to send file to other person."); console.error(err); });
                                 this.setState({ filestoupload: flist });
+                                this.generateVideoThumbnail(msg.serverfname);
+                                
                                 this.processFileUpload();
                             } else {
                                 this.setState({ filestoupload: flist });
@@ -609,6 +611,16 @@
             }
         });
     }
+
+    generateVideoThumbnail(filename) {
+        fetch('//' + window.location.host + '/api/members/GenerateThumbnail?filename=' + filename, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        })
+    }
+
+    
 
     handlePhotoClick(e) {
         e.preventDefault();
@@ -812,7 +824,7 @@
 
     renderLinksInMessage(msg) {
         var tempmid = msg.id;
-        if (msg.text.startsWith("https://" + window.location.host + "/api/meetings/media/")) {
+        if (msg.text.startsWith('https://' + window.location.host + '/data/')) {
             if (msg.text.toLowerCase().endsWith(".jpg") || msg.text.toLowerCase().endsWith(".jpeg") || msg.text.toLowerCase().endsWith(".png") || msg.text.toLowerCase().endsWith(".gif") || msg.text.toLowerCase().endsWith(".bmp")) {
                 return <span id={tempmid}>
                     <img src={msg.text} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "260px" }} />
@@ -939,12 +951,12 @@
             let f = this.state.filestoupload[i];
             items.push(
                 <div className="row" key={i}>
-                    <div className="col-9 col-xl-11 col-sm-10">
+                    <div className="col-9 col-xl-10 col-sm-10">
                         <div className="progress">
                             <div className="progress-bar progress-bar-animated" role="progressbar" aria-valuenow={f.progresspercent} aria-valuemin="0" aria-valuemax="100" style={{ width: f.progresspercent + "%" }}></div>
                         </div>
                     </div>
-                    <div className="col-3 col-xl-1 col-sm-2"><button type="button" className="btn btn-sm btn-light" onClick={(e) => this.handleFileUploadCancel(e, f.name)}>Cancel</button></div>
+                    <div className="col-3 col-xl-2 col-sm-2"><button type="button" className="btn btn-sm btn-light" onClick={(e) => this.handleFileUploadCancel(e, f.name)}>Cancel</button></div>
                 </div>
             );
         }
@@ -1015,6 +1027,11 @@
         if (this.state.person.activity !== 5) {
             online = <span className="online"></span>;
         }
+        let videohtml = this.renderVideo();
+        let chatmsgcontstyle = {};
+        if (videohtml === null && this.detectXtralargeScreen()) {
+            chatmsgcontstyle = { padding: "0px 200px" };
+        }
         return (
             <React.Fragment>
                 <div className="personalchatcont">
@@ -1054,9 +1071,9 @@
                     </table>
                     <div className="videochatcont container-fluid">
                         <div className="row">
-                            {this.renderVideo()}
+                            {videohtml}
                             <div className="col-sm border-left" style={{ padding: "0px 5px" }}>
-                                <div className="chatmsgcont">
+                                <div className="chatmsgcont" style={chatmsgcontstyle}>
                                     <ul className="list-unstyled">{this.renderMessages()}</ul>
                                 </div>
                             </div>
@@ -1064,11 +1081,11 @@
                     </div>
                     <form onSubmit={this.handleSend}>
                         <div className="border-top chatinputcontainer" style={{ position: "relative", height: "40px" }}>
-                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accesskey="t" title="Keyboard Shortcut ALT + t"
+                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accessKey="t" title="Keyboard Shortcut ALT + t"
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
                                 style={{ height: "40px", overflow: "hidden", resize: "none", position : "absolute", bottom :"0px", left: "0px", maxHeight:"200px" }}></textarea>
-                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accesskey="e" title="Keyboard Shortcut ALT + e" >😀</button>
-                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + e" accesskey="s" /></button>
+                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accessKey="o" title="Keyboard Shortcut ALT + o" >😀</button>
+                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + s" accessKey="s" /></button>
                         </div>
                     </form>
                     {this.renderEmojiModal()}

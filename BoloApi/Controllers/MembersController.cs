@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bolo.Data;
@@ -14,11 +13,12 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore.Storage;
 using System.IO;
 using Microsoft.AspNetCore.SignalR;
 using Bolo.Hubs;
-using Org.BouncyCastle.Operators;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Bolo.Controllers
 {
@@ -44,7 +44,7 @@ namespace Bolo.Controllers
         {
             try
             {
-                var member = await _context.Members.FirstOrDefaultAsync(t =>(t.Phone == phone && t.CountryCode == code));
+                var member = await _context.Members.FirstOrDefaultAsync(t => (t.Phone == phone && t.CountryCode == code));
                 if (member == null)
                 {
                     member = new Member()
@@ -675,13 +675,13 @@ namespace Bolo.Controllers
             List<string> males = "man,boy,male,men".Split(",".ToCharArray()).ToList<string>();
             List<string> females = "woman,girl,female,women".Split(",".ToCharArray()).ToList<string>();
             var query = _context.Members.Where(t => t.Visibility == MemberProfileVisibility.Public);
-            foreach(var k in keywords)
+            foreach (var k in keywords)
             {
                 if (avoid.Contains(k.Trim()))
                 {
                     continue;
                 }
-                else if(males.Contains(k.Trim().ToLower()))
+                else if (males.Contains(k.Trim().ToLower()))
                 {
                     query = query.Where(t => t.Gender == Gender.Male);
                 }
@@ -691,18 +691,48 @@ namespace Bolo.Controllers
                 }
                 else if (!string.IsNullOrEmpty(k.Trim()))
                 {
-                    query = query.Where(t => t.Name.Contains(k) || t.Bio.Contains(k) || 
-                    t.City.Contains(k) || t.State.Contains(k) || 
+                    query = query.Where(t => t.Name.Contains(k) || t.Bio.Contains(k) ||
+                    t.City.Contains(k) || t.State.Contains(k) ||
                     t.Country.Contains(k) || t.ThoughtStatus.Contains(k) ||
                     t.Phone == k || t.Email.ToLower() == k.ToLower());
                 }
             }
-            
+
             if (User.Identity.IsAuthenticated)
             {
                 query = query.Where(t => t.PublicID != new Guid(User.Identity.Name));
             }
             return query.Select(t => new MemberDTO(t)).Take(30).ToList();
+        }
+
+        [HttpGet]
+        [Route("DownloadChunk")]
+        public ActionResult DownloadFile([FromQuery] string filename, [FromQuery] int position)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return Ok(new { data = string.Empty, position = -1, length = -1 });
+            }
+            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", filename);
+            if (System.IO.File.Exists(filepath))
+            {
+                byte[] array = System.IO.File.ReadAllBytes(filepath);
+
+                if ((array.Length - position) > 131072)
+                {
+
+                    return Ok(new { data = Convert.ToBase64String(array.Skip(position).Take(131072).ToArray()), position = (position + 131072), length = array.Length });
+                }
+                else
+                {
+                    return Ok(new { data = Convert.ToBase64String(array.Skip(position).Take((int)(array.Length - position)).ToArray()), position = array.Length, length = array.Length });
+                }
+
+            }
+            else
+            {
+                return Ok(new { data = string.Empty, position = -1, length = -1 });
+            }
         }
 
         /// <summary>
@@ -730,24 +760,27 @@ namespace Bolo.Controllers
             }
             var path = Path.Combine(meetingpath, filename);
 
-
-            string[] arr = f.Split(";base64,");
-            if (arr.Length == 2)
+            string data = f;
+            //sometimes in base64 string there some text appended.
+            if (f.IndexOf(";base64,") > -1)
             {
-                //byte[] barr = br.ReadBytes((int)stream.Length);
-                byte[] barr = Convert.FromBase64String(arr[1]);
-                if (System.IO.File.Exists(path))
+                string[] arr = f.Split(";base64,");
+                if (arr.Length == 2)
                 {
-                    using FileStream fs = new FileStream(path, FileMode.Append);
-                    fs.Write(barr, 0, barr.Length);
-                }
-                else
-                {
-                    using FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
-                    fs.Write(barr, 0, barr.Length);
+                    data = arr[1];
                 }
             }
-
+            byte[] barr = Convert.FromBase64String(data);
+            if (System.IO.File.Exists(path))
+            {
+                using FileStream fs = new FileStream(path, FileMode.Append);
+                fs.Write(barr, 0, barr.Length);
+            }
+            else
+            {
+                using FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
+                fs.Write(barr, 0, barr.Length);
+            }
 
             return Ok(new { filename });
         }
@@ -767,6 +800,80 @@ namespace Bolo.Controllers
 
             return member;
         }
+
+        [HttpGet]
+        [Route("GenerateThumbnail")]
+        public ActionResult GenerateThumbnail([FromQuery] string filename)
+        {
+            string ffmpegpath = Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg", "ffmpeg.exe");
+            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", User.Identity.Name, filename);
+            string thumbpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", User.Identity.Name, filename.ToLower().Replace(Path.GetExtension(filename.ToLower()), "-thumb.jpg"));
+            if (System.IO.File.Exists(filepath))
+            {
+                if (filename.ToLower().EndsWith(".ogg") || filename.ToLower().EndsWith(".mp4") || filename.ToLower().EndsWith(".webm") || filename.ToLower().EndsWith(".mov"))
+                {
+                    //var cmd = '"' + ffmpegpath + '"' + " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 " + '"' + thumbpath + '"';
+
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        CreateNoWindow = false,
+                        UseShellExecute = false,
+                        FileName = ffmpegpath,
+                        Arguments = " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -filter:v scale=\"280:-1\" " + '"' + thumbpath + '"',
+                        RedirectStandardOutput = true
+                    };
+                    Console.WriteLine(string.Format("Executing \"{0}\" with arguments \"{1}\".\r\n", startInfo.FileName, startInfo.Arguments));
+                    try
+                    {
+                        using Process process = Process.Start(startInfo);
+                        process.Start();
+                        process.WaitForExit(2000);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+            }
+            return Ok();
+        }
+
+        //TO DO
+        //[HttpGet]
+        //[Route("CompressVideo")]
+        //public ActionResult CompressVideo([FromQuery] string filename)
+        //{
+        //    string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", User.Identity.Name, filename);
+        //    string thumbpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", User.Identity.Name, filename.ToLower().Replace(Path.GetExtension(filename.ToLower()), "-thumb" + Path.GetExtension(filename.ToLower())));
+        //    if (System.IO.File.Exists(filepath))
+        //    {
+        //        if (filename.ToLower().EndsWith(".ogg") || filename.ToLower().EndsWith(".mp4") || filename.ToLower().EndsWith(".webm") || filename.ToLower().EndsWith(".mov"))
+        //        {
+        //            var cmd = '"' + ffmpegpath + '"' + " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 " + '"' + thumbpath + '"';
+
+        //            ProcessStartInfo startInfo = new ProcessStartInfo();
+        //            startInfo.CreateNoWindow = false;
+        //            startInfo.UseShellExecute = false;
+        //            startInfo.FileName = ffmpegpath;
+        //            startInfo.Arguments = " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -filter:v scale=\"280:-1\" " + '"' + thumbpath + '"';
+        //            startInfo.RedirectStandardOutput = true;
+        //            Console.WriteLine(string.Format("Executing \"{0}\" with arguments \"{1}\".\r\n", startInfo.FileName, startInfo.Arguments));
+        //            try
+        //            {
+        //                using (Process process = Process.Start(startInfo))
+        //                {
+        //                    process.Start();
+        //                    process.WaitForExit(2000);
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Console.WriteLine(ex.Message);
+        //            }
+        //        }
+        //    }
+        //    return Ok();
+        //}
 
         private bool MemberExists(int id)
         {

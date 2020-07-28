@@ -61,6 +61,42 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Video duration cannot exceed 10 seconds limit..
+        /// </summary>
+        internal static string ChatVideoLengthExceedMsg {
+            get {
+                return ResourceManager.GetString("ChatVideoLengthExceedMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exceeds Limit.
+        /// </summary>
+        internal static string ChatVideoLengthExceedTitle {
+            get {
+                return ResourceManager.GetString("ChatVideoLengthExceedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify.
+        /// </summary>
+        internal static string ConGotoLoginBtn {
+            get {
+                return ResourceManager.GetString("ConGotoLoginBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please verify your phone number..
+        /// </summary>
+        internal static string ConLogonInfoLabel {
+            get {
+                return ResourceManager.GetString("ConLogonInfoLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Find People by Name, Location, Profession etc.
         /// </summary>
         internal static string ConSearchBarPH {
@@ -75,6 +111,33 @@ namespace Waarta.Resources {
         internal static string ConTitle {
             get {
                 return ResourceManager.GetString("ConTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tap to Cancel Download.
+        /// </summary>
+        internal static string CPCancelDownloadVideoLabel {
+            get {
+                return ResourceManager.GetString("CPCancelDownloadVideoLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tap to Download.
+        /// </summary>
+        internal static string CPDownloadVideoLabel {
+            get {
+                return ResourceManager.GetString("CPDownloadVideoLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tap to view video.
+        /// </summary>
+        internal static string CPTapVideoLabel {
+            get {
+                return ResourceManager.GetString("CPTapVideoLabel", resourceCulture);
             }
         }
         
@@ -196,6 +259,42 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string UniCancelDownloadBtn {
+            get {
+                return ResourceManager.GetString("UniCancelDownloadBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string UniCancelText {
+            get {
+                return ResourceManager.GetString("UniCancelText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Documents.
+        /// </summary>
+        internal static string UniDocText {
+            get {
+                return ResourceManager.GetString("UniDocText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download.
+        /// </summary>
+        internal static string UniDownloadBtn {
+            get {
+                return ResourceManager.GetString("UniDownloadBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not Found.
         /// </summary>
         internal static string UniNotFound {
@@ -232,6 +331,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Photos.
+        /// </summary>
+        internal static string UniPhotosText {
+            get {
+                return ResourceManager.GetString("UniPhotosText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Trouble brewing on server..
         /// </summary>
         internal static string UniServerErrorMsg {
@@ -246,6 +354,15 @@ namespace Waarta.Resources {
         internal static string UniServerErrorTitle {
             get {
                 return ResourceManager.GetString("UniServerErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Videos.
+        /// </summary>
+        internal static string UniVideosText {
+            get {
+                return ResourceManager.GetString("UniVideosText", resourceCulture);
             }
         }
     }

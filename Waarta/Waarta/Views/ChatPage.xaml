@@ -4,9 +4,9 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:Waarta.Helpers"
              mc:Ignorable="d"
-             x:Class="Waarta.Views.ChatPage" BackgroundColor="White"  Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
+             x:Class="Waarta.Views.ChatPage" BackgroundColor="White" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
     
-    <StackLayout Margin="0" Padding="0">
+    <StackLayout Margin="0" Padding="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
         <Grid Padding="0" Margin="0" HorizontalOptions="StartAndExpand" VerticalOptions="StartAndExpand" BackgroundColor="Black">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -22,7 +22,7 @@
             <Label Grid.Column="2" Grid.Row="0" FontSize="20" x:Name="NameTxt" TextColor="White" HorizontalOptions="Start" VerticalTextAlignment="Center" HorizontalTextAlignment="Start" FontAttributes="Bold" />
             <Label Grid.Column="2" Grid.Row="1" FontSize="10" x:Name="OnlineStatusTxt" TextColor="White" HorizontalOptions="Start" VerticalTextAlignment="Center" HorizontalTextAlignment="Start" FontAttributes="None" />
         </Grid>
-        <ScrollView x:Name="ScrollViewSV" HorizontalOptions="FillAndExpand" Margin="0" Padding="0" FlowDirection="LeftToRight" Rotation="180" VerticalOptions="FillAndExpand" HeightRequest="2000">
+        <ScrollView x:Name="ScrollViewSV" HorizontalOptions="FillAndExpand" Margin="0" Padding="0" FlowDirection="LeftToRight" Rotation="180" VerticalOptions="StartAndExpand">
             <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Rotation="180"  HorizontalOptions="FillAndExpand" Margin="0" Padding="0" VerticalOptions="FillAndExpand" x:Name="MsgStack">
 
             </StackLayout>
@@ -37,10 +37,12 @@
                 <ColumnDefinition Width="Auto"/>
 
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Text="+" FontSize="40"  Padding="0" Margin="0" BorderWidth="0" x:Name="OptionsBtn"  WidthRequest="40" BackgroundColor="Transparent" HeightRequest="40"></Button>
+            <Button Grid.Column="0" Text="+" Clicked="OptionsBtn_Clicked" FontSize="40"  Padding="0" Margin="0" BorderWidth="0" x:Name="OptionsBtn"  WidthRequest="40" BackgroundColor="Transparent" HeightRequest="40"></Button>
             <Entry Grid.Column="1" x:Name="MessageTxt" />
-            <Button Grid.Column="2" x:Name="SendBtn" FontSize="40" FontAttributes="Bold" HeightRequest="40" WidthRequest="40" Padding="0,0,5,0" Margin="0" BorderWidth="0" Text="&#8618;" BackgroundColor="Transparent" TextColor="Black" Clicked="SendBtn_Clicked"></Button>
+            <ImageButton Grid.Column="2"  x:Name="SendBtn" Source="paperplane.png" BackgroundColor="Transparent" Aspect="AspectFit" WidthRequest="40" HeightRequest="40"  Padding="0,0,5,0" Margin="0" BorderWidth="0" Clicked="SendBtn_Clicked"></ImageButton>
         </Grid>
+        
+        
     </StackLayout>
 
 </ContentPage>

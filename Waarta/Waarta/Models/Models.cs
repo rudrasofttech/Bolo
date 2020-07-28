@@ -48,7 +48,11 @@ namespace Waarta.Models
 
     public enum ChatMessageType
     {
-        Text = 1
+        Text = 1,
+        Photo = 2,
+        Video = 3,
+        Audio = 4,
+        Document = 5
     }
     public enum ChatMessageSentStatus
     {
@@ -268,8 +272,88 @@ namespace Waarta.Models
     {
         public Guid ID { get; set; }
         public Guid Sender { get; set; }
-        public string Text { get; set; }
+        private string _text;
+        public string Text
+        {
+            get { return _text; }
+            set
+            {
+                _text = value;
+                string temp = _text.Trim().ToLower();
+                if (temp.StartsWith("https://waarta.com/data/"))
+                {
+                    if (temp.EndsWith(".jpg") || temp.EndsWith(".jpeg") || temp.EndsWith(".png") || temp.EndsWith(".gif") || temp.EndsWith(".bmp"))
+                    {
+                        MessageType = ChatMessageType.Photo;
+                    }
+                    else if (temp.EndsWith(".mp3"))
+                    {
+                        MessageType = ChatMessageType.Audio;
+                    }
+                    else if (temp.EndsWith(".ogg") || temp.EndsWith(".mp4") || temp.EndsWith(".webm") || temp.EndsWith(".mov"))
+                    {
+                        MessageType = ChatMessageType.Video;
+                    }
+                    else
+                    {
+                        MessageType = ChatMessageType.Document;
+                    }
+                }
+                else
+                {
+                    MessageType = ChatMessageType.Text;
+                }
+            }
+        }
         public DateTime TimeStamp { get; set; }
         public ChatMessageSentStatus Status { get; set; }
+        public ChatMessageType MessageType { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonIgnore]
+        public string Thumbnail
+        {
+            get
+            {
+                if (MessageType == ChatMessageType.Video)
+                {
+                    if (!string.IsNullOrEmpty(LocalPath) && File.Exists(LocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg")))
+                    {
+                        return LocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg");
+                    }
+                    else
+                    {
+                        return Text.Replace(Path.GetExtension(Text), "-thumb.jpg");
+                    }
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+        }
+        public string LocalPath { get; set; }
+
+        public ChatMessage()
+        {
+            MessageType = ChatMessageType.Text;
+            LocalPath = string.Empty;
+        }
     }
+
+    public class DownloadedChunk
+    {
+        public string Data { get; set; }
+        public long Position { get; set; }
+        public long Length { get; set; }
+        public DownloadedChunk()
+        {
+            Data = string.Empty;
+        }
+    }
+
+    
+
 }

@@ -23,20 +23,38 @@ namespace Waarta.Views
     {
         readonly HubConnection hc;
         readonly WaartaDataStore ds;
-         ContactsService cService;
-        MemberService mService;
+        readonly ContactsService cService;
+        readonly MemberService mService;
         public Dictionary<Guid, ContactDTO> ContactDictionary { get; private set; }
+
         MemberDTO mdto = null;
+        public bool ShouldBindContactList;
         public Conversations()
         {
             InitializeComponent();
+            ContactDictionary = new Dictionary<Guid, ContactDTO>();
             ds = new WaartaDataStore();
+            mService = new MemberService();
+            cService = new ContactsService();
+            if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
+            {
+                mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
+            }
+            ShouldBindContactList = true;
+            BindingContext = this;
+            Waarta.Helpers.Settings.Activity = ActivityStatus.Online;
+
             this.Title = AppResource.ConTitle;
             SearchBar.Placeholder = AppResource.ConSearchBarPH;
-            ContactDictionary = new Dictionary<Guid, ContactDTO>();
             
-            BindingContext = this;
             
+            ContactListView.RefreshCommand = new Command(async () => {
+                await LoadContactsfromServer();
+                ContactListView.ItemsSource = null;
+                ContactListView.ItemsSource = ContactDictionary;
+                ContactListView.IsRefreshing = false;
+            });
+
             hc = new HubConnectionBuilder().WithUrl("https://waarta.com/personchathub", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(Waarta.Helpers.Settings.Token);
@@ -49,35 +67,46 @@ namespace Waarta.Views
             };
         }
 
-        private async void ContentPage_Appearing(object sender, EventArgs e)
+        private void ContentPage_Appearing(object sender, EventArgs e)
         {
-            Waarta.Helpers.Settings.Activity = ActivityStatus.Online;
-            if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
-            {
-                mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
-            }
-            mService = new MemberService();
-            cService = new ContactsService();
             if (mdto == null)
             {
-                await Navigation.PushModalAsync(new LoginPage());
+                LoginMsgLbl.IsVisible = true;
+                GotoLoginBtn.IsVisible = true;
+                SearchBar.IsVisible = false;
+                ContactListView.IsVisible = false;
                 return;
             }
-            //load contacts from local data store
-            this.LoadContactsfromFile();
+            else
+            {
+                LoginMsgLbl.IsVisible = false;
+                GotoLoginBtn.IsVisible = false;
+                SearchBar.IsVisible = true;
+                ContactListView.IsVisible = true;
+            }
+            if (ShouldBindContactList)
+            {
+                //load contacts from local data store
+                this.LoadContactsfromFile();
+                ShouldBindContactList = false;
+            }
 
-            ContactListView.RefreshCommand = new Command(async () => {
-                await LoadContactsfromServer();
-                ContactListView.ItemsSource = null;
-                ContactListView.ItemsSource = ContactDictionary;
-                ContactListView.IsRefreshing = false;
-            });
             try
             {
                 _ = ConnectHub();
                 SetHubconnectionOnFuncs();
             }
             catch { }
+        }
+
+        private void Lp_LoggedIn(object sender, MemberDTO e)
+        {
+            if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
+            {
+                mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
+            }
+            cService.Token = Waarta.Helpers.Settings.Token;
+            mService.Token = Waarta.Helpers.Settings.Token;
         }
 
         async Task ConnectHub()
@@ -192,7 +221,8 @@ namespace Waarta.Views
             ChatPage cp = new ChatPage
             {
                 Other = m,
-                Myself = mdto
+                Myself = mdto,
+                ShouldCreateMessageGrid = true
             };
             cp.UnseenMessageStatusUpdated += Cp_UnseenMessageStatusUpdated;
             await Navigation.PushModalAsync(cp);
@@ -282,6 +312,13 @@ namespace Waarta.Views
                 KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)mi.CommandParameter;
                 ds.ClearMessagesFromFile(mdto, item.Value.Person);
             }
+        }
+
+        private void GotoLoginBtn_Clicked(object sender, EventArgs e)
+        {
+            LoginPage lp = new LoginPage();
+            lp.LoggedIn += Lp_LoggedIn;
+            Shell.Current.Navigation.PushModalAsync(lp);
         }
     }
 }

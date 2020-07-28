@@ -117,11 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ChatVideoLengthExceedMsg" xml:space="preserve">
+    <value>Video duration cannot exceed 10 seconds limit.</value>
+  </data>
+  <data name="ChatVideoLengthExceedTitle" xml:space="preserve">
+    <value>Exceeds Limit</value>
+  </data>
+  <data name="ConGotoLoginBtn" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="ConLogonInfoLabel" xml:space="preserve">
+    <value>Please verify your phone number.</value>
+  </data>
   <data name="ConSearchBarPH" xml:space="preserve">
     <value>Find People by Name, Location, Profession etc</value>
   </data>
   <data name="ConTitle" xml:space="preserve">
     <value>Chats</value>
+  </data>
+  <data name="CPCancelDownloadVideoLabel" xml:space="preserve">
+    <value>Tap to Cancel Download</value>
+  </data>
+  <data name="CPDownloadVideoLabel" xml:space="preserve">
+    <value>Tap to Download</value>
+  </data>
+  <data name="CPTapVideoLabel" xml:space="preserve">
+    <value>Tap to view video</value>
   </data>
   <data name="LPBadRequestMsg" xml:space="preserve">
     <value>Either Phone or OTP not Provided.</value>
@@ -162,6 +183,18 @@
   <data name="UniBadRequest" xml:space="preserve">
     <value>Bad Request</value>
   </data>
+  <data name="UniCancelDownloadBtn" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="UniCancelText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="UniDocText" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="UniDownloadBtn" xml:space="preserve">
+    <value>Download</value>
+  </data>
   <data name="UniNotFound" xml:space="preserve">
     <value>Not Found</value>
   </data>
@@ -174,10 +207,16 @@
   <data name="UniOnlineText" xml:space="preserve">
     <value>Online</value>
   </data>
+  <data name="UniPhotosText" xml:space="preserve">
+    <value>Photos</value>
+  </data>
   <data name="UniServerErrorMsg" xml:space="preserve">
     <value>Trouble brewing on server.</value>
   </data>
   <data name="UniServerErrorTitle" xml:space="preserve">
     <value>Server Error</value>
+  </data>
+  <data name="UniVideosText" xml:space="preserve">
+    <value>Videos</value>
   </data>
 </root>

@@ -3,13 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:video="clr-namespace:Waarta"
              mc:Ignorable="d"
-             x:Class="Waarta.Views.VideoPage" Title="video page">
+             xmlns:forms="clr-namespace:InTheHand.Forms;assembly=InTheHand.Forms"
+             x:Class="Waarta.Views.VideoPage" Title="video page" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="video page"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <forms:MediaElement HorizontalOptions="Fill" BackgroundColor="White" VerticalOptions="Center" HeightRequest="240" x:Name="Media" IsLooping="True" ShowsPlaybackControls="True" />
+
     </ContentPage.Content>
 </ContentPage>

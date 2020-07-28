@@ -15,6 +15,18 @@ namespace Waarta.Services
         }
         public string GetDataFolderPath(MemberDTO owner, MemberDTO contact)
         {
+            if(!Directory.Exists(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data")))
+            {
+                Directory.CreateDirectory(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data"));
+            }
+            if (!Directory.Exists(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", owner.ID.ToString().ToLower())))
+            {
+                Directory.CreateDirectory(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", owner.ID.ToString().ToLower()));
+            }
+            if (!Directory.Exists(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", owner.ID.ToString().ToLower(), contact.ID.ToString().ToLower())))
+            {
+                Directory.CreateDirectory(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", owner.ID.ToString().ToLower(), contact.ID.ToString().ToLower()));
+            }
             return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", owner.ID.ToString().ToLower(), contact.ID.ToString().ToLower());
         }
 
@@ -30,6 +42,11 @@ namespace Waarta.Services
             {
                 File.Delete(filePath);
             }
+
+            if (File.Exists(GetDataFolderPath(m, m2)))
+            {
+                File.Delete(GetDataFolderPath(m, m2));
+            }
         }
 
         public Dictionary<Guid, ChatMessage> LoadMessagesFromFile(MemberDTO m, MemberDTO m2)
@@ -38,7 +55,11 @@ namespace Waarta.Services
             string filePath = GetMessageFilePath(m, m2);
             if (File.Exists(filePath))
             {
-                result = (Dictionary<Guid, ChatMessage>)JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(Dictionary<Guid, ChatMessage>));
+                string data = File.ReadAllText(filePath);
+                if (!String.IsNullOrEmpty(data))
+                {
+                    result = (Dictionary<Guid, ChatMessage>)JsonConvert.DeserializeObject(File.ReadAllText(filePath), typeof(Dictionary<Guid, ChatMessage>));
+                }
             }
 
             return result;

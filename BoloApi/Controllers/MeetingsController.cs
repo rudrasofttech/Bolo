@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text;
 using System.IO;
 using Org.BouncyCastle.Ocsp;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace Bolo.Controllers
 {
@@ -88,11 +91,13 @@ namespace Bolo.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> PostMeeting(CreateMeetingDTO m)
         {
-            Meeting meeting = new Meeting();
-            meeting.CreateDate = DateTime.UtcNow;
-            meeting.Status = RecordStatus.Active;
-            meeting.Name = m.Name;
-            meeting.Purpose = m.Purpose;
+            Meeting meeting = new Meeting
+            {
+                CreateDate = DateTime.UtcNow,
+                Status = RecordStatus.Active,
+                Name = m.Name,
+                Purpose = m.Purpose
+            };
             if (User.Identity.IsAuthenticated)
             {
                 meeting.Owner = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
@@ -154,6 +159,36 @@ namespace Bolo.Controllers
             
         }
 
+        [HttpGet]
+        [Route("DownloadChunk")]
+        public ActionResult DownloadFile([FromQuery] string filename, [FromQuery] int position, [FromQuery]string id)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return Ok(new { data = string.Empty, position = -1, length = -1 });
+            }
+            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, filename);
+            if (System.IO.File.Exists(filepath))
+            {
+                byte[] array = System.IO.File.ReadAllBytes(filepath);
+
+                if ((array.Length - position) > 131072)
+                {
+
+                    return Ok(new { data = Convert.ToBase64String(array.Skip(position).Take(131072).ToArray()), position = (position + 131072), length = array.Length });
+                }
+                else
+                {
+                    return Ok(new { data = Convert.ToBase64String(array.Skip(position).Take((int)(array.Length - position)).ToArray()), position = array.Length, length = array.Length });
+                }
+
+            }
+            else
+            {
+                return Ok(new { data = string.Empty, position = -1, length = -1 });
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -187,25 +222,58 @@ namespace Bolo.Controllers
                 byte[] barr = Convert.FromBase64String(arr[1]);
                 if (System.IO.File.Exists(path))
                 {
-                    using (FileStream fs = new FileStream(path, FileMode.Append))
-                    {
-                        fs.Write(barr, 0, barr.Length);
-                    }
+                    using FileStream fs = new FileStream(path, FileMode.Append);
+                    fs.Write(barr, 0, barr.Length);
                 }
                 else
                 {
-                    using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
-                    {
-                        fs.Write(barr, 0, barr.Length);
-                    }
+                    using FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
+                    fs.Write(barr, 0, barr.Length);
                 }
             }
 
 
-            return Ok(new { filename = filename });
+            return Ok(new { filename });
         }
 
-        // DELETE: api/Meetings/5
+        [HttpGet]
+        [Route("GenerateThumbnail")]
+        public ActionResult GenerateThumbnail([FromQuery] string filename, [FromQuery]string id)
+        {
+            string ffmpegpath = Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg", "ffmpeg.exe");
+            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, filename);
+            string thumbpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, filename.ToLower().Replace(Path.GetExtension(filename.ToLower()), "-thumb.jpg"));
+            if (System.IO.File.Exists(filepath))
+            {
+                if (filename.ToLower().EndsWith(".ogg") || filename.ToLower().EndsWith(".mp4") || filename.ToLower().EndsWith(".webm") || filename.ToLower().EndsWith(".mov"))
+                {
+                    //var cmd = '"' + ffmpegpath + '"' + " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 " + '"' + thumbpath + '"';
+
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        CreateNoWindow = false,
+                        UseShellExecute = false,
+                        FileName = ffmpegpath,
+                        Arguments = " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -filter:v scale=\"280:-1\" " + '"' + thumbpath + '"',
+                        RedirectStandardOutput = true
+                    };
+                    Console.WriteLine(string.Format("Executing \"{0}\" with arguments \"{1}\".\r\n", startInfo.FileName, startInfo.Arguments));
+                    try
+                    {
+                        using Process process = Process.Start(startInfo);
+                        process.Start();
+                        process.WaitForExit(2000);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+            }
+            return Ok();
+        }
+
+       // DELETE: api/Meetings/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Meeting>> DeleteMeeting(int id)
         {

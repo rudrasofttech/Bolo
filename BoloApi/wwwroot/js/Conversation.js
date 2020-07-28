@@ -83,7 +83,7 @@
 
     compare_contact(a, b) {
         // a should come before b in the sorted order
-        console.log(a);
+        //console.log(a);
         if (a[1].unseenMessageCount > b[1].unseenMessageCount) {
             return -1;
 

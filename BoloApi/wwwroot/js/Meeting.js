@@ -402,6 +402,8 @@
                                 this.hubConnection.invoke("SendTextMessage", this.state.id, this.myself, 'https://' + window.location.host + '/api/meetings/media/' + this.state.id + '?f=' + msg.serverfname)
                                     .catch(err => { console.log("Unable to send file message to group."); console.log(err); });
                                 this.setState({ filestoupload: flist });
+                                this.generateVideoThumbnail(msg.serverfname, this.state.id);
+                                
                                 this.processFileUpload();
                             } else {
                                 this.setState({ filestoupload: flist });
@@ -415,6 +417,14 @@
 
             }
         });
+    }
+
+    generateVideoThumbnail(filename, id) {
+        fetch('//' + window.location.host + '/api/members/GenerateThumbnail?filename=' + filename + '&id=' + id, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        })
     }
 
     //check if browser supports access to camera and microphone

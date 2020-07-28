@@ -16,11 +16,23 @@ namespace Waarta.Services
         string apiurl = "https://waarta.com/api/contacts/";
         string _token;
 
+        public string Token
+        {
+            set
+            {
+                _token = value;
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            }
+        }
+
         public ContactsService()
         {
             _client = new HttpClient();
             _token = Waarta.Helpers.Settings.Token;
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            if (!string.IsNullOrEmpty(_token))
+            {
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            }
         }
 
         public async Task<List<ContactDTO>> GetContacts()

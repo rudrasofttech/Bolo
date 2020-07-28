@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="Waarta.Views.LoginPage"
-             Title="Login">
+             Title="Login" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
         <StackLayout Margin="20">
             <Entry Style="{StaticResource textboxStyle}" x:Name="MobileTxt" TextChanged="MobileTxt_TextChanged" Completed="MobileTxt_Completed" />
