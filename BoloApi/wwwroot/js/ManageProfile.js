@@ -16,8 +16,8 @@
                 unit: "px",
                 x: 20,
                 y: 20,
-                width: 200,
-                height: 200
+                width: 350,
+                height: 350
             },
             croppedImageUrl: null
         };

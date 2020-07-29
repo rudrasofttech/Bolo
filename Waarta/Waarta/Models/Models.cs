@@ -60,7 +60,13 @@ namespace Waarta.Models
         Sent = 1,
         Received = 2,
         Seen = 3,
+    }
 
+    public enum FileDownloadStatus
+    {
+        None,
+        Downloading,
+        Downloaded
     }
 
     public class ContactDTO
@@ -336,10 +342,16 @@ namespace Waarta.Models
         }
         public string LocalPath { get; set; }
 
+        public FileDownloadStatus FileDownloadStatus
+        {
+            get;set;
+        }
+
         public ChatMessage()
         {
             MessageType = ChatMessageType.Text;
             LocalPath = string.Empty;
+            FileDownloadStatus = FileDownloadStatus.None;
         }
     }
 

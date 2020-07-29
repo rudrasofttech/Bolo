@@ -36,10 +36,7 @@ namespace Waarta.Views
             ds = new WaartaDataStore();
             mService = new MemberService();
             cService = new ContactsService();
-            if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
-            {
-                mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
-            }
+            
             ShouldBindContactList = true;
             BindingContext = this;
             Waarta.Helpers.Settings.Activity = ActivityStatus.Online;
@@ -69,6 +66,12 @@ namespace Waarta.Views
 
         private void ContentPage_Appearing(object sender, EventArgs e)
         {
+            if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
+            {
+                mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
+                cService.Token = Waarta.Helpers.Settings.Token;
+                mService.Token = Waarta.Helpers.Settings.Token;
+            }
             if (mdto == null)
             {
                 LoginMsgLbl.IsVisible = true;
@@ -104,9 +107,10 @@ namespace Waarta.Views
             if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
             {
                 mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
+                cService.Token = Waarta.Helpers.Settings.Token;
+                mService.Token = Waarta.Helpers.Settings.Token;
             }
-            cService.Token = Waarta.Helpers.Settings.Token;
-            mService.Token = Waarta.Helpers.Settings.Token;
+            
         }
 
         async Task ConnectHub()
@@ -281,6 +285,10 @@ namespace Waarta.Views
 
         private void ContentPage_Disappearing(object sender, EventArgs e)
         {
+            if (mdto != null)
+            {
+                ds.SaveContactstoFile(mdto, ContactDictionary);
+            }
             //_ = DisconnectHub();
         }
 

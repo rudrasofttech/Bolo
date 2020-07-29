@@ -849,7 +849,15 @@
                     </a>
                 </span>;
             }
-        } else {
+        }
+        else if ((msg.text.startsWith('https://') || msg.text.startsWith('http://')) && msg.text.trim().indexOf(" ") === -1) {
+            return <span id={tempmid}>
+                <a href={msg.text.trim()} target="_blank">
+                    {msg.text}
+                </a>
+            </span>;
+        }
+        else {
             return <span id={tempmid}>{msg.text}</span>
         }
     }

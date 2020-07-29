@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Waarta.Models;
+using Waarta.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -16,7 +17,7 @@ namespace Waarta.Views
         public ProfilePage()
         {
             InitializeComponent();
-            
+            Title = AppResource.PPTitle;
             ProfilePic.WidthRequest = Application.Current.MainPage.Width;
             ProfilePic.HeightRequest = Application.Current.MainPage.Width;
             

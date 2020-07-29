@@ -7,7 +7,7 @@
              x:Class="Waarta.Views.ProfilePage" BindingContext="Waarta.Model.MemberDTO" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
         <StackLayout>
-            <Image Source="{Binding Image}" Aspect="Fill" VerticalOptions="Start" HorizontalOptions="Center" x:Name="ProfilePic" />
+            <Image Source="{Binding Image}" VerticalOptions="Start" HorizontalOptions="Center" x:Name="ProfilePic" />
             <Label Text="{Binding Name}" FontSize="Title" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
             <Label Text="{Binding Location}" x:Name="LocationLbl" FontSize="Small" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
             <Label Text="{Binding ThoughtStatus}" x:Name="ThoughtStatusLbl"  FontAttributes="Italic" FontSize="Body" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>

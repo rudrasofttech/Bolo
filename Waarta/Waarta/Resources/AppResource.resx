@@ -135,14 +135,14 @@
   <data name="ConTitle" xml:space="preserve">
     <value>Chats</value>
   </data>
-  <data name="CPCancelDownloadVideoLabel" xml:space="preserve">
-    <value>Tap to Cancel Download</value>
+  <data name="CPCancelDownloadFileLabel" xml:space="preserve">
+    <value>Tap to Cancel</value>
   </data>
-  <data name="CPDownloadVideoLabel" xml:space="preserve">
+  <data name="CPDownloadFileLabel" xml:space="preserve">
     <value>Tap to Download</value>
   </data>
-  <data name="CPTapVideoLabel" xml:space="preserve">
-    <value>Tap to view video</value>
+  <data name="CPTapFileLabel" xml:space="preserve">
+    <value>Tap to View</value>
   </data>
   <data name="LPBadRequestMsg" xml:space="preserve">
     <value>Either Phone or OTP not Provided.</value>
@@ -180,6 +180,27 @@
   <data name="LPTitle" xml:space="preserve">
     <value>Login</value>
   </data>
+  <data name="PPTitle" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="SetChangePicBtn" xml:space="preserve">
+    <value>Change Profile Picture</value>
+  </data>
+  <data name="SetManageProfileBtn" xml:space="preserve">
+    <value>Update Profile</value>
+  </data>
+  <data name="SetRemovePicBtn" xml:space="preserve">
+    <value>Remove Profile Picture</value>
+  </data>
+  <data name="SetTAFBtn" xml:space="preserve">
+    <value>Tell a Friend</value>
+  </data>
+  <data name="SetTitle" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SetViewProfileBtn" xml:space="preserve">
+    <value>View Your Profile</value>
+  </data>
   <data name="UniBadRequest" xml:space="preserve">
     <value>Bad Request</value>
   </data>
@@ -206,6 +227,9 @@
   </data>
   <data name="UniOnlineText" xml:space="preserve">
     <value>Online</value>
+  </data>
+  <data name="UniOptions" xml:space="preserve">
+    <value>Options</value>
   </data>
   <data name="UniPhotosText" xml:space="preserve">
     <value>Photos</value>

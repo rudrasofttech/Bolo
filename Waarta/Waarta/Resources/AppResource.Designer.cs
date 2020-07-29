@@ -115,29 +115,29 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tap to Cancel Download.
+        ///   Looks up a localized string similar to Tap to Cancel.
         /// </summary>
-        internal static string CPCancelDownloadVideoLabel {
+        internal static string CPCancelDownloadFileLabel {
             get {
-                return ResourceManager.GetString("CPCancelDownloadVideoLabel", resourceCulture);
+                return ResourceManager.GetString("CPCancelDownloadFileLabel", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Tap to Download.
         /// </summary>
-        internal static string CPDownloadVideoLabel {
+        internal static string CPDownloadFileLabel {
             get {
-                return ResourceManager.GetString("CPDownloadVideoLabel", resourceCulture);
+                return ResourceManager.GetString("CPDownloadFileLabel", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tap to view video.
+        ///   Looks up a localized string similar to Tap to View.
         /// </summary>
-        internal static string CPTapVideoLabel {
+        internal static string CPTapFileLabel {
             get {
-                return ResourceManager.GetString("CPTapVideoLabel", resourceCulture);
+                return ResourceManager.GetString("CPTapFileLabel", resourceCulture);
             }
         }
         
@@ -250,6 +250,69 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Profile.
+        /// </summary>
+        internal static string PPTitle {
+            get {
+                return ResourceManager.GetString("PPTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Profile Picture.
+        /// </summary>
+        internal static string SetChangePicBtn {
+            get {
+                return ResourceManager.GetString("SetChangePicBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Profile.
+        /// </summary>
+        internal static string SetManageProfileBtn {
+            get {
+                return ResourceManager.GetString("SetManageProfileBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove Profile Picture.
+        /// </summary>
+        internal static string SetRemovePicBtn {
+            get {
+                return ResourceManager.GetString("SetRemovePicBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tell a Friend.
+        /// </summary>
+        internal static string SetTAFBtn {
+            get {
+                return ResourceManager.GetString("SetTAFBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string SetTitle {
+            get {
+                return ResourceManager.GetString("SetTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View Your Profile.
+        /// </summary>
+        internal static string SetViewProfileBtn {
+            get {
+                return ResourceManager.GetString("SetViewProfileBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bad Request.
         /// </summary>
         internal static string UniBadRequest {
@@ -327,6 +390,15 @@ namespace Waarta.Resources {
         internal static string UniOnlineText {
             get {
                 return ResourceManager.GetString("UniOnlineText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        internal static string UniOptions {
+            get {
+                return ResourceManager.GetString("UniOptions", resourceCulture);
             }
         }
         

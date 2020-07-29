@@ -12,12 +12,60 @@
                 <Setter Property="BorderColor" Value="#1861ac" />
                 <Setter Property="CornerRadius" Value="4" />
                 <Setter Property="TextColor" Value="#ffffff" />
+                <Setter Property="BorderWidth" Value="2" />
             </Style>
             <Style x:Key="successButtonStyle" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="#28a745" />
                 <Setter Property="BorderColor" Value="#28a745" />
                 <Setter Property="CornerRadius" Value="4" />
                 <Setter Property="TextColor" Value="#ffffff" />
+                <Setter Property="BorderWidth" Value="2" />
+            </Style>
+            <Style x:Key="secondoryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#6c757d" />
+                <Setter Property="BorderColor" Value="#6c757d" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#ffffff" />
+                <Setter Property="BorderWidth" Value="2" />
+            </Style>
+            <Style x:Key="dangerButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#bd2130" />
+                <Setter Property="BorderColor" Value="#b21f2d" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#ffffff" />
+                <Setter Property="BorderWidth" Value="2" />
+            </Style>
+            <Style x:Key="warningButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#d39e00" />
+                <Setter Property="BorderColor" Value="#c69500" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#495057" />
+                <Setter Property="BorderWidth" Value="2" />
+            </Style>
+            <Style x:Key="infoButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#117a8b" />
+                <Setter Property="BorderColor" Value="#10707f" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#495057" />
+                <Setter Property="BorderWidth" Value="2" />
+            </Style>
+            <Style x:Key="lightButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#dae0e5" />
+                <Setter Property="BorderColor" Value="#d3d9df" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#495057" />
+                <Setter Property="BorderWidth" Value="2" />
+            </Style>
+            <Style x:Key="darkButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#1d2124" />
+                <Setter Property="BorderColor" Value="#171a1d" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="TextColor" Value="#ffffff" />
+                <Setter Property="BorderWidth" Value="2" />
+            </Style>
+            <Style x:Key="entryStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#fff" />
+                <Setter Property="TextColor" Value="#495057" />
             </Style>
             <Style x:Key="textboxStyle" TargetType="Entry">
                 <Setter Property="TextColor" Value="#495057" />

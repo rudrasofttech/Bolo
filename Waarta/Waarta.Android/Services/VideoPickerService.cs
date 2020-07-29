@@ -16,7 +16,6 @@ using Waarta.Droid.Services;
 using Waarta.Services;
 using Xamarin.Forms;
 
-
 [assembly: Dependency(typeof(VideoPickerService))]
 namespace Waarta.Droid.Services
 {
