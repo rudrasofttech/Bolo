@@ -34,8 +34,14 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>AppResource.resx</DependentUpon>
     </Compile>
+    <Compile Update="Views\ConversationsPage.xaml.cs">
+      <DependentUpon>ConversationsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\ManageProfilePage.xaml.cs">
       <DependentUpon>ManageProfilePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\MeetingsPage.xaml.cs">
+      <DependentUpon>MeetingsPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -47,7 +53,7 @@
     <EmbeddedResource Update="Views\ChatPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Views\Conversations.xaml">
+    <EmbeddedResource Update="Views\ConversationsPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\LoginPage.xaml">
@@ -56,7 +62,7 @@
     <EmbeddedResource Update="Views\ManageProfilePage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Views\Meetings.xaml">
+    <EmbeddedResource Update="Views\MeetingsPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\MemberPhotoManage.xaml">

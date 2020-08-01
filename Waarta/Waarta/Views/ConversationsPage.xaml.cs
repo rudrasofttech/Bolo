@@ -19,7 +19,7 @@ using Xamarin.Forms.Xaml;
 namespace Waarta.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class Conversations : ContentPage
+    public partial class ConversationsPage : ContentPage
     {
         readonly HubConnection hc;
         readonly WaartaDataStore ds;
@@ -29,7 +29,7 @@ namespace Waarta.Views
 
         MemberDTO mdto = null;
         public bool ShouldBindContactList;
-        public Conversations()
+        public ConversationsPage()
         {
             InitializeComponent();
             ContactDictionary = new Dictionary<Guid, ContactDTO>();

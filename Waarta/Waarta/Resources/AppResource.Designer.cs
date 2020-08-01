@@ -61,6 +61,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Chat.
+        /// </summary>
+        internal static string ChatTitle {
+            get {
+                return ResourceManager.GetString("ChatTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Video duration cannot exceed 10 seconds limit..
         /// </summary>
         internal static string ChatVideoLengthExceedMsg {
@@ -250,6 +259,114 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Meetings.
+        /// </summary>
+        internal static string MeetingsTitle {
+            get {
+                return ResourceManager.GetString("MeetingsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optional. You can provide name for your meetings. Meetings with name are preserved for future reference, full chat history is maintianed on your local device..
+        /// </summary>
+        internal static string MeetNameHelp {
+            get {
+                return ResourceManager.GetString("MeetNameHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create Meeting.
+        /// </summary>
+        internal static string MeetsCreateBtn {
+            get {
+                return ResourceManager.GetString("MeetsCreateBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to create meeting at present, please trying after some time..
+        /// </summary>
+        internal static string MeetsCreateerrorMsg {
+            get {
+                return ResourceManager.GetString("MeetsCreateerrorMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connect with people for quick status updates, important discussions, future planning or interviews..
+        /// </summary>
+        internal static string MeetsExplainLabel {
+            get {
+                return ResourceManager.GetString("MeetsExplainLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Meeting id is invalid..
+        /// </summary>
+        internal static string MeetsIdInvalidErrorMsg {
+            get {
+                return ResourceManager.GetString("MeetsIdInvalidErrorMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Join.
+        /// </summary>
+        internal static string MeetsJoinBtn {
+            get {
+                return ResourceManager.GetString("MeetsJoinBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Join Meeting.
+        /// </summary>
+        internal static string MeetsJoinMeetingLabel {
+            get {
+                return ResourceManager.GetString("MeetsJoinMeetingLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please provide meeting id.
+        /// </summary>
+        internal static string MeetsMeetingIDLabel {
+            get {
+                return ResourceManager.GetString("MeetsMeetingIDLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string MeetsNameLabel {
+            get {
+                return ResourceManager.GetString("MeetsNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optional. Use this place to explain the purpose / agenda of the meeting in detail. This will show up as first message on meeting page..
+        /// </summary>
+        internal static string MeetsPurposeHelp {
+            get {
+                return ResourceManager.GetString("MeetsPurposeHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Purpose.
+        /// </summary>
+        internal static string MeetsPurposeLabel {
+            get {
+                return ResourceManager.GetString("MeetsPurposeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save Profile Photo.
         /// </summary>
         internal static string MpmSavePhotoBtn {
@@ -435,6 +552,15 @@ namespace Waarta.Resources {
         internal static string SetTakePicBtn {
             get {
                 return ResourceManager.GetString("SetTakePicBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string SettingsTitle {
+            get {
+                return ResourceManager.GetString("SettingsTitle", resourceCulture);
             }
         }
         

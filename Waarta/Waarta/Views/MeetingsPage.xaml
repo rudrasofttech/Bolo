@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="Waarta.Views.MeetingsPage" xmlns:resources="clr-namespace:Waarta.Resources">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{x:Static resources:AppResource.MeetsJoinBtn}" Clicked="ToolbarItem_Clicked" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <ScrollView HorizontalOptions="FillAndExpand" Margin="0" Padding="0" VerticalOptions="StartAndExpand">
+            <StackLayout>
+                <Label Text="{x:Static resources:AppResource.MeetsExplainLabel}" TextType="Html" FontAttributes="Bold" FontSize="Large" Margin="10"
+                VerticalOptions="Start" 
+                HorizontalOptions="CenterAndExpand" />
+                <Label Text="{x:Static resources:AppResource.MeetsNameLabel}" Margin="10" FontSize="Body" />
+                <Entry x:Name="NameTxt" Text="" MaxLength="50" Margin="0" />
+                <Label Text="{x:Static resources:AppResource.MeetNameHelp}" Margin="10,3,10,3" FontSize="Small" />
+                <Label Text="{x:Static resources:AppResource.MeetsPurposeLabel}" Margin="10" FontSize="Body" />
+                <Editor x:Name="PurposeTxt" Text="" MaxLength="250" AutoSize="TextChanges" Margin="0" />
+                <Label Text="{x:Static resources:AppResource.MeetsPurposeHelp}" Margin="10,3,10,3" FontSize="Small" />
+                <Button Text="{x:Static resources:AppResource.MeetsCreateBtn}" Style="{StaticResource primaryButtonStyle}" Margin="10" Clicked="CreateMeetingBtn_Clicked" x:Name="CreateMeetingBtn" />
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

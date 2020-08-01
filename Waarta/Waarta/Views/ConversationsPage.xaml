@@ -5,8 +5,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:resources="clr-namespace:Waarta.Resources"
              mc:Ignorable="d"
-             x:Class="Waarta.Views.Conversations"
-             Title="" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing" x:Name="ConversationsPage">
+             x:Class="Waarta.Views.ConversationsPage"
+             Title="" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
     <ContentPage.Content>
         <StackLayout>
             <Label x:Name="LoginMsgLbl" Text="{x:Static resources:AppResource.ConLogonInfoLabel}" IsVisible="false" FontSize="Body" TextColor="Black" HorizontalTextAlignment="Center" Margin="10"/>

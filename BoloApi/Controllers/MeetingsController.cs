@@ -40,16 +40,25 @@ namespace Bolo.Controllers
         // GET: api/Meetings/5
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<Meeting>> GetMeeting(string id)
+        public async Task<ActionResult<MeetingDTO>> GetMeeting(string id)
         {
-            var meeting = await _context.Meetings.FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());
+            var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());
 
             if (meeting == null)
             {
                 return NotFound();
             }
+            else
+            {
+                MeetingDTO result = new MeetingDTO() { CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
+                if (meeting.Owner != null)
+                {
+                    result.Owner = new MemberDTO(meeting.Owner);
+                }
+                return result;
+            }
 
-            return meeting;
+            
         }
 
         // PUT: api/Meetings/5

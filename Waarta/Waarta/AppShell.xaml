@@ -5,6 +5,7 @@
        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        mc:Ignorable="d"
        xmlns:local="clr-namespace:Waarta.Views"
+       xmlns:resources="clr-namespace:Waarta.Resources"
        Title="Waarta"
        x:Class="Waarta.AppShell" Appearing="Shell_Appearing">
 
@@ -33,15 +34,15 @@
 
     <!-- Your Pages -->
     <TabBar >
-        <Tab Title="Chat">
+        <Tab Title="{x:Static resources:AppResource.ChatTitle}" Icon="send.png">
             <ShellContent Route="Chat" >
-                <local:Conversations/>
+                <local:ConversationsPage/>
             </ShellContent>
         </Tab>
-        <Tab Title="Meetings">
-            <ShellContent ContentTemplate="{DataTemplate local:Meetings}" />
+        <Tab Title="{x:Static resources:AppResource.MeetingsTitle}" Icon="meeting.png">
+            <ShellContent ContentTemplate="{DataTemplate local:MeetingsPage}" />
         </Tab>
-        <Tab Title="Settings">
+        <Tab Title="{x:Static resources:AppResource.SettingsTitle}" Icon="settings.png">
             <ShellContent ContentTemplate="{DataTemplate local:Settings}" />
         </Tab>
     </TabBar>

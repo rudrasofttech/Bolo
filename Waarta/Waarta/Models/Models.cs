@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Text;
 using Waarta.Resources;
@@ -353,6 +354,20 @@ namespace Waarta.Models
             LocalPath = string.Empty;
             FileDownloadStatus = FileDownloadStatus.None;
         }
+    }
+
+    public class MeetingDTO
+    {
+        public MemberDTO Owner { get; set; }
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public string Purpose { get; set; }
+        public DateTime CreateDate { get; set; }
+    }
+
+    public class PostMeetingResult
+    {
+        public string id { get; set; }
     }
 
     public class DownloadedChunk

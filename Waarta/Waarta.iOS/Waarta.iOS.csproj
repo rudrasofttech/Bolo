@@ -122,6 +122,12 @@
     <BundleResource Include="Resources\xamarin_logo.png" />
     <BundleResource Include="Resources\xamarin_logo%402x.png" />
     <BundleResource Include="Resources\xamarin_logo%403x.png" />
+    <ImageAsset Include="Assets.xcassets\settings.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\send.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
     <ImageAsset Include="Assets.xcassets\meeting.imageset\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
@@ -135,6 +141,12 @@
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\paperplane.imageset\paperplane.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\send.imageset\send.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\settings.imageset\settings.png">
       <Visible>false</Visible>
     </ImageAsset>
     <ImageAsset Include="Assets.xcassets\verticalellipsis.imageset\Contents.json">
