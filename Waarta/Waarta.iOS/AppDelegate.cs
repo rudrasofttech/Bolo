@@ -25,6 +25,9 @@ namespace Waarta.iOS
             global::Xamarin.Forms.Forms.SetFlags("CollectionView_Experimental");
             
             global::Xamarin.Forms.Forms.Init();
+            App.ScreenWidth = UIScreen.MainScreen.Bounds.Width;
+            App.ScreenHeight = UIScreen.MainScreen.Bounds.Height;
+            FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);

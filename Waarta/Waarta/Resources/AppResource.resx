@@ -180,26 +180,77 @@
   <data name="LPTitle" xml:space="preserve">
     <value>Login</value>
   </data>
+  <data name="MpmSavePhotoBtn" xml:space="preserve">
+    <value>Save Profile Photo</value>
+  </data>
+  <data name="MppBioHelpLabel" xml:space="preserve">
+    <value>Optional, but recommended. Use this space to describe yourself. Your interests, profession, hobbies etc. It's your space use it well.</value>
+  </data>
+  <data name="MppBioPH" xml:space="preserve">
+    <value>Use this space to write about yourself.</value>
+  </data>
+  <data name="MppBirthYearLabel" xml:space="preserve">
+    <value>Year of Birth</value>
+  </data>
+  <data name="MppCountryLabel" xml:space="preserve">
+    <value>Country</value>
+  </data>
+  <data name="MppDistrictLabel" xml:space="preserve">
+    <value>City / District / Area</value>
+  </data>
+  <data name="MppGenderLabel" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="MppNamePH" xml:space="preserve">
+    <value>Your Name</value>
+  </data>
+  <data name="MppProfileVisibilityHelpLabel" xml:space="preserve">
+    <value>Optional, but recommended. Public visibility means your profile will be visible in searches. Private visibility means your profile will not be shown in searches.</value>
+  </data>
+  <data name="MppProfileVisibilityLabel" xml:space="preserve">
+    <value>Profile Visible</value>
+  </data>
+  <data name="MppStateLabel" xml:space="preserve">
+    <value>State</value>
+  </data>
+  <data name="MppThoughtStatusHelpLabel" xml:space="preserve">
+    <value>Optional. Provide a one line introduction of yourself.</value>
+  </data>
+  <data name="MppThoughtStatusLabel" xml:space="preserve">
+    <value>One Line Introduction</value>
+  </data>
+  <data name="MppTitle" xml:space="preserve">
+    <value>Update Profile</value>
+  </data>
   <data name="PPTitle" xml:space="preserve">
     <value>Profile</value>
   </data>
   <data name="SetChangePicBtn" xml:space="preserve">
     <value>Change Profile Picture</value>
   </data>
+  <data name="SetChoosePhotoBtn" xml:space="preserve">
+    <value>Choose Photo</value>
+  </data>
   <data name="SetManageProfileBtn" xml:space="preserve">
     <value>Update Profile</value>
   </data>
   <data name="SetRemovePicBtn" xml:space="preserve">
-    <value>Remove Profile Picture</value>
+    <value>Remove Photo</value>
   </data>
   <data name="SetTAFBtn" xml:space="preserve">
     <value>Tell a Friend</value>
+  </data>
+  <data name="SetTakePicBtn" xml:space="preserve">
+    <value>Take Photo</value>
   </data>
   <data name="SetTitle" xml:space="preserve">
     <value>Settings</value>
   </data>
   <data name="SetViewProfileBtn" xml:space="preserve">
     <value>View Your Profile</value>
+  </data>
+  <data name="UniAboutMeLabel" xml:space="preserve">
+    <value>About Me</value>
   </data>
   <data name="UniBadRequest" xml:space="preserve">
     <value>Bad Request</value>
@@ -215,6 +266,9 @@
   </data>
   <data name="UniDownloadBtn" xml:space="preserve">
     <value>Download</value>
+  </data>
+  <data name="UniNameLabel" xml:space="preserve">
+    <value>Name</value>
   </data>
   <data name="UniNotFound" xml:space="preserve">
     <value>Not Found</value>

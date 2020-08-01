@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Plugin.Media;
+using Plugin.Media.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +17,12 @@ namespace Waarta.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Settings : ContentPage
     {
+        
         readonly MemberService mService;
         MemberDTO mdto = null;
         public Settings()
         {
             InitializeComponent();
-
             mService = new MemberService();
             this.Title = AppResource.SetTitle;
 
@@ -85,7 +87,6 @@ namespace Waarta.Views
         private async void UptProfileBtn_Clicked(object sender, EventArgs e)
         {
             ManageProfilePage mpp = new ManageProfilePage();
-            mpp.BindingContext = mdto;
             await Navigation.PushAsync(mpp);
         }
 
@@ -95,8 +96,65 @@ namespace Waarta.Views
             await Navigation.PushAsync(taf);
         }
 
-        private void ChangeProPicBtn_Clicked(object sender, EventArgs e)
+        private async void ChangeProPicBtn_Clicked(object sender, EventArgs e)
         {
+            string action = await DisplayActionSheet(AppResource.UniOptions, AppResource.UniCancelText, null, AppResource.SetTakePicBtn, AppResource.SetChoosePhotoBtn, AppResource.SetRemovePicBtn);
+            if(action == AppResource.SetRemovePicBtn)
+            {
+                mdto.Pic = string.Empty;
+                await mService.SavePic(mdto.Pic);
+                ProfilePic.Source = mdto.Image;
+                Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(mdto);
+
+            }else if(action == AppResource.SetChoosePhotoBtn)
+            {
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsPickPhotoSupported)
+                {
+                    return;
+                }
+                var mediaOptions = new PickMediaOptions()
+                {
+                    PhotoSize = PhotoSize.Small,
+                    CompressionQuality = 40
+                };
+                var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
+                if (selectedImage != null)
+                {
+
+                    MemberPhotoManage mpm = new MemberPhotoManage()
+                    {
+                        Path = selectedImage,
+                        Member = mdto
+                    };
+                    await Navigation.PushModalAsync(mpm);
+                }
+            }
+            else if (action == AppResource.SetTakePicBtn)
+            {
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsTakePhotoSupported)
+                {
+                    return;
+                }
+                var mediaOptions = new StoreCameraMediaOptions()
+                {
+                    AllowCropping = true,
+                    DefaultCamera = CameraDevice.Front,
+                    PhotoSize = PhotoSize.Small,
+                    CompressionQuality = 40
+                };
+                var selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
+                if (selectedImage != null)
+                {
+                    MemberPhotoManage mpm = new MemberPhotoManage()
+                    {
+                        Path = selectedImage,
+                        Member = mdto
+                    };
+                    await Navigation.PushModalAsync(mpm);
+                }
+            }
         }
     }
 }

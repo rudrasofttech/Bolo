@@ -8,6 +8,8 @@ namespace Waarta
 {
     public partial class App : Application
     {
+        public static double ScreenWidth;
+        public static double ScreenHeight;
         readonly MemberService ms;
         bool keepSendingPulse;
         public App()

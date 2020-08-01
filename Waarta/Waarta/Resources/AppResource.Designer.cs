@@ -250,6 +250,132 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Save Profile Photo.
+        /// </summary>
+        internal static string MpmSavePhotoBtn {
+            get {
+                return ResourceManager.GetString("MpmSavePhotoBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optional, but recommended. Use this space to describe yourself. Your interests, profession, hobbies etc. It&apos;s your space use it well..
+        /// </summary>
+        internal static string MppBioHelpLabel {
+            get {
+                return ResourceManager.GetString("MppBioHelpLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use this space to write about yourself..
+        /// </summary>
+        internal static string MppBioPH {
+            get {
+                return ResourceManager.GetString("MppBioPH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Year of Birth.
+        /// </summary>
+        internal static string MppBirthYearLabel {
+            get {
+                return ResourceManager.GetString("MppBirthYearLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Country.
+        /// </summary>
+        internal static string MppCountryLabel {
+            get {
+                return ResourceManager.GetString("MppCountryLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to City / District / Area.
+        /// </summary>
+        internal static string MppDistrictLabel {
+            get {
+                return ResourceManager.GetString("MppDistrictLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gender.
+        /// </summary>
+        internal static string MppGenderLabel {
+            get {
+                return ResourceManager.GetString("MppGenderLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Name.
+        /// </summary>
+        internal static string MppNamePH {
+            get {
+                return ResourceManager.GetString("MppNamePH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optional, but recommended. Public visibility means your profile will be visible in searches. Private visibility means your profile will not be shown in searches..
+        /// </summary>
+        internal static string MppProfileVisibilityHelpLabel {
+            get {
+                return ResourceManager.GetString("MppProfileVisibilityHelpLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile Visible.
+        /// </summary>
+        internal static string MppProfileVisibilityLabel {
+            get {
+                return ResourceManager.GetString("MppProfileVisibilityLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to State.
+        /// </summary>
+        internal static string MppStateLabel {
+            get {
+                return ResourceManager.GetString("MppStateLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optional. Provide a one line introduction of yourself..
+        /// </summary>
+        internal static string MppThoughtStatusHelpLabel {
+            get {
+                return ResourceManager.GetString("MppThoughtStatusHelpLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One Line Introduction.
+        /// </summary>
+        internal static string MppThoughtStatusLabel {
+            get {
+                return ResourceManager.GetString("MppThoughtStatusLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update Profile.
+        /// </summary>
+        internal static string MppTitle {
+            get {
+                return ResourceManager.GetString("MppTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Profile.
         /// </summary>
         internal static string PPTitle {
@@ -268,6 +394,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Choose Photo.
+        /// </summary>
+        internal static string SetChoosePhotoBtn {
+            get {
+                return ResourceManager.GetString("SetChoosePhotoBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Update Profile.
         /// </summary>
         internal static string SetManageProfileBtn {
@@ -277,7 +412,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove Profile Picture.
+        ///   Looks up a localized string similar to Remove Photo.
         /// </summary>
         internal static string SetRemovePicBtn {
             get {
@@ -291,6 +426,15 @@ namespace Waarta.Resources {
         internal static string SetTAFBtn {
             get {
                 return ResourceManager.GetString("SetTAFBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Take Photo.
+        /// </summary>
+        internal static string SetTakePicBtn {
+            get {
+                return ResourceManager.GetString("SetTakePicBtn", resourceCulture);
             }
         }
         
@@ -309,6 +453,15 @@ namespace Waarta.Resources {
         internal static string SetViewProfileBtn {
             get {
                 return ResourceManager.GetString("SetViewProfileBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About Me.
+        /// </summary>
+        internal static string UniAboutMeLabel {
+            get {
+                return ResourceManager.GetString("UniAboutMeLabel", resourceCulture);
             }
         }
         
@@ -354,6 +507,15 @@ namespace Waarta.Resources {
         internal static string UniDownloadBtn {
             get {
                 return ResourceManager.GetString("UniDownloadBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string UniNameLabel {
+            get {
+                return ResourceManager.GetString("UniNameLabel", resourceCulture);
             }
         }
         

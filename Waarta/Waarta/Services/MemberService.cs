@@ -11,7 +11,7 @@ using Waarta.Models;
 
 namespace Waarta.Services
 {
-    public class MemberService
+    public class MemberService : IDisposable
     {
         readonly HttpClient _client;
         readonly string apiurl = "https://waarta.com/api/members/";
@@ -32,6 +32,7 @@ namespace Waarta.Services
             {
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
             }
+            
         }
         public async Task<bool> GetOTP(string phone, string code)
         {
@@ -140,23 +141,27 @@ namespace Waarta.Services
             try
             {
                 var payload = "{\"" + fieldname + "\": \"" + data + "\"}";
-                HttpContent c = new StringContent(payload, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await _client.PostAsync(string.Format("{0}{1}", apiurl, apiname), c);
-                if (response.IsSuccessStatusCode)
+                using (var content = new MultipartFormDataContent())
                 {
-                    return true;
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    throw new NotFoundException();
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                {
-                    throw new BadRequestException();
-                }
-                else
-                {
-                    return false;
+                    content.Add(new StringContent(data), fieldname);
+                    //HttpContent c = new StringContent(payload, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response = await _client.PostAsync(string.Format("{0}{1}", apiurl, apiname), content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        throw new NotFoundException();
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    {
+                        throw new BadRequestException();
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -309,6 +314,11 @@ namespace Waarta.Services
                 Debug.WriteLine("\tERROR {0}", ex.Message);
                 return string.Empty;
             }
+        }
+
+        public void Dispose()
+        {
+            _client.Dispose();
         }
     }
 }

@@ -18,8 +18,8 @@ namespace Waarta.Views
         {
             InitializeComponent();
             Title = AppResource.PPTitle;
-            ProfilePic.WidthRequest = Application.Current.MainPage.Width;
-            ProfilePic.HeightRequest = Application.Current.MainPage.Width;
+            //ProfilePic.WidthRequest = Application.Current.MainPage.Width;
+            //ProfilePic.HeightRequest = Application.Current.MainPage.Width;
             
         }
 

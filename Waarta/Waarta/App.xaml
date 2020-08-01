@@ -43,10 +43,10 @@
                 <Setter Property="BorderWidth" Value="2" />
             </Style>
             <Style x:Key="infoButtonStyle" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="#117a8b" />
-                <Setter Property="BorderColor" Value="#10707f" />
-                <Setter Property="CornerRadius" Value="4" />
-                <Setter Property="TextColor" Value="#495057" />
+                <Setter Property="BackgroundColor" Value="#17a2b8" />
+                <Setter Property="BorderColor" Value="#17a2b8" />
+                <Setter Property="CornerRadius" Value="0" />
+                <Setter Property="TextColor" Value="#ffffff" />
                 <Setter Property="BorderWidth" Value="2" />
             </Style>
             <Style x:Key="lightButtonStyle" TargetType="Button">
@@ -63,9 +63,20 @@
                 <Setter Property="TextColor" Value="#ffffff" />
                 <Setter Property="BorderWidth" Value="2" />
             </Style>
+            <Style x:Key="linkButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="#007bff" />
+                <Setter Property="BorderWidth" Value="0" />
+            </Style>
             <Style x:Key="entryStyle" TargetType="Entry">
                 <Setter Property="BackgroundColor" Value="#fff" />
                 <Setter Property="TextColor" Value="#495057" />
+                <Setter Property="Margin" Value="5" />
+            </Style>
+            <Style x:Key="labelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="Body" />
+                <Setter Property="TextColor" Value="#495057" />
+                <Setter Property="Margin" Value="5" />
             </Style>
             <Style x:Key="textboxStyle" TargetType="Entry">
                 <Setter Property="TextColor" Value="#495057" />
