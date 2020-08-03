@@ -50,7 +50,7 @@ namespace Bolo.Controllers
             }
             else
             {
-                MeetingDTO result = new MeetingDTO() { CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
+                MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
                 if (meeting.Owner != null)
                 {
                     result.Owner = new MemberDTO(meeting.Owner);
@@ -98,7 +98,7 @@ namespace Bolo.Controllers
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
         [AllowAnonymous]
-        public async Task<ActionResult> PostMeeting(CreateMeetingDTO m)
+        public async Task<ActionResult<MeetingDTO>> PostMeeting(CreateMeetingDTO m)
         {
             Meeting meeting = new Meeting
             {
@@ -121,7 +121,13 @@ namespace Bolo.Controllers
             id = string.Format("{0}{1}{2}", id.Substring(0, 8), meeting.ID, id.Substring(8, 4));
             meeting.PublicID = id;
             await _context.SaveChangesAsync();
-            return Ok(new { id = meeting.PublicID });
+
+            MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
+            if (meeting.Owner != null)
+            {
+                result.Owner = new MemberDTO(meeting.Owner);
+            }
+            return result;
         }
 
         [HttpGet]

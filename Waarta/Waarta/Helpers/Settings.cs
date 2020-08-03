@@ -97,6 +97,4 @@ namespace Waarta.Helpers
             }
         }
     }
-
-   
 }

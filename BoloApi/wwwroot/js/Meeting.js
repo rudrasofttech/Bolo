@@ -447,6 +447,7 @@
                     //if token is not valid than remove token, set myself object with empty values
                     localStorage.removeItem("token");
                     this.myself = new UserInfo();
+                    this.myself.memberID = this.props.pageid === null ? this.myself.memberID : this.props.pageid;
                     this.myself.name = "";
                     this.myself.videoCapable = this.hasVideoAudioCapability() && !this.detectEdgeorIE();
                     this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT && !this.detectEdgeorIE();
@@ -520,7 +521,7 @@
         //this function is called by server when client invoke HelloUser server function
         //this is called in response to newuserarrived function
         //so that new user can add existing users to its list
-        this.hubConnection.on('UserSaidHello', (u) => { this.userSaidHello(u); });
+        this.hubConnection.on('UserSaidHello', (sender, receiver) => { this.userSaidHello(sender, receiver); });
 
         //this function is called by server when user invokes joinmeeting function on server
         //setmyself receives userinfo from server, like if user is logged then its public id, name and signalr connection id
@@ -530,18 +531,20 @@
         this.hubConnection.on('ReceiveTextMessage', (ui, text, timestamp) => { this.receiveTextMessage(ui, text, timestamp); });
 
         //this function is strictly call by server to transfer WebRTC peer data
-        this.hubConnection.on('ReceiveSignal', (sender, data) => {
+        this.hubConnection.on('ReceiveSignal', (target, sender, data) => {
             //console.log("receivesignal sender : " + sender);
             //console.log("receivesignal data : " + data);
-            if (this.peers.get(sender.connectionID) !== undefined) {
-                this.peers.get(sender.connectionID).signal(data);
+            if (this.myself.memberID === target) {
+                if (this.peers.get(sender.memberID) !== undefined) {
+                    this.peers.get(sender.memberID).signal(data);
+                }
             }
         })
 
         //function is called by server in response to sendpulse server call
-        this.hubConnection.on('ReceivePulse', (cid) => {
+        this.hubConnection.on('ReceivePulse', (senderid) => {
             //console.log(cid);
-            this.receivePulse(cid);
+            this.receivePulse(senderid);
         });
 
         this.hubConnection.on("ReceiveActionNotification", (sender, action) => { this.receiveActionNotification(sender, action); });
@@ -549,9 +552,9 @@
 
     //call this function when on receive pulse call from server 
     //and set the last pulse date of the target user
-    receivePulse(cid) {
-        if (this.users.get(cid) !== undefined) {
-            this.users.get(cid).lastpulse = Date.now();
+    receivePulse(id) {
+        if (this.users.get(id) !== undefined) {
+            this.users.get(id).lastpulse = Date.now();
         }
 
         //console.log(this.users.get(cid));
@@ -562,11 +565,11 @@
     collectDeadUsers() {
         //for (const [key, u] of this.users.entries()) {
         //    if (!u.isAlive()) {
-        //        if (this.peers.get(u.connectionID) !== null) {
-        //            console.log(u.connectionID + " peer about to be destroyed");
-        //            if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
-        //                this.peers.get(u.connectionID).destroy();
-        //                this.peers.delete(u.connectionID);
+        //        if (this.peers.get(u.memberID) !== null) {
+        //            console.log(u.memberID + " peer about to be destroyed");
+        //            if (this.peers.get(u.memberID) !== undefined && this.peers.get(u.memberID) !== null) {
+        //                this.peers.get(u.memberID).destroy();
+        //                this.peers.delete(u.memberID);
         //            }
         //        }
 
@@ -578,7 +581,7 @@
         //        msg.status = MessageStatusEnum.sent;
         //        let mlist = this.state.messages;
         //        mlist.push(msg);
-        //        this.users.delete(u.connectionID);
+        //        this.users.delete(u.memberID);
         //        this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         //        this.playmsgbeep();
         //    }
@@ -587,7 +590,7 @@
 
     setMySelf(u) {
         //set your connection id
-        this.myself.connectionID = u.connectionID;
+        //this.myself.connectionID = u.connectionID;
         this.myself.videoCapable = this.hasVideoAudioCapability();
         this.myself.peerCapable = SimplePeer.WEBRTC_SUPPORT;
         //support for video and peer to peer on IE, Edge, Mobile and Tablets is dicy it
@@ -608,7 +611,7 @@
     sendPulse() {
         //console.log("SendPulse Hubconnection State:" + this.hubConnection.connectionState);
         if (this.hubConnection.state === signalR.HubConnectionState.Connected) {
-            this.hubConnection.invoke('SendPulse', this.state.id).catch(err => console.log('sendPulse ' + err));
+            this.hubConnection.invoke('SendPulse', this.state.id, this.myself.memberID).catch(err => console.log('sendPulse ' + err));
         }
     }
 
@@ -618,7 +621,7 @@
         console.log("newuserarrived stream : ");
         console.log(this.mystream);
         let p = new SimplePeer({ initiator: initiater, config: configuration, stream: this.mystream });
-        p["cid"] = u.connectionID;
+        p["memberID"] = u.memberID;
         p["hubConnection"] = this.hubConnection;
         p["myself"] = this.myself;
         p["meetingid"] = this.state.id;
@@ -627,12 +630,12 @@
         p.on("signal", this.onPeerSignal);
         p.on("connect", this.onPeerConnect);
         p.on("close", this.onPeerClose);
-        p.on("stream", stream => { this.onPeerStream(stream, p.cid); });
+        p.on("stream", stream => { this.onPeerStream(stream, p.memberID); });
         p.on('data', data => {
             // got a data channel message
             console.log('got a message from peer1: ' + data)
         });
-        this.peers.set(u.connectionID, p);
+        this.peers.set(u.memberID, p);
     }
 
     /**
@@ -641,7 +644,7 @@
      */
     onPeerSignal(data) {
         this.hubConnection
-            .invoke('SendSignal', data, this.cid, this.myself, this.meetingid)
+            .invoke('SendSignal', data, this.memberID, this.myself, this.meetingid)
             .catch(err => console.log('SendSignal ' + err));
     }
 
@@ -654,14 +657,14 @@
         console.log(err);
     }
 
-    onPeerStream(stream, connectionid) {
+    onPeerStream(stream, memberid) {
         console.log("received a stream"); console.log(stream);
-        if (this.users.get(connectionid) !== undefined) {
-            this.users.get(connectionid).stream = stream;
+        if (this.users.get(memberid) !== undefined) {
+            this.users.get(memberid).stream = stream;
             //update state so that UI changes
             this.setState({ dummydate: Date.now() }, () => {
                 this.users.forEach(function (value, key) {
-                    let v = document.getElementById('video' + value.connectionID);
+                    let v = document.getElementById('video' + value.memberID);
                     if (v !== null) {
                         if ('srcObject' in v) {
                             v.srcObject = value.stream
@@ -683,12 +686,12 @@
         console.log("Peer Closed");
 
         for (const [key, u] of this.users.entries()) {
-            if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
-                if (!this.peers.get(u.connectionID).connected && this.peers.get(u.connectionID).destroyed) {
-                    this.peers.delete(u.connectionID);
+            if (this.peers.get(u.memberid) !== undefined && this.peers.get(u.memberid) !== null) {
+                if (!this.peers.get(u.memberid).connected && this.peers.get(u.memberid).destroyed) {
+                    this.peers.delete(u.memberid);
                 }
             }
-            this.users.delete(u.connectionID);
+            this.users.delete(u.memberid);
             this.setState({ dummydate: Date.now() });
         }
         this.hubConnection
@@ -702,7 +705,7 @@
     //u is user info sent by the server
     newUserArrived(u) {
         //create new peer and add this user only if use
-        if (this.peers.get(u.connectionID) === undefined) {
+        if (this.peers.get(u.memberID) === undefined) {
 
             //create a user object for the new user that has arrived
             let temp = new UserInfo();
@@ -712,7 +715,7 @@
             temp.pic = u.pic;
             temp.videoCapable = u.videoCapable;
             temp.peerCapable = u.peerCapable;
-            this.users.set(u.connectionID, temp);
+            this.users.set(u.memberID, temp);
 
             //add a message
             let msg = new MessageInfo();
@@ -728,7 +731,7 @@
 
             this.setState({ messages: mlist, showalert: !this.state.showchatlist });
             this.playjoinbeep();
-            this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u.connectionID)
+            this.hubConnection.invoke("HelloUser", this.state.id, this.myself, u)
                 .catch(err => { console.log("Unable to say hello to new user."); console.log(err); });
 
             if (this.myself.peerCapable && temp.peerCapable) {
@@ -799,10 +802,10 @@
     }
 
     updateUser(u) {
-        if (this.users.get(u.connectionID) !== undefined) {
-            var oldname = this.users.get(u.connectionID).name;
+        if (this.users.get(u.memberID) !== undefined) {
+            var oldname = this.users.get(u.memberID).name;
             if (oldname !== u.name) {
-                this.users.get(u.connectionID).name = u.name;
+                this.users.get(u.memberID).name = u.name;
 
                 var msg = new MessageInfo();
                 msg.sender = null;
@@ -815,13 +818,13 @@
                 this.playjoinbeep();
             }
             let eitherchanged = false;
-            if (this.users.get(u.connectionID).videoCapable !== u.videoCapable) {
-                this.users.get(u.connectionID).videoCapable = u.videoCapable;
+            if (this.users.get(u.memberID).videoCapable !== u.videoCapable) {
+                this.users.get(u.memberID).videoCapable = u.videoCapable;
                 eitherchanged = true;
             }
 
-            if (this.users.get(u.connectionID).peerCapable !== u.peerCapable) {
-                this.users.get(u.connectionID).peerCapable = u.peerCapable;
+            if (this.users.get(u.memberID).peerCapable !== u.peerCapable) {
+                this.users.get(u.memberID).peerCapable = u.peerCapable;
                 eitherchanged = true;
             }
 
@@ -833,13 +836,16 @@
         }
     }
 
-    userSaidHello(u) {
+    userSaidHello(u, u2) {
+        if (u2.memberID !== this.myself.memberID) {
+            return;
+        }
         let temp = new UserInfo();
         temp.connectionID = u.connectionID;
         temp.memberID = u.memberID;
         temp.name = u.name;
         temp.pic = u.pic;
-        this.users.set(u.connectionID, temp);
+        this.users.set(u.memberID, temp);
 
         var mi = new MessageInfo();
         mi.sender = null;
@@ -870,7 +876,7 @@
 
     leaveMeeting() {
         this.hubConnection
-            .invoke('LeaveMeeting', this.state.id)
+            .invoke('LeaveMeeting', this.state.id, this.myself.memberID)
             .catch(err => console.error(err));
         try {
             if (this.mystream !== null) {
@@ -884,13 +890,13 @@
         }
         for (const [key, u] of this.users.entries()) {
             try {
-                if (this.peers.get(u.connectionID) !== null) {
-                    if (this.peers.get(u.connectionID) !== undefined && this.peers.get(u.connectionID) !== null) {
-                        this.peers.get(u.connectionID).destroy();
-                        this.peers.delete(u.connectionID);
+                if (this.peers.get(u.memberID) !== null) {
+                    if (this.peers.get(u.memberID) !== undefined && this.peers.get(u.memberID) !== null) {
+                        this.peers.get(u.memberID).destroy();
+                        this.peers.delete(u.memberID);
                     }
                 }
-                this.users.delete(u.connectionID);
+                this.users.delete(u.memberID);
             } catch (err) {
                 console.log("Error while deleting peer and deleting user");
                 console.error(err);
@@ -1242,17 +1248,17 @@
         if (msg.text.startsWith("https://" + window.location.host + "/api/meetings/media/")) {
             if (msg.text.toLowerCase().endsWith(".jpg") || msg.text.toLowerCase().endsWith(".jpeg") || msg.text.toLowerCase().endsWith(".png") || msg.text.toLowerCase().endsWith(".gif") || msg.text.toLowerCase().endsWith(".bmp")) {
                 return <span id={tempmid}>
-                    <img src={msg.text} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "260px" }} />
+                    <img src={msg.text} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "300px" }} />
                 </span>;
             }
             else if (msg.text.toLowerCase().endsWith(".mp3")) {
                 return <span id={tempmid}>
-                    <audio src={msg.text} controls playsInline style={{ maxWidth: "260px" }} />
+                    <audio src={msg.text} controls playsInline style={{ maxWidth: "300px" }} />
                 </span>;
             }
             else if (msg.text.toLowerCase().endsWith(".ogg") || msg.text.toLowerCase().endsWith(".mp4") || msg.text.toLowerCase().endsWith(".webm") || msg.text.toLowerCase().endsWith(".mov")) {
                 return <span id={tempmid}>
-                    <video src={msg.text.toLowerCase()} controls playsInline style={{ maxWidth: "260px" }} />
+                    <video src={msg.text.toLowerCase()} controls playsInline style={{ maxWidth: "300px" }} />
                 </span>;
             }
             else {
@@ -1276,7 +1282,7 @@
             let obj = this.state.messages[k];
             if (obj.sender === null) {
                 items.push(<li className="notify" key={k}><span>{obj.text}</span></li>);
-            } else if (obj.sender.connectionID === this.myself.connectionID) {
+            } else if (obj.sender.memberID === this.myself.memberID) {
                 items.push(<li className="sent" key={k}>
                     <span>
                         {this.renderLinksInMessage(obj)}
@@ -1390,7 +1396,7 @@
                     }
                 }
                 items.push(<div className={columnpartition} style={{ position: "relative" }} key={key}>
-                    <video id={'video' + value.connectionID} autoPlay={true} className="img-fluid" playsInline muted="muted" volume="0" style={{ maxHeight: "480px" }}></video>
+                    <video id={'video' + value.memberID} autoPlay={true} className="img-fluid" playsInline muted="muted" volume="0" style={{ maxHeight: "480px" }}></video>
                     <span style={{ position: "absolute", left: "0px", top: "0px", backgroundColor: "rgba(255,255, 255, 0.5)", padding: "0px 15px" }}>
                         {userpic} <span className="name p-1">{value.name} </span>
                     </span>

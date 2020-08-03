@@ -49,7 +49,7 @@ namespace Waarta.Services
             }
         }
 
-        public async Task<PostMeetingResult> CreateMeeting(CreateMeetingDTO dto)
+        public async Task<MeetingDTO> CreateMeeting(CreateMeetingDTO dto)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace Waarta.Services
                     HttpResponseMessage response = await _client.PostAsync(apiurl, c);
                     if (response.IsSuccessStatusCode)
                     {
-                        return JsonConvert.DeserializeObject<PostMeetingResult>(await response.Content.ReadAsStringAsync());
+                        return JsonConvert.DeserializeObject<MeetingDTO>(await response.Content.ReadAsStringAsync());
                     }
                     else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     {

@@ -31,7 +31,7 @@ namespace Bolo.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, room);
             UserInfo ui = new UserInfo()
             {
-                ConnectionID = Context.ConnectionId,
+                ConnectionID = string.Empty, //Context.ConnectionId,
                 Name = name,
                 MemberID = Context.User.Identity.IsAuthenticated ?
                 Context.User.Identity.Name : Guid.Empty.ToString()
@@ -53,12 +53,11 @@ namespace Bolo.Hubs
         {
             UserInfo ui = new UserInfo()
             {
-                ConnectionID = Context.ConnectionId,
+                ConnectionID = string.Empty, //Context.ConnectionId,
                 Name = u.Name,
                 VideoCapable = u.VideoCapable,
                 PeerCapable = u.PeerCapable,
-                MemberID = Context.User.Identity.IsAuthenticated ?
-                Context.User.Identity.Name : Guid.Empty.ToString(),
+                MemberID = u.MemberID,
                 Pic = u.Pic
             };
             await Clients.OthersInGroup(room).SendAsync("NewUserArrived", ui);
@@ -87,10 +86,10 @@ namespace Bolo.Hubs
         /// </summary>
         /// <param name="room"></param>
         /// <returns></returns>
-        public async Task LeaveMeeting(string room)
+        public async Task LeaveMeeting(string room, Guid memberid)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, room);
-            await Clients.OthersInGroup(room).SendAsync("UserLeft", Context.ConnectionId);
+            await Clients.OthersInGroup(room).SendAsync("UserLeft", memberid);
             if (Context.User.Identity.IsAuthenticated)
             {
                 Member m = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(Context.User.Identity.Name));
@@ -111,9 +110,10 @@ namespace Bolo.Hubs
         /// <param name="Sender"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public async Task HelloUser(string room, UserInfo Sender, string target)
+        public async Task HelloUser(string room, UserInfo Sender, UserInfo Receiver)
         {
-            await Clients.Client(target).SendAsync("UserSaidHello", Sender);
+            //await Clients.Client(target).SendAsync("UserSaidHello", Sender);
+            await Clients.Group(room).SendAsync("UserSaidHello", Sender, Receiver);
         }
 
         /// <summary>
@@ -144,11 +144,10 @@ namespace Bolo.Hubs
         /// <returns></returns>
         public async Task SendSignal(object signal, string target, UserInfo sender, string room)
         {
-            if (!string.IsNullOrEmpty(room))
-            {
+            
                 //ReceiveSignal Who sent, data
-                await Clients.Client(target).SendAsync("ReceiveSignal", sender, signal);
-            }
+                await Clients.Group(room).SendAsync("ReceiveSignal", target, sender, signal);
+            
         }
 
         /// <summary>
@@ -156,9 +155,9 @@ namespace Bolo.Hubs
         /// </summary>
         /// <param name="room">Meeting ID</param>
         /// <returns></returns>
-        public async Task SendPulse(string room)
+        public async Task SendPulse(string room, string sender)
         {
-            await Clients.OthersInGroup(room).SendAsync("ReceivePulse", Context.ConnectionId);
+            await Clients.OthersInGroup(room).SendAsync("ReceivePulse", sender);
         }
 
     }

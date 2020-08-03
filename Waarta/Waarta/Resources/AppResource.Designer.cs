@@ -151,6 +151,24 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invite.
+        /// </summary>
+        internal static string InviteBtn {
+            get {
+                return ResourceManager.GetString("InviteBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leave.
+        /// </summary>
+        internal static string LeaveBtn {
+            get {
+                return ResourceManager.GetString("LeaveBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Either Phone or OTP not Provided..
         /// </summary>
         internal static string LPBadRequestMsg {

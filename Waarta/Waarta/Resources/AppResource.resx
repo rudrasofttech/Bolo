@@ -147,6 +147,12 @@
   <data name="CPTapFileLabel" xml:space="preserve">
     <value>Tap to View</value>
   </data>
+  <data name="InviteBtn" xml:space="preserve">
+    <value>Invite</value>
+  </data>
+  <data name="LeaveBtn" xml:space="preserve">
+    <value>Leave</value>
+  </data>
   <data name="LPBadRequestMsg" xml:space="preserve">
     <value>Either Phone or OTP not Provided.</value>
   </data>

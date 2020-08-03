@@ -11,17 +11,15 @@
     <script src="~/js/TranformMessage.js"></script>
     <script type="text/babel" src="~/js/Emoji.js">
     </script>
-        <script type="text/babel" src="~/js/Models.js">
-        </script>
-        <script type="text/babel" src="~/js/Meeting.js">
-        </script>
-        <script type="text/babel">
-            ReactDOM.render(
-            <Meeting meetingid="@ViewData["meetingid"]" />,
-            document.getElementById('meetingdiv')
-            );
-        </script>
-    
-    
+    <script type="text/babel" src="~/js/Models.js">
+    </script>
+    <script type="text/babel" src="~/js/Meeting.js">
+    </script>
+    <script type="text/babel">
+        ReactDOM.render(
+        <Meeting meetingid="@ViewData["meetingid"]" pageid="@ViewData["pageid"]" />,
+        document.getElementById('meetingdiv')
+        );
+    </script>
 }
 

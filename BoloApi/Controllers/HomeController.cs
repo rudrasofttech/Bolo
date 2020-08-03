@@ -17,11 +17,13 @@ namespace BoloApi.Controllers
         {
             return View();
         }
-        
+
         public IActionResult Meeting(string id)
         {
             ViewData["meetingid"] = id;
+            ViewData["pageid"] = Guid.NewGuid().ToString();
             return View();
+
         }
 
         public IActionResult Chat()

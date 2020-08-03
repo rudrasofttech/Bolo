@@ -315,7 +315,7 @@ namespace Bolo.Models
     {
         public MemberDTO Owner { get; set; }
         public DateTime CreateDate { get; set; }
-        public string PublicID { get; set; }
+        public string ID { get; set; }
 
         public String Name { get; set; }
         [MaxLength(250)]
