@@ -86,7 +86,7 @@ namespace Bolo.Hubs
         /// </summary>
         /// <param name="room"></param>
         /// <returns></returns>
-        public async Task LeaveMeeting(string room, Guid memberid)
+        public async Task LeaveMeeting(string room, string memberid)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, room);
             await Clients.OthersInGroup(room).SendAsync("UserLeft", memberid);
@@ -126,6 +126,11 @@ namespace Bolo.Hubs
         public async Task SendTextMessage(string room, UserInfo sender, string text)
         {
             await Clients.Group(room).SendAsync("ReceiveTextMessage", sender, text, DateTime.UtcNow);
+        }
+
+        public async Task SendTextMessageWithID(string room, UserInfo sender, string text, Guid Id)
+        {
+            await Clients.OthersInGroup(room).SendAsync("ReceiveTextMessage", sender, text, DateTime.UtcNow);
         }
 
 

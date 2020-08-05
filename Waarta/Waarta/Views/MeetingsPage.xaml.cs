@@ -31,8 +31,8 @@ namespace Waarta.Views
             if(medto != null) {
                 MeetingPage mp = new MeetingPage()
                 {
-                    Myself = new UserInfo() { ConnectionID = string.Empty, MemberID = mdto.ID,
-                        Name = mdto.Name, PeerCapable = false, VideoCapable = false, Pic = mdto.Pic
+                    Myself = new UserInfo() { ConnectionID = string.Empty, MemberID = mdto.ID.ToString().ToLower(),
+                        Name = mdto.Name, PeerCapable = false, VideoCapable = false, Pic = !string.IsNullOrEmpty(mdto.Pic) ? mdto.Pic : ""
                     },
                     Meeting = medto,
                     ShouldCreateMessageGrid = true

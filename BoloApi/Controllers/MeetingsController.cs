@@ -230,23 +230,43 @@ namespace Bolo.Controllers
             var path = Path.Combine(meetingpath, filename);
 
 
-            string[] arr = f.Split(";base64,");
-            if (arr.Length == 2)
+            //string[] arr = f.Split(";base64,");
+            //if (arr.Length == 2)
+            //{
+            //    //byte[] barr = br.ReadBytes((int)stream.Length);
+            //    byte[] barr = Convert.FromBase64String(arr[1]);
+            //    if (System.IO.File.Exists(path))
+            //    {
+            //        using FileStream fs = new FileStream(path, FileMode.Append);
+            //        fs.Write(barr, 0, barr.Length);
+            //    }
+            //    else
+            //    {
+            //        using FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
+            //        fs.Write(barr, 0, barr.Length);
+            //    }
+            //}
+            string data = f;
+            //sometimes in base64 string there some text appended.
+            if (f.IndexOf(";base64,") > -1)
             {
-                //byte[] barr = br.ReadBytes((int)stream.Length);
-                byte[] barr = Convert.FromBase64String(arr[1]);
-                if (System.IO.File.Exists(path))
+                string[] arr = f.Split(";base64,");
+                if (arr.Length == 2)
                 {
-                    using FileStream fs = new FileStream(path, FileMode.Append);
-                    fs.Write(barr, 0, barr.Length);
-                }
-                else
-                {
-                    using FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
-                    fs.Write(barr, 0, barr.Length);
+                    data = arr[1];
                 }
             }
-
+            byte[] barr = Convert.FromBase64String(data);
+            if (System.IO.File.Exists(path))
+            {
+                using FileStream fs = new FileStream(path, FileMode.Append);
+                fs.Write(barr, 0, barr.Length);
+            }
+            else
+            {
+                using FileStream fs = new FileStream(path, FileMode.OpenOrCreate);
+                fs.Write(barr, 0, barr.Length);
+            }
 
             return Ok(new { filename });
         }

@@ -79,7 +79,7 @@
                     if (response.status === 200) {
                         response.json().then(data => {
                             //now that we have validated meeting id then set messages from local storage if there are any 
-                            let mlist = localStorage.getItem(this.state.id) === null ? [] : JSON.parse(localStorage.getItem(this.state.id)); //this.state.messages;
+                            let mlist = this.state.messages; //localStorage.getItem(this.state.id) === null ? [] : JSON.parse(localStorage.getItem(this.state.id));
                             //if there aren't any messages in localstorage then set name and purpose of the meeing
                             if (mlist.length === 0) {
                                 if (data.name !== null && data.name !== '') {
@@ -102,7 +102,7 @@
                                     mlist.push(mi);
                                 }
 
-                                localStorage.setItem(this.state.id, JSON.stringify(mlist));
+                                //localStorage.setItem(this.state.id, JSON.stringify(mlist));
                             }
 
                             this.setState({ idvalid: true, loading: false, messages: mlist });
@@ -348,7 +348,6 @@
             m = this.state.filestoupload[0];
         }
 
-
         if (m !== null) {
             this.freader = new FileReader();
             this.freader.uploadFile = this.uploadFile;
@@ -376,8 +375,8 @@
         const fd = new FormData();
         fd.set("f", data);
         fd.set("meetingid", this.state.id);
-        fd.set("filename", start === 0 ? msg.name : msg.serverfname);
-        fd.set("gfn", start === 0 ? true : false);
+        fd.set("filename", msg.name /*start === 0 ? msg.name : msg.serverfname*/);
+        fd.set("gfn", false /*start === 0 ? true : false*/);
         fetch('//' + window.location.host + '/api/meetings/uploadfile', {
             method: 'post',
             body: fd,
@@ -403,7 +402,7 @@
                                     .catch(err => { console.log("Unable to send file message to group."); console.log(err); });
                                 this.setState({ filestoupload: flist });
                                 this.generateVideoThumbnail(msg.serverfname, this.state.id);
-                                
+
                                 this.processFileUpload();
                             } else {
                                 this.setState({ filestoupload: flist });
@@ -705,7 +704,7 @@
     //u is user info sent by the server
     newUserArrived(u) {
         //create new peer and add this user only if use
-        if (this.peers.get(u.memberID) === undefined) {
+        if (this.users.get(u.memberID) === undefined) {
 
             //create a user object for the new user that has arrived
             let temp = new UserInfo();
@@ -766,7 +765,7 @@
 
         let mlist = this.state.messages;
         mlist.push(mi);
-        this.setState({ messages: mlist, showalert: !this.state.showchatlist }, () => { localStorage.setItem(this.state.id, JSON.stringify(mlist)); });
+        this.setState({ messages: mlist, showalert: !this.state.showchatlist }, () => { /*localStorage.setItem(this.state.id, JSON.stringify(mlist));*/ });
         this.playmsgbeep();
     }
 
@@ -794,9 +793,12 @@
         mlist.push(msg);
         this.users.delete(cid);
         if (this.peers.get(cid) !== null || this.peers.get(cid) !== undefined) {
-            this.peers.get(cid).destroy();
+            try {
+                this.peers.get(cid).destroy();
+                this.peers.delete(cid);
+            } catch (err) { console.log(err); }
         }
-        this.peers.delete(cid);
+
         this.setState({ messages: mlist, showalert: !this.state.showchatlist });
         this.playleftbeep();
     }
@@ -1226,21 +1228,29 @@
         );
     }
 
+    getUrlParameter(name, filename) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(filename);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
     getFileExtensionBasedName(filename) {
-        if (filename.endsWith(".doc") || filename.endsWith(".docx")) {
-            return "Document";
-        } else if (filename.endsWith(".xls") || filename.endsWith(".xlsx")) {
-            return "Excel WorkBook";
-        } else if (filename.endsWith(".pdf")) {
-            return "PDF Document";
-        } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
-            return "HTML Document";
-        }
-        else if (filename.endsWith(".txt")) {
-            return "Text Document";
-        } else if (filename.endsWith(".zip")) {
-            return "Compressed Archive";
-        }
+        return this.getUrlParameter("f", filename);
+        //if (filename.endsWith(".doc") || filename.endsWith(".docx")) {
+        //    return "Document";
+        //} else if (filename.endsWith(".xls") || filename.endsWith(".xlsx")) {
+        //    return "Excel WorkBook";
+        //} else if (filename.endsWith(".pdf")) {
+        //    return "PDF Document";
+        //} else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
+        //    return "HTML Document";
+        //}
+        //else if (filename.endsWith(".txt")) {
+        //    return "Text Document";
+        //} else if (filename.endsWith(".zip")) {
+        //    return "Compressed Archive";
+        //}
     }
 
     renderLinksInMessage(msg) {
@@ -1266,7 +1276,7 @@
                     <a href={msg.text} target="_blank">
                         <img src="/icons/download-cloud.svg" className='img-fluid' title="download file" />
                         <br />
-                        {this.getFileExtensionBasedName(msg.text.toLowerCase()) }
+                        {this.getFileExtensionBasedName(msg.text.toLowerCase())}
                     </a>
                 </span>;
             }

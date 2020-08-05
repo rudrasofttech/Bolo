@@ -251,18 +251,18 @@ namespace Waarta.Views
 
             MessageList.Add(cm.ID, cm);
 
-            if (hc.State == HubConnectionState.Connected)
-            {
-                try
-                {
-                    _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Error while sending photo message");
-                    Debug.WriteLine(ex.Message);
-                }
-            }
+            //if (hc.State == HubConnectionState.Connected)
+            //{
+            //    try
+            //    {
+            //        _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Debug.WriteLine("Error while sending photo message");
+            //        Debug.WriteLine(ex.Message);
+            //    }
+            //}
         }
 
         private void AddUploadVideoMsgToStack(string path, string thumbpath)
@@ -837,7 +837,7 @@ namespace Waarta.Views
 
         private async void OptionsBtn_Clicked(object sender, EventArgs e)
         {
-            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniPhotosText, AppResource.UniVideosText, AppResource.UniDocText);
+            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniPhotosText, AppResource.UniVideosText);
             Console.WriteLine("Action: " + action);
             if (action == AppResource.UniPhotosText)
             {

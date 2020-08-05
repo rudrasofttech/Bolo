@@ -64,14 +64,12 @@ namespace Bolo.Helper
                 };
                 //bodyBuilder.Attachments.Add(env.WebRootPath + "\\file.png");
                 message.Body = bodyBuilder.ToMessageBody();
-                using (SmtpClient client = new SmtpClient())
-                {
-                    client.Connect("smtp.gmail.com", 465, true);
-                    client.Authenticate("waarta@rudrasofttech.com", "hjgTY23#@sd");
-                    client.Send(message);
-                    client.Disconnect(true);
-                    client.Dispose();
-                }
+                using SmtpClient client = new SmtpClient();
+                client.Connect("smtp.gmail.com", 465, true);
+                client.Authenticate("waarta@rudrasofttech.com", "hjgTY23#@sd");
+                client.Send(message);
+                client.Disconnect(true);
+                client.Dispose();
             }
             catch(Exception ex) {
                 throw ex;
