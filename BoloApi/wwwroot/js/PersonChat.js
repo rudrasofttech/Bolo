@@ -858,7 +858,9 @@
             </span>;
         }
         else {
-            return <span id={tempmid}>{msg.text}</span>
+            return <span id={tempmid}>{msg.text.split('\n').map((item, key) => {
+                return <React.Fragment key={key}>{item}<br /></React.Fragment>
+            })}</span>
         }
     }
 

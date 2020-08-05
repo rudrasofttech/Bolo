@@ -837,11 +837,34 @@ namespace Waarta.Views
 
         private async void OptionsBtn_Clicked(object sender, EventArgs e)
         {
-            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniPhotosText, AppResource.UniVideosText);
-            Console.WriteLine("Action: " + action);
-            if (action == AppResource.UniPhotosText)
+            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, /*AppResource.UniTakePhotoText, AppResource.UniCaptureVideoText,*/ AppResource.UniPhotosText, AppResource.UniVideosText);
+            if(action == AppResource.UniTakePhotoText) {
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsTakePhotoSupported)
+                {
+                    return;
+                }
+                var mediaOptions = new StoreCameraMediaOptions()
+                {
+                    PhotoSize = PhotoSize.Small,
+                    CompressionQuality = 50
+                };
+                var selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
+                if (selectedImage != null)
+                {
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedImage.AlbumPath, selectedImage.Path))));
+                    using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
+                    {
+                        selectedImage.GetStream().CopyTo(outputFileStream);
+                    }
+                    if (File.Exists(path))
+                    {
+                        AddUploadPhotoMsgToStack(path);
+                    }
+                }
+            }
+            else if (action == AppResource.UniPhotosText)
             {
-
                 await CrossMedia.Current.Initialize();
                 if (!CrossMedia.Current.IsPickPhotoSupported)
                 {
@@ -917,6 +940,12 @@ namespace Waarta.Views
                 default:
                     break;
             }
+        }
+
+        private async void ProPic_Clicked(object sender, EventArgs e)
+        {
+            ProfilePage pp = new ProfilePage() { BindingContext = Other };
+            await Navigation.PushModalAsync(pp);
         }
     }
 

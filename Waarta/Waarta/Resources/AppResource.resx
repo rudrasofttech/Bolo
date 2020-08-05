@@ -309,6 +309,9 @@
   <data name="UniCancelText" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="UniCaptureVideoText" xml:space="preserve">
+    <value>Capture Video</value>
+  </data>
   <data name="UniDocText" xml:space="preserve">
     <value>Documents</value>
   </data>
@@ -341,6 +344,9 @@
   </data>
   <data name="UniServerErrorTitle" xml:space="preserve">
     <value>Server Error</value>
+  </data>
+  <data name="UniTakePhotoText" xml:space="preserve">
+    <value>Take Photo</value>
   </data>
   <data name="UniVideosText" xml:space="preserve">
     <value>Videos</value>

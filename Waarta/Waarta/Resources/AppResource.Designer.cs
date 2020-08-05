@@ -637,6 +637,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Capture Video.
+        /// </summary>
+        internal static string UniCaptureVideoText {
+            get {
+                return ResourceManager.GetString("UniCaptureVideoText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Documents.
         /// </summary>
         internal static string UniDocText {
@@ -732,6 +741,15 @@ namespace Waarta.Resources {
         internal static string UniServerErrorTitle {
             get {
                 return ResourceManager.GetString("UniServerErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Take Photo.
+        /// </summary>
+        internal static string UniTakePhotoText {
+            get {
+                return ResourceManager.GetString("UniTakePhotoText", resourceCulture);
             }
         }
         
