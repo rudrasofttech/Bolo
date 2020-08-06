@@ -26,7 +26,7 @@ namespace Waarta.Views
         readonly ContactsService cService;
         readonly MemberService mService;
         public Dictionary<Guid, ContactDTO> ContactDictionary { get; private set; }
-
+        bool ContactsBindedToSearchResult = false;
         MemberDTO mdto = null;
         public bool ShouldBindContactList;
         public ConversationsPage()
@@ -36,19 +36,19 @@ namespace Waarta.Views
             ds = new WaartaDataStore();
             mService = new MemberService();
             cService = new ContactsService();
-            
+
             ShouldBindContactList = true;
             BindingContext = this;
             Waarta.Helpers.Settings.Activity = ActivityStatus.Online;
 
             this.Title = AppResource.ConTitle;
             SearchBar.Placeholder = AppResource.ConSearchBarPH;
-            
-            
-            ContactListView.RefreshCommand = new Command(async () => {
+
+
+            ContactListView.RefreshCommand = new Command(async () =>
+            {
                 await LoadContactsfromServer();
-                ContactListView.ItemsSource = null;
-                ContactListView.ItemsSource = ContactDictionary;
+                BindContacts();
                 ContactListView.IsRefreshing = false;
             });
 
@@ -90,7 +90,8 @@ namespace Waarta.Views
             if (ShouldBindContactList)
             {
                 //load contacts from local data store
-                this.LoadContactsfromFile();
+                LoadContactsfromFile();
+                _ = LoadContactsfromServer();
                 ShouldBindContactList = false;
             }
 
@@ -110,7 +111,7 @@ namespace Waarta.Views
                 cService.Token = Waarta.Helpers.Settings.Token;
                 mService.Token = Waarta.Helpers.Settings.Token;
             }
-            
+
         }
 
         async Task ConnectHub()
@@ -129,7 +130,7 @@ namespace Waarta.Views
             hc.Remove("ContactUpdated");
             hc.On<Guid, string, DateTime, Guid>("ReceiveTextMessage", (sender, text, timestamp, id) =>
             {
-            ReceiveTextMessage(sender, text, timestamp, id);
+                ReceiveTextMessage(sender, text, timestamp, id);
             });
 
 
@@ -145,41 +146,66 @@ namespace Waarta.Views
                     ContactDictionary[temp.ID].Person.Country = temp.Country;
                     ContactDictionary[temp.ID].Person.Gender = temp.Gender;
                     ContactDictionary[temp.ID].Person.LastPulse = temp.LastPulse;
-                    ContactDictionary[temp.ID].Person.Name = temp.Name;
-                    ContactDictionary[temp.ID].Person.Pic = temp.Pic;
+                    if (ContactDictionary[temp.ID].Person.Name != temp.Name)
+                    {
+                        ContactDictionary[temp.ID].Person.Name = temp.Name;
+                    }
+                    if (ContactDictionary[temp.ID].Person.Pic != temp.Pic)
+                    {
+                        ContactDictionary[temp.ID].Person.Pic = temp.Pic;
+                    }
                     ContactDictionary[temp.ID].Person.State = temp.State;
                     ContactDictionary[temp.ID].Person.ThoughtStatus = temp.ThoughtStatus;
                     ContactDictionary[temp.ID].Person.Visibility = temp.Visibility;
-                    ContactListView.ItemsSource = ContactDictionary;
+                    
+                }
+            });
+
+            hc.On<ContactDTO>("ContactSaved", (c) =>
+            {
+                if (!ContactDictionary.ContainsKey(c.Person.ID))
+                {
+                    ContactDictionary.Add(c.Person.ID, c);
+                    BindContacts();
                 }
             });
         }
 
+        void BindContacts()
+        {
+            if (!ContactsBindedToSearchResult)
+            {
+                //ContactListView.ItemsSource = null;
+                ContactListView.ItemsSource = ContactDictionary.Values.OrderByDescending(t => t.UnseenMessageCount).OrderBy(t => t.Name);
+            }
+        }
+
         void ReceiveTextMessage(Guid sender, string text, DateTime timestamp, Guid id)
         {
-            ChatMessage cm = new ChatMessage() { ID = id, Sender = sender, Text = text, TimeStamp = timestamp, Status = ChatMessageSentStatus.Seen };
-            if (ContactDictionary.ContainsKey(sender))
+            Dictionary<Guid, ChatMessage> temp = ds.LoadMessagesFromFile(mdto, new MemberDTO() { ID = sender });
+            if (!temp.ContainsKey(id))
             {
-                cm.Status = ChatMessageSentStatus.Received;
-                Dictionary<Guid, ChatMessage> temp = ds.LoadMessagesFromFile(mdto, ContactDictionary[sender].Person);
-                temp.Add(cm.ID, cm);
-                ds.SaveMessagestoFile(mdto, ContactDictionary[sender].Person, temp);
-                ContactDictionary[sender].UnseenMessageCount++;
-                
-                ContactListView.ItemsSource = null;
-                ContactListView.ItemsSource = ContactDictionary;
-            }
+                ChatMessage cm = new ChatMessage() { ID = id, Sender = sender, Text = text, TimeStamp = timestamp, Status = ChatMessageSentStatus.Seen };
 
+                cm.Status = ChatMessageSentStatus.Received;
+
+                temp.Add(cm.ID, cm);
+                ds.SaveMessagestoFile(mdto, new MemberDTO() { ID = sender }, temp);
+                if (ContactDictionary.ContainsKey(sender))
+                {
+                    ContactDictionary[sender].UnseenMessageCount++;
+                    BindContacts();
+                }
+            }
         }
 
         /// <summary>
         /// Function loads current member contacts from local file storage.
         /// </summary>
         private void LoadContactsfromFile()
-        {            
+        {
             ContactDictionary = ds.LoadContactsfromFile(mdto);
-            
-            ContactListView.ItemsSource = ContactDictionary;
+            BindContacts();
         }
 
         private async Task LoadContactsfromServer()
@@ -231,11 +257,11 @@ namespace Waarta.Views
             cp.UnseenMessageStatusUpdated += Cp_UnseenMessageStatusUpdated;
             await Navigation.PushModalAsync(cp);
         }
-        
+
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)e.Item;
-            OpenChatPage(item.Value.Person);
+            ContactDTO item = e.Item as ContactDTO;
+            OpenChatPage(item.Person);
         }
 
         private void Cp_UnseenMessageStatusUpdated(object sender, MemberDTO e)
@@ -243,21 +269,20 @@ namespace Waarta.Views
             if (ContactDictionary.ContainsKey(e.ID))
             {
                 ContactDictionary[e.ID].UnseenMessageCount = 0;
-                ContactListView.ItemsSource = null;
-                ContactListView.ItemsSource = ContactDictionary;
+                BindContacts();
             }
         }
 
         private async void SearchBar_SearchButtonPressed(object sender, EventArgs e)
         {
             List<MemberDTO> result = await mService.Search(SearchBar.Text.Trim());
-            Dictionary<Guid, ContactDTO> SearchDictionary = new Dictionary<Guid, ContactDTO>();
+            List<ContactDTO> SearchDictionary = new List<ContactDTO>();
             int i = 0;
-            foreach(MemberDTO m in result)
+            foreach (MemberDTO m in result)
             {
                 if (!ContactDictionary.ContainsKey(m.ID))
                 {
-                    SearchDictionary.Add(m.ID, new ContactDTO()
+                    SearchDictionary.Add(new ContactDTO()
                     {
                         BoloRelation = BoloRelationType.Search,
                         CreateDate = DateTime.Now,
@@ -269,16 +294,18 @@ namespace Waarta.Views
                 }
                 else
                 {
-                    SearchDictionary.Add(m.ID, ContactDictionary[m.ID]);
+                    SearchDictionary.Add(ContactDictionary[m.ID]);
                 }
             }
-
+            ContactsBindedToSearchResult = true;
             ContactListView.ItemsSource = SearchDictionary;
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (string.IsNullOrEmpty(SearchBar.Text)){
+            if (string.IsNullOrEmpty(SearchBar.Text))
+            {
+                ContactsBindedToSearchResult = false;
                 this.LoadContactsfromFile();
             }
         }
@@ -304,7 +331,8 @@ namespace Waarta.Views
             var mi = ((MenuItem)sender);
             KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)mi.CommandParameter;
             //Debug.WriteLine("More Context Action clicked: " + mi.CommandParameter);
-            ProfilePage pp = new ProfilePage() {
+            ProfilePage pp = new ProfilePage()
+            {
                 BindingContext = item.Value.Person
             };
             Navigation.PushAsync(pp);

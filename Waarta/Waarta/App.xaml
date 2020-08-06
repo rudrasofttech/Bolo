@@ -45,7 +45,7 @@
             <Style x:Key="infoButtonStyle" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="#17a2b8" />
                 <Setter Property="BorderColor" Value="#17a2b8" />
-                <Setter Property="CornerRadius" Value="0" />
+                <Setter Property="CornerRadius" Value="4" />
                 <Setter Property="TextColor" Value="#ffffff" />
                 <Setter Property="BorderWidth" Value="2" />
             </Style>

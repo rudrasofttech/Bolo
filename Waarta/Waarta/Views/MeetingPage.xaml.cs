@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Plugin.FilePicker;
 using Plugin.FilePicker.Abstractions;
 using Plugin.Media;
@@ -342,12 +343,14 @@ namespace Waarta.Views
                 }
             }
         }
-        //async Task Disconnect()
-        //{
-
-        //    await hc.StopAsync();
-        //    _ = hc.DisposeAsync();
-        //}
+        public async Task Disconnect()
+        {
+            if (hc.State == HubConnectionState.Connected)
+            {
+                await hc.StopAsync();
+            }
+            _ = hc.DisposeAsync();
+        }
 
         private Label AddDateLabelToStack(DateTime dt)
         {
@@ -983,9 +986,9 @@ namespace Waarta.Views
             }
         }
 
-        void LeaveMeeting()
+        public void LeaveMeeting()
         {
-            if (hc.State == HubConnectionState.Connected)
+            if ( hc != null && hc.State == HubConnectionState.Connected)
             {
                 hc.InvokeAsync("LeaveMeeting", Meeting.ID, Myself.MemberID);
             }
@@ -1006,6 +1009,16 @@ namespace Waarta.Views
                 Directory.Delete(path);
             }
             await Navigation.PopModalAsync();
+        }
+
+        private async void InviteBtn_Clicked(object sender, EventArgs e)
+        {
+            await Share.RequestAsync(new ShareTextRequest()
+            {
+                Title = AppResource.MeetInviteOptionTitle,
+                Text = string.Format(AppResource.MeetInviteText, Meeting.ID),
+                Subject = AppResource.MeetInviteSubject
+            }); ;
         }
     }
 }

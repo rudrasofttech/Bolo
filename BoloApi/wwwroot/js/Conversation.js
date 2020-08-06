@@ -79,6 +79,13 @@
                 }
             }
         });
+
+        this.hubConnection.on('ContactSaved', (dto) => {
+            if (this.contactlist.get(dto.id) === undefined) {
+                this.contactlist.set(dto.person.id, dto);
+                this.setState({ dummy: Date.now() });
+            }
+        });
     }
 
     compare_contact(a, b) {

@@ -58,7 +58,7 @@ namespace Bolo.Controllers
                 return result;
             }
 
-            
+
         }
 
         // PUT: api/Meetings/5
@@ -100,6 +100,19 @@ namespace Bolo.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<MeetingDTO>> PostMeeting(CreateMeetingDTO m)
         {
+            //remove unnamed meeting which are older than 48 hours
+            var meetings = _context.Meetings.Where(t => t.Name == string.Empty && t.CreateDate < DateTime.Now.AddHours(-48));
+            foreach (var meet in meetings)
+            {
+                _context.Meetings.Remove(meet);
+                var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", meet.PublicID);
+                if (Directory.Exists(meetingpath))
+                {
+                    Directory.Delete(meetingpath);
+                }
+            }
+            _ = _context.SaveChangesAsync();
+
             Meeting meeting = new Meeting
             {
                 CreateDate = DateTime.UtcNow,
@@ -117,8 +130,14 @@ namespace Bolo.Controllers
             }
             _context.Meetings.Add(meeting);
             await _context.SaveChangesAsync();
-            string id = Guid.NewGuid().ToString().Replace("-", "");
-            id = string.Format("{0}{1}{2}", id.Substring(0, 8), meeting.ID, id.Substring(8, 4));
+
+            string id = string.Format("{0}{1}{2}{3}{4}{5}{6}", meeting.ID, DateTime.Now.DayOfYear, DateTime.Now.Month, DateTime.Now.Hour, DateTime.Now.Day, DateTime.Now.Minute, DateTime.Now.Second);
+            if(id.Length > 9)
+            {
+                id = id.Substring(0, 9);
+            }
+            //id = string.Format("{0}{1}{2}", id.Substring(0, 8), meeting.ID, id.Substring(8, 4));
+
             meeting.PublicID = id;
             await _context.SaveChangesAsync();
 
@@ -133,7 +152,7 @@ namespace Bolo.Controllers
         [HttpGet]
         [AllowAnonymous]
         [Route("media/{id}")]
-        public ActionResult GetMedia(string id,[FromQuery]string f)
+        public ActionResult GetMedia(string id, [FromQuery] string f)
         {
             var fpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, f);
             switch (Path.GetExtension(fpath).ToLower())
@@ -171,12 +190,12 @@ namespace Bolo.Controllers
                 default:
                     return PhysicalFile(fpath, "application/*");
             }
-            
+
         }
 
         [HttpGet]
         [Route("DownloadChunk")]
-        public ActionResult DownloadFile([FromQuery] string filename, [FromQuery] int position, [FromQuery]string id)
+        public ActionResult DownloadFile([FromQuery] string filename, [FromQuery] int position, [FromQuery] string id)
         {
             if (string.IsNullOrEmpty(filename))
             {
@@ -273,7 +292,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("GenerateThumbnail")]
-        public ActionResult GenerateThumbnail([FromQuery] string filename, [FromQuery]string id)
+        public ActionResult GenerateThumbnail([FromQuery] string filename, [FromQuery] string id)
         {
             string ffmpegpath = Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg", "ffmpeg.exe");
             string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, filename);
@@ -308,7 +327,7 @@ namespace Bolo.Controllers
             return Ok();
         }
 
-       // DELETE: api/Meetings/5
+        // DELETE: api/Meetings/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Meeting>> DeleteMeeting(int id)
         {

@@ -15,6 +15,7 @@ namespace Waarta.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MeetingsPage : ContentPage
     {
+        MeetingPage mp = null;
         MemberDTO mdto = null;
         readonly MeetingsService mss;
         public MeetingsPage()
@@ -27,26 +28,55 @@ namespace Waarta.Views
         private async void ToolbarItem_Clicked(object sender, EventArgs e)
         {
             string result = await DisplayPromptAsync(AppResource.MeetsJoinMeetingLabel, AppResource.MeetsMeetingIDLabel);
-            MeetingDTO medto = await mss.GetMeeting(result);
-            if(medto != null) {
-                MeetingPage mp = new MeetingPage()
-                {
-                    Myself = new UserInfo() { ConnectionID = string.Empty, MemberID = mdto.ID.ToString().ToLower(),
-                        Name = mdto.Name, PeerCapable = false, VideoCapable = false, Pic = !string.IsNullOrEmpty(mdto.Pic) ? mdto.Pic : ""
-                    },
-                    Meeting = medto,
-                    ShouldCreateMessageGrid = true
-                };
-                await Navigation.PushModalAsync(mp);
-            } else
+            if (result != null)
             {
-                await DisplayAlert(AppResource.UniNotFound, AppResource.MeetsIdInvalidErrorMsg, AppResource.UniCancelText);
+                MeetingDTO medto = await mss.GetMeeting(result);
+                if (medto != null)
+                {
+                     mp = new MeetingPage()
+                    {
+                        Myself = new UserInfo()
+                        {
+                            ConnectionID = string.Empty,
+                            MemberID = mdto.ID.ToString().ToLower(),
+                            Name = mdto.Name,
+                            PeerCapable = false,
+                            VideoCapable = false,
+                            Pic = !string.IsNullOrEmpty(mdto.Pic) ? mdto.Pic : ""
+                        },
+                        Meeting = medto,
+                        ShouldCreateMessageGrid = true
+                    };
+                    await Navigation.PushModalAsync(mp);
+                }
+                else
+                {
+                    await DisplayAlert(AppResource.UniNotFound, AppResource.MeetsIdInvalidErrorMsg, AppResource.UniCancelText);
+                }
             }
         }
         private async void CreateMeetingBtn_Clicked(object sender, EventArgs e)
         {
             try {
                 MeetingDTO result = await mss.CreateMeeting(new Models.CreateMeetingDTO() { Name = NameTxt.Text.Trim(), Purpose = PurposeTxt.Text.Trim() });
+                if (result != null)
+                {
+                    mp = new MeetingPage()
+                    {
+                        Myself = new UserInfo()
+                        {
+                            ConnectionID = string.Empty,
+                            MemberID = mdto.ID.ToString().ToLower(),
+                            Name = mdto.Name,
+                            PeerCapable = false,
+                            VideoCapable = false,
+                            Pic = !string.IsNullOrEmpty(mdto.Pic) ? mdto.Pic : ""
+                        },
+                        Meeting = result,
+                        ShouldCreateMessageGrid = true
+                    };
+                    await Navigation.PushModalAsync(mp);
+                }
             }
             catch (BadRequestException)
             {
@@ -64,6 +94,16 @@ namespace Waarta.Views
             {
                 mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
                 mss.Token = Waarta.Helpers.Settings.Token;
+            }
+
+            if (mp != null)
+            {
+                try
+                {
+                    mp.LeaveMeeting();
+                    _ = mp.Disconnect();
+                }
+                catch { }
             }
         }
     }

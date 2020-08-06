@@ -286,7 +286,40 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Optional. You can provide name for your meetings. Meetings with name are preserved for future reference, full chat history is maintianed on your local device..
+        ///   Looks up a localized string similar to Invite Participants.
+        /// </summary>
+        internal static string MeetInviteOptionTitle {
+            get {
+                return ResourceManager.GetString("MeetInviteOptionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waarta Meeting Invite.
+        /// </summary>
+        internal static string MeetInviteSubject {
+            get {
+                return ResourceManager.GetString("MeetInviteSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please join this meeting on Waarta. Go to Meetings tab on Waarta App and tap Join. 
+        ///
+        ///Meeting ID is {0}
+        ///
+        ///Or you can follow this link:
+        ///
+        ///https://waarta.com/m/{0}.
+        /// </summary>
+        internal static string MeetInviteText {
+            get {
+                return ResourceManager.GetString("MeetInviteText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Optional. Meetings with no name will be deleted after 48 hours..
         /// </summary>
         internal static string MeetNameHelp {
             get {
@@ -295,7 +328,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Create Meeting.
+        ///   Looks up a localized string similar to Start a Meeting.
         /// </summary>
         internal static string MeetsCreateBtn {
             get {
@@ -313,7 +346,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connect with people for quick status updates, important discussions, future planning or interviews..
+        ///   Looks up a localized string similar to Ideal for status updates, discussions or future planning. Share text, photos, videos and documents. Messages shared in a meeting are not saved on your device..
         /// </summary>
         internal static string MeetsExplainLabel {
             get {
@@ -367,7 +400,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Optional. Use this place to explain the purpose / agenda of the meeting in detail. This will show up as first message on meeting page..
+        ///   Looks up a localized string similar to Optional. Use this place to explain the purpose / agenda of the meeting in detail. .
         /// </summary>
         internal static string MeetsPurposeHelp {
             get {

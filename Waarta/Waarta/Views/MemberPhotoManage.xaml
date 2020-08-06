@@ -12,7 +12,7 @@
                 <imgcrop:ImageCropView.PreviewTransformations>
                 </imgcrop:ImageCropView.PreviewTransformations>
             </imgcrop:ImageCropView>
-            <Button x:Name="SavePhotoBtn" VerticalOptions="StartAndExpand" Style="{StaticResource infoButtonStyle}" HorizontalOptions="EndAndExpand" Clicked="Button_Clicked" />
+            <Button x:Name="SavePhotoBtn"  Style="{StaticResource infoButtonStyle}"  Clicked="Button_Clicked" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

@@ -80,6 +80,32 @@ namespace Waarta.Models
         public DateTime RecentMessageDate { get; set; }
         public int UnseenMessageCount { get; set; }
 
+        [JsonIgnore]
+        public string Name
+        {
+            get
+            {
+                return Person.Name;
+            }
+        }
+
+        [JsonIgnore]
+        public ImageSource Image
+        {
+            get
+            {
+                return Person.Image;
+            }
+        }
+
+        [JsonIgnore]
+        public String OnlineStatus
+        {
+            get
+            {
+                return Person.OnlineStatus;
+            }
+        }
         public List<ChatMessageDTO> MessagesOnServer { get; set; }
 
         [JsonIgnore]

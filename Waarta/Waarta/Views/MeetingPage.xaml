@@ -4,7 +4,7 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="Waarta.Views.MeetingPage" xmlns:resources="clr-namespace:Waarta.Resources" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
+             x:Class="Waarta.Views.MeetingPage" xmlns:resources="clr-namespace:Waarta.Resources"  Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
     <StackLayout Margin="0" Padding="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White" >
         <Grid Padding="0" Margin="0" HorizontalOptions="EndAndExpand" VerticalOptions="StartAndExpand" BackgroundColor="Black">
             <Grid.RowDefinitions>
@@ -16,8 +16,8 @@
                 <ColumnDefinition Width="Auto" />
                 
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="1" x:Name="InviteBtn" Style="{StaticResource infoButtonStyle}" Text="{x:Static resources:AppResource.InviteBtn}" Margin="3"></Button>
-            <Button Grid.Column="2" x:Name="LeaveBtn" Style="{StaticResource dangerButtonStyle}" Text="{x:Static resources:AppResource.LeaveBtn}" Margin="3" Clicked="LeaveBtn_Clicked"></Button>
+            <Button Grid.Column="1" x:Name="InviteBtn" Style="{StaticResource infoButtonStyle}" WidthRequest="60" Text="{x:Static resources:AppResource.InviteBtn}" Margin="3" HeightRequest="40" Padding="3" Clicked="InviteBtn_Clicked"></Button>
+            <Button Grid.Column="2" x:Name="LeaveBtn" Style="{StaticResource dangerButtonStyle}" Text="{x:Static resources:AppResource.LeaveBtn}" WidthRequest="70" HeightRequest="40" Margin="3" Clicked="LeaveBtn_Clicked"></Button>
         </Grid>
         <ScrollView x:Name="ScrollViewSV" HorizontalOptions="FillAndExpand" Margin="0" Padding="0" FlowDirection="LeftToRight" BackgroundColor="White" Rotation="180" VerticalOptions="StartAndExpand">
             <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Rotation="180"  HorizontalOptions="FillAndExpand" Margin="0" Padding="5" VerticalOptions="StartAndExpand" x:Name="MsgStack">

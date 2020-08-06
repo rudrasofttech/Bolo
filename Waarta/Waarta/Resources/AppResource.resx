@@ -192,17 +192,32 @@
   <data name="MeetingsTitle" xml:space="preserve">
     <value>Meetings</value>
   </data>
+  <data name="MeetInviteOptionTitle" xml:space="preserve">
+    <value>Invite Participants</value>
+  </data>
+  <data name="MeetInviteSubject" xml:space="preserve">
+    <value>Waarta Meeting Invite</value>
+  </data>
+  <data name="MeetInviteText" xml:space="preserve">
+    <value>Please join this meeting on Waarta. Go to Meetings tab on Waarta App and tap Join. 
+
+Meeting ID is {0}
+
+Or you can follow this link:
+
+https://waarta.com/m/{0}</value>
+  </data>
   <data name="MeetNameHelp" xml:space="preserve">
-    <value>Optional. You can provide name for your meetings. Meetings with name are preserved for future reference, full chat history is maintianed on your local device.</value>
+    <value>Optional. Meetings with no name will be deleted after 48 hours.</value>
   </data>
   <data name="MeetsCreateBtn" xml:space="preserve">
-    <value>Create Meeting</value>
+    <value>Start a Meeting</value>
   </data>
   <data name="MeetsCreateerrorMsg" xml:space="preserve">
     <value>Unable to create meeting at present, please trying after some time.</value>
   </data>
   <data name="MeetsExplainLabel" xml:space="preserve">
-    <value>Connect with people for quick status updates, important discussions, future planning or interviews.</value>
+    <value>Ideal for status updates, discussions or future planning. Share text, photos, videos and documents. Messages shared in a meeting are not saved on your device.</value>
   </data>
   <data name="MeetsIdInvalidErrorMsg" xml:space="preserve">
     <value>Meeting id is invalid.</value>
@@ -220,7 +235,7 @@
     <value>Name</value>
   </data>
   <data name="MeetsPurposeHelp" xml:space="preserve">
-    <value>Optional. Use this place to explain the purpose / agenda of the meeting in detail. This will show up as first message on meeting page.</value>
+    <value>Optional. Use this place to explain the purpose / agenda of the meeting in detail. </value>
   </data>
   <data name="MeetsPurposeLabel" xml:space="preserve">
     <value>Purpose</value>
