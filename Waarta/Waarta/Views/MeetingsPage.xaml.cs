@@ -18,11 +18,13 @@ namespace Waarta.Views
         MeetingPage mp = null;
         MemberDTO mdto = null;
         readonly MeetingsService mss;
+        readonly WaartaDataStore ds;
         public MeetingsPage()
         {
             InitializeComponent();
             Title = AppResource.MeetingsTitle;
             mss = new MeetingsService();
+            ds = new WaartaDataStore();
         }
 
         private async void ToolbarItem_Clicked(object sender, EventArgs e)
@@ -33,21 +35,7 @@ namespace Waarta.Views
                 MeetingDTO medto = await mss.GetMeeting(result);
                 if (medto != null)
                 {
-                     mp = new MeetingPage()
-                    {
-                        Myself = new UserInfo()
-                        {
-                            ConnectionID = string.Empty,
-                            MemberID = mdto.ID.ToString().ToLower(),
-                            Name = mdto.Name,
-                            PeerCapable = false,
-                            VideoCapable = false,
-                            Pic = !string.IsNullOrEmpty(mdto.Pic) ? mdto.Pic : ""
-                        },
-                        Meeting = medto,
-                        ShouldCreateMessageGrid = true
-                    };
-                    await Navigation.PushModalAsync(mp);
+                    GotoMeetingPage(medto);
                 }
                 else
                 {
@@ -61,21 +49,7 @@ namespace Waarta.Views
                 MeetingDTO result = await mss.CreateMeeting(new Models.CreateMeetingDTO() { Name = NameTxt.Text.Trim(), Purpose = PurposeTxt.Text.Trim() });
                 if (result != null)
                 {
-                    mp = new MeetingPage()
-                    {
-                        Myself = new UserInfo()
-                        {
-                            ConnectionID = string.Empty,
-                            MemberID = mdto.ID.ToString().ToLower(),
-                            Name = mdto.Name,
-                            PeerCapable = false,
-                            VideoCapable = false,
-                            Pic = !string.IsNullOrEmpty(mdto.Pic) ? mdto.Pic : ""
-                        },
-                        Meeting = result,
-                        ShouldCreateMessageGrid = true
-                    };
-                    await Navigation.PushModalAsync(mp);
+                    GotoMeetingPage(result);
                 }
             }
             catch (BadRequestException)
@@ -85,7 +59,49 @@ namespace Waarta.Views
             catch(ServerErrorException) {
                 await DisplayAlert(AppResource.UniServerErrorTitle, AppResource.MeetsCreateerrorMsg, AppResource.UniCancelText);
             }
-            
+        }
+
+        private async void GotoMeetingPage(MeetingDTO meeting)
+        {
+            if (mp != null)
+            {
+                try
+                {
+                    mp.LeaveMeeting();
+                    _ = mp.Disconnect();
+                }
+                catch { }
+            }
+            mp = new MeetingPage()
+            {
+                Myself = new UserInfo()
+                {
+                    ConnectionID = string.Empty,
+                    MemberID = mdto.ID.ToString().ToLower(),
+                    Name = mdto.Name,
+                    PeerCapable = false,
+                    VideoCapable = false,
+                    Pic = !string.IsNullOrEmpty(mdto.Pic) ? mdto.Pic : ""
+                },
+                Meeting = meeting,
+                ShouldCreateMessageGrid = true
+            };
+            //if the meeting has a name save it to meeting list
+            if (!string.IsNullOrEmpty(meeting.Name))
+            {
+                string meetingsdata = ds.GetMeetingsListData();
+                Dictionary<string, MeetingDTO> meetingslist = new Dictionary<string, MeetingDTO>();
+                if (!string.IsNullOrEmpty(meetingsdata))
+                {
+                    meetingslist = (Dictionary<string, MeetingDTO>)JsonConvert.DeserializeObject(meetingsdata, typeof(Dictionary<string, MeetingDTO>));
+                }
+                if (!meetingslist.ContainsKey(meeting.ID))
+                {
+                    meetingslist.Add(meeting.ID, meeting);
+                    ds.SaveMeetingsListData(JsonConvert.SerializeObject(meetingslist));
+                }
+            }
+            await Navigation.PushModalAsync(mp);
         }
 
         private void ContentPage_Appearing(object sender, EventArgs e)
@@ -96,15 +112,7 @@ namespace Waarta.Views
                 mss.Token = Waarta.Helpers.Settings.Token;
             }
 
-            if (mp != null)
-            {
-                try
-                {
-                    mp.LeaveMeeting();
-                    _ = mp.Disconnect();
-                }
-                catch { }
-            }
+
         }
     }
 }

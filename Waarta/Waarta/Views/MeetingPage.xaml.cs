@@ -45,6 +45,7 @@ namespace Waarta.Views
             mss = new MeetingsService();
             participants = new Dictionary<string, UserInfo>();
             MessageList = new Dictionary<Guid, MeetingChatMessage>();
+            LeaveBtn.Text = "❮ " + AppResource.LeaveBtn;
             hc = new HubConnectionBuilder().WithUrl("https://waarta.com/meetinghub", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(Waarta.Helpers.Settings.Token);
@@ -57,6 +58,7 @@ namespace Waarta.Views
                 await hc.StartAsync();
             };
             hc.Reconnected += Hc_Reconnected;
+            
         }
 
         private async Task Hc_Reconnected(string arg)
@@ -160,6 +162,7 @@ namespace Waarta.Views
 
             MessageList.Add(cm.ID, cm);
             AddMsgToStack(cm);
+            
         }
 
         private async void OptionsBtn_Clicked(object sender, EventArgs e)
@@ -754,11 +757,19 @@ namespace Waarta.Views
 
         private void ContentPage_Disappearing(object sender, EventArgs e)
         {
-
-            //if (Myself.MemberID != Guid.Empty.ToString())
-            //{
-            //    ds.SaveMessagestoFile(Myself, Meeting, MessageList);
-            //}
+            //if meeting has a name save messages to a file
+            if (!string.IsNullOrEmpty(Meeting.Name) && !string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
+            {
+                Dictionary<Guid, MeetingChatMessage> temp = ds.LoadMessagesFromFile(Myself, Meeting);
+                foreach(var pair in MessageList)
+                {
+                    if (!temp.ContainsKey(pair.Key))
+                    {
+                        temp.Add(pair.Key, pair.Value);
+                    }
+                }
+                ds.SaveMessagestoFile(Myself, Meeting, temp);
+            }
             //try
             //{
             //    _ = Disconnect();
@@ -992,6 +1003,14 @@ namespace Waarta.Views
             {
                 hc.InvokeAsync("LeaveMeeting", Meeting.ID, Myself.MemberID);
             }
+            if (String.IsNullOrEmpty(Meeting.Name))
+            {
+                string path = ds.GetDataFolderPath(Myself, Meeting);
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
+            }
         }
 
         private async void LeaveBtn_Clicked(object sender, EventArgs e)
@@ -1003,11 +1022,7 @@ namespace Waarta.Views
                 _ = hc.DisposeAsync();
             }
             catch { }
-            string path = ds.GetDataFolderPath(Myself, Meeting);
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path);
-            }
+            
             await Navigation.PopModalAsync();
         }
 

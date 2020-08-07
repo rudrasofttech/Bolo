@@ -9,13 +9,34 @@ namespace Waarta.Services
 {
     public class WaartaDataStore
     {
+        public string GetMeetingsFilePath()
+        {
+            return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "meetings.txt");
+        }
+
+        public string GetMeetingsListData()
+        {
+            if (File.Exists(GetMeetingsFilePath()))
+            {
+                return File.ReadAllText(GetMeetingsFilePath());
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public void SaveMeetingsListData(string data)
+        {
+            File.WriteAllText(GetMeetingsFilePath(), data);
+        }
         public string GetContactFilePath(MemberDTO m)
         {
             return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, string.Format("Contacts{0}.txt", m.ID.ToString().ToLower()));
         }
         public string GetDataFolderPath(MemberDTO owner, MemberDTO contact)
         {
-            if(!Directory.Exists(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data")))
+            if (!Directory.Exists(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data")))
             {
                 Directory.CreateDirectory(Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data"));
             }

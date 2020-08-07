@@ -78,6 +78,7 @@
                 .then(response => {
                     if (response.status === 200) {
                         response.json().then(data => {
+
                             //now that we have validated meeting id then set messages from local storage if there are any 
                             let mlist = this.state.messages; //localStorage.getItem(this.state.id) === null ? [] : JSON.parse(localStorage.getItem(this.state.id));
                             //if there aren't any messages in localstorage then set name and purpose of the meeing
@@ -102,10 +103,9 @@
                                     mlist.push(mi);
                                 }
 
-                                //localStorage.setItem(this.state.id, JSON.stringify(mlist));
                             }
 
-                            this.setState({ idvalid: true, loading: false, messages: mlist });
+                            this.setState({ idvalid: true, loading: false, messages: mlist, meetingname: data.name });
                         });
                     } else {
                         this.setState({ idvalid: false });
@@ -765,7 +765,12 @@
 
         let mlist = this.state.messages;
         mlist.push(mi);
-        this.setState({ messages: mlist, showalert: !this.state.showchatlist }, () => { /*localStorage.setItem(this.state.id, JSON.stringify(mlist));*/ });
+        this.setState({ messages: mlist, showalert: !this.state.showchatlist }, () => {
+            //if there is name for meeting than save meeting data to local storage
+            if (this.state.meetingname !== null && this.state.meetingname !== "") {
+                localStorage.setItem(this.state.id, JSON.stringify(mlist));
+            }
+        });
         this.playmsgbeep();
     }
 
@@ -880,6 +885,7 @@
         this.hubConnection
             .invoke('LeaveMeeting', this.state.id, this.myself.memberID)
             .catch(err => console.error(err));
+
         try {
             if (this.mystream !== null) {
                 for (var i = 0; i < this.mystream.getTracks().length; i++) {

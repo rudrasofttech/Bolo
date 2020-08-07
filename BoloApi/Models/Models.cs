@@ -17,7 +17,11 @@ namespace Bolo.Models
     }
     public enum ChatMessageType
     {
-        Text = 1
+        Text = 1,
+        Photo = 2,
+        Video = 3,
+        Audio = 4,
+        Document = 5
     }
 
     public enum MemberNotificationType
