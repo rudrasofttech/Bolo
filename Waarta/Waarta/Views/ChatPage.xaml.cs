@@ -53,6 +53,19 @@ namespace Waarta.Views
                 await Task.Delay(new Random().Next(0, 5) * 1000);
                 await hc.StartAsync();
             };
+            hc.Reconnected += Hc_Reconnected;
+        }
+
+        private async Task Hc_Reconnected(string arg)
+        {
+            foreach (ChatMessage cm in MessageList.Values)
+            {
+                if (cm.Status == ChatMessageSentStatus.Pending && hc.State == HubConnectionState.Connected)
+                {
+                    await hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
+                    cm.Status = ChatMessageSentStatus.Sent;
+                }
+            }
         }
 
         #region PersonalChatHub
@@ -113,6 +126,7 @@ namespace Waarta.Views
                 try
                 {
                     _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
+                    cm.Status = ChatMessageSentStatus.Sent;
                     return true;
                 }
                 catch (Exception ex)
@@ -124,6 +138,7 @@ namespace Waarta.Views
             }
             else
             {
+                cm.Status = ChatMessageSentStatus.Pending;
                 return false;
             }
         }
@@ -144,7 +159,7 @@ namespace Waarta.Views
                 MessageList = ds.LoadMessagesFromFile(Myself, Other);
                 foreach (ChatMessage cm in MessageList.Values)
                 {
-                    if(temp.ToString("yyyy MMM d") != cm.TimeStamp.ToString("yyyy MMM d"))
+                    if (temp.ToString("yyyy MMM d") != cm.TimeStamp.ToString("yyyy MMM d"))
                     {
                         temp = cm.TimeStamp;
                         AddDateLabelToStack(cm.TimeStamp);
@@ -228,10 +243,8 @@ namespace Waarta.Views
         {
             if (!string.IsNullOrEmpty(MessageTxt.Text))
             {
-                if (SendTextMessage(MessageTxt.Text.Trim()))
-                {
-                    MessageTxt.Text = string.Empty;
-                }
+                SendTextMessage(MessageTxt.Text.Trim());
+                MessageTxt.Text = string.Empty;
             }
         }
 
@@ -293,7 +306,7 @@ namespace Waarta.Views
             MessageList.Add(cm.ID, cm);
         }
 
-        
+
 
         async void DownloadFile(ChatMessageDownloadModel cmdm)
         {
@@ -451,14 +464,20 @@ namespace Waarta.Views
                         Debug.WriteLine(ex.Message);
                     }
                 }
+                else
+                {
+                    cm.Status = ChatMessageSentStatus.Pending;
+                }
             }
         }
 
         private Label AddDateLabelToStack(DateTime dt)
         {
-            Label dtlbl = new Label() { Text = dt.ToLocalTime().ToString("yyyy MMM d"), 
-                TextColor = Color.FromHex("495057"), 
-                BackgroundColor = Color.Transparent, 
+            Label dtlbl = new Label()
+            {
+                Text = dt.ToLocalTime().ToString("yyyy MMM d"),
+                TextColor = Color.FromHex("495057"),
+                BackgroundColor = Color.Transparent,
                 Margin = new Thickness(7),
                 HorizontalOptions = LayoutOptions.CenterAndExpand,
                 HorizontalTextAlignment = TextAlignment.Center,
@@ -733,7 +752,7 @@ namespace Waarta.Views
             {
                 textlbl.HorizontalOptions = LayoutOptions.End;
                 textlbl.HorizontalTextAlignment = TextAlignment.End;
-                
+
             }
             else
             {
@@ -837,8 +856,9 @@ namespace Waarta.Views
 
         private async void OptionsBtn_Clicked(object sender, EventArgs e)
         {
-            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, /*AppResource.UniTakePhotoText, AppResource.UniCaptureVideoText,*/ AppResource.UniPhotosText, AppResource.UniVideosText);
-            if(action == AppResource.UniTakePhotoText) {
+            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniTakePhotoText, AppResource.UniCaptureVideoText, AppResource.UniPhotosText, AppResource.UniVideosText);
+            if (action == AppResource.UniTakePhotoText)
+            {
                 await CrossMedia.Current.Initialize();
                 if (!CrossMedia.Current.IsTakePhotoSupported)
                 {
@@ -847,7 +867,7 @@ namespace Waarta.Views
                 var mediaOptions = new StoreCameraMediaOptions()
                 {
                     PhotoSize = PhotoSize.Small,
-                    CompressionQuality = 50
+                    CompressionQuality = 80
                 };
                 var selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
                 if (selectedImage != null)
@@ -863,6 +883,35 @@ namespace Waarta.Views
                     }
                 }
             }
+            else if (action == AppResource.UniCaptureVideoText)
+            {
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsTakeVideoSupported)
+                {
+                    return;
+                }
+                var mediaOptions = new StoreVideoOptions()
+                {
+                    AllowCropping = true,
+                    CompressionQuality = 100,
+                    DefaultCamera = CameraDevice.Rear,
+                    DesiredLength = TimeSpan.FromMinutes(1),
+                    Quality = VideoQuality.Low
+                };
+                var selectedVideo = await CrossMedia.Current.TakeVideoAsync(mediaOptions);
+                if (selectedVideo != null)
+                {
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
+                    using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
+                    {
+                        selectedVideo.GetStream().CopyTo(outputFileStream);
+                    }
+                    string thumbnailpath = path.Replace(Path.GetExtension(path), "-thumb.jpg");
+                    DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
+                    if (File.Exists(thumbnailpath))
+                        AddUploadVideoMsgToStack(path, thumbnailpath);
+                }
+            }
             else if (action == AppResource.UniPhotosText)
             {
                 await CrossMedia.Current.Initialize();
@@ -873,7 +922,7 @@ namespace Waarta.Views
                 var mediaOptions = new PickMediaOptions()
                 {
                     PhotoSize = PhotoSize.Small,
-                    CompressionQuality = 50
+                    CompressionQuality = 80
                 };
                 var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
                 if (selectedImage != null)

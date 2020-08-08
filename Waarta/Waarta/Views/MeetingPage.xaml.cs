@@ -167,9 +167,64 @@ namespace Waarta.Views
 
         private async void OptionsBtn_Clicked(object sender, EventArgs e)
         {
-            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniPhotosText, AppResource.UniVideosText, AppResource.UniDocText);
-            Console.WriteLine("Action: " + action);
-            if (action == AppResource.UniDocText) {
+            string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniTakePhotoText, AppResource.UniCaptureVideoText, AppResource.UniPhotosText, AppResource.UniVideosText, AppResource.UniDocText);
+            
+            if (action == AppResource.UniTakePhotoText)
+            {
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsTakePhotoSupported)
+                {
+                    return;
+                }
+                var mediaOptions = new StoreCameraMediaOptions()
+                {
+                    PhotoSize = PhotoSize.Small,
+                    CompressionQuality = 80
+                };
+                var selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
+                if (selectedImage != null)
+                {
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
+                    using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
+                    {
+                        selectedImage.GetStream().CopyTo(outputFileStream);
+                    }
+                    if (File.Exists(path))
+                    {
+                        AddUploadPhotoMsgToStack(path);
+                    }
+                }
+            }
+            else if (action == AppResource.UniCaptureVideoText)
+            {
+                await CrossMedia.Current.Initialize();
+                if (!CrossMedia.Current.IsTakeVideoSupported)
+                {
+                    return;
+                }
+                var mediaOptions = new StoreVideoOptions()
+                {
+                    AllowCropping = true,
+                    CompressionQuality = 100,
+                    DefaultCamera = CameraDevice.Rear,
+                    DesiredLength = TimeSpan.FromMinutes(1),
+                    Quality = VideoQuality.Low
+                };
+                var selectedVideo = await CrossMedia.Current.TakeVideoAsync(mediaOptions);
+                if (selectedVideo != null)
+                {
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
+                    using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
+                    {
+                        selectedVideo.GetStream().CopyTo(outputFileStream);
+                    }
+                    string thumbnailpath = path.Replace(Path.GetExtension(path), "-thumb.jpg");
+                    DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
+                    if (File.Exists(thumbnailpath))
+                        AddUploadVideoMsgToStack(path, thumbnailpath);
+                }
+            }
+            else if (action == AppResource.UniDocText) {
                 FileData fileData = await CrossFilePicker.Current.PickFile();
                 if (fileData == null)
                     return; // user canceled file picking
