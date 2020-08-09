@@ -9,9 +9,8 @@
         <ToolbarItem Text="{x:Static resources:AppResource.MeetsJoinBtn}" Clicked="ToolbarItem_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <ScrollView HorizontalOptions="FillAndExpand" Margin="0" Padding="0" VerticalOptions="StartAndExpand">
-            <StackLayout>
-                <Label Text="{x:Static resources:AppResource.MeetsExplainLabel}" TextType="Html" FontAttributes="Bold" FontSize="Large" Margin="10"
+            <StackLayout Padding="20">
+                <Label Text="{x:Static resources:AppResource.MeetsExplainLabel}" TextType="Html" FontSize="Medium" FontAttributes="Bold" 
                 VerticalOptions="Start" 
                 HorizontalOptions="CenterAndExpand" />
                 <Label Text="{x:Static resources:AppResource.MeetsNameLabel}" Margin="10" FontSize="Body" />
@@ -22,6 +21,6 @@
                 <Label Text="{x:Static resources:AppResource.MeetsPurposeHelp}" Margin="10,3,10,3" FontSize="Small" />
                 <Button Text="{x:Static resources:AppResource.MeetsCreateBtn}" Style="{StaticResource primaryButtonStyle}" Margin="10" Clicked="CreateMeetingBtn_Clicked" x:Name="CreateMeetingBtn" />
             </StackLayout>
-        </ScrollView>
+        
     </ContentPage.Content>
 </ContentPage>

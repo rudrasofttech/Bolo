@@ -350,7 +350,7 @@ namespace Waarta.Models
         {
             get
             {
-                if (MessageType == ChatMessageType.Video)
+                if (MessageType == ChatMessageType.Video || MessageType == ChatMessageType.Document)
                 {
                     if (!string.IsNullOrEmpty(LocalPath) && File.Exists(LocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg")))
                     {

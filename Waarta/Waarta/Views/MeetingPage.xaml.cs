@@ -450,7 +450,8 @@ namespace Waarta.Views
         /// <returns></returns>
         private Grid AddMsgToStack(MeetingChatMessage cm)
         {
-            Grid mgrid = new Grid() { VerticalOptions = LayoutOptions.Start, Padding = new Thickness(5) };
+            Frame f = new Frame() { VerticalOptions = LayoutOptions.Start, Padding = new Thickness(0), CornerRadius = 10 };
+            Grid mgrid = new Grid() { Padding = new Thickness(5) };
             //row holds message option button
             mgrid.RowDefinitions.Add(new RowDefinition() { Height = 25 });
             //row holds message label or image 
@@ -479,12 +480,12 @@ namespace Waarta.Views
             mgrid.Children.Add(lblSender, 0, 0);
             if (cm.Sender.MemberID == Myself.MemberID)
             {
-                mgrid.HorizontalOptions = LayoutOptions.End;
+                f.HorizontalOptions = LayoutOptions.End;
                 mgrid.BackgroundColor = Color.FromRgb(219, 244, 253);
             }
             else
             {
-                mgrid.HorizontalOptions = LayoutOptions.Start;
+                f.HorizontalOptions = LayoutOptions.Start;
                 mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
             }
             //add "what to do instructions" label
@@ -611,7 +612,8 @@ namespace Waarta.Views
                     mgrid.Children.Add(GetLabelForMessage(cm), 0, 1);
                     break;
             }
-            MsgStack.Children.Add(mgrid);
+            f.Content = mgrid;
+            MsgStack.Children.Add(f);
 
             return mgrid;
         }

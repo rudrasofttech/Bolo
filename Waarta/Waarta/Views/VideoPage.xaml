@@ -8,6 +8,6 @@
              xmlns:forms="clr-namespace:InTheHand.Forms;assembly=InTheHand.Forms"
              x:Class="Waarta.Views.VideoPage" Title="Video" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
-        <forms:MediaElement MinimumHeightRequest="240"  x:Name="Media" IsLooping="False" ShowsPlaybackControls="True" />
+        <forms:MediaElement AutoPlay="True" Aspect="AspectFit" KeepScreenOn="True" x:Name="Media" IsLooping="False" ShowsPlaybackControls="True" />
     </ContentPage.Content>
 </ContentPage>

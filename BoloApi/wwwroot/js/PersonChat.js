@@ -569,8 +569,11 @@
 
         const fd = new FormData();
         fd.set("f", data);
-        fd.set("filename", start === 0 ? msg.name : msg.serverfname);
-        fd.set("gfn", start === 0 ? true : false);
+        fd.set("filename", msg.name);
+        fd.set("gfn", false);
+        //no need to change file name on server
+        //fd.set("filename", start === 0 ? msg.name : msg.serverfname);
+        //fd.set("gfn", start === 0 ? true : false);
         fetch('//' + window.location.host + '/api/members/uploadfile', {
             method: 'post',
             body: fd,
@@ -807,6 +810,11 @@
         } else {
             return null;
         }
+    }
+
+    getFileExtensionBasedName(filename) {
+      
+        return filename.substring(61, filename.length);
     }
 
     renderVideoCallModal() {

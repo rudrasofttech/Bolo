@@ -116,7 +116,10 @@ namespace Waarta.Views
 
         async Task ConnectHub()
         {
-            await hc.StartAsync();
+            if (hc.State != HubConnectionState.Connected)
+            {
+                await hc.StartAsync();
+            }
         }
         async Task DisconnectHub()
         {

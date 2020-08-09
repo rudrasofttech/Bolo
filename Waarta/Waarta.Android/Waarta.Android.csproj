@@ -75,6 +75,7 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\PDFWorkerService.cs" />
     <Compile Include="Services\VideoPickerService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -89,7 +90,6 @@
     <AndroidResource Include="Resources\values\colors.xml" />
     <AndroidResource Include="Resources\mipmap-anydpi-v26\icon.xml" />
     <AndroidResource Include="Resources\mipmap-anydpi-v26\icon_round.xml" />
-    <AndroidResource Include="Resources\drawable\xamarin_logo.png" />
     <AndroidResource Include="Resources\drawable\tab_about.png" />
     <AndroidResource Include="Resources\drawable\tab_feed.png" />
   </ItemGroup>
@@ -135,7 +135,9 @@
   <ItemGroup>
     <AndroidResource Include="Resources\mipmap-xxxhdpi\icon_round.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\pdficon.png" />
+  </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\mipmap-hdpi\icon_round.png" />
   </ItemGroup>

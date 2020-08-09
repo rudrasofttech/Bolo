@@ -7,7 +7,7 @@
              xmlns:resources="clr-namespace:Waarta.Resources"
              x:Class="Waarta.Views.Settings" Title="Settings" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
-        <StackLayout>
+        <StackLayout Margin="20">
             <Label x:Name="LoginMsgLbl" Text="{x:Static resources:AppResource.ConLogonInfoLabel}" IsVisible="false" FontSize="Body" TextColor="Black" HorizontalTextAlignment="Center" Margin="10"/>
             <Button x:Name="GotoLoginBtn" Text="{x:Static resources:AppResource.ConGotoLoginBtn}" Style="{StaticResource lightButtonStyle}" IsVisible="false" Margin="10" Clicked="GotoLoginBtn_Clicked" />
             <Image  VerticalOptions="Start" IsVisible="false" Margin="5"  HorizontalOptions="Center" x:Name="ProfilePic" />

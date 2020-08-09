@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Primitives;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -12,7 +13,11 @@ namespace Waarta.Services
 
         bool GenerateThumbnail(string source, string target);
         int GetVideoLengthInMinutes(string path);
-
         Task<bool> CompressVideo(string source, string target);
+    }
+
+    public interface IPDFWorker
+    {
+        bool GenerateThumbnail(string source, string target);
     }
 }
