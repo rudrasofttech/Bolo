@@ -12,7 +12,7 @@ namespace Waarta.Services
 {
     public class ContactsService
     {
-        HttpClient _client;
+        readonly HttpClient _client;
         string apiurl = "https://waarta.com/api/contacts/";
         string _token;
 

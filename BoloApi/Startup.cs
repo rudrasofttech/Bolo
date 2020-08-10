@@ -36,7 +36,7 @@ namespace BoloApi
         {
             services.AddCors(c => c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod()));
             services.AddDbContext<BoloContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.UseNetTopologySuite()));
 
             services.AddControllersWithViews();
 

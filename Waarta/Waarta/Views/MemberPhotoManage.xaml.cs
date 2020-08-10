@@ -22,7 +22,7 @@ namespace Waarta.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MemberPhotoManage : ContentPage
     {
-        MemberService ms;
+        readonly MemberService ms;
         public MemberDTO Member { get; set; }
 		public MediaFile Path { get; set; }
         public MemberPhotoManage()

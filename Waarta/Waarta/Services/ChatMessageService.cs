@@ -11,7 +11,7 @@ namespace Waarta.Services
 {
     public class ChatMessageService
     {
-        HttpClient _client;
+        readonly HttpClient _client;
         string apiurl = "https://waarta.com/api/chatmessages/";
         string _token;
 

@@ -29,10 +29,12 @@ namespace Waarta.Views
         public ManageProfilePage()
         {
             InitializeComponent();
-            genders = new List<String>();
-            genders.Add(Gender.Female.ToString());
-            genders.Add(Gender.Male.ToString());
-            genders.Add(Gender.Other.ToString());
+            genders = new List<String>
+            {
+                Gender.Female.ToString(),
+                Gender.Male.ToString(),
+                Gender.Other.ToString()
+            };
             years = new List<int>();
             for (int start = DateTime.Now.Year - 15; start > (DateTime.Now.Year - 90); start--)
             {
@@ -76,7 +78,7 @@ namespace Waarta.Views
             YearPicker.ItemsSource = null;
             YearPicker.ItemsSource = years;
             YearPicker.SelectedItem = Member.BirthYear;
-            VisibilitySwitch.IsToggled = Member.Visibility == MemberProfileVisibility.Private ? false : true;
+            VisibilitySwitch.IsToggled = Member.Visibility != MemberProfileVisibility.Private;
             GenderPicker.ItemsSource = null;
             GenderPicker.ItemsSource = genders;
             GenderPicker.SelectedItem = Member.Gender.ToString();

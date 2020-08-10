@@ -1,8 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using GeoAPI.Geometries;
+using Microsoft.EntityFrameworkCore.Storage;
+using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -55,7 +59,6 @@ namespace Bolo.Models
         Inactive = 3,
         Deleted = 4
     }
-
     public enum MemberProfileVisibility
     {
         Private = 1,
@@ -363,5 +366,99 @@ namespace Bolo.Models
         public int Port { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+    }
+
+    public enum EntryType
+    {
+        Photo,
+        ShortVideo,
+        Album
+    }
+
+    public enum PostStatusType
+    {
+        Draft,
+        Publish,
+        Delete
+    }
+
+    public enum FollowRequestStatus
+    {
+        Requested,
+        Approved
+    }
+    public class Post
+    {
+        public int ID { get; set; }
+        public Member Owner { get; set; }
+        public DateTime CreateDate { get; set; }
+        public DateTime ModifyDate { get; set; }
+        public EntryType PostType
+        {
+            get; set;
+        }
+        public PostStatusType Status { get; set; }
+        [MaxLength(1000)]
+        public String Description { get; set; }
+        [Column(TypeName = "geometry")]
+        public Point Location { get; set; }
+        [MaxLength(250)]
+        public string LocationName { get; set; }
+        [MaxLength(250)]
+        public string FilePath { get; set; }
+    }
+
+    public class PostDisplayDTO
+    {
+        public int ID { get; set; }
+        public string ChannelName { get; set; }
+        public DateTime CreateDate { get; set; }
+        public EntryType PostType
+        {
+            get; set;
+        }
+        public String Description { get; set; }
+        public Point Location { get; set; }
+        public string LocationName { get; set; }
+        public string FilePath { get; set; }
+
+        public PostDisplayDTO() { }
+        public PostDisplayDTO(Post p)
+        {
+            ID = p.ID;
+            ChannelName = p.Owner.Channelname;
+            CreateDate = p.CreateDate;
+            PostType = p.PostType;
+            Description = p.Description;
+            Location = p.Location;
+            LocationName = p.LocationName;
+            FilePath = p.FilePath;
+        }
+    }
+
+    public class Follower
+    {
+        public int ID { get; set; }
+        public Member Owner { get; set; }
+        public Member FollowedBy { get; set; }
+        public DateTime CreateDate { get; set; }
+        public FollowRequestStatus Status { get; set; }
+    }
+
+    public class PostComment
+    {
+        public int ID { get; set; }
+        public Member Owner { get; set; }
+        public string Comment { get; set; }
+        public DateTime CreateDate { get; set; }
+        public Post Post { get; set; }
+    }
+
+    public class PostLike
+    {
+        public int ID { get; set; }
+        public Member Owner { get; set; }
+        public DateTime CreateDate { get; set; }
+        public Post Post { get; set; }
     }
 }
