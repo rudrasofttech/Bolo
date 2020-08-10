@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Waarta.Services;
 using Waarta.Views;
+using Waarta.Models;
 
 namespace Waarta
 {
@@ -41,7 +42,14 @@ namespace Waarta
             keepSendingPulse = true;
             Device.StartTimer(TimeSpan.FromSeconds(3), () =>
             {
-                _ = ms.SavePulse(Waarta.Helpers.Settings.Activity);
+                try
+                {
+                    _ = ms.SavePulse(Waarta.Helpers.Settings.Activity);
+                }
+                catch (ServerErrorException)
+                {
+                    Console.WriteLine("Unable to contact server.");
+                }
                 return keepSendingPulse;
             });
         }

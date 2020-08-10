@@ -101,11 +101,17 @@ namespace Waarta.Views
             string action = await DisplayActionSheet(AppResource.UniOptions, AppResource.UniCancelText, null, AppResource.SetTakePicBtn, AppResource.SetChoosePhotoBtn, AppResource.SetRemovePicBtn);
             if(action == AppResource.SetRemovePicBtn)
             {
-                mdto.Pic = string.Empty;
-                await mService.SavePic(mdto.Pic);
-                ProfilePic.Source = mdto.Image;
-                Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(mdto);
-
+                try
+                {
+                    await mService.SavePic(string.Empty);
+                    mdto.Pic = string.Empty;
+                    ProfilePic.Source = mdto.Image;
+                    Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(mdto);
+                }
+                catch (ServerErrorException)
+                {
+                    await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+                }
             }else if(action == AppResource.SetChoosePhotoBtn)
             {
                 await CrossMedia.Current.Initialize();

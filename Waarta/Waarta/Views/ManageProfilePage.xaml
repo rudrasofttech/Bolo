@@ -30,7 +30,7 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Label Grid.Row="0" Grid.Column="0" Text="{x:Static resources:AppResource.MppProfileVisibilityLabel}" Style="{StaticResource labelStyle}" VerticalOptions="Start" HorizontalOptions="Start" />
-                    <Switch Grid.Row="0" Grid.Column="1" HorizontalOptions="Start" x:Name="VisibilitySwitch" Toggled="VisibilitySwitch_Toggled" />
+                    <Switch Grid.Row="0" Grid.Column="1" HorizontalOptions="Start" x:Name="VisibilitySwitch" Unfocused="VisibilitySwitch_Unfocused" Toggled="VisibilitySwitch_Toggled" />
                     <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{x:Static resources:AppResource.MppProfileVisibilityHelpLabel}" FontSize="Small" Style="{StaticResource labelStyle}" VerticalOptions="Start" HorizontalOptions="Start" />
                     <Label Grid.Row="2" Grid.Column="0" Text="{x:Static resources:AppResource.MppBirthYearLabel}" Style="{StaticResource labelStyle}" VerticalOptions="Start" HorizontalOptions="Start" />
                     <Picker Grid.Row="3" Grid.Column="0" x:Name="YearPicker" Unfocused="YearPicker_Unfocused">

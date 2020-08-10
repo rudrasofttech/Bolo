@@ -29,18 +29,25 @@ namespace Waarta.Views
 
         private async void ToolbarItem_Clicked(object sender, EventArgs e)
         {
-            string result = await DisplayPromptAsync(AppResource.MeetsJoinMeetingLabel, AppResource.MeetsMeetingIDLabel);
-            if (result != null)
+            try
             {
-                MeetingDTO medto = await mss.GetMeeting(result);
-                if (medto != null)
+                string result = await DisplayPromptAsync(AppResource.MeetsJoinMeetingLabel, AppResource.MeetsMeetingIDLabel);
+                if (!String.IsNullOrEmpty(result))
                 {
-                    GotoMeetingPage(medto);
+                    MeetingDTO medto = await mss.GetMeeting(result);
+                    if (medto != null)
+                    {
+                        GotoMeetingPage(medto);
+                    }
+                    else
+                    {
+                        await DisplayAlert(AppResource.UniNotFound, AppResource.MeetsIdInvalidErrorMsg, AppResource.UniCancelText);
+                    }
                 }
-                else
-                {
-                    await DisplayAlert(AppResource.UniNotFound, AppResource.MeetsIdInvalidErrorMsg, AppResource.UniCancelText);
-                }
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
             }
         }
         private async void CreateMeetingBtn_Clicked(object sender, EventArgs e)

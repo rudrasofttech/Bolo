@@ -38,12 +38,11 @@ namespace Waarta.Services
         {
             try
             {
-                HttpResponseMessage response = await _client.GetAsync(string.Format("{0}MemberMessages/{1}", apiurl, sender.ID));
+                await _client.GetAsync(string.Format("{0}MemberMessages/{1}", apiurl, sender.ID));
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("\tERROR {0}", ex.Message);
-                throw new ServerErrorException();
             }
         }
     }

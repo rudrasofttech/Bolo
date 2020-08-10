@@ -176,13 +176,23 @@ namespace Waarta.Views
                     AddMsgToStack(cm);
                 }
                 ShouldCreateMessageGrid = false;
-                cms.RemoveMemberMessages(Other);
+                try
+                {
+                    cms.RemoveMemberMessages(Other);
+                }
+                catch (ServerErrorException)
+                {
+                    Console.WriteLine("Unable to delete messages from server. Host unreachable.");
+                }
                 UnseenMessageStatusUpdated?.Invoke(this, Other);
             }
-
-            SetHubconnectionOnFuncs();
-
+            try { 
             await Connect();
+            }
+            catch (Exception)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
         }
 
         private void BindUIControls()
@@ -543,7 +553,7 @@ namespace Waarta.Views
                 f.HorizontalOptions = LayoutOptions.Start;
                 mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
             }
-            
+
             switch (cm.MessageType)
             {
                 case ChatMessageType.Text:
@@ -711,7 +721,7 @@ namespace Waarta.Views
                     mgrid.Children.Add(GetLabelForMessage(cm), 0, 1);
                     break;
             }
-            
+
             f.Content = mgrid;
             MsgStack.Children.Add(f);
 
@@ -846,7 +856,7 @@ namespace Waarta.Views
                 textlbl.FormattedText = new FormattedString();
                 textlbl.FormattedText.Spans.Add(span);
             }
-            
+
 
             return textlbl;
         }
@@ -892,7 +902,7 @@ namespace Waarta.Views
             ShowVideo(cm);
         }
 
-       
+
         private async void ShowVideo(ChatMessage cm)
         {
             VideoPage vp = new VideoPage();
@@ -986,7 +996,7 @@ namespace Waarta.Views
                     DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
                     if (File.Exists(thumbnailpath))
                         AddUploadFileMsgToStack(path, thumbnailpath, ChatMessageType.Video);
-                        //AddUploadVideoMsgToStack(path, thumbnailpath);
+                    //AddUploadVideoMsgToStack(path, thumbnailpath);
                 }
             }
             else if (action == AppResource.UniPhotosText)
@@ -1048,7 +1058,7 @@ namespace Waarta.Views
                     DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
                     if (File.Exists(thumbnailpath))
                         AddUploadFileMsgToStack(path, thumbnailpath, ChatMessageType.Video);
-                        //AddUploadVideoMsgToStack(path, thumbnailpath);
+                    //AddUploadVideoMsgToStack(path, thumbnailpath);
                 }
             }
             else if (action == AppResource.UniDocText)
@@ -1065,8 +1075,8 @@ namespace Waarta.Views
                         //string thumbnailpath = path.Replace(Path.GetExtension(path), "-thumb.jpg");
                         //DependencyService.Get<IPDFWorker>().GenerateThumbnail(path, thumbnailpath);
                         //if (File.Exists(thumbnailpath))
-                            AddUploadFileMsgToStack(path, string.Empty, ChatMessageType.Document);
-                            
+                        AddUploadFileMsgToStack(path, string.Empty, ChatMessageType.Document);
+
                     }
                 }
             }

@@ -213,39 +213,45 @@ namespace Waarta.Views
 
         private async Task LoadContactsfromServer()
         {
-            List<ContactDTO> temp = await cService.GetContacts();
-            foreach (ContactDTO t in temp)
+            try
             {
-                if (ContactDictionary.ContainsKey(t.Person.ID))
+                List<ContactDTO> temp = await cService.GetContacts();
+                foreach (ContactDTO t in temp)
                 {
-                    ContactDictionary[t.Person.ID].RecentMessage = t.RecentMessage;
-                    ContactDictionary[t.Person.ID].RecentMessageDate = t.RecentMessageDate;
-                    ContactDictionary[t.Person.ID].Person = t.Person;
-                }
-                else
-                {
-                    ContactDictionary.Add(t.Person.ID, t);
-                }
-
-                if (t.MessagesOnServer.Count > 0)
-                {
-                    Dictionary<Guid, ChatMessage> msgs = ds.LoadMessagesFromFile(mdto, t.Person);
-                    foreach (ChatMessageDTO i in t.MessagesOnServer)
+                    if (ContactDictionary.ContainsKey(t.Person.ID))
                     {
-                        if (!msgs.ContainsKey(i.ID))
-                        {
-                            var mi = new ChatMessage() { ID = i.ID, Sender = i.SentBy.ID, Text = i.Message, TimeStamp = i.SentDate, Status = ChatMessageSentStatus.Received };
-                            msgs.Add(mi.ID, mi);
-
-                            ContactDictionary[t.Person.ID].RecentMessageDate = mi.TimeStamp;
-                            ContactDictionary[mi.Sender].UnseenMessageCount += 1;
-
-                        }
+                        ContactDictionary[t.Person.ID].RecentMessage = t.RecentMessage;
+                        ContactDictionary[t.Person.ID].RecentMessageDate = t.RecentMessageDate;
+                        ContactDictionary[t.Person.ID].Person = t.Person;
                     }
-                    ds.SaveMessagestoFile(mdto, t.Person, msgs);
+                    else
+                    {
+                        ContactDictionary.Add(t.Person.ID, t);
+                    }
+
+                    if (t.MessagesOnServer.Count > 0)
+                    {
+                        Dictionary<Guid, ChatMessage> msgs = ds.LoadMessagesFromFile(mdto, t.Person);
+                        foreach (ChatMessageDTO i in t.MessagesOnServer)
+                        {
+                            if (!msgs.ContainsKey(i.ID))
+                            {
+                                var mi = new ChatMessage() { ID = i.ID, Sender = i.SentBy.ID, Text = i.Message, TimeStamp = i.SentDate, Status = ChatMessageSentStatus.Received };
+                                msgs.Add(mi.ID, mi);
+
+                                ContactDictionary[t.Person.ID].RecentMessageDate = mi.TimeStamp;
+                                ContactDictionary[mi.Sender].UnseenMessageCount += 1;
+
+                            }
+                        }
+                        ds.SaveMessagestoFile(mdto, t.Person, msgs);
+                    }
                 }
+                ds.SaveContactstoFile(mdto, ContactDictionary);
             }
-            ds.SaveContactstoFile(mdto, ContactDictionary);
+            catch(ServerErrorException){
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
         }
 
         private async void OpenChatPage(MemberDTO m)
@@ -278,30 +284,37 @@ namespace Waarta.Views
 
         private async void SearchBar_SearchButtonPressed(object sender, EventArgs e)
         {
-            List<MemberDTO> result = await mService.Search(SearchBar.Text.Trim());
-            List<ContactDTO> SearchDictionary = new List<ContactDTO>();
-            int i = 0;
-            foreach (MemberDTO m in result)
+            try
             {
-                if (!ContactDictionary.ContainsKey(m.ID))
+                List<MemberDTO> result = await mService.Search(SearchBar.Text.Trim());
+                List<ContactDTO> SearchDictionary = new List<ContactDTO>();
+                int i = 0;
+                foreach (MemberDTO m in result)
                 {
-                    SearchDictionary.Add(new ContactDTO()
+                    if (!ContactDictionary.ContainsKey(m.ID))
                     {
-                        BoloRelation = BoloRelationType.Search,
-                        CreateDate = DateTime.Now,
-                        ID = ++i,
-                        MessagesOnServer = new List<ChatMessageDTO>(),
-                        Person = m,
-                        RecentMessage = ""
-                    });
+                        SearchDictionary.Add(new ContactDTO()
+                        {
+                            BoloRelation = BoloRelationType.Search,
+                            CreateDate = DateTime.Now,
+                            ID = ++i,
+                            MessagesOnServer = new List<ChatMessageDTO>(),
+                            Person = m,
+                            RecentMessage = ""
+                        });
+                    }
+                    else
+                    {
+                        SearchDictionary.Add(ContactDictionary[m.ID]);
+                    }
                 }
-                else
-                {
-                    SearchDictionary.Add(ContactDictionary[m.ID]);
-                }
+                ContactsBindedToSearchResult = true;
+                ContactListView.ItemsSource = SearchDictionary;
             }
-            ContactsBindedToSearchResult = true;
-            ContactListView.ItemsSource = SearchDictionary;
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)

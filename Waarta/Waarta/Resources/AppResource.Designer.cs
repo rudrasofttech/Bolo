@@ -697,6 +697,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Problem.
+        /// </summary>
+        internal static string UniErrorMessageTitle {
+            get {
+                return ResourceManager.GetString("UniErrorMessageTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>
         internal static string UniNameLabel {
@@ -783,6 +792,15 @@ namespace Waarta.Resources {
         internal static string UniTakePhotoText {
             get {
                 return ResourceManager.GetString("UniTakePhotoText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to contact waarta server. Please check your internet connection..
+        /// </summary>
+        internal static string UniUnreachableHostExceptionMessage {
+            get {
+                return ResourceManager.GetString("UniUnreachableHostExceptionMessage", resourceCulture);
             }
         }
         

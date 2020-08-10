@@ -85,7 +85,7 @@ namespace Waarta.Views
             CountryPicker.ItemsSource = CountryList;
             CountryPicker.SelectedItem = Member.Country;
 
-            if(Member.Country.ToLower() == "india")
+            if (Member.Country.ToLower() == "india")
             {
                 PopulateStateList();
                 StatePicker.ItemsSource = null;
@@ -94,7 +94,7 @@ namespace Waarta.Views
                 StatePicker.IsVisible = true;
                 StateTxt.IsVisible = false;
             }
-            else if(Member.Country.ToLower() == "usa")
+            else if (Member.Country.ToLower() == "usa")
             {
                 PopulateUSStateList();
                 StatePicker.ItemsSource = null;
@@ -753,25 +753,42 @@ namespace Waarta.Views
 
         private async void BioEditor_Completed(object sender, EventArgs e)
         {
+            if (Member.Bio == BioEditor.Text.Trim())
+                return;
             Member.Bio = BioEditor.Text.Trim();
             BioEditor.BackgroundColor = loading;
-            await ms.SaveBio(Member.Bio);
+            try
+            {
+                await ms.SaveBio(Member.Bio);
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             BioEditor.BackgroundColor = Color.Transparent;
         }
 
         private async void ThougthStatusTxt_Completed(object sender, EventArgs e)
         {
-            Member.ThoughtStatus = ThougthStatusTxt.Text.Trim();
+            if (Member.ThoughtStatus == ThougthStatusTxt.Text.Trim())
+                return;
             ThougthStatusTxt.BackgroundColor = loading;
-            await ms.SaveOneLineIntro(Member.ThoughtStatus);
+            try
+            {
+                await ms.SaveOneLineIntro(ThougthStatusTxt.Text.Trim());
+                Member.ThoughtStatus = ThougthStatusTxt.Text.Trim();
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             ThougthStatusTxt.BackgroundColor = Color.Transparent;
         }
 
 
-        private async void VisibilitySwitch_Toggled(object sender, ToggledEventArgs e)
+        private void VisibilitySwitch_Toggled(object sender, ToggledEventArgs e)
         {
             Member.Visibility = VisibilitySwitch.IsToggled ? MemberProfileVisibility.Public : MemberProfileVisibility.Private;
-            await ms.SaveVisibility(Member.Visibility);
         }
 
 
@@ -783,25 +800,55 @@ namespace Waarta.Views
 
         private async void YearPicker_Unfocused(object sender, FocusEventArgs e)
         {
-            Member.BirthYear = (int)YearPicker.SelectedItem;
+            if (Member.BirthYear == (int)YearPicker.SelectedItem)
+                return;
             YearPicker.BackgroundColor = loading;
-            await ms.SaveBirthYear(Member.BirthYear);
+            try
+            {
+                await ms.SaveBirthYear((int)YearPicker.SelectedItem);
+                Member.BirthYear = (int)YearPicker.SelectedItem;
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             YearPicker.BackgroundColor = Color.Transparent;
         }
 
         private async void GenderPicker_Unfocused(object sender, FocusEventArgs e)
         {
-            Member.Gender = (Gender)Enum.Parse(typeof(Gender), GenderPicker.SelectedItem.ToString());
+            if (Member.Gender == (Gender)Enum.Parse(typeof(Gender), GenderPicker.SelectedItem.ToString()))
+                return;
+            
             GenderPicker.BackgroundColor = loading;
-            await ms.SaveGender(Member.Gender);
+            try
+            {
+                Gender g = (Gender)Enum.Parse(typeof(Gender), GenderPicker.SelectedItem.ToString());
+                await ms.SaveGender(g);
+                Member.Gender = g;
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             GenderPicker.BackgroundColor = Color.Transparent;
         }
 
         private async void CountryPicker_Unfocused(object sender, FocusEventArgs e)
         {
-            Member.Country = CountryPicker.SelectedItem.ToString();
+            if (Member.Country == CountryPicker.SelectedItem.ToString())
+                return;
+            
             CountryPicker.BackgroundColor = loading;
-            await ms.SaveCountry(Member.Country);
+            try
+            {
+                await ms.SaveCountry(CountryPicker.SelectedItem.ToString());
+                Member.Country = CountryPicker.SelectedItem.ToString();
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             CountryPicker.BackgroundColor = Color.Transparent;
             if (Member.Country.ToLower() == "india")
             {
@@ -831,26 +878,68 @@ namespace Waarta.Views
 
         private async void StatePicker_Unfocused(object sender, FocusEventArgs e)
         {
-            Member.State = StatePicker.SelectedItem.ToString();
+            if (Member.State == StatePicker.SelectedItem.ToString())
+                return;
+            
             StatePicker.BackgroundColor = loading;
-            await ms.SaveState(Member.State);
+            try
+            {
+                await ms.SaveState(StatePicker.SelectedItem.ToString());
+                Member.State = StatePicker.SelectedItem.ToString();
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             StatePicker.BackgroundColor = Color.Transparent;
         }
 
         private async void StateTxt_Completed(object sender, EventArgs e)
         {
-            Member.State = StateTxt.Text.Trim();
+            if (Member.State == StateTxt.Text.Trim())
+                return;
+            
             StateTxt.BackgroundColor = loading;
-            await ms.SaveState(Member.State);
+            try
+            {
+                await ms.SaveState(StateTxt.Text.Trim());
+                Member.State = StateTxt.Text.Trim();
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             StateTxt.BackgroundColor = Color.Transparent;
         }
 
         private async void CityTxt_Completed(object sender, EventArgs e)
         {
-            Member.City = CityTxt.Text.Trim();
+            if (Member.City == CityTxt.Text.Trim())
+                return;
+            
             CityTxt.BackgroundColor = loading;
-            await ms.SaveState(Member.City);
+            try
+            {
+                await ms.SaveState(CityTxt.Text.Trim());
+                Member.City = CityTxt.Text.Trim();
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
             CityTxt.BackgroundColor = Color.Transparent;
+        }
+
+        private async void VisibilitySwitch_Unfocused(object sender, FocusEventArgs e)
+        {
+            try
+            {
+                await ms.SaveVisibility(Member.Visibility);
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+            }
         }
     }
 

@@ -333,6 +333,9 @@ https://waarta.com/m/{0}</value>
   <data name="UniDownloadBtn" xml:space="preserve">
     <value>Download</value>
   </data>
+  <data name="UniErrorMessageTitle" xml:space="preserve">
+    <value>Problem</value>
+  </data>
   <data name="UniNameLabel" xml:space="preserve">
     <value>Name</value>
   </data>
@@ -362,6 +365,9 @@ https://waarta.com/m/{0}</value>
   </data>
   <data name="UniTakePhotoText" xml:space="preserve">
     <value>Take Photo</value>
+  </data>
+  <data name="UniUnreachableHostExceptionMessage" xml:space="preserve">
+    <value>Unable to contact waarta server. Please check your internet connection.</value>
   </data>
   <data name="UniVideosText" xml:space="preserve">
     <value>Videos</value>

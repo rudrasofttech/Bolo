@@ -53,7 +53,14 @@ namespace Waarta.Views
                 {
                     Member.Pic = imgstr;
                     Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(Member);
-                    await ms.SavePic("data:image/jpeg;base64," + imgstr);
+                    try
+                    {
+                        await ms.SavePic("data:image/jpeg;base64," + imgstr);
+                    }
+                    catch (ServerErrorException)
+                    {
+                        await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+                    }
                 }
             }
             await Navigation.PopModalAsync();
