@@ -99,6 +99,15 @@ namespace Waarta.Models
         }
 
         [JsonIgnore]
+        public bool HasImage
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(Person.Pic);
+            }
+        }
+
+        [JsonIgnore]
         public String OnlineStatus
         {
             get
@@ -210,6 +219,15 @@ namespace Waarta.Models
                 {
                     return ImageSource.FromFile("nopic.jpg");
                 }
+            }
+        }
+
+        [JsonIgnore]
+        public bool HasImage
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(Pic);
             }
         }
 

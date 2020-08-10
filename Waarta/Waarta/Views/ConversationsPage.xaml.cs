@@ -338,18 +338,18 @@ namespace Waarta.Views
         private void ChatMenuItem_Clicked(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
-            KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)mi.CommandParameter;
-            OpenChatPage(item.Value.Person);
+            ContactDTO item = (ContactDTO)mi.CommandParameter;
+            OpenChatPage(item.Person);
         }
 
         private void ProfileMenuItem_Clicked(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
-            KeyValuePair<Guid, ContactDTO> item = (KeyValuePair<Guid, ContactDTO>)mi.CommandParameter;
+            ContactDTO item = (ContactDTO)mi.CommandParameter;
             //Debug.WriteLine("More Context Action clicked: " + mi.CommandParameter);
             ProfilePage pp = new ProfilePage()
             {
-                BindingContext = item.Value.Person
+                BindingContext = item.Person
             };
             Navigation.PushAsync(pp);
         }

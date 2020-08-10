@@ -197,9 +197,15 @@ namespace Waarta.Views
 
         private void BindUIControls()
         {
-            this.ProPic.Source = Other.Image;
-            this.NameTxt.Text = Other.Name.Length > 15 ? Other.Name.Substring(0, 12) + "..." : Other.Name;
-            this.OnlineStatusTxt.Text = Other.Activity != ActivityStatus.Offline ? AppResource.UniOnlineText : AppResource.UniOfflineText;
+            ProPic.IsVisible = Other.HasImage;
+            if (Other.HasImage)
+            {
+                ProPic.WidthRequest = 50;
+                ProPic.HeightRequest = 50;
+            }
+            ProPic.Source = Other.Image;
+           NameTxt.Text = Other.Name.Length > 15 ? Other.Name.Substring(0, 12) + "..." : Other.Name;
+            OnlineStatusTxt.Text = Other.Activity != ActivityStatus.Offline ? AppResource.UniOnlineText : AppResource.UniOfflineText;
         }
 
         private void SetHubconnectionOnFuncs()
