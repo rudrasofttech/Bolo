@@ -28,6 +28,7 @@ namespace Waarta.Views
             OTPTxt.Placeholder = AppResource.LPOTPPH;
             MobileTxt.Placeholder = AppResource.LPMobileTxtPH;
             LoginBtn.Text = AppResource.LPLoginBtn;
+            TitleTxt.Text = AppResource.UniVerifyText;
         }
 
         private void MobileTxt_Completed(object sender, EventArgs e)

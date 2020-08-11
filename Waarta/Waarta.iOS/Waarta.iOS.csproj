@@ -206,13 +206,13 @@
     <PackageReference Include="Xamarin.FFImageLoading.Forms">
       <Version>2.4.11.982</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Forms" Version="4.7.0.1142" />
+    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1269" />
     <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Waarta\Waarta.csproj">
-      <Project>{3F251895-BB37-41B1-A16A-D5A94B83ABFA}</Project>
+      <Project>{A995DEF0-A70D-4807-AA75-FA4C5F598419}</Project>
       <Name>Waarta</Name>
     </ProjectReference>
   </ItemGroup>

@@ -6,13 +6,28 @@
              mc:Ignorable="d"
              x:Class="Waarta.Views.LoginPage"
              Title="Login" Appearing="ContentPage_Appearing">
+   
     <ContentPage.Content>
+         <StackLayout Margin="0" Padding="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
+        <Grid Padding="0" Margin="0" HorizontalOptions="StartAndExpand" VerticalOptions="StartAndExpand" BackgroundColor="Black">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+              
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Grid.RowSpan="0" Text="❮" TextColor="White" FontSize="20" FontAttributes="Bold" Padding="0" Margin="0" BorderWidth="0" x:Name="BackBtn" Clicked="BackBtn_Clicked" WidthRequest="50" BackgroundColor="Transparent" HeightRequest="50"></Button>
+            <Label Grid.Column="2" Grid.Row="0" FontSize="20" x:Name="TitleTxt" TextColor="White" HorizontalOptions="Start" VerticalTextAlignment="Center"
+                   HorizontalTextAlignment="Start" FontAttributes="Bold" />
+                    </Grid>
         <StackLayout Margin="20">
             <Entry Style="{StaticResource textboxStyle}" x:Name="MobileTxt" TextChanged="MobileTxt_TextChanged" Completed="MobileTxt_Completed" />
             <Button Style="{StaticResource primaryButtonStyle}" IsVisible="true" x:Name="GenerateOTPBtn" Clicked="GenerateOTPBtn_Clicked" />
             <Entry Style="{StaticResource textboxStyle}" IsVisible="false" IsPassword="True" TextChanged="OTPTxt_TextChanged" x:Name="OTPTxt" Completed="OTPTxt_Completed" />
             <Button Style="{StaticResource primaryButtonStyle}" IsVisible="false" x:Name="LoginBtn" Clicked="LoginBtn_ClickedAsync" />
         </StackLayout>
-        
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>
