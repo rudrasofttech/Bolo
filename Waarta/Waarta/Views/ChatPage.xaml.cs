@@ -525,7 +525,7 @@ namespace Waarta.Views
         /// <returns></returns>
         private Grid AddMsgToStack(ChatMessage cm)
         {
-            Frame f = new Frame() { VerticalOptions = LayoutOptions.Start, Padding = new Thickness(0), CornerRadius = 10 };
+            Frame f = new Frame() { VerticalOptions = LayoutOptions.Start,  Padding = new Thickness(0), CornerRadius = 10, HasShadow = false };
             Grid mgrid = new Grid() { Padding = new Thickness(5) };
             //row holds message option button
             mgrid.RowDefinitions.Add(new RowDefinition() { Height = 25 });
@@ -1100,7 +1100,7 @@ namespace Waarta.Views
                     ImageButton ib = (sender as ImageButton);
                     Guid mid = new Guid(ib.CommandParameter.ToString());
                     DeleteChatMessage(mid);
-                    MsgStack.Children.Remove((View)ib.Parent);
+                    MsgStack.Children.Remove((View)ib.Parent.Parent);
                     break;
                 default:
                     break;

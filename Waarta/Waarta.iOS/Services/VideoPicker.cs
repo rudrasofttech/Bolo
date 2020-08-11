@@ -73,7 +73,7 @@ namespace Waarta.iOS.Services
             {
                 AppliesPreferredTrackTransform = true
             };
-            CGImage cgImage = imageGenerator.CopyCGImageAtTime(new CMTime(1, 1000000), actualTime: out _, outError: out _);
+            CGImage cgImage = imageGenerator.CopyCGImageAtTime(new CMTime(0, 1000000), actualTime: out _, outError: out _);
             new UIImage(cgImage).AsPNG().Save(target, false);
             return true;
         }
