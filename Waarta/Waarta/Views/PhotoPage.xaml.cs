@@ -22,5 +22,10 @@ namespace Waarta.Views
         {
             Photo.Source = ImgSource;
         }
+
+        private async void BackBtn_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopModalAsync();
+        }
     }
 }

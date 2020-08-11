@@ -64,7 +64,7 @@ namespace Waarta.Views
             };
         }
 
-        private void ContentPage_Appearing(object sender, EventArgs e)
+        private async void ContentPage_Appearing(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
             {
@@ -86,6 +86,13 @@ namespace Waarta.Views
                 GotoLoginBtn.IsVisible = false;
                 SearchBar.IsVisible = true;
                 ContactListView.IsVisible = true;
+                //if user does not have name take user to manage profile page
+                if (string.IsNullOrEmpty(mdto.Name))
+                {
+                    await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniNoNameMessage, AppResource.UniOK);
+                    ManageProfilePage mpp = new ManageProfilePage() { Member = mdto };
+                    await Shell.Current.Navigation.PushAsync(mpp);
+                }
             }
             if (ShouldBindContactList)
             {
@@ -103,13 +110,15 @@ namespace Waarta.Views
             catch { }
         }
 
-        private void Lp_LoggedIn(object sender, MemberDTO e)
+        private async void Lp_LoggedIn(object sender, MemberDTO e)
         {
             if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
             {
                 mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
                 cService.Token = Waarta.Helpers.Settings.Token;
                 mService.Token = Waarta.Helpers.Settings.Token;
+
+                
             }
 
         }
@@ -264,7 +273,8 @@ namespace Waarta.Views
                 ShouldCreateMessageGrid = true
             };
             cp.UnseenMessageStatusUpdated += Cp_UnseenMessageStatusUpdated;
-            await Navigation.PushModalAsync(cp);
+         
+            await Navigation.PushAsync(cp);
         }
 
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
@@ -370,7 +380,7 @@ namespace Waarta.Views
         {
             LoginPage lp = new LoginPage();
             lp.LoggedIn += Lp_LoggedIn;
-            Shell.Current.Navigation.PushModalAsync(lp);
+            Shell.Current.Navigation.PushAsync(lp);
         }
     }
 }

@@ -186,8 +186,9 @@ namespace Waarta.Views
                 }
                 UnseenMessageStatusUpdated?.Invoke(this, Other);
             }
-            try { 
-            await Connect();
+            try
+            {
+                await Connect();
             }
             catch (Exception)
             {
@@ -197,15 +198,16 @@ namespace Waarta.Views
 
         private void BindUIControls()
         {
-            ProPic.IsVisible = Other.HasImage;
-            if (Other.HasImage)
-            {
-                ProPic.WidthRequest = 50;
-                ProPic.HeightRequest = 50;
-            }
-            ProPic.Source = Other.Image;
-           NameTxt.Text = Other.Name.Length > 15 ? Other.Name.Substring(0, 12) + "..." : Other.Name;
-            OnlineStatusTxt.Text = Other.Activity != ActivityStatus.Offline ? AppResource.UniOnlineText : AppResource.UniOfflineText;
+            //ProPic.IsVisible = Other.HasImage;
+            //if (Other.HasImage)
+            //{
+            //    ProPic.WidthRequest = 50;
+            //    ProPic.HeightRequest = 50;
+            //}
+            //ProPic.Source = Other.Image; 
+            Title = Other.Name;
+            //NameTxt.Text = Other.Name.Length > 15 ? Other.Name.Substring(0, 12) + "..." : Other.Name;
+            //OnlineStatusTxt.Text = Other.Activity != ActivityStatus.Offline ? AppResource.UniOnlineText : AppResource.UniOfflineText;
         }
 
         private void SetHubconnectionOnFuncs()
@@ -893,7 +895,7 @@ namespace Waarta.Views
             {
                 ImgSource = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.LocalPath)
             };
-            await Navigation.PushModalAsync(pp);
+            await Navigation.PushAsync(pp);
         }
 
         private void Mphoto_Clicked(object sender, EventArgs e)
@@ -919,7 +921,7 @@ namespace Waarta.Views
                 Console.WriteLine(fi.Length);
             }
             vp.VideoUri = !string.IsNullOrEmpty(cm.LocalPath) ? new Uri(cm.LocalPath.Trim()) : new Uri(cm.Text.Trim());
-            await Navigation.PushModalAsync(vp);
+            await Navigation.PushAsync(vp);
         }
 
         void DeleteChatMessage(Guid id)
@@ -1108,7 +1110,7 @@ namespace Waarta.Views
         private async void ProPic_Clicked(object sender, EventArgs e)
         {
             ProfilePage pp = new ProfilePage() { BindingContext = Other };
-            await Navigation.PushModalAsync(pp);
+            await Navigation.PushAsync(pp);
         }
     }
 

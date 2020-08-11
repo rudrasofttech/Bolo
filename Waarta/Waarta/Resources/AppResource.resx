@@ -372,7 +372,13 @@ https://waarta.com/m/{0}</value>
   <data name="UniVideosText" xml:space="preserve">
     <value>Videos</value>
   </data>
-    <data name="UniVerifyText" xml:space="preserve">
-    <value>Verify</value>
+  <data name="UniVerifyText" xml:space="preserve">
+    <value>Verify Phone</value>
+  </data>
+  <data name="LPNamePromptTitle" xml:space="preserve">
+    <value>Enter Your Name</value>
+  </data>
+  <data name="UniNoNameMessage" xml:space="preserve">
+    <value>Incomplete profile information. No name provided.</value>
   </data>
 </root>

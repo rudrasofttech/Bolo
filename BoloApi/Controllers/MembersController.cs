@@ -338,6 +338,29 @@ namespace Bolo.Controllers
         }
 
         [HttpGet]
+        [Route("saveemail")]
+        public async Task<IActionResult> SaveEmail([FromQuery] string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                int c = await _context.Members.CountAsync(t => t.ID != member.ID && t.Email == d);
+                if (c > 0)
+                {
+                    return BadRequest("duplicatedata");
+                }
+                member.Email = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
         [Route("savebirthyear")]
         public async Task<IActionResult> SaveBirthYear([FromQuery] int d)
         {

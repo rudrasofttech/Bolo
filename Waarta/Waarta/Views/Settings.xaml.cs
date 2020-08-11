@@ -66,7 +66,7 @@ namespace Waarta.Views
         {
             LoginPage lp = new LoginPage();
             lp.LoggedIn += Lp_LoggedIn;
-            Shell.Current.Navigation.PushModalAsync(lp);
+            Shell.Current.Navigation.PushAsync(lp);
         }
 
         private void Lp_LoggedIn(object sender, MemberDTO e)
@@ -133,7 +133,7 @@ namespace Waarta.Views
                         Path = selectedImage,
                         Member = mdto
                     };
-                    await Navigation.PushModalAsync(mpm);
+                    await Navigation.PushAsync(mpm);
                 }
             }
             else if (action == AppResource.SetTakePicBtn)
@@ -158,7 +158,7 @@ namespace Waarta.Views
                         Path = selectedImage,
                         Member = mdto
                     };
-                    await Navigation.PushModalAsync(mpm);
+                    await Navigation.PushAsync(mpm);
                 }
             }
         }

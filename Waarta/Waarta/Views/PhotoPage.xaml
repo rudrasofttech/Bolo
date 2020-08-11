@@ -4,8 +4,9 @@
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             x:Class="Waarta.Views.PhotoPage" Title="Photo" Appearing="ContentPage_Appearing">
-    <ContentPage.Content>
-        <Image x:Name="Photo" MinimumHeightRequest="200"  MinimumWidthRequest="200" />
+             x:Class="Waarta.Views.PhotoPage" Title="Photo" Appearing="ContentPage_Appearing" >
+    
+    <ContentPage.Content >
+            <Image x:Name="Photo" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" MinimumHeightRequest="200"  MinimumWidthRequest="200" />
     </ContentPage.Content>
 </ContentPage>

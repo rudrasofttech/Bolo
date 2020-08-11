@@ -28,7 +28,7 @@ namespace Waarta.Views
             OTPTxt.Placeholder = AppResource.LPOTPPH;
             MobileTxt.Placeholder = AppResource.LPMobileTxtPH;
             LoginBtn.Text = AppResource.LPLoginBtn;
-            TitleTxt.Text = AppResource.UniVerifyText;
+            Title = AppResource.UniVerifyText;
         }
 
         private void MobileTxt_Completed(object sender, EventArgs e)
@@ -54,8 +54,7 @@ namespace Waarta.Views
                     Waarta.Helpers.Settings.Token = result.Token;
                     Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(result.Member);
                     LoggedIn?.Invoke(this, result.Member);
-                    
-                    await Navigation.PopModalAsync();
+                    await Navigation.PopAsync();
                 }
             }
             catch (NotFoundException)
@@ -113,7 +112,7 @@ namespace Waarta.Views
         {
             if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Token))
             {
-                Navigation.PopModalAsync();
+                Navigation.PopAsync();
             }
         }
     }

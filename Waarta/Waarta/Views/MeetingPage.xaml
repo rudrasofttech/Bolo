@@ -25,16 +25,16 @@
         </ScrollView>
         <Grid Padding="0" Margin="0" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" BackgroundColor="White">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Text="+" Clicked="OptionsBtn_Clicked" FontSize="40"  Padding="0" Margin="0" BorderWidth="0" x:Name="OptionsBtn"  WidthRequest="40" BackgroundColor="Transparent" HeightRequest="40"></Button>
+            <ImageButton Grid.Column="0" Clicked="OptionsBtn_Clicked" x:Name="OptionsBtn" Source="paperclip.png" BackgroundColor="Transparent" WidthRequest="40" Padding="8"></ImageButton>
             <Editor AutoSize="TextChanges" Grid.Column="1" x:Name="MessageTxt" />
-            <ImageButton Grid.Column="2"  x:Name="SendBtn" Source="paperplane.png" BackgroundColor="Transparent"  WidthRequest="40" HeightRequest="40"  Padding="0" Margin="0" BorderWidth="0" Clicked="SendBtn_Clicked"></ImageButton>
+            <ImageButton Grid.Column="2" x:Name="SendBtn" Source="paperplane.png" BackgroundColor="Transparent"  WidthRequest="40" Padding="8" Clicked="SendBtn_Clicked"></ImageButton>
         </Grid>
     </StackLayout>
 </ContentPage>
