@@ -108,7 +108,7 @@ namespace Waarta.Views
                     ds.SaveMeetingsListData(JsonConvert.SerializeObject(meetingslist));
                 }
             }
-            await Navigation.PushModalAsync(mp);
+            await Navigation.PushAsync(mp);
         }
 
         private void ContentPage_Appearing(object sender, EventArgs e)

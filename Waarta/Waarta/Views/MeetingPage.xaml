@@ -5,8 +5,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="Waarta.Views.MeetingPage" xmlns:resources="clr-namespace:Waarta.Resources"  Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{x:Static resources:AppResource.InviteBtn}" Clicked="InviteBtn_Clicked" />
+        <ToolbarItem Text="{x:Static resources:AppResource.LeaveBtn}" Clicked="LeaveBtn_Clicked" />
+    </ContentPage.ToolbarItems>
     <StackLayout Margin="0" Padding="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White" >
-        <Grid Padding="0" Margin="0" HorizontalOptions="EndAndExpand" VerticalOptions="StartAndExpand" BackgroundColor="Black">
+        <Grid IsVisible="false" Padding="0" Margin="0" HorizontalOptions="EndAndExpand" VerticalOptions="StartAndExpand" BackgroundColor="Black">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
             </Grid.RowDefinitions>

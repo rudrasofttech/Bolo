@@ -272,7 +272,7 @@ namespace Waarta.Views
                 Sender = Myself.ID,
                 Status = ChatMessageSentStatus.Pending,
                 Text = string.Format("https://waarta.com/data/{0}/{1}", Myself.ID.ToString().ToLower(), Path.GetFileName(path)),
-                LocalPath = path,
+                LocalPath = Path.Combine(Myself.ID.ToString().ToLower(), Other.ID.ToString().ToLower(), Path.GetFileName(path)),
                 TimeStamp = DateTime.Now
             };
 
@@ -397,7 +397,7 @@ namespace Waarta.Views
                     if (dc.Position >= dc.Length)
                     {
                         cmdm.Status = DownloadStatus.Completed;
-                        cm.LocalPath = targetfpath;
+                        cm.LocalPath = Path.Combine(Myself.ID.ToString().ToLower(), Other.ID.ToString().ToLower(), Path.GetFileName(filepathshort));
                         cm.FileDownloadStatus = FileDownloadStatus.Downloaded;
                         if (lb != null)
                         {
@@ -879,7 +879,10 @@ namespace Waarta.Views
                 Source = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.LocalPath),
                 CommandParameter = cm
             };
-
+            if (File.Exists(cm.LocalPath.Trim()))
+            {
+                Console.WriteLine(cm.LocalPath.Trim());
+            }
             return img;
         }
 

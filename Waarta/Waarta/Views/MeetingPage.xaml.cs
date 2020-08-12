@@ -331,7 +331,7 @@ namespace Waarta.Views
                 MessageType = ChatMessageType.Photo,
                 Status = ChatMessageSentStatus.Pending,
                 Text = string.Format("https://waarta.com/api/meetings/media/{0}?f={1}", Meeting.ID.ToLower(), Path.GetFileName(path)),
-                LocalPath = path,
+                LocalPath = Path.Combine(Myself.MemberID, Meeting.ID.ToLower(), Path.GetFileName(path)),
                 TimeStamp = DateTime.Now
             };
             Grid mgrid = AddMsgToStack(cm);
@@ -357,7 +357,7 @@ namespace Waarta.Views
                 Sender = Myself,
                 Status = ChatMessageSentStatus.Pending,
                 Text = string.Format("https://waarta.com/api/meetings/media/{0}?f={1}", Meeting.ID.ToLower(), Path.GetFileName(path)),
-                LocalPath = path,
+                LocalPath = Path.Combine(Myself.MemberID, Meeting.ID.ToLower(), Path.GetFileName(path)),
                 TimeStamp = DateTime.Now
             };
 
@@ -803,7 +803,7 @@ namespace Waarta.Views
             {
                 ImgSource = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.LocalPath)
             };
-            await Navigation.PushModalAsync(pp);
+            await Navigation.PushAsync(pp);
         }
 
         private void Mphoto_Clicked(object sender, EventArgs e)
@@ -828,7 +828,7 @@ namespace Waarta.Views
                 Console.WriteLine(fi.Length);
             }
             vp.VideoUri = !string.IsNullOrEmpty(cm.LocalPath) ? new Uri(cm.LocalPath.Trim()) : new Uri(cm.Text.Trim());
-            await Navigation.PushModalAsync(vp);
+            await Navigation.PushAsync(vp);
         }
 
         void DeleteChatMessage(Guid id)
@@ -1111,7 +1111,7 @@ namespace Waarta.Views
             }
             catch { }
 
-            await Navigation.PopModalAsync();
+            await Navigation.PopAsync();
         }
 
         private async void InviteBtn_Clicked(object sender, EventArgs e)

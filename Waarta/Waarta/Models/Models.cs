@@ -385,7 +385,9 @@ namespace Waarta.Models
                 }
             }
         }
-        public string LocalPath { get; set; }
+
+        private string _localpath;
+        public string LocalPath { get { return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", _localpath); } set { _localpath = value; } }
 
         public FileDownloadStatus FileDownloadStatus
         {
@@ -466,7 +468,9 @@ namespace Waarta.Models
                 }
             }
         }
-        public string LocalPath { get; set; }
+        private string _localpath;
+        public string LocalPath { get { return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", _localpath); } set { _localpath = value; } }
+
 
         public FileDownloadStatus FileDownloadStatus
         {
