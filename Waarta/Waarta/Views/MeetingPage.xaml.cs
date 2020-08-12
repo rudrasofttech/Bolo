@@ -58,7 +58,7 @@ namespace Waarta.Views
                 await hc.StartAsync();
             };
             hc.Reconnected += Hc_Reconnected;
-            
+
         }
 
         private async Task Hc_Reconnected(string arg)
@@ -162,13 +162,13 @@ namespace Waarta.Views
 
             MessageList.Add(cm.ID, cm);
             AddMsgToStack(cm);
-            
+
         }
 
         private async void OptionsBtn_Clicked(object sender, EventArgs e)
         {
             string action = await DisplayActionSheet("", AppResource.UniCancelText, null, AppResource.UniTakePhotoText, AppResource.UniCaptureVideoText, AppResource.UniPhotosText, AppResource.UniVideosText, AppResource.UniDocText);
-            
+
             if (action == AppResource.UniTakePhotoText)
             {
                 await CrossMedia.Current.Initialize();
@@ -181,7 +181,16 @@ namespace Waarta.Views
                     PhotoSize = PhotoSize.Small,
                     CompressionQuality = 80
                 };
-                var selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
+                MediaFile selectedImage;
+                try
+                {
+                    selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
+                }
+                catch
+                {
+                    selectedImage = null;
+                }
+
                 if (selectedImage != null)
                 {
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
@@ -210,7 +219,12 @@ namespace Waarta.Views
                     DesiredLength = TimeSpan.FromMinutes(1),
                     Quality = VideoQuality.Low
                 };
-                var selectedVideo = await CrossMedia.Current.TakeVideoAsync(mediaOptions);
+                MediaFile selectedVideo;
+                try {
+                    selectedVideo = await CrossMedia.Current.TakeVideoAsync(mediaOptions);
+                } catch {
+                    selectedVideo = null;
+                }
                 if (selectedVideo != null)
                 {
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
@@ -224,7 +238,8 @@ namespace Waarta.Views
                         AddUploadVideoMsgToStack(path, thumbnailpath);
                 }
             }
-            else if (action == AppResource.UniDocText) {
+            else if (action == AppResource.UniDocText)
+            {
                 FileData fileData = await CrossFilePicker.Current.PickFile();
                 if (fileData == null)
                     return; // user canceled file picking
@@ -250,7 +265,15 @@ namespace Waarta.Views
                     PhotoSize = PhotoSize.Small,
                     CompressionQuality = 50
                 };
-                var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
+                MediaFile selectedImage;
+                try
+                {
+                    selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
+                }
+                catch
+                {
+                    selectedImage = null;
+                }
                 if (selectedImage != null)
                 {
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
@@ -270,7 +293,15 @@ namespace Waarta.Views
                     return;
                 }
 
-                var selectedVideo = await CrossMedia.Current.PickVideoAsync();
+                MediaFile selectedVideo;
+                try
+                {
+                    selectedVideo = await CrossMedia.Current.PickVideoAsync();
+                }
+                catch
+                {
+                    selectedVideo = null;
+                }
                 if (selectedVideo != null)
                 {
                     int videolength = DependencyService.Get<IVideoPicker>().GetVideoLengthInMinutes(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path));
@@ -450,7 +481,7 @@ namespace Waarta.Views
         /// <returns></returns>
         private Grid AddMsgToStack(MeetingChatMessage cm)
         {
-            Frame f = new Frame() { VerticalOptions = LayoutOptions.Start, Padding = new Thickness(0), CornerRadius = 10, HasShadow=false };
+            Frame f = new Frame() { VerticalOptions = LayoutOptions.Start, Padding = new Thickness(0), CornerRadius = 10, HasShadow = false };
             Grid mgrid = new Grid() { Padding = new Thickness(5) };
             //row holds message option button
             mgrid.RowDefinitions.Add(new RowDefinition() { Height = 25 });
@@ -729,7 +760,7 @@ namespace Waarta.Views
                 {
                     txt = namevals.Get("f");
                 }
-               
+
                 var span = new Span()
                 {
                     Text = txt,
@@ -738,7 +769,7 @@ namespace Waarta.Views
                 };
                 span.GestureRecognizers.Add(new TapGestureRecognizer() { Command = HyperLinkTapCommand, CommandParameter = cm.Text });
                 textlbl.WidthRequest = 250;
-                
+
                 textlbl.FormattedText = new FormattedString();
                 textlbl.FormattedText.Spans.Add(span);
             }
@@ -818,7 +849,7 @@ namespace Waarta.Views
             if (!string.IsNullOrEmpty(Meeting.Name) && !string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
             {
                 Dictionary<Guid, MeetingChatMessage> temp = ds.LoadMessagesFromFile(Myself, Meeting);
-                foreach(var pair in MessageList)
+                foreach (var pair in MessageList)
                 {
                     if (!temp.ContainsKey(pair.Key))
                     {
@@ -1056,7 +1087,7 @@ namespace Waarta.Views
 
         public void LeaveMeeting()
         {
-            if ( hc != null && hc.State == HubConnectionState.Connected)
+            if (hc != null && hc.State == HubConnectionState.Connected)
             {
                 hc.InvokeAsync("LeaveMeeting", Meeting.ID, Myself.MemberID);
             }
@@ -1079,7 +1110,7 @@ namespace Waarta.Views
                 _ = hc.DisposeAsync();
             }
             catch { }
-            
+
             await Navigation.PopModalAsync();
         }
 

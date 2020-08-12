@@ -957,7 +957,16 @@ namespace Waarta.Views
                     PhotoSize = PhotoSize.Small,
                     CompressionQuality = 90
                 };
-                var selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
+                MediaFile selectedImage;
+                try
+                {
+                    selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
+                }
+                catch
+                {
+                    selectedImage = null;
+                }
+                
                 if (selectedImage != null)
                 {
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
@@ -984,9 +993,18 @@ namespace Waarta.Views
                     CompressionQuality = 100,
                     DefaultCamera = CameraDevice.Rear,
                     DesiredLength = TimeSpan.FromMinutes(1),
-                    Quality = VideoQuality.Low
+                    Quality = VideoQuality.Medium
                 };
-                var selectedVideo = await CrossMedia.Current.TakeVideoAsync(mediaOptions);
+                MediaFile selectedVideo;
+
+                try
+                {
+                    selectedVideo = await CrossMedia.Current.TakeVideoAsync(mediaOptions);
+                }
+                catch
+                {
+                    selectedVideo = null;
+                }
                 if (selectedVideo != null)
                 {
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
@@ -1026,15 +1044,23 @@ namespace Waarta.Views
             }
             else if (action == AppResource.UniVideosText)
             {
-                
+                //string p = await DependencyService.Get<IVideoPicker>().GetVideoFileAsync();
                 await CrossMedia.Current.Initialize();
                 if (!CrossMedia.Current.IsPickVideoSupported)
                 {
                     return;
                 }
 
+                MediaFile selectedVideo;
 
-                var selectedVideo = await CrossMedia.Current.PickVideoAsync();
+                try
+                {
+                    selectedVideo = await CrossMedia.Current.PickVideoAsync();
+                }
+                catch (Exception)
+                {
+                    selectedVideo = null;
+                }
                 if (selectedVideo != null)
                 {
                     int videolength = DependencyService.Get<IVideoPicker>().GetVideoLengthInMinutes(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path));

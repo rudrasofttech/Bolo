@@ -9,7 +9,7 @@ namespace Waarta.Services
 {
     public interface IVideoPicker
     {
-        //Task<string> GetVideoFileAsync();
+        Task<string> GetVideoFileAsync();
 
         bool GenerateThumbnail(string source, string target);
         int GetVideoLengthInMinutes(string path);

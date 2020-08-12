@@ -88,14 +88,14 @@ namespace BoloWeb.Controllers
         // POST: api/Posts
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
-        public async Task<ActionResult<PostDisplayDTO>> PostPost(PostEntryDTO post)
-        {
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
+        //[HttpPost]
+        //public async Task<ActionResult<PostDisplayDTO>> PostPost(PostEntryDTO post)
+        //{
+        //    _context.Posts.Add(post);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPost", new { id = post.ID }, post);
-        }
+        //    return CreatedAtAction("GetPost", new PostDisplayDTO (post) { id = post.ID }, post);
+        //}
 
         // DELETE: api/Posts/5
         [HttpDelete("{id}")]
