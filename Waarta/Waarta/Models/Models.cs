@@ -370,9 +370,9 @@ namespace Waarta.Models
             {
                 if (MessageType == ChatMessageType.Video || MessageType == ChatMessageType.Document)
                 {
-                    if (!string.IsNullOrEmpty(LocalPath) && File.Exists(LocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg")))
+                    if (!string.IsNullOrEmpty(FullLocalPath) && File.Exists(FullLocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg")))
                     {
-                        return LocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg");
+                        return FullLocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg");
                     }
                     else
                     {
@@ -386,8 +386,23 @@ namespace Waarta.Models
             }
         }
 
-        private string _localpath;
-        public string LocalPath { get { return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", _localpath); } set { _localpath = value; } }
+        [JsonIgnore]
+        public string FullLocalPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(LocalPath))
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", LocalPath);
+                }
+            }
+        }
+
+        public string LocalPath { get; set; }
 
         public FileDownloadStatus FileDownloadStatus
         {
@@ -453,9 +468,9 @@ namespace Waarta.Models
             {
                 if (MessageType == ChatMessageType.Video)
                 {
-                    if (!string.IsNullOrEmpty(LocalPath) && File.Exists(LocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg")))
+                    if (!string.IsNullOrEmpty(LocalPath) && File.Exists(FullLocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg")))
                     {
-                        return LocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg");
+                        return FullLocalPath.Replace(Path.GetExtension(LocalPath), "-thumb.jpg");
                     }
                     else
                     {
@@ -468,8 +483,23 @@ namespace Waarta.Models
                 }
             }
         }
-        private string _localpath;
-        public string LocalPath { get { return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", _localpath); } set { _localpath = value; } }
+
+        [JsonIgnore]
+        public string FullLocalPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(LocalPath))
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return Path.Combine(Waarta.Helpers.Settings.LocalAppDataPath, "data", LocalPath);
+                }
+            }
+        }
+        public string LocalPath { get; set; }
 
 
         public FileDownloadStatus FileDownloadStatus

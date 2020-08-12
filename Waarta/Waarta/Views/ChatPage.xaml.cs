@@ -404,7 +404,7 @@ namespace Waarta.Views
                             lb.Text = AppResource.CPTapFileLabel;
                         }
                         //DependencyService.Get<IVideoPicker>().GenerateThumbnail(cm.LocalPath, cm.LocalPath.ToLower().Replace(Path.GetExtension(cm.LocalPath), "-thumb.jpg"));
-                        await ms.DownloadChunk(cm.LocalPath.ToLower().Replace(Path.GetExtension(cm.LocalPath), "-thumb.jpg"), 0);
+                        await ms.DownloadChunk(cm.FullLocalPath.ToLower().Replace(Path.GetExtension(cm.FullLocalPath), "-thumb.jpg"), 0);
                         if (bar != null)
                         {
                             bar.IsVisible = false;
@@ -545,7 +545,7 @@ namespace Waarta.Views
                 CommandParameter = cm.ID,
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.End,
-                BackgroundColor = Color.White,
+                BackgroundColor = Color.Transparent,
                 CornerRadius = 15
             };
 
@@ -554,11 +554,13 @@ namespace Waarta.Views
             if (cm.Sender == Myself.ID)
             {
                 f.HorizontalOptions = LayoutOptions.End;
+                f.Margin = new Thickness(50, 0, 0, 5);
                 mgrid.BackgroundColor = Color.FromRgb(219, 244, 253);
             }
             else
             {
                 f.HorizontalOptions = LayoutOptions.Start;
+                f.Margin = new Thickness(0, 0, 50, 5);
                 mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
             }
 
@@ -579,7 +581,7 @@ namespace Waarta.Views
                         mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
                         Label lsize = new Label() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
                         mgrid.Children.Add(lsize, 0, 2);
-                        if (File.Exists(cm.LocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded)
+                        if (File.Exists(cm.FullLocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded)
                         {
                             ibphoto.Clicked += Img_Clicked;
                             lsize.Text = AppResource.CPTapFileLabel;
@@ -616,7 +618,7 @@ namespace Waarta.Views
                         mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
                         Label lsize = new Label() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
                         mgrid.Children.Add(lsize, 0, 2);
-                        if (File.Exists(cm.LocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded)
+                        if (File.Exists(cm.FullLocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded)
                         {
                             ib.Clicked += VideoThumbBtn_Clicked;
                             lsize.Text = AppResource.CPTapFileLabel;
@@ -653,7 +655,7 @@ namespace Waarta.Views
                         mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
                         Label lsize = new Label() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
                         mgrid.Children.Add(lsize, 0, 2);
-                        if (File.Exists(cm.LocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded)
+                        if (File.Exists(cm.FullLocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded)
                         {
                             mphoto.Clicked += Mphoto_Clicked;
                             lsize.Text = AppResource.CPTapFileLabel;
@@ -876,7 +878,7 @@ namespace Waarta.Views
                 WidthRequest = 250,
                 HeightRequest = 250,
                 Aspect = Aspect.AspectFill,
-                Source = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.LocalPath),
+                Source = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.FullLocalPath),
                 CommandParameter = cm
             };
             if (File.Exists(cm.LocalPath.Trim()))
@@ -896,7 +898,7 @@ namespace Waarta.Views
         {
             PhotoPage pp = new PhotoPage()
             {
-                ImgSource = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.LocalPath)
+                ImgSource = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.FullLocalPath)
             };
             await Navigation.PushAsync(pp);
         }
@@ -918,12 +920,12 @@ namespace Waarta.Views
         {
             VideoPage vp = new VideoPage();
 
-            if (File.Exists(cm.LocalPath))
+            if (File.Exists(cm.FullLocalPath))
             {
-                FileInfo fi = new FileInfo(cm.LocalPath);
+                FileInfo fi = new FileInfo(cm.FullLocalPath);
                 Console.WriteLine(fi.Length);
             }
-            vp.VideoUri = !string.IsNullOrEmpty(cm.LocalPath) ? new Uri(cm.LocalPath.Trim()) : new Uri(cm.Text.Trim());
+            vp.VideoUri = !string.IsNullOrEmpty(cm.LocalPath) ? new Uri(cm.FullLocalPath.Trim()) : new Uri(cm.Text.Trim());
             await Navigation.PushAsync(vp);
         }
 
@@ -931,9 +933,9 @@ namespace Waarta.Views
         {
             if (MessageList.ContainsKey(id))
             {
-                if (File.Exists(MessageList[id].LocalPath))
+                if (File.Exists(MessageList[id].FullLocalPath))
                 {
-                    File.Delete(MessageList[id].LocalPath);
+                    File.Delete(MessageList[id].FullLocalPath);
                 }
                 MessageList.Remove(id);
             }
@@ -993,10 +995,10 @@ namespace Waarta.Views
                 var mediaOptions = new StoreVideoOptions()
                 {
                     AllowCropping = true,
-                    CompressionQuality = 100,
+                    CompressionQuality = 50,
                     DefaultCamera = CameraDevice.Rear,
                     DesiredLength = TimeSpan.FromMinutes(1),
-                    Quality = VideoQuality.Medium
+                    Quality = VideoQuality.Low
                 };
                 MediaFile selectedVideo;
 
