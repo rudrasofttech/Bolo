@@ -74,8 +74,15 @@ namespace Waarta.iOS.Services
                 AppliesPreferredTrackTransform = true
             };
             CGImage cgImage = imageGenerator.CopyCGImageAtTime(new CMTime(0, 1000000), actualTime: out _, outError: out _);
-            new UIImage(cgImage).AsPNG().Save(target, false);
-            return true;
+            if (cgImage != null)
+            {
+                new UIImage(cgImage).AsPNG().Save(target, false);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public int GetVideoLengthInMinutes(string path)
