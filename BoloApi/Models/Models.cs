@@ -436,6 +436,17 @@ namespace Bolo.Models
         }
     }
 
+    public class PostEntryDTO
+    {
+        public String Description { get; set; }
+        public Point Location { get; set; }
+        public string LocationName { get; set; }
+        public EntryType PostType
+        {
+            get; set;
+        }
+    }
+
     public class Follower
     {
         public int ID { get; set; }

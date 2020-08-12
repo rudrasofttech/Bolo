@@ -253,7 +253,7 @@ namespace Waarta.Views
                 var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
                 if (selectedImage != null)
                 {
-                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedImage.AlbumPath, selectedImage.Path))));
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
                     File.Copy(selectedImage.Path, path, true);
                     if (File.Exists(path))
                     {
@@ -279,7 +279,7 @@ namespace Waarta.Views
                         await DisplayAlert(AppResource.ChatVideoLengthExceedTitle, AppResource.ChatVideoLengthExceedMsg, AppResource.UniCancelText);
                         return;
                     }
-                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path))));
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
 
                     File.Copy(selectedVideo.Path, path, true);
 

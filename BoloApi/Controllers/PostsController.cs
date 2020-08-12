@@ -89,7 +89,7 @@ namespace BoloWeb.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Post>> PostPost(Post post)
+        public async Task<ActionResult<PostDisplayDTO>> PostPost(PostEntryDTO post)
         {
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();

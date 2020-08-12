@@ -940,11 +940,6 @@ namespace Waarta.Views
         {
 
             ds.SaveMessagestoFile(Myself, Other, MessageList);
-            //try
-            //{
-            //    _ = Disconnect();
-            //}
-            //catch { }
         }
 
         private async void OptionsBtn_Clicked(object sender, EventArgs e)
@@ -960,12 +955,12 @@ namespace Waarta.Views
                 var mediaOptions = new StoreCameraMediaOptions()
                 {
                     PhotoSize = PhotoSize.Small,
-                    CompressionQuality = 80
+                    CompressionQuality = 90
                 };
                 var selectedImage = await CrossMedia.Current.TakePhotoAsync(mediaOptions);
                 if (selectedImage != null)
                 {
-                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedImage.AlbumPath, selectedImage.Path))));
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
                     using (FileStream outputFileStream = new FileStream(path, FileMode.Create))
                     {
                         selectedImage.GetStream().CopyTo(outputFileStream);
@@ -973,7 +968,6 @@ namespace Waarta.Views
                     if (File.Exists(path))
                     {
                         AddUploadFileMsgToStack(path, string.Empty, ChatMessageType.Photo);
-                        //AddUploadPhotoMsgToStack(path);
                     }
                 }
             }
@@ -1004,7 +998,6 @@ namespace Waarta.Views
                     DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
                     if (File.Exists(thumbnailpath))
                         AddUploadFileMsgToStack(path, thumbnailpath, ChatMessageType.Video);
-                    //AddUploadVideoMsgToStack(path, thumbnailpath);
                 }
             }
             else if (action == AppResource.UniPhotosText)
@@ -1022,20 +1015,18 @@ namespace Waarta.Views
                 var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
                 if (selectedImage != null)
                 {
-                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedImage.AlbumPath, selectedImage.Path))));
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension( selectedImage.Path)));
                     File.Copy(selectedImage.Path, path, true);
                     if (File.Exists(path))
                     {
                         AddUploadFileMsgToStack(path, string.Empty, ChatMessageType.Photo);
-                        //AddUploadPhotoMsgToStack(path);
                     }
                 }
 
             }
             else if (action == AppResource.UniVideosText)
             {
-                //string filename = await DependencyService.Get<IVideoPicker>().GetVideoFileAsync();
-
+                
                 await CrossMedia.Current.Initialize();
                 if (!CrossMedia.Current.IsPickVideoSupported)
                 {
@@ -1052,7 +1043,7 @@ namespace Waarta.Views
                         await DisplayAlert(AppResource.ChatVideoLengthExceedTitle, AppResource.ChatVideoLengthExceedMsg, AppResource.UniCancelText);
                         return;
                     }
-                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path))));
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension( selectedVideo.Path)));
 
                     File.Copy(selectedVideo.Path, path, true);
                     //string finalpath = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path))));
@@ -1066,7 +1057,6 @@ namespace Waarta.Views
                     DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
                     if (File.Exists(thumbnailpath))
                         AddUploadFileMsgToStack(path, thumbnailpath, ChatMessageType.Video);
-                    //AddUploadVideoMsgToStack(path, thumbnailpath);
                 }
             }
             else if (action == AppResource.UniDocText)
@@ -1080,11 +1070,7 @@ namespace Waarta.Views
                     File.WriteAllBytes(path, fileData.DataArray);
                     if (File.Exists(path))
                     {
-                        //string thumbnailpath = path.Replace(Path.GetExtension(path), "-thumb.jpg");
-                        //DependencyService.Get<IPDFWorker>().GenerateThumbnail(path, thumbnailpath);
-                        //if (File.Exists(thumbnailpath))
                         AddUploadFileMsgToStack(path, string.Empty, ChatMessageType.Document);
-
                     }
                 }
             }
