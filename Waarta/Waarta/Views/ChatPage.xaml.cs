@@ -37,7 +37,24 @@ namespace Waarta.Views
         public MemberDTO Myself { get; set; }
         public Dictionary<Guid, ChatMessage> MessageList { get; set; }
         public bool ShouldCreateMessageGrid;
-        public ICommand HyperLinkTapCommand => new Command<string>(async (url) => await Launcher.OpenAsync(url));
+        public ICommand HyperLinkTapCommand => new Command<string>(async (url) => {
+            switch (Device.RuntimePlatform)
+            {
+                case Device.iOS:
+                    WebViewPage wvp = new WebViewPage()
+                    {
+                        Url = url
+                    };
+                    await Navigation.PushAsync(wvp);
+                    break;
+                case Device.Android:
+                    await Launcher.OpenAsync(url);
+                    break;
+                default:
+                    await Launcher.OpenAsync(url);
+                    break;
+            }
+        });
 
         public event EventHandler<MemberDTO> UnseenMessageStatusUpdated;
         public ChatPage()

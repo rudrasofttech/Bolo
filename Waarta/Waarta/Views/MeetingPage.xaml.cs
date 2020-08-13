@@ -36,7 +36,26 @@ namespace Waarta.Views
         public MeetingDTO Meeting { get; set; }
         public Dictionary<Guid, MeetingChatMessage> MessageList { get; set; }
         public bool ShouldCreateMessageGrid;
-        public ICommand HyperLinkTapCommand => new Command<string>(async (url) => await Launcher.OpenAsync(url));
+        public ICommand HyperLinkTapCommand => new Command<string>(async (url) =>
+        {
+            switch (Device.RuntimePlatform)
+            {
+                case Device.iOS:
+                    WebViewPage wvp = new WebViewPage()
+                    {
+                        Url = url
+                    };
+                    await Navigation.PushAsync(wvp);
+                    break;
+                case Device.Android:
+                    await Launcher.OpenAsync(url);
+                    break;
+                default:
+                    await Launcher.OpenAsync(url);
+                    break;
+            }
+
+        });
         public MeetingPage()
         {
             InitializeComponent();
@@ -220,9 +239,12 @@ namespace Waarta.Views
                     Quality = VideoQuality.Low
                 };
                 MediaFile selectedVideo;
-                try {
+                try
+                {
                     selectedVideo = await CrossMedia.Current.TakeVideoAsync(mediaOptions);
-                } catch {
+                }
+                catch
+                {
                     selectedVideo = null;
                 }
                 if (selectedVideo != null)
@@ -753,24 +775,16 @@ namespace Waarta.Views
                 textlbl.HorizontalTextAlignment = TextAlignment.Start;
             }
 
-            if ((cm.Text.ToLower().StartsWith("http://") || cm.Text.ToLower().StartsWith("https://")) && cm.Text.Trim().IndexOf(" ") == -1)
+            if (cm.MessageType == ChatMessageType.Document || ((cm.Text.ToLower().StartsWith("http://") || cm.Text.ToLower().StartsWith("https://")) && cm.Text.Trim().IndexOf(" ") == -1))
             {
-                string txt = cm.Text.Trim();
-                Uri uri = new Uri(cm.Text.Trim());
-                var namevals = HttpUtility.ParseQueryString(uri.Query);
-                if (namevals.HasKeys())
-                {
-                    txt = namevals.Get("f");
-                }
-
                 var span = new Span()
                 {
-                    Text = txt,
+                    Text = cm.MessageType == ChatMessageType.Document ? Path.GetFileName(cm.Text.Trim()) : cm.Text.Trim(),
                     TextColor = Color.FromHex("0064DA"),
-                    TextDecorations = TextDecorations.Underline
+                    TextDecorations = TextDecorations.None
                 };
                 span.GestureRecognizers.Add(new TapGestureRecognizer() { Command = HyperLinkTapCommand, CommandParameter = cm.Text });
-                textlbl.WidthRequest = 250;
+                //textlbl.WidthRequest = 250;
 
                 textlbl.FormattedText = new FormattedString();
                 textlbl.FormattedText.Spans.Add(span);
