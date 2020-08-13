@@ -51,11 +51,12 @@ namespace Waarta.Views
                 string imgstr = Convert.ToBase64String(memoryStream.ToArray());
                 if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
                 {
-                    Member.Pic = imgstr;
-                    Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(Member);
+                    
                     try
                     {
                         await ms.SavePic("data:image/jpeg;base64," + imgstr);
+                        Member.Pic = imgstr;
+                        Waarta.Helpers.Settings.Myself = JsonConvert.SerializeObject(Member);
                     }
                     catch (ServerErrorException)
                     {
@@ -63,7 +64,7 @@ namespace Waarta.Views
                     }
                 }
             }
-            await Navigation.PopModalAsync();
+            await Navigation.PopAsync();
         }
     }
 }

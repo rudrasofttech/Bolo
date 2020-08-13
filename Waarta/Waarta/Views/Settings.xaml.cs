@@ -114,6 +114,7 @@ namespace Waarta.Views
                 }
             }else if(action == AppResource.SetChoosePhotoBtn)
             {
+                
                 await CrossMedia.Current.Initialize();
                 if (!CrossMedia.Current.IsPickPhotoSupported)
                 {
@@ -127,7 +128,7 @@ namespace Waarta.Views
                 var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
                 if (selectedImage != null)
                 {
-
+                    
                     MemberPhotoManage mpm = new MemberPhotoManage()
                     {
                         Path = selectedImage,
