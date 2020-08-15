@@ -99,9 +99,6 @@ namespace Waarta.Views
                 MessageTxtFrame.BorderColor = Color.Transparent;
             }
         }
-
-        
-
         private void KeyboardNotification_KeyboardShowing(object sender, KeyboardHeightEventArgs e)
         {
             if (e.Height > 0)
@@ -623,7 +620,7 @@ namespace Waarta.Views
             {
                 f.HorizontalOptions = LayoutOptions.Start;
                 f.Margin = new Thickness(0, 0, 50, 5);
-                mgrid.BackgroundColor = Color.FromHex("E5E5EA"); //Color.FromRgb(242, 246, 249);
+                mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
             }
 
             switch (cm.MessageType)
@@ -1057,11 +1054,12 @@ namespace Waarta.Views
                 var mediaOptions = new StoreVideoOptions()
                 {
                     AllowCropping = true,
-                    CompressionQuality = 50,
+                    CompressionQuality = 92,
                     DefaultCamera = CameraDevice.Rear,
                     DesiredLength = TimeSpan.FromMinutes(1),
                     Quality = VideoQuality.Low
                 };
+                
                 MediaFile selectedVideo;
 
                 try
@@ -1139,13 +1137,17 @@ namespace Waarta.Views
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
 
                     File.Copy(selectedVideo.Path, path, true);
-                    //string finalpath = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path))));
-                    //await DependencyService.Get<IVideoPicker>().CompressVideo(path, finalpath);
+                    if (Device.RuntimePlatform == Device.iOS)
+                    {
+                        string compressedvideopath = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
+                        await DependencyService.Get<IVideoPicker>().CompressVideo(path, compressedvideopath);
 
-                    //if (File.Exists(finalpath))
-                    //{
-                    //    Console.WriteLine("Done");
-                    //}
+                        if (File.Exists(compressedvideopath))
+                        {
+                            File.Delete(path);
+                            path = compressedvideopath;
+                        }
+                    }
                     string thumbnailpath = path.Replace(Path.GetExtension(path), "-thumb.jpg");
                     DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
                     if (File.Exists(thumbnailpath))

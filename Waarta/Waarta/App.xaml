@@ -9,6 +9,7 @@
         <ResourceDictionary>
             <Color x:Key="NavigationPrimary">#212529</Color>
             <Color x:Key="TextLight">#f8f9fa</Color>
+            
             <Style x:Key="primaryButtonStyle" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="#0064DA" />
                 <Setter Property="BorderColor" Value="#1861ac" />

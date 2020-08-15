@@ -27,7 +27,7 @@
             <StackLayout Orientation="Vertical" FlowDirection="LeftToRight" Rotation="180"  HorizontalOptions="FillAndExpand" Margin="0" Padding="5" VerticalOptions="StartAndExpand" x:Name="MsgStack">
             </StackLayout>
         </ScrollView>
-        <Grid Padding="0" Margin="0" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" BackgroundColor="White">
+        <Grid x:Name="ChatInputGrid" Margin="0" BackgroundColor="White" Padding="0,3,0,3" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -37,7 +37,9 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <ImageButton Grid.Column="0" Clicked="OptionsBtn_Clicked" x:Name="OptionsBtn" Source="paperclip.png" BackgroundColor="Transparent" WidthRequest="40" Padding="8"></ImageButton>
-            <Editor AutoSize="TextChanges" Grid.Column="1" x:Name="MessageTxt" />
+            <Frame x:Name="MessageTxtFrame" Grid.Column="1" BorderColor="LightGray" CornerRadius="20" HasShadow="False" Padding="5,3,5,0">
+                <Editor AutoSize="TextChanges" x:Name="MessageTxt" />
+            </Frame>
             <ImageButton Grid.Column="2" x:Name="SendBtn" Source="paperplane.png" BackgroundColor="Transparent"  WidthRequest="40" Padding="8" Clicked="SendBtn_Clicked"></ImageButton>
         </Grid>
     </StackLayout>

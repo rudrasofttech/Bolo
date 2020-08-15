@@ -31,6 +31,8 @@ namespace Waarta.Views
         readonly HubConnection hc;
         readonly WaartaDataStore ds;
         readonly MeetingsService mss;
+
+        IKeyboardNotifications KeyboardNotification;
         public string MeetingID { get; set; }
         public UserInfo Myself { get; set; }
         public Dictionary<string, UserInfo> participants;
@@ -78,7 +80,46 @@ namespace Waarta.Views
                 await hc.StartAsync();
             };
             hc.Reconnected += Hc_Reconnected;
+            //special code for ios to show message entry while typeing
+            if (Device.RuntimePlatform == Device.iOS)
+            {
+                if (App.AppleKeyboardHeight == 0)
+                {
+                    KeyboardNotification = DependencyService.Get<IKeyboardNotifications>();
 
+                    if (KeyboardNotification != null)
+                    {
+                        KeyboardNotification?.StartListening();
+                        KeyboardNotification.KeyboardShowing += KeyboardNotification_KeyboardShowing;
+                    }
+                }
+                MessageTxt.Focused += MessageTxt_Focused;
+                MessageTxt.Unfocused += MessageTxt_Unfocused;
+            }
+            else if (Device.RuntimePlatform == Device.Android)
+            {
+                MessageTxtFrame.BorderColor = Color.Transparent;
+            }
+        }
+
+        private void KeyboardNotification_KeyboardShowing(object sender, KeyboardHeightEventArgs e)
+        {
+            if (e.Height > 0)
+            {
+                //I just need it once to be measured and I save it in Xamarin Forms App class.
+                App.AppleKeyboardHeight = e.Height;
+                KeyboardNotification.StopListening();
+            }
+        }
+
+        private void MessageTxt_Focused(object sender, FocusEventArgs e)
+        {
+            ChatInputGrid.Margin = new Thickness(0, 0, 0, App.AppleKeyboardHeight);
+        }
+
+        private void MessageTxt_Unfocused(object sender, FocusEventArgs e)
+        {
+            ChatInputGrid.Margin = new Thickness(0);
         }
 
         private async Task Hc_Reconnected(string arg)
@@ -239,6 +280,7 @@ namespace Waarta.Views
                     DesiredLength = TimeSpan.FromMinutes(1),
                     Quality = VideoQuality.Low
                 };
+                
                 MediaFile selectedVideo;
                 try
                 {
@@ -336,7 +378,17 @@ namespace Waarta.Views
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
 
                     File.Copy(selectedVideo.Path, path, true);
+                    if (Device.RuntimePlatform == Device.iOS)
+                    {
+                        string compressedvideopath = Path.Combine(ds.GetDataFolderPath(Myself, Meeting), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
+                        await DependencyService.Get<IVideoPicker>().CompressVideo(path, compressedvideopath);
 
+                        if (File.Exists(compressedvideopath))
+                        {
+                            File.Delete(path);
+                            path = compressedvideopath;
+                        }
+                    }
                     string thumbnailpath = path.Replace(Path.GetExtension(path), "-thumb.jpg");
                     DependencyService.Get<IVideoPicker>().GenerateThumbnail(path, thumbnailpath);
                     if (File.Exists(thumbnailpath))

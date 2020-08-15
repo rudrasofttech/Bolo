@@ -85,7 +85,11 @@ namespace Waarta.Models
         {
             get
             {
-                return Person.Name;
+                if (!string.IsNullOrEmpty(Person.Name))
+                {
+                    return char.ToUpper(Person.Name.Trim()[0]) + Person.Name.Trim().Substring(1);
+                }
+                return String.Empty;
             }
         }
 

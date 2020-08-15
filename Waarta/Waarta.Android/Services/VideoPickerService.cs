@@ -23,6 +23,7 @@ namespace Waarta.Droid.Services
     {
         public Task<bool> CompressVideo(string source, string target)
         {
+            
             return Task.FromResult<bool>(true);
         }
 

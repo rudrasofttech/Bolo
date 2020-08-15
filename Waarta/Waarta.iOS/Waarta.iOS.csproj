@@ -214,6 +214,9 @@
     <PackageReference Include="DLToolkit.Forms.Controls.ImageCropView">
       <Version>1.0.7</Version>
     </PackageReference>
+    <PackageReference Include="InTheHand.Forms">
+      <Version>2.0.2020.605</Version>
+    </PackageReference>
     <PackageReference Include="Xamarin.FFImageLoading">
       <Version>2.4.11.982</Version>
     </PackageReference>

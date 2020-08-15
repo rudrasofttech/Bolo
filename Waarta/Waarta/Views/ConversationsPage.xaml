@@ -25,6 +25,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
+
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"  />
@@ -32,8 +33,8 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto"  />
                                 </Grid.ColumnDefinitions>
-                                <Frame Grid.RowSpan="2" Grid.Column="3" HasShadow="False" IsVisible="{Binding HasImage}" BackgroundColor="Transparent" Padding="0" CornerRadius="0" Margin="0" HeightRequest="40" WidthRequest="40">
-                                    <Image  Source="{Binding Image}" Aspect="AspectFill" IsVisible="{Binding HasImage}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Frame Grid.RowSpan="2" Grid.Column="3" HasShadow="False" IsVisible="{Binding HasImage}" CornerRadius="0" BackgroundColor="Transparent" Padding="0" Margin="0" HeightRequest="40" WidthRequest="40">
+                                    <Image  Source="{Binding Image}" Aspect="AspectFit" IsVisible="{Binding HasImage}" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Frame>
                                 <Label Grid.Row="0" Grid.Column="0" FontSize="15" Margin="0,5,0,0" Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Start" TextColor="Black" />
                                 <Label Grid.Row="0" Grid.Column="1" FontSize="10" IsVisible="false" Margin="0,5,0,0" Text="{Binding OnlineStatus}" VerticalOptions="Center" HorizontalOptions="Start" TextColor="Black" />
