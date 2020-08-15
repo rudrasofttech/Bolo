@@ -69,20 +69,24 @@ namespace Waarta.iOS.Services
 
         public bool GenerateThumbnail(string source, string target)
         {
-            AVAssetImageGenerator imageGenerator = new AVAssetImageGenerator(AVAsset.FromUrl(new Foundation.NSUrl(source)))
+            using (var asset = AVAsset.FromUrl(NSUrl.FromFilename(source)))
             {
-                AppliesPreferredTrackTransform = true
-            };
-            CGImage cgImage = imageGenerator.CopyCGImageAtTime(new CMTime(0, 1000000), actualTime: out _, outError: out _);
-            if (cgImage != null)
-            {
-                new UIImage(cgImage).AsPNG().Save(target, false);
-                return true;
+                AVAssetImageGenerator imageGenerator = new AVAssetImageGenerator(asset)
+                {
+                    AppliesPreferredTrackTransform = true
+                };
+                CGImage cgImage = imageGenerator.CopyCGImageAtTime(new CMTime(0, 1000000), actualTime: out _, outError: out _);
+                if (cgImage != null)
+                {
+                    new UIImage(cgImage).AsPNG().Save(target, false);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
-            {
-                return false;
-            }
+
         }
 
         public int GetVideoLengthInMinutes(string path)
