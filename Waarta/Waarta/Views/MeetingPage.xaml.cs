@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Input;
+using Waarta.Helpers;
 using Waarta.Models;
 using Waarta.Resources;
 using Waarta.Services;
@@ -780,7 +781,7 @@ namespace Waarta.Views
                 var span = new Span()
                 {
                     Text = cm.MessageType == ChatMessageType.Document ? Path.GetFileName(cm.Text.Trim()) : cm.Text.Trim(),
-                    TextColor = Color.FromHex("0064DA"),
+                    TextColor = Utility.LinkColor,
                     TextDecorations = TextDecorations.None
                 };
                 span.GestureRecognizers.Add(new TapGestureRecognizer() { Command = HyperLinkTapCommand, CommandParameter = cm.Text });

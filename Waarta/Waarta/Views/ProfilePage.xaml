@@ -6,12 +6,14 @@
              mc:Ignorable="d"
              x:Class="Waarta.Views.ProfilePage" BindingContext="Waarta.Model.MemberDTO" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
-        <StackLayout>
-            <Image Source="{Binding Image}" VerticalOptions="Start" WidthRequest="300" HeightRequest="300" HorizontalOptions="Center" x:Name="ProfilePic" />
-            <Label Text="{Binding Name}" FontSize="Title" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-            <Label Text="{Binding Location}" x:Name="LocationLbl" FontSize="Small" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-            <Label Text="{Binding ThoughtStatus}" x:Name="ThoughtStatusLbl"  FontAttributes="Italic" FontSize="Body" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-            <Label Text="{Binding Bio}" x:Name="BioLbl" FontSize="Body" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-        </StackLayout>
+        <ScrollView>
+            <StackLayout Margin="10">
+                <Image Source="{Binding Image}" VerticalOptions="Start" WidthRequest="200" HeightRequest="200" HorizontalOptions="Center" x:Name="ProfilePic" />
+                <Label Text="{Binding Name}" FontSize="Title" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                <Label Text="{Binding Location}" x:Name="LocationLbl" FontSize="Small" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                <Label Text="{Binding ThoughtStatus}" x:Name="ThoughtStatusLbl"  FontAttributes="Italic" FontSize="Body" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                <Label x:Name="BioLbl" FontSize="Body" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+            </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

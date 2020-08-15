@@ -33,11 +33,14 @@ namespace Waarta.Views
         readonly WaartaDataStore ds;
         readonly MemberService ms;
         readonly ChatMessageService cms;
+
+        IKeyboardNotifications KeyboardNotification;
         public MemberDTO Other { get; set; }
         public MemberDTO Myself { get; set; }
         public Dictionary<Guid, ChatMessage> MessageList { get; set; }
         public bool ShouldCreateMessageGrid;
-        public ICommand HyperLinkTapCommand => new Command<string>(async (url) => {
+        public ICommand HyperLinkTapCommand => new Command<string>(async (url) =>
+        {
             switch (Device.RuntimePlatform)
             {
                 case Device.iOS:
@@ -75,6 +78,48 @@ namespace Waarta.Views
                 await hc.StartAsync();
             };
             hc.Reconnected += Hc_Reconnected;
+
+            //special code for ios to show message entry while typeing
+            if (Device.RuntimePlatform == Device.iOS)
+            {
+                if (App.AppleKeyboardHeight == 0)
+                {
+                    KeyboardNotification = DependencyService.Get<IKeyboardNotifications>();
+
+                    if (KeyboardNotification != null)
+                    {
+                        KeyboardNotification?.StartListening();
+                        KeyboardNotification.KeyboardShowing += KeyboardNotification_KeyboardShowing;
+                    }
+                }
+                MessageTxt.Focused += MessageTxt_Focused;
+                MessageTxt.Unfocused += MessageTxt_Unfocused;
+            }else if(Device.RuntimePlatform == Device.Android)
+            {
+                MessageTxtFrame.BorderColor = Color.Transparent;
+            }
+        }
+
+        
+
+        private void KeyboardNotification_KeyboardShowing(object sender, KeyboardHeightEventArgs e)
+        {
+            if (e.Height > 0)
+            {
+                //I just need it once to be measured and I save it in Xamarin Forms App class.
+                App.AppleKeyboardHeight = e.Height;
+                KeyboardNotification.StopListening();
+            }
+        }
+
+        private void MessageTxt_Focused(object sender, FocusEventArgs e)
+        {
+            ChatInputGrid.Margin = new Thickness(0, 0, 0, App.AppleKeyboardHeight);
+        }
+
+        private void MessageTxt_Unfocused(object sender, FocusEventArgs e)
+        {
+            ChatInputGrid.Margin = new Thickness(0);
         }
 
         private async Task Hc_Reconnected(string arg)
@@ -542,7 +587,7 @@ namespace Waarta.Views
         /// <returns></returns>
         private Grid AddMsgToStack(ChatMessage cm)
         {
-            Frame f = new Frame() { VerticalOptions = LayoutOptions.Start,  Padding = new Thickness(0), CornerRadius = 10, HasShadow = false };
+            Frame f = new Frame() { VerticalOptions = LayoutOptions.Start, Padding = new Thickness(0), CornerRadius = 10, HasShadow = false };
             Grid mgrid = new Grid() { Padding = new Thickness(5) };
             //row holds message option button
             mgrid.RowDefinitions.Add(new RowDefinition() { Height = 25 });
@@ -578,7 +623,7 @@ namespace Waarta.Views
             {
                 f.HorizontalOptions = LayoutOptions.Start;
                 f.Margin = new Thickness(0, 0, 50, 5);
-                mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
+                mgrid.BackgroundColor = Color.FromHex("E5E5EA"); //Color.FromRgb(242, 246, 249);
             }
 
             switch (cm.MessageType)
@@ -875,7 +920,7 @@ namespace Waarta.Views
                 var span = new Span()
                 {
                     Text = cm.MessageType == ChatMessageType.Document ? Path.GetFileName(cm.Text.Trim()) : cm.Text.Trim(),
-                    TextColor = Color.FromHex("0064DA"),
+                    TextColor = Utility.LinkColor,
                     TextDecorations = TextDecorations.None
                 };
                 span.GestureRecognizers.Add(new TapGestureRecognizer() { Command = HyperLinkTapCommand, CommandParameter = cm.Text });
@@ -988,7 +1033,7 @@ namespace Waarta.Views
                 {
                     selectedImage = null;
                 }
-                
+
                 if (selectedImage != null)
                 {
                     string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
@@ -1055,7 +1100,7 @@ namespace Waarta.Views
                 var selectedImage = await CrossMedia.Current.PickPhotoAsync(mediaOptions);
                 if (selectedImage != null)
                 {
-                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension( selectedImage.Path)));
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedImage.Path)));
                     File.Copy(selectedImage.Path, path, true);
                     if (File.Exists(path))
                     {
@@ -1091,7 +1136,7 @@ namespace Waarta.Views
                         await DisplayAlert(AppResource.ChatVideoLengthExceedTitle, AppResource.ChatVideoLengthExceedMsg, AppResource.UniCancelText);
                         return;
                     }
-                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension( selectedVideo.Path)));
+                    string path = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(selectedVideo.Path)));
 
                     File.Copy(selectedVideo.Path, path, true);
                     //string finalpath = Path.Combine(ds.GetDataFolderPath(Myself, Other), string.Format("{0}{1}", Guid.NewGuid().ToString().ToLower(), Path.GetExtension(Path.Combine(selectedVideo.AlbumPath, selectedVideo.Path))));

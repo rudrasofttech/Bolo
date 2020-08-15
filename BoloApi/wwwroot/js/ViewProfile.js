@@ -71,6 +71,60 @@
     //    }
     //}
 
+    processString(options) {
+        var key = 0;
+
+        function processInputWithRegex(option, input) {
+            if (!option.fn || typeof option.fn !== 'function') return input;
+
+            if (!option.regex || !(option.regex instanceof RegExp)) return input;
+
+            if (typeof input === 'string') {
+                var regex = option.regex;
+                var result = null;
+                var output = [];
+
+                while ((result = regex.exec(input)) !== null) {
+                    var index = result.index;
+                    var match = result[0];
+
+                    output.push(input.substring(0, index));
+                    output.push(option.fn(++key, result));
+
+                    input = input.substring(index + match.length, input.length + 1);
+                    regex.lastIndex = 0;
+                }
+
+                output.push(input);
+                return output;
+            } else if (Array.isArray(input)) {
+                return input.map(function (chunk) {
+                    return processInputWithRegex(option, chunk);
+                });
+            } else return input;
+        }
+
+        return function (input) {
+            if (!options || !Array.isArray(options) || !options.length) return input;
+
+            options.forEach(function (option) {
+                return input = processInputWithRegex(option, input);
+            });
+
+            return input;
+        };
+    }
+
+    renderText(text) {
+        let parts = text.split(/(http|https):\/\/(\S+)\.([a-z]{2,}?)(.*?)( |\,|$|\.)/gim) // re is a matching regular expression
+        for (let i = 1; i < parts.length; i += 2) {
+            parts[i] = <a key={'link' + i} href={parts[i]}>{parts[i].split('\n').map((item, key) => {
+                return <React.Fragment key={key}>{item}<br /></React.Fragment>
+            })}</a>
+        }
+        return parts
+    }
+
     render() {
         if (this.state.profile !== null) {
             var d = new Date();
@@ -86,11 +140,27 @@
             if (address.trim() !== '') {
                 address = 'From ' + address;
             }
+            let config = [{
+                regex: /(http|https):\/\/(\S+)\.([a-z]{2,}?)(.*?)( |\,|$|\.)/gim,
+                fn: (key, result) => <span key={key}>
+                    <a target="_blank" href={`${result[1]}://${result[2]}.${result[3]}${result[4]}`}>{result[2]}.{result[3]}{result[4]}</a>{result[5]}
+                </span>
+            },
+                {
+                    regex: /\n/gim,
+                    fn: (key, result) => <br key={key} />
+                }, {
+                regex: /(\S+)\.([a-z]{2,}?)(.*?)( |\,|$|\.)/gim,
+                fn: (key, result) => <span key={key}>
+                    <a target="_blank" href={`http://${result[1]}.${result[2]}${result[3]}`}>{result[1]}.{result[2]}{result[3]}</a>{result[4]}
+                </span>
+            }];
+            var bio = <p>{this.processString(config)(this.state.profile.bio)}</p>;
             return (
                 <div className="text-center">
                     {pic}
                     <h4>{this.state.profile.name}</h4>
-                    <p>{this.state.profile.bio}</p>
+                    <p>{bio}</p>
                     <p><em>{age} {address}</em></p>
                 </div>
             );

@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using System.Text;
+using Xamarin.Forms;
 
 namespace Waarta.Helpers
 {
     public class Utility
     {
+
+        public static Color LinkColor => Color.FromHex("0064DA");
         public static string GetBytesReadable(long i)
         {
             // Get absolute value

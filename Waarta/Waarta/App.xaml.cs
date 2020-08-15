@@ -11,6 +11,7 @@ namespace Waarta
     {
         public static double ScreenWidth;
         public static double ScreenHeight;
+        public static double AppleKeyboardHeight;
         readonly MemberService ms;
         bool keepSendingPulse;
         public App()

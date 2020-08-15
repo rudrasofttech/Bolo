@@ -32,7 +32,7 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto"  />
                                 </Grid.ColumnDefinitions>
-                                <Frame Grid.RowSpan="2" Grid.Column="3" HasShadow="False" IsVisible="{Binding HasImage}" Padding="0" CornerRadius="0" Margin="0,5,0,5" HeightRequest="40" WidthRequest="40">
+                                <Frame Grid.RowSpan="2" Grid.Column="3" HasShadow="False" IsVisible="{Binding HasImage}" BackgroundColor="Transparent" Padding="0" CornerRadius="0" Margin="0" HeightRequest="40" WidthRequest="40">
                                     <Image  Source="{Binding Image}" Aspect="AspectFill" IsVisible="{Binding HasImage}" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Frame>
                                 <Label Grid.Row="0" Grid.Column="0" FontSize="15" Margin="0,5,0,0" Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Start" TextColor="Black" />
