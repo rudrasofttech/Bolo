@@ -119,7 +119,10 @@ namespace Waarta.Views
                 mss.Token = Waarta.Helpers.Settings.Token;
             }
 
-
+            if(Device.RuntimePlatform == Device.Android)
+            {
+                PurposeTxtFrame.BorderColor = Color.Transparent;
+            }
         }
     }
 }
