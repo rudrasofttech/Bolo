@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Foundation;
+using Octane.Xamarin.Forms.VideoPlayer.iOS;
 using UIKit;
 
 namespace Waarta.iOS
@@ -25,6 +26,7 @@ namespace Waarta.iOS
             global::Xamarin.Forms.Forms.SetFlags("CollectionView_Experimental");
             
             global::Xamarin.Forms.Forms.Init();
+            FormsVideoPlayer.Init();
             App.ScreenWidth = UIScreen.MainScreen.Bounds.Width;
             App.ScreenHeight = UIScreen.MainScreen.Bounds.Height;
             FFImageLoading.Forms.Platform.CachedImageRenderer.Init();

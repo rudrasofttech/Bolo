@@ -9,7 +9,7 @@ using Android.OS;
 using System.Threading.Tasks;
 using System.IO;
 using Android.Content;
-
+using Octane.Xamarin.Forms.VideoPlayer.Android;
 
 namespace Waarta.Droid
 {
@@ -28,7 +28,9 @@ namespace Waarta.Droid
             global::Xamarin.Forms.Forms.SetFlags("CollectionView_Experimental");
             
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            FormsVideoPlayer.Init();
             var width = Resources.DisplayMetrics.WidthPixels;
             var height = Resources.DisplayMetrics.HeightPixels;
             var density = Resources.DisplayMetrics.Density;

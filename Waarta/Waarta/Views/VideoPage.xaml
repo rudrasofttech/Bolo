@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:video="clr-namespace:Waarta"
+             xmlns:o="clr-namespace:Octane.Xamarin.Forms.VideoPlayer;assembly=Octane.Xamarin.Forms.VideoPlayer"
              mc:Ignorable="d"
              xmlns:forms="clr-namespace:InTheHand.Forms;assembly=InTheHand.Forms"
              x:Class="Waarta.Views.VideoPage" Title="Video" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
-        <forms:MediaElement AutoPlay="True" Aspect="AspectFit" KeepScreenOn="True" x:Name="Media" IsLooping="False" ShowsPlaybackControls="True" />
+        <o:VideoPlayer AutoPlay="True" DisplayControls="True" Repeat="False" x:Name="Media" FillMode="ResizeAspectFill" />
     </ContentPage.Content>
 </ContentPage>

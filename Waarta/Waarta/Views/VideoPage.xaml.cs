@@ -24,6 +24,7 @@ namespace Waarta.Views
 
         private void ContentPage_Appearing(object sender, EventArgs e)
         {
+            
             Media.Source = VideoUri;
         }
     }
