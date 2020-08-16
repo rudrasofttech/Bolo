@@ -34,7 +34,7 @@ namespace Waarta.Views
         readonly MemberService ms;
         readonly ChatMessageService cms;
 
-        IKeyboardNotifications KeyboardNotification;
+        readonly IKeyboardNotifications KeyboardNotification;
         public MemberDTO Other { get; set; }
         public MemberDTO Myself { get; set; }
         public Dictionary<Guid, ChatMessage> MessageList { get; set; }

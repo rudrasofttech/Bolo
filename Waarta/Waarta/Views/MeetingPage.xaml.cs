@@ -32,7 +32,7 @@ namespace Waarta.Views
         readonly WaartaDataStore ds;
         readonly MeetingsService mss;
 
-        IKeyboardNotifications KeyboardNotification;
+        readonly IKeyboardNotifications KeyboardNotification;
         public string MeetingID { get; set; }
         public UserInfo Myself { get; set; }
         public Dictionary<string, UserInfo> participants;

@@ -214,9 +214,6 @@
     <PackageReference Include="DLToolkit.Forms.Controls.ImageCropView">
       <Version>1.0.7</Version>
     </PackageReference>
-    <PackageReference Include="InTheHand.Forms">
-      <Version>2.0.2020.605</Version>
-    </PackageReference>
     <PackageReference Include="Octane.Xam.VideoPlayer">
       <Version>3.1.0</Version>
     </PackageReference>
