@@ -9,20 +9,21 @@
         <ToolbarItem Text="{x:Static resources:AppResource.MeetsJoinBtn}" Clicked="ToolbarItem_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <StackLayout Padding="20">
-            <Label Text="{x:Static resources:AppResource.MeetsExplainLabel}" TextType="Html" FontSize="Medium" FontAttributes="Bold" 
+        <ScrollView>
+            <StackLayout Padding="8">
+                <Label Text="{x:Static resources:AppResource.MeetsExplainLabel}" TextType="Html" FontSize="Medium" FontAttributes="Bold" 
                 VerticalOptions="Start" 
                 HorizontalOptions="CenterAndExpand" />
-            <Label Text="{x:Static resources:AppResource.MeetsNameLabel}" Margin="10" FontSize="Body" />
-            <Entry x:Name="NameTxt" Text="" MaxLength="50" Margin="0" />
-            <Label Text="{x:Static resources:AppResource.MeetNameHelp}" Margin="10,3,10,3" FontSize="Small" />
-            <Label Text="{x:Static resources:AppResource.MeetsPurposeLabel}" Margin="10" FontSize="Body" />
-            <Frame x:Name="PurposeTxtFrame" BorderColor="LightGray" HasShadow="False">
-                <Editor x:Name="PurposeTxt" Text="" MaxLength="250" AutoSize="TextChanges" Margin="0" />
-            </Frame>
-            <Label Text="{x:Static resources:AppResource.MeetsPurposeHelp}" Margin="10,3,10,3" FontSize="Small" />
-            <Button Text="{x:Static resources:AppResource.MeetsCreateBtn}" Style="{StaticResource primaryButtonStyle}" Margin="10" Clicked="CreateMeetingBtn_Clicked" x:Name="CreateMeetingBtn" />
-        </StackLayout>
-
+                <Label Text="{x:Static resources:AppResource.MeetsNameLabel}" Margin="10" FontSize="Body" />
+                <Entry x:Name="NameTxt" Text="" MaxLength="50" Margin="0" />
+                <Label Text="{x:Static resources:AppResource.MeetNameHelp}" Margin="10,3,10,3" FontSize="Small" />
+                <Label Text="{x:Static resources:AppResource.MeetsPurposeLabel}" Margin="10" FontSize="Body" />
+                <Frame x:Name="PurposeTxtFrame" BorderColor="LightGray" HasShadow="False">
+                    <Editor x:Name="PurposeTxt" Text="" MaxLength="250" AutoSize="TextChanges" Margin="0" />
+                </Frame>
+                <Label Text="{x:Static resources:AppResource.MeetsPurposeHelp}" Margin="10,3,10,3" FontSize="Small" />
+                <Button Text="{x:Static resources:AppResource.MeetsCreateBtn}" Style="{StaticResource primaryButtonStyle}" Margin="10" Clicked="CreateMeetingBtn_Clicked" x:Name="CreateMeetingBtn" />
+            </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>
