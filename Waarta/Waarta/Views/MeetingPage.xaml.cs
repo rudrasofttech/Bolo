@@ -277,7 +277,7 @@ namespace Waarta.Views
                     AllowCropping = true,
                     CompressionQuality = 100,
                     DefaultCamera = CameraDevice.Rear,
-                    DesiredLength = TimeSpan.FromMinutes(1),
+                    DesiredLength = TimeSpan.FromMinutes(5),
                     Quality = VideoQuality.Low
                 };
                 

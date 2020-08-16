@@ -296,6 +296,8 @@ namespace Waarta.Views
         {
             try
             {
+                Loading.IsVisible = true;
+                ContactListView.IsVisible = !Loading.IsVisible;
                 List<MemberDTO> result = await mService.Search(SearchBar.Text.Trim());
                 List<ContactDTO> SearchDictionary = new List<ContactDTO>();
                 int i = 0;
@@ -320,10 +322,14 @@ namespace Waarta.Views
                 }
                 ContactsBindedToSearchResult = true;
                 ContactListView.ItemsSource = SearchDictionary;
+                Loading.IsVisible = false;
+                ContactListView.IsVisible = !Loading.IsVisible;
             }
             catch (ServerErrorException)
             {
                 await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniUnreachableHostExceptionMessage, AppResource.UniCancelText);
+                Loading.IsVisible = false;
+                ContactListView.IsVisible = !Loading.IsVisible;
             }
         }
 
@@ -333,6 +339,8 @@ namespace Waarta.Views
             {
                 ContactsBindedToSearchResult = false;
                 this.LoadContactsfromFile();
+                Loading.IsVisible = false;
+                ContactListView.IsVisible = !Loading.IsVisible;
             }
         }
 

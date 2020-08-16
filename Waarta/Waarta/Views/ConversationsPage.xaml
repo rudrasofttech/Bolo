@@ -9,9 +9,10 @@
              Title="" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
     <ContentPage.Content>
         <StackLayout>
-            <Label x:Name="LoginMsgLbl" Text="{x:Static resources:AppResource.ConLogonInfoLabel}" IsVisible="false" FontSize="Body" TextColor="Black" HorizontalTextAlignment="Center" Margin="10"/>
+            <Label x:Name="LoginMsgLbl" Text="{x:Static resources:AppResource.ConLogonInfoLabel}" IsVisible="false" FontSize="Body" TextColor="{StaticResource NavigationPrimary}" HorizontalTextAlignment="Center" Margin="10"/>
             <Button x:Name="GotoLoginBtn" Text="{x:Static resources:AppResource.ConGotoLoginBtn}" Style="{StaticResource lightButtonStyle}" IsVisible="false" Margin="10" Clicked="GotoLoginBtn_Clicked" />
             <SearchBar x:Name="SearchBar" SearchButtonPressed="SearchBar_SearchButtonPressed" Margin="0" TextChanged="SearchBar_TextChanged"   />
+            <ActivityIndicator IsRunning="true" Color="{StaticResource NavigationPrimary}" HorizontalOptions="Center" VerticalOptions="Center" Margin="20" x:Name="Loading" IsVisible="false" />
             <ListView x:Name="ContactListView" HasUnevenRows="true" SeparatorVisibility="Default" ItemTapped="ListView_ItemTapped" IsPullToRefreshEnabled="True">
                 <ListView.ItemTemplate>
                     <DataTemplate>
