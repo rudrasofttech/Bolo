@@ -118,6 +118,12 @@ namespace Bolo.Hubs
 
         public async Task MessageStatus(string messageid, string sentby, string receivedby, int status)
         {
+            var cm = _context.ChatMessages.FirstOrDefault(t => t.PublicID == new Guid(messageid));
+            if(cm != null)
+            {
+                cm.SentStatus = ChatMessageSentStatus.Received;
+                await _context.SaveChangesAsync();
+            }
             //notify the sender of original message that it has been received
             await Clients.User(sentby).SendAsync("MessageStatus", messageid, receivedby, status);
         }

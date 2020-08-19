@@ -381,4 +381,7 @@ https://waarta.com/m/{0}</value>
   <data name="UniNoNameMessage" xml:space="preserve">
     <value>Incomplete profile information. No name provided.</value>
   </data>
+  <data name="CPTapVideoLabel" xml:space="preserve">
+    <value>Tap to Play</value>
+  </data>
 </root>

@@ -151,6 +151,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tap to Play.
+        /// </summary>
+        internal static string CPTapVideoLabel {
+            get {
+                return ResourceManager.GetString("CPTapVideoLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invite.
         /// </summary>
         internal static string InviteBtn {

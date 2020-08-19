@@ -28,6 +28,13 @@
         this.startHub = this.startHub.bind(this);
         this.handleProfileModalClose = this.handleProfileModalClose.bind(this);
         this.handleProfileItemClick = this.handleProfileItemClick.bind(this);
+
+        this.messageStatusEnum = {
+            Pending: 0,
+            Sent: 1,
+            Received: 2,
+            Seen: 3
+        }
     }
 
     componentDidMount() {
@@ -178,7 +185,8 @@
                                     if (msgs.get(data[k].messagesOnServer[i].id) === undefined) {
                                         var mi = { id: data[k].messagesOnServer[i].id, sender: data[k].messagesOnServer[i].sentBy.id, text: data[k].messagesOnServer[i].message, timestamp: data[k].messagesOnServer[i].sentDate, status: 2 /*Received*/ };
                                         msgs.set(mi.id, mi);
-
+                                        this.hubConnection.invoke("MessageStatus", mi.id, mi.sender, this.state.myself.id, this.messageStatusEnum.Received)
+                                            .catch(err => { console.log("Unable to send message received status."); console.error(err); });
                                         this.contactlist.get(data[k].person.id).recentMessageDate = mi.timestamp;
                                         if (this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount !== undefined) {
                                             this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount += 1;
@@ -276,7 +284,11 @@
             usermsgmap = new Map();
 
         usermsgmap.set(mi.id, mi);
+        console.log(mi);
         localStorage.setItem(mi.sender.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
+
+        this.hubConnection.invoke("MessageStatus", mi.id, mi.sender, this.state.myself.id, this.messageStatusEnum.Received)
+            .catch(err => { console.log("Unable to send message received status."); console.error(err); });
 
         if (this.contactlist.get(mi.sender.toLowerCase()) !== undefined) {
             //this.contactlist.get(mi.sender.toLowerCase()).recentMessage = mi.text;

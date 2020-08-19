@@ -607,17 +607,22 @@ namespace Waarta.Views
                 wtdLbl.Text = AppResource.CPTapFileLabel;
                 mgrid.Children.Add(wtdLbl, 0, 2);
             }
+            
+            Label lsize = new Label() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
             switch (cm.MessageType)
             {
                 case ChatMessageType.Text:
                     mgrid.Children.Add(GetLabelForMessage(cm), 0, 1);
                     break;
                 case ChatMessageType.Photo:
+                    mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+                    mgrid.Children.Add(lsize, 0, 2);
                     ImageButton ibphoto = GetImageForMessage(cm);
                     //if message is received than download it to local , if it was sent then used attach event to open it
                     //if (cm.Sender.MemberID == Myself.MemberID || (cm.Sender.MemberID != Myself.MemberID && File.Exists(cm.LocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded))
                     //{
                     ibphoto.Clicked += Img_Clicked;
+                    lsize.Text = AppResource.CPTapFileLabel;
                     //}
                     //else
                     //{
@@ -640,11 +645,14 @@ namespace Waarta.Views
                     mgrid.Children.Add(ibphoto, 0, 1);
                     break;
                 case ChatMessageType.Video:
+                    mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+                    mgrid.Children.Add(lsize, 0, 2);
                     ImageButton ib = GetVideoForMessage(cm);
                     //if message is received than download it to local
                     //if (cm.Sender.MemberID == Myself.MemberID || (cm.Sender.MemberID != Myself.MemberID && File.Exists(cm.LocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded))
                     //{
                     ib.Clicked += VideoThumbBtn_Clicked;
+                    lsize.Text = AppResource.CPTapVideoLabel;
                     //}
                     //else
                     //{

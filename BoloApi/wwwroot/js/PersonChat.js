@@ -65,21 +65,12 @@
         this.updateTextInputHeight = this.updateTextInputHeight.bind(this);
 
         this.messageStatusEnum = {
+            Pending: 0,
             Sent: 1,
             Received: 2,
             Seen: 3
         }
     }
-
-    //since this component is destroyed everytime this static method is not needed each time constructor will be called
-    //static getDerivedStateFromProps(props, state) {
-    //    if (props.person.id !== state.person.id) {
-    //        return {
-    //            person: props.person
-    //        };
-    //    }
-    //    return null;
-    //}
 
     hubConnectionClosed(err) {
         console.log("Hub connection is closed");
@@ -137,9 +128,11 @@
         });
 
         this.hubConnection.on('MessageStatus', (messageid, receiver, status) => {
-            if (this.messages.get(messageid) !== undefined) {
+            if (receiver.toLowerCase() === this.state.person.id.toLowerCase() && this.messages.get(messageid) !== undefined) {
                 this.messages.get(messageid).status = status;
-                localStorage.setItem(receiver.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
+                this.setState({ dummy: Date.now() }, () => {
+                    localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+                });
             }
         });
 
@@ -224,7 +217,7 @@
             if (this.detectXtralargeScreen()) {
                 this.textinput.focus();
             }
-            
+
         }
     }
 
@@ -237,9 +230,11 @@
 
                 localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
             });
+            
             this.scrollToBottom();
             this.playmsgbeep();
-
+            this.hubConnection.invoke("MessageStatus", id, sender, this.state.myself.id, this.messageStatusEnum.Received)
+                .catch(err => { console.log("Unable to send message received status."); console.error(err); });
         } else {
             if (this.props.receivedMessage !== undefined) {
                 this.props.receivedMessage(mi);
@@ -599,7 +594,7 @@
                                     .catch(err => { console.log("Unable to send file to other person."); console.error(err); });
                                 this.setState({ filestoupload: flist });
                                 this.generateVideoThumbnail(msg.serverfname);
-                                
+
                                 this.processFileUpload();
                             } else {
                                 this.setState({ filestoupload: flist });
@@ -623,7 +618,7 @@
         })
     }
 
-    
+
 
     handlePhotoClick(e) {
         e.preventDefault();
@@ -707,7 +702,7 @@
                 this.setState({
                     textinput: e.target.value
                 }, () => { this.updateTextInputHeight(); });
-                
+
                 break;
             default:
         }
@@ -763,7 +758,7 @@
         this.setState({ profiletoshow: this.state.person, showprofilemodal: true });
     }
 
-    
+
 
     componentDidMount() {
         this.startHub();
@@ -813,7 +808,6 @@
     }
 
     getFileExtensionBasedName(filename) {
-      
         return filename.substring(61, filename.length);
     }
 
@@ -903,7 +897,7 @@
                 items.push(<li style={sentlistyle} key={key}>
                     <div style={sentmessagestyle} >
                         {this.renderLinksInMessage(obj)}
-                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
+                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small> <small style={{ fontSize: "0.75rem" }}>{this.showMessageStatus(obj.status)}</small></span>
                     </div>
                 </li>);
             } else {
@@ -1004,7 +998,7 @@
         let pic = <img src="/images/nopic.jpg" className="mx-auto d-block img-fluid" alt="No Pic" style={{ cursor: "pointer" }} onClick={this.handleProfileImageClick} />;
         if (this.state.person !== null) {
             if (this.state.person.pic !== "") {
-                pic = <img src={this.state.person.pic} className="mx-auto d-block img-fluid" alt="" style={{ cursor : "pointer"}} onClick={this.handleProfileImageClick}/>;
+                pic = <img src={this.state.person.pic} className="mx-auto d-block img-fluid" alt="" style={{ cursor: "pointer" }} onClick={this.handleProfileImageClick} />;
             }
         }
 
@@ -1101,7 +1095,7 @@
                         <div className="border-top chatinputcontainer" style={{ position: "relative", height: "40px" }}>
                             <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accessKey="t" title="Keyboard Shortcut ALT + t"
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
-                                style={{ height: "40px", overflow: "hidden", resize: "none", position : "absolute", bottom :"0px", left: "0px", maxHeight:"200px" }}></textarea>
+                                style={{ height: "40px", overflow: "hidden", resize: "none", position: "absolute", bottom: "0px", left: "0px", maxHeight: "200px" }}></textarea>
                             <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accessKey="o" title="Keyboard Shortcut ALT + o" >😀</button>
                             <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + s" accessKey="s" /></button>
                         </div>
