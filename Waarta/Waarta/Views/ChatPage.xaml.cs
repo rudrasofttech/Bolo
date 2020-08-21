@@ -176,35 +176,69 @@ namespace Waarta.Views
             {
                 MessageList.Add(cm.ID, cm);
                 AddMsgToStack(cm);
+                if (hc.State == HubConnectionState.Connected)
+                {
+                    _ = hc.InvokeAsync("MessageStatus", cm.ID, sender, Myself.ID, ChatMessageSentStatus.Received);
+                }
             }
         }
 
-        bool SendTextMessage(string text)
+        async Task<bool> SendTextMessageAsync(string text)
         {
-            ChatMessage cm = new ChatMessage() { ID = Guid.NewGuid(), Sender = Myself.ID, MessageType = ChatMessageType.Text, Status = ChatMessageSentStatus.Pending, Text = text, TimeStamp = DateTime.Now };
-            MessageList.Add(cm.ID, cm);
-            AddMsgToStack(cm);
-            ds.SaveMessagestoFile(Myself, Other, MessageList);
-            if (hc.State == HubConnectionState.Connected)
+            try
             {
-                try
+                ChatMessage cm = new ChatMessage() { ID = Guid.NewGuid(), Sender = Myself.ID, MessageType = ChatMessageType.Text, Status = ChatMessageSentStatus.Pending, Text = text, TimeStamp = DateTime.Now };
+                MessageList.Add(cm.ID, cm);
+
+                ds.SaveMessagestoFile(Myself, Other, MessageList);
+                if (await cms.PostMessage(cm.Text, Other, cm.ID))
                 {
-                    _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
-                    cm.Status = ChatMessageSentStatus.Sent;
-                    return true;
+                    if (cm.Status == ChatMessageSentStatus.Pending)
+                    {
+                        cm.Status = ChatMessageSentStatus.Sent;
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Error while sending text message");
-                    Debug.WriteLine(ex.Message);
-                    return false;
-                }
+
+                AddMsgToStack(cm);
+                return true;
             }
-            else
+            catch (NotFoundException)
             {
-                cm.Status = ChatMessageSentStatus.Pending;
                 return false;
             }
+            catch (UnAuthorizedAccessException)
+            {
+                return false;
+            }
+            catch (BadRequestException)
+            {
+                return false;
+            }
+            catch (ServerErrorException)
+            {
+                await DisplayAlert(AppResource.UniErrorMessageTitle, AppResource.UniServerErrorMsg, AppResource.UniOK);
+                return false;
+            }
+            //if (hc.State == HubConnectionState.Connected)
+            //{
+            //    try
+            //    {
+            //        _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
+            //        cm.Status = ChatMessageSentStatus.Sent;
+            //        return true;
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Debug.WriteLine("Error while sending text message");
+            //        Debug.WriteLine(ex.Message);
+            //        return false;
+            //    }
+            //}
+            //else
+            //{
+            //    cm.Status = ChatMessageSentStatus.Pending;
+            //    return false;
+            //}
         }
         #endregion
 
@@ -275,6 +309,7 @@ namespace Waarta.Views
             hc.Remove("ReceiveTextMessage");
             hc.Remove("MessageSent");
             hc.Remove("ContactUpdated");
+            hc.Remove("MessageStatus");
             hc.On<string, string, string, string>("ReceiveTextMessage", (sender, text, timestamp, id) =>
             {
                 ReceiveTextMessage(new Guid(sender), text, DateTime.Parse(timestamp), new Guid(id));
@@ -283,9 +318,23 @@ namespace Waarta.Views
             hc.On<string, string, string, string>("MessageSent", (receiver, text, timestamp, id) =>
             {
                 Guid mid = new Guid(id);
-                MessageList[mid].Status = ChatMessageSentStatus.Sent;
-                ds.SaveMessagestoFile(Myself, Other, MessageList);
+                if (MessageList.ContainsKey(mid))
+                {
+                    MessageList[mid].Status = ChatMessageSentStatus.Sent;
+                    UpdateMessageStatusInGrid(mid);
+                    ds.SaveMessagestoFile(Myself, Other, MessageList);
+                }
+            });
 
+            hc.On<string, string, ChatMessageSentStatus>("MessageStatus", (messageid, receivedby, status) =>
+            {
+                Guid mid = new Guid(messageid);
+                if (MessageList.ContainsKey(mid))
+                {
+                    MessageList[mid].Status = status;
+                    UpdateMessageStatusInGrid(mid);
+                    ds.SaveMessagestoFile(Myself, Other, MessageList);
+                }
             });
 
             hc.On<MemberDTO>("ContactUpdated", (dto) =>
@@ -314,12 +363,14 @@ namespace Waarta.Views
             });
         }
 
-        private void SendBtn_Clicked(object sender, EventArgs e)
+        private async void SendBtn_Clicked(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(MessageTxt.Text))
             {
-                SendTextMessage(MessageTxt.Text.Trim());
-                MessageTxt.Text = string.Empty;
+                if (await SendTextMessageAsync(MessageTxt.Text.Trim()))
+                {
+                    MessageTxt.Text = string.Empty;
+                }
             }
         }
 
@@ -421,7 +472,7 @@ namespace Waarta.Views
             cmdm.Position = 0;
             if (lb != null)
             {
-                lb.Text = AppResource.CPCancelDownloadFileLabel;
+                SetLabelForMessageStatus(lb, cm.Status, AppResource.CPCancelDownloadFileLabel);
             }
             while (cmdm.Position > -1 && (cmdm.Status == DownloadStatus.Downloading || cmdm.Status == DownloadStatus.Pending))
             {
@@ -461,7 +512,7 @@ namespace Waarta.Views
                         cm.FileDownloadStatus = FileDownloadStatus.Downloaded;
                         if (lb != null)
                         {
-                            lb.Text = AppResource.CPTapFileLabel;
+                            SetLabelForMessageStatus(lb, cm.Status, AppResource.CPTapFileLabel);
                         }
                         //DependencyService.Get<IVideoPicker>().GenerateThumbnail(cm.LocalPath, cm.LocalPath.ToLower().Replace(Path.GetExtension(cm.LocalPath), "-thumb.jpg"));
                         await ms.DownloadChunk(cm.FullLocalPath.ToLower().Replace(Path.GetExtension(cm.FullLocalPath), "-thumb.jpg"), 0);
@@ -489,7 +540,7 @@ namespace Waarta.Views
                 }
                 if (lb != null)
                 {
-                    lb.Text = AppResource.CPDownloadFileLabel;
+                    SetLabelForMessageStatus(lb, cm.Status, AppResource.CPDownloadFileLabel);
                 }
             }
         }
@@ -541,18 +592,13 @@ namespace Waarta.Views
                 {
                     await ms.UploadChunk(Convert.ToBase64String(File.ReadAllBytes(thumbpath)), Path.GetFileName(thumbpath), false);
                 }
-                if (hc.State == HubConnectionState.Connected)
+                if (await cms.PostMessage(cm.Text, Other, cm.ID))
                 {
-                    try
+                    if (cm.Status == ChatMessageSentStatus.Pending)
                     {
-                        _ = hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
                         cm.Status = ChatMessageSentStatus.Sent;
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("Error while sending photo message");
-                        Debug.WriteLine(ex.Message);
-                    }
+                    UpdateMessageStatusInGrid(cm.ID);
                 }
                 else
                 {
@@ -623,13 +669,23 @@ namespace Waarta.Views
                 f.Margin = new Thickness(0, 0, 50, 5);
                 mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
             }
-            Label lsize = new Label() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
+            SizeLabel lsize = new SizeLabel() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.End };
             switch (cm.MessageType)
             {
                 case ChatMessageType.Text:
                     mgrid.Children.Add(GetLabelForMessage(cm), 0, 1);
+                    //add this row and lable only if message is sent by current member
+                    if (cm.Sender == Myself.ID)
+                    {
+                        //row holds instruction & status label
+                        mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+                        mgrid.Children.Add(lsize, 0, 2);
+                        SetLabelForMessageStatus(lsize, cm.Status, string.Empty);
+                    }
+
                     break;
                 case ChatMessageType.Photo:
+                    //row holds instruction label
                     mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
                     mgrid.Children.Add(lsize, 0, 2);
                     ImageButton ibphoto = GetImageForMessage(cm);
@@ -637,13 +693,13 @@ namespace Waarta.Views
                     if (cm.Sender == Myself.ID || (File.Exists(cm.FullLocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded))
                     {
                         ibphoto.Clicked += Img_Clicked;
-                        lsize.Text = AppResource.CPTapFileLabel;
+                        SetLabelForMessageStatus(lsize, cm.Status, AppResource.CPTapFileLabel);
                     }
                     else
                     {
-                        
+                        //row holds progress bar
                         mgrid.RowDefinitions.Add(new RowDefinition() { Height = 11 });
-                        ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, HorizontalOptions = LayoutOptions.CenterAndExpand };
+                        ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, WidthRequest = Utility.WidthOfImageInChatMessage };
                         mgrid.Children.Add(pb, 0, 3);
 
                         ChatMessageDownloadModel cmdm = new ChatMessageDownloadModel()
@@ -656,7 +712,7 @@ namespace Waarta.Views
                         };
                         ibphoto.CommandParameter = cmdm;
                         ibphoto.Clicked += ImageDownloadBtn_Clicked;
-                        
+
                     }
                     mgrid.Children.Add(ibphoto, 0, 1);
                     break;
@@ -668,26 +724,26 @@ namespace Waarta.Views
                     if (cm.Sender == Myself.ID || (File.Exists(cm.FullLocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded))
                     {
                         ib.Clicked += VideoThumbBtn_Clicked;
-                        lsize.Text = AppResource.CPTapVideoLabel;
+                        SetLabelForMessageStatus(lsize, cm.Status, AppResource.CPTapVideoLabel);
                     }
                     else
                     {
-                        
-                            mgrid.RowDefinitions.Add(new RowDefinition() { Height = 11 });
-                            ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, HorizontalOptions = LayoutOptions.CenterAndExpand };
-                            mgrid.Children.Add(pb, 0, 3);
 
-                            ChatMessageDownloadModel cmdm = new ChatMessageDownloadModel()
-                            {
-                                Grid = mgrid,
-                                Length = 0,
-                                Position = -1,
-                                LocalPath = string.Empty,
-                                Message = cm
-                            };
-                            ib.CommandParameter = cmdm;
-                            ib.Clicked += VideoDownloadBtn_Clicked;
-                       
+                        mgrid.RowDefinitions.Add(new RowDefinition() { Height = 11 });
+                        ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, HorizontalOptions = LayoutOptions.CenterAndExpand };
+                        mgrid.Children.Add(pb, 0, 3);
+
+                        ChatMessageDownloadModel cmdm = new ChatMessageDownloadModel()
+                        {
+                            Grid = mgrid,
+                            Length = 0,
+                            Position = -1,
+                            LocalPath = string.Empty,
+                            Message = cm
+                        };
+                        ib.CommandParameter = cmdm;
+                        ib.Clicked += VideoDownloadBtn_Clicked;
+
                     }
                     mgrid.Children.Add(ib, 0, 1);
                     break;
@@ -699,78 +755,50 @@ namespace Waarta.Views
                     if (cm.Sender == Myself.ID || (File.Exists(cm.FullLocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded))
                     {
                         mphoto.Clicked += Mphoto_Clicked;
-                        lsize.Text = AppResource.CPTapFileLabel;
+                        SetLabelForMessageStatus(lsize, cm.Status, AppResource.CPTapFileLabel);
                     }
                     else
                     {
-                        
-                            mgrid.RowDefinitions.Add(new RowDefinition() { Height = 11 });
-                            ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, HorizontalOptions = LayoutOptions.CenterAndExpand };
-                            mgrid.Children.Add(pb, 0, 3);
 
-                            ChatMessageDownloadModel cmdm = new ChatMessageDownloadModel()
-                            {
-                                Grid = mgrid,
-                                Length = 0,
-                                Position = -1,
-                                LocalPath = string.Empty,
-                                Message = cm
-                            };
-                            mphoto.CommandParameter = cmdm;
-                            mphoto.Clicked += VideoDownloadBtn_Clicked;
-                        
+                        mgrid.RowDefinitions.Add(new RowDefinition() { Height = 11 });
+                        ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, HorizontalOptions = LayoutOptions.CenterAndExpand };
+                        mgrid.Children.Add(pb, 0, 3);
+
+                        ChatMessageDownloadModel cmdm = new ChatMessageDownloadModel()
+                        {
+                            Grid = mgrid,
+                            Length = 0,
+                            Position = -1,
+                            LocalPath = string.Empty,
+                            Message = cm
+                        };
+                        mphoto.CommandParameter = cmdm;
+                        mphoto.Clicked += VideoDownloadBtn_Clicked;
+
                     }
                     mgrid.Children.Add(mphoto, 0, 1);
                     break;
                 case ChatMessageType.Document:
-                    //ImageButton ibdoc = new ImageButton()
-                    //{
-                    //    WidthRequest = 200,
-                    //    HeightRequest = 200,
-                    //    Aspect = Aspect.AspectFit,
-                    //    Source = "pdficon.png",
-                    //    CommandParameter = cm,
-                    //    VerticalOptions = LayoutOptions.Center,
-                    //    HorizontalOptions = LayoutOptions.Center
-                    //};
-                    ////if message is received than download it to local
-                    //if (cm.Sender == Myself.ID)
-                    //{
-                    //    ibdoc.Clicked += DocThumbBtn_Clicked; ;
-                    //}
-                    //else
-                    //{
-                    //    mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
-                    //    Label lsize = new Label() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
-                    //    mgrid.Children.Add(lsize, 0, 2);
-                    //    if (File.Exists(cm.LocalPath) && cm.FileDownloadStatus == FileDownloadStatus.Downloaded)
-                    //    {
-                    //        ibdoc.Clicked += DocThumbBtn_Clicked;
-                    //        lsize.Text = AppResource.CPTapFileLabel;
-                    //    }
-                    //    else
-                    //    {
-                    //        mgrid.RowDefinitions.Add(new RowDefinition() { Height = 11 });
-                    //        ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3), IsVisible = false, HorizontalOptions = LayoutOptions.CenterAndExpand };
-                    //        mgrid.Children.Add(pb, 0, 3);
-
-                    //        ChatMessageDownloadModel cmdm = new ChatMessageDownloadModel()
-                    //        {
-                    //            Grid = mgrid,
-                    //            Length = 0,
-                    //            Position = -1,
-                    //            LocalPath = string.Empty,
-                    //            Message = cm
-                    //        };
-                    //        ibdoc.CommandParameter = cmdm;
-                    //        ibdoc.Clicked += VideoDownloadBtn_Clicked;
-                    //    }
-                    //}
-                    //mgrid.Children.Add(ibdoc, 0, 1);
                     mgrid.Children.Add(GetLabelForMessage(cm), 0, 1);
+                    //add this row and lable only if message is sent by current member
+                    if (cm.Sender == Myself.ID)
+                    {
+                        //row holds instruction & status label
+                        mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+                        mgrid.Children.Add(lsize, 0, 2);
+                        SetLabelForMessageStatus(lsize, cm.Status, string.Empty);
+                    }
                     break;
                 default:
                     mgrid.Children.Add(GetLabelForMessage(cm), 0, 1);
+                    //add this row and lable only if message is sent by current member
+                    if (cm.Sender == Myself.ID)
+                    {
+                        //row holds instruction & status label
+                        mgrid.RowDefinitions.Add(new RowDefinition() { Height = 20 });
+                        mgrid.Children.Add(lsize, 0, 2);
+                        SetLabelForMessageStatus(lsize, cm.Status, string.Empty);
+                    }
                     break;
             }
 
@@ -796,8 +824,8 @@ namespace Waarta.Views
         {
             ImageButton VideoThumbBtn = new ImageButton()
             {
-                WidthRequest = 250,
-                HeightRequest = 250,
+                WidthRequest = Utility.WidthOfImageInChatMessage,
+                HeightRequest = Utility.HeightOfImageInChatMessage,
                 Aspect = Aspect.AspectFill,
                 Source = cm.Thumbnail,
                 CommandParameter = cm,
@@ -865,8 +893,8 @@ namespace Waarta.Views
 
             ImageButton musicBtn = new ImageButton()
             {
-                WidthRequest = 100,
-                HeightRequest = 100,
+                WidthRequest = Utility.WidthOfImageInChatMessage,
+                HeightRequest = Utility.HeightOfImageInChatMessage,
                 Aspect = Aspect.AspectFit,
                 Source = ImageSource.FromFile("music.png"),
                 CommandParameter = cm
@@ -887,7 +915,6 @@ namespace Waarta.Views
             {
                 textlbl.HorizontalOptions = LayoutOptions.End;
                 textlbl.HorizontalTextAlignment = TextAlignment.End;
-
             }
             else
             {
@@ -908,17 +935,103 @@ namespace Waarta.Views
                 textlbl.FormattedText = new FormattedString();
                 textlbl.FormattedText.Spans.Add(span);
             }
-
-
             return textlbl;
+        }
+        void SetLabelForMessageStatus(Grid g, ChatMessageSentStatus status, string actionsuggestion)
+        {
+
+        }
+        /// <summary>
+        /// set label for sent message to display pending, sent, recieved or seen status
+        /// </summary>
+        /// <param name="cm"></param>
+        /// <returns></returns>
+        void SetLabelForMessageStatus(Label label, ChatMessageSentStatus status, string actionsuggestion)
+        {
+            var span = new Span()
+            {
+                TextColor = Color.Black,
+
+            };
+            switch (status)
+            {
+                case ChatMessageSentStatus.Pending:
+                    span.Text = AppResource.UniPendingLabel;
+                    break;
+                case ChatMessageSentStatus.Sent:
+                    span.Text = AppResource.UniSentLabel;
+                    break;
+                case ChatMessageSentStatus.Received:
+                    span.Text = AppResource.UniReceivedLabel;
+                    break;
+                case ChatMessageSentStatus.Seen:
+                    span.Text = AppResource.UniSeenLabel;
+                    break;
+                default:
+                    break;
+            }
+
+            var span2 = new Span()
+            {
+                Text = actionsuggestion + "  "
+            };
+
+            label.FormattedText = new FormattedString();
+            label.FormattedText.Spans.Add(span2);
+            label.FormattedText.Spans.Add(span);
+        }
+
+        void UpdateMessageStatusInGrid(Guid id)
+        {
+            for (int count = MsgStack.Children.Count - 1; count >= 0; count--)
+            {
+                if (MsgStack.Children[count] is Frame)
+                {
+                    Frame f = MsgStack.Children[count] as Frame;
+
+                    Grid g = f.Content as Grid;
+                    if (g.BindingContext is ChatMessage)
+                    {
+                        ChatMessage cm = g.BindingContext as ChatMessage;
+                        if (cm.ID == id)
+                        {
+                            SizeLabel lb = null;
+
+                            foreach (View v in g.Children)
+                            {
+                                if (v is SizeLabel)
+                                    lb = v as SizeLabel;
+                            }
+                            switch (cm.Status)
+                            {
+                                case ChatMessageSentStatus.Pending:
+                                    lb.FormattedText.Spans[1].Text = AppResource.UniPendingLabel;
+                                    break;
+                                case ChatMessageSentStatus.Sent:
+                                    lb.FormattedText.Spans[1].Text = AppResource.UniSentLabel;
+                                    break;
+                                case ChatMessageSentStatus.Received:
+                                    lb.FormattedText.Spans[1].Text = AppResource.UniReceivedLabel;
+                                    break;
+                                case ChatMessageSentStatus.Seen:
+                                    lb.FormattedText.Spans[1].Text = AppResource.UniSeenLabel;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
         }
 
         ImageButton GetImageForMessage(ChatMessage cm)
         {
             ImageButton img = new ImageButton()
             {
-                WidthRequest = 250,
-                HeightRequest = 250,
+                WidthRequest = Utility.WidthOfImageInChatMessage,
+                HeightRequest = Utility.HeightOfImageInChatMessage,
                 Aspect = Aspect.AspectFill,
                 Source = string.IsNullOrEmpty(cm.LocalPath.Trim()) ? ImageSource.FromUri(new Uri(cm.Text.Trim())) : ImageSource.FromFile(cm.FullLocalPath),
                 CommandParameter = cm
@@ -1201,5 +1314,10 @@ namespace Waarta.Views
         Downloading,
         Canceled,
         Completed
+    }
+
+    public class SizeLabel : Label
+    {
+
     }
 }

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using Waarta.Models;
 
 namespace Waarta.Services
@@ -43,6 +44,46 @@ namespace Waarta.Services
             catch (Exception ex)
             {
                 Debug.WriteLine("\tERROR {0}", ex.Message);
+            }
+        }
+
+
+        public async Task<bool> PostMessage(string text, MemberDTO receiver, Guid id)
+        {
+            try
+            {
+                using (var content = new MultipartFormDataContent())
+                {
+                    content.Add(new StringContent(text), "Text");
+                    content.Add(new StringContent(receiver.ID.ToString()), "SentTo");
+                    content.Add(new StringContent(id.ToString()), "PublicID");
+                    HttpResponseMessage response = await _client.PostAsync(apiurl, content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        throw new NotFoundException();
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        throw new UnAuthorizedAccessException();
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    {
+                        throw new BadRequestException();
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\tERROR {0}", ex.Message);
+                throw new ServerErrorException();
             }
         }
     }

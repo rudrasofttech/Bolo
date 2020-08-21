@@ -225,6 +225,18 @@ namespace Bolo.Models
         }
     }
 
+    public class ChatMessagePostDTO
+    {
+        public string Text { get; set; }
+        public Guid SentTo { get; set; }
+        public Guid PublicID { get; set; }
+
+        public ChatMessagePostDTO()
+        {
+            PublicID = Guid.Empty;
+        }
+    }
+
     public class Contact
     {
         public int ID { get; set; }

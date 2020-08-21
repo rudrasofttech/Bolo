@@ -203,6 +203,10 @@ namespace Waarta.Views
 
                 temp.Add(cm.ID, cm);
                 ds.SaveMessagestoFile(mdto, new MemberDTO() { ID = sender }, temp);
+                if (hc.State == HubConnectionState.Connected)
+                {
+                    _ = hc.InvokeAsync("MessageStatus", cm.ID, sender, mdto.ID, ChatMessageSentStatus.Received);
+                }
                 if (ContactDictionary.ContainsKey(sender))
                 {
                     ContactDictionary[sender].UnseenMessageCount++;
@@ -247,7 +251,10 @@ namespace Waarta.Views
                             {
                                 var mi = new ChatMessage() { ID = i.ID, Sender = i.SentBy.ID, Text = i.Message, TimeStamp = i.SentDate, Status = ChatMessageSentStatus.Received };
                                 msgs.Add(mi.ID, mi);
-
+                                if (hc.State == HubConnectionState.Connected)
+                                {
+                                    _ = hc.InvokeAsync("MessageStatus", mi.ID, mi.Sender, mdto.ID, ChatMessageSentStatus.Received);
+                                }
                                 ContactDictionary[t.Person.ID].RecentMessageDate = mi.TimeStamp;
                                 ContactDictionary[mi.Sender].UnseenMessageCount += 1;
 

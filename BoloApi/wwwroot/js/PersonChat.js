@@ -209,11 +209,45 @@
         }
     }
 
-    sendTextMessage() {
-        if (this.state.textinput.trim() !== "") {
-            this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, this.state.textinput)
-                .catch(err => { console.log("Unable to send message to group."); console.error(err); });
-            this.setState({ textinput: '' }, () => { this.updateTextInputHeight(); });
+    sendTextMessage(text, sendto) {
+        if (text.trim() !== "") {
+            //this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, this.state.textinput)
+            //    .catch(err => { console.log("Unable to send message to group."); console.error(err); });
+            const fd = new FormData();
+            fd.set("Text", text);
+            fd.set("SentTo", sendto);
+            fd.set("PublicID", "00000000-0000-0000-0000-000000000000");
+            fetch('//' + window.location.host + '/api/ChatMessages', {
+                method: 'post',
+                body: fd,
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem("token")
+                }
+            })
+                .then(response => {
+                    if (response.status === 401) {
+                        //if token is not valid than remove token, set myself object with empty values
+                        localStorage.removeItem("token");
+                        this.setState({ loggedin: false, loading: false });
+                    } else if (response.status === 200) {
+                        response.json().then(data => {
+                            //if message is successfully saved in database then you will have id here 
+                            console.log(data);
+                            var mi = { id: data.id, sender: this.state.myself.id, text: data.message, timestamp: data.sentDate, status: this.messageStatusEnum.Sent };
+                            //try to add sent message to current message list
+                            this.messages.set(mi.id, mi);
+                            this.setState({dummy: Date.now() }, () => {
+                                localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+                                this.updateTextInputHeight();
+                            });
+                            this.scrollToBottom();
+                        });
+
+                    } else {
+                        this.setState({ loading: false, message: 'Unable to send message', bsstyle: 'danger' });
+                    }
+                });
+
             if (this.detectXtralargeScreen()) {
                 this.textinput.focus();
             }
@@ -230,7 +264,7 @@
 
                 localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
             });
-            
+
             this.scrollToBottom();
             this.playmsgbeep();
             this.hubConnection.invoke("MessageStatus", id, sender, this.state.myself.id, this.messageStatusEnum.Received)
@@ -590,8 +624,9 @@
                             if (next_slice > msg.filedata.size) {
                                 flist.splice(i, 1);
                                 msg.filedata = null;
-                                this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, 'https://' + window.location.host + '/data/' + this.state.myself.id + '/' + msg.serverfname)
-                                    .catch(err => { console.log("Unable to send file to other person."); console.error(err); });
+                                //this.hubConnection.invoke("SendTextMessage", this.state.person.id, this.state.myself.id, 'https://' + window.location.host + '/data/' + this.state.myself.id + '/' + msg.serverfname)
+                                //    .catch(err => { console.log("Unable to send file to other person."); console.error(err); });
+                                this.sendTextMessage('https://' + window.location.host + '/data/' + this.state.myself.id + '/' + msg.serverfname, this.state.person.id);
                                 this.setState({ filestoupload: flist });
                                 this.generateVideoThumbnail(msg.serverfname);
 
@@ -710,7 +745,8 @@
 
     handleSend(e) {
         e.preventDefault();
-        this.sendTextMessage();
+        this.sendTextMessage(this.state.textinput, this.state.person.id);
+        this.setState({ textinput: '' });
     }
 
     //enable or disable video track of my stream
@@ -1097,7 +1133,7 @@
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
                                 style={{ height: "40px", overflow: "hidden", resize: "none", position: "absolute", bottom: "0px", left: "0px", maxHeight: "200px" }}></textarea>
                             <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accessKey="o" title="Keyboard Shortcut ALT + o" >😀</button>
-                            <button type="button" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" onClick={(e) => this.sendTextMessage()} style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + s" accessKey="s" /></button>
+                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message"  style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + s" accessKey="s" /></button>
                         </div>
                     </form>
                     {this.renderEmojiModal()}

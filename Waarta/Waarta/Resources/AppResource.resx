@@ -384,4 +384,16 @@ https://waarta.com/m/{0}</value>
   <data name="CPTapVideoLabel" xml:space="preserve">
     <value>Tap to Play</value>
   </data>
+  <data name="UniPendingLabel" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="UniReceivedLabel" xml:space="preserve">
+    <value>Received</value>
+  </data>
+  <data name="UniSeenLabel" xml:space="preserve">
+    <value>Seen</value>
+  </data>
+  <data name="UniSentLabel" xml:space="preserve">
+    <value>Sent</value>
+  </data>
 </root>

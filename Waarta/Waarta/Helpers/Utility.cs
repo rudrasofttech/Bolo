@@ -10,6 +10,9 @@ namespace Waarta.Helpers
     {
 
         public static Color LinkColor => Color.FromHex("0064DA");
+
+        public static int WidthOfImageInChatMessage = 250;
+        public static int HeightOfImageInChatMessage = 250;
         public static string GetBytesReadable(long i)
         {
             // Get absolute value

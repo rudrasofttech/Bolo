@@ -787,11 +787,47 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pending.
+        /// </summary>
+        internal static string UniPendingLabel {
+            get {
+                return ResourceManager.GetString("UniPendingLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Photos.
         /// </summary>
         internal static string UniPhotosText {
             get {
                 return ResourceManager.GetString("UniPhotosText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Received.
+        /// </summary>
+        internal static string UniReceivedLabel {
+            get {
+                return ResourceManager.GetString("UniReceivedLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seen.
+        /// </summary>
+        internal static string UniSeenLabel {
+            get {
+                return ResourceManager.GetString("UniSeenLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sent.
+        /// </summary>
+        internal static string UniSentLabel {
+            get {
+                return ResourceManager.GetString("UniSentLabel", resourceCulture);
             }
         }
         
