@@ -25,6 +25,7 @@ namespace Waarta.Views
         readonly WaartaDataStore ds;
         readonly ContactsService cService;
         readonly MemberService mService;
+        readonly ChatMessageService cms;
         public Dictionary<Guid, ContactDTO> ContactDictionary { get; private set; }
         bool ContactsBindedToSearchResult = false;
         MemberDTO mdto = null;
@@ -36,6 +37,7 @@ namespace Waarta.Views
             ds = new WaartaDataStore();
             mService = new MemberService();
             cService = new ContactsService();
+            cms = new ChatMessageService();
 
             ShouldBindContactList = true;
             BindingContext = this;
@@ -110,17 +112,15 @@ namespace Waarta.Views
             catch { }
         }
 
-        private async void Lp_LoggedIn(object sender, MemberDTO e)
+        private void Lp_LoggedIn(object sender, MemberDTO e)
         {
             if (!string.IsNullOrEmpty(Waarta.Helpers.Settings.Myself))
             {
                 mdto = (MemberDTO)JsonConvert.DeserializeObject(Waarta.Helpers.Settings.Myself, typeof(MemberDTO));
                 cService.Token = Waarta.Helpers.Settings.Token;
                 mService.Token = Waarta.Helpers.Settings.Token;
-
-                
+                cms.Token = Waarta.Helpers.Settings.Token;
             }
-
         }
 
         async Task ConnectHub()
@@ -203,10 +203,11 @@ namespace Waarta.Views
 
                 temp.Add(cm.ID, cm);
                 ds.SaveMessagestoFile(mdto, new MemberDTO() { ID = sender }, temp);
-                if (hc.State == HubConnectionState.Connected)
-                {
-                    _ = hc.InvokeAsync("MessageStatus", cm.ID, sender, mdto.ID, ChatMessageSentStatus.Received);
-                }
+                //if (hc.State == HubConnectionState.Connected)
+                //{
+                //    _ = hc.InvokeAsync("MessageStatus", cm.ID, sender, mdto.ID, ChatMessageSentStatus.Received);
+                //}
+                cms.SetReceived(cm.ID);
                 if (ContactDictionary.ContainsKey(sender))
                 {
                     ContactDictionary[sender].UnseenMessageCount++;
@@ -251,10 +252,11 @@ namespace Waarta.Views
                             {
                                 var mi = new ChatMessage() { ID = i.ID, Sender = i.SentBy.ID, Text = i.Message, TimeStamp = i.SentDate, Status = ChatMessageSentStatus.Received };
                                 msgs.Add(mi.ID, mi);
-                                if (hc.State == HubConnectionState.Connected)
-                                {
-                                    _ = hc.InvokeAsync("MessageStatus", mi.ID, mi.Sender, mdto.ID, ChatMessageSentStatus.Received);
-                                }
+                                //if (hc.State == HubConnectionState.Connected)
+                                //{
+                                //    _ = hc.InvokeAsync("MessageStatus", mi.ID, mi.Sender, mdto.ID, ChatMessageSentStatus.Received);
+                                //}
+                                cms.SetReceived(mi.ID);
                                 ContactDictionary[t.Person.ID].RecentMessageDate = mi.TimeStamp;
                                 ContactDictionary[mi.Sender].UnseenMessageCount += 1;
 

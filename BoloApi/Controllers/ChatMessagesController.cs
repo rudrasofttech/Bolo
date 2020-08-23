@@ -50,6 +50,61 @@ namespace Bolo.Controllers
             return chatMessage;
         }
 
+        [HttpGet()]
+        [Route("SentMessages")]
+        public ActionResult<IEnumerable<ChatMessageDTO>> GetSentChatMessages([FromQuery] Guid sender)
+        {
+            var chatMessages = _context.ChatMessages.Include(t => t.SentBy).Include(m => m.SentTo).Where(t => t.SentBy.PublicID == sender && t.SentTo.PublicID == new Guid(User.Identity.Name) && t.SentStatus == ChatMessageSentStatus.Sent).OrderByDescending(t => t.ID);
+
+            if (chatMessages == null)
+            {
+                return NotFound();
+            }
+            List<ChatMessageDTO> result = new List<ChatMessageDTO>();
+            foreach (ChatMessage cm in chatMessages)
+            {
+                result.Add(new ChatMessageDTO(cm));
+            }
+
+            return result;
+        }
+
+        [HttpGet()]
+        [Route("SetReceived")]
+        public async Task<ActionResult> SetReceivedAsync([FromQuery] Guid mid)
+        {
+            var cm = await _context.ChatMessages.Include(t => t.SentBy).Include(m => m.SentTo).FirstOrDefaultAsync(t => t.SentTo.PublicID == new Guid(User.Identity.Name) && t.PublicID == mid);
+            if (cm == null)
+            {
+                return NotFound();
+            }
+            if (cm.SentStatus == ChatMessageSentStatus.Sent)
+            {
+                cm.SentStatus = ChatMessageSentStatus.Received;
+                await _context.SaveChangesAsync();
+                _ = _hubContext.Clients.User(cm.SentBy.PublicID.ToString().ToLower()).SendAsync("MessageStatus", mid, cm.SentTo.PublicID.ToString().ToLower(), ChatMessageSentStatus.Received);
+            }
+
+            return Ok();
+        }
+
+        [HttpGet()]
+        [Route("SetSeen")]
+        public async Task<ActionResult> SetSeenAsync([FromQuery] Guid mid)
+        {
+            var cm = await _context.ChatMessages.Include(t => t.SentBy).Include(m => m.SentTo).FirstOrDefaultAsync(t => t.SentTo.PublicID == new Guid(User.Identity.Name) && t.PublicID == mid);
+            if (cm == null)
+            {
+                return NotFound();
+            }
+
+            cm.SentStatus = ChatMessageSentStatus.Seen;
+            await _context.SaveChangesAsync();
+            _ = _hubContext.Clients.User(cm.SentBy.PublicID.ToString().ToLower()).SendAsync("MessageStatus", mid, cm.SentTo.PublicID.ToString().ToLower(), ChatMessageSentStatus.Seen);
+            return Ok();
+        }
+
+
         // POST: api/ChatMessages
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
@@ -57,19 +112,23 @@ namespace Bolo.Controllers
         public async Task<ActionResult<ChatMessageDTO>> PostChatMessage([FromForm] ChatMessagePostDTO chatMessage)
         {
             var sender = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            if(sender != null)
+            if (sender != null)
             {
                 var receiver = _context.Members.FirstOrDefault(t => t.PublicID == chatMessage.SentTo);
                 //TODO: you can also check for blocked user here before saveing the message
-                if(receiver != null)
+                if (receiver != null)
                 {
                     bool isContactSenderReceiver = _context.Contacts.Count(t => t.Owner.ID == sender.ID && t.Person.ID == receiver.ID) > 0;
                     //if receiver is not in contact list of sender than add as temporary contact
                     if (!isContactSenderReceiver)
                     {
-                        Contact c = new Contact() { BoloRelation = BoloRelationType.Temporary, 
-                            CreateDate = DateTime.UtcNow, 
-                            Owner = sender, Person = receiver };
+                        Contact c = new Contact()
+                        {
+                            BoloRelation = BoloRelationType.Temporary,
+                            CreateDate = DateTime.UtcNow,
+                            Owner = sender,
+                            Person = receiver
+                        };
                         _context.Contacts.Add(c);
                         await _context.SaveChangesAsync();
                         ContactDTO cdto = new ContactDTO(c)

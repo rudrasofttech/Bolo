@@ -14,18 +14,22 @@
     -->
     <Shell.Resources>
         <ResourceDictionary>
-            <Color x:Key="NavigationPrimary">#212529</Color>
-            <Color x:Key="TextLight">#f8f9fa</Color>
+            <!--<Color x:Key="NavigationPrimary">#212529</Color>-->
+            <Color x:Key="NavigationPrimary">White</Color>
+            <!--<Color x:Key="TextLight">#f8f9fa</Color>-->
+            <Color x:Key="TextLight">#28a745</Color>
+            <Color x:Key="TextLightActive">#218838</Color>
             <Style x:Key="BaseStyle" TargetType="Element">
                 <Setter Property="Shell.BackgroundColor" Value="{StaticResource NavigationPrimary}" />
-                <Setter Property="Shell.ForegroundColor" Value="White" />
+                <Setter Property="Shell.ForegroundColor" Value="{StaticResource TextLight}" />
                 <Setter Property="Shell.TitleColor" Value="{StaticResource TextLight}" />
                 <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
                 <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
-                <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource NavigationPrimary}" />
+                <Setter Property="Shell.TabBarBackgroundColor" Value="#f8f9fa" />
                 <Setter Property="Shell.TabBarForegroundColor" Value="White"/>
-                <Setter Property="Shell.TabBarUnselectedColor" Value="#95FFFFFF"/>
-                <Setter Property="Shell.TabBarTitleColor" Value="White"/>
+                <Setter Property="Shell.TabBarUnselectedColor" Value="{StaticResource TextLight}"/>
+                <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource TextLightActive}"/>
+                
             </Style>
             
             <Style TargetType="TabBar" BasedOn="{StaticResource BaseStyle}" />

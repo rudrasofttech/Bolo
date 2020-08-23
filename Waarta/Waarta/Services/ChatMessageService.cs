@@ -47,6 +47,35 @@ namespace Waarta.Services
             }
         }
 
+        public async Task<List<ChatMessageDTO>> GetSendMessages(MemberDTO sender)
+        {
+
+            HttpResponseMessage response = await _client.GetAsync(string.Format("{0}SentMessages?sender={1}", apiurl, sender.ID));
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<List<ChatMessageDTO>>(await response.Content.ReadAsStringAsync());
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            else
+            {
+                return new List<ChatMessageDTO>();
+            }
+
+        }
+
+        public void SetReceived(Guid messageid)
+        {
+            _client.GetAsync(string.Format("{0}SetReceived?mid={1}", apiurl, messageid));
+        }
+
+        public void SetSeen(Guid messageid)
+        {
+            _client.GetAsync(string.Format("{0}SetSeen?mid={1}", apiurl, messageid));
+        }
+
 
         public async Task<bool> PostMessage(string text, MemberDTO receiver, Guid id)
         {

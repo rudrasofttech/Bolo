@@ -841,7 +841,7 @@ namespace Waarta.Views
                 var span = new Span()
                 {
                     Text = cm.MessageType == ChatMessageType.Document ? Path.GetFileName(cm.Text.Trim()) : cm.Text.Trim(),
-                    TextColor = Utility.LinkColor,
+                    TextColor = (Color)AppShell.Current.Resources["TextLight"],
                     TextDecorations = TextDecorations.None
                 };
                 span.GestureRecognizers.Add(new TapGestureRecognizer() { Command = HyperLinkTapCommand, CommandParameter = cm.Text });

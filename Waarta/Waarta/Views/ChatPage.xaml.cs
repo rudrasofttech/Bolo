@@ -122,12 +122,24 @@ namespace Waarta.Views
 
         private async Task Hc_Reconnected(string arg)
         {
-            foreach (ChatMessage cm in MessageList.Values)
+            List<ChatMessageDTO> list = await cms.GetSendMessages(Other);
+            if(list != null)
             {
-                if (cm.Status == ChatMessageSentStatus.Pending && hc.State == HubConnectionState.Connected)
+                foreach(var cmdto in list)
                 {
-                    await hc.InvokeAsync("SendTextMessageWithID", Other.ID.ToString().ToLower(), Myself.ID.ToString().ToLower(), cm.Text, cm.ID.ToString().ToLower());
-                    cm.Status = ChatMessageSentStatus.Sent;
+                    if (!MessageList.ContainsKey(cmdto.ID))
+                    {
+                        ChatMessage cm = new ChatMessage()
+                        {
+                            ID = cmdto.ID,
+                            Sender = cmdto.SentBy.ID,
+                            Text = cmdto.Message,
+                            TimeStamp = cmdto.SentDate,
+                            Status = ChatMessageSentStatus.Received
+                        };
+                        MessageList.Add(cmdto.ID, cm);
+                        AddMsgToStack(cm);
+                    }
                 }
             }
         }
@@ -176,10 +188,11 @@ namespace Waarta.Views
             {
                 MessageList.Add(cm.ID, cm);
                 AddMsgToStack(cm);
-                if (hc.State == HubConnectionState.Connected)
-                {
-                    _ = hc.InvokeAsync("MessageStatus", cm.ID, sender, Myself.ID, ChatMessageSentStatus.Received);
-                }
+                cms.SetReceived(cm.ID);
+                //if (hc.State == HubConnectionState.Connected)
+                //{
+                //    _ = hc.InvokeAsync("MessageStatus", cm.ID, sender, Myself.ID, ChatMessageSentStatus.Received);
+                //}
             }
         }
 
@@ -393,9 +406,9 @@ namespace Waarta.Views
 
             ProgressBar pb = new ProgressBar() { HeightRequest = 5, Progress = 0, Margin = new Thickness(3) };
             mgrid.Children.Add(pb, 0, 3);
-            FileInfo fi = new FileInfo(path);
-            Label lsize = new Label() { Text = Waarta.Helpers.Utility.GetBytesReadable(fi.Length), FontSize = 10, HeightRequest = 20, Margin = new Thickness(3), VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.End, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
-            mgrid.Children.Add(lsize, 0, 2);
+            //FileInfo fi = new FileInfo(path);
+            //Label lsize = new Label() { Text = Waarta.Helpers.Utility.GetBytesReadable(fi.Length), FontSize = 10, HeightRequest = 20, Margin = new Thickness(3), VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.End, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.Center };
+            //mgrid.Children.Add(lsize, 0, 2);
 
             UploadFile(Path.GetFileName(path), path, mgrid, cm, thumbpath);
 
@@ -927,7 +940,7 @@ namespace Waarta.Views
                 var span = new Span()
                 {
                     Text = cm.MessageType == ChatMessageType.Document ? Path.GetFileName(cm.Text.Trim()) : cm.Text.Trim(),
-                    TextColor = Utility.LinkColor,
+                    TextColor = (Color)AppShell.Current.Resources["TextLight"],
                     TextDecorations = TextDecorations.None
                 };
                 span.GestureRecognizers.Add(new TapGestureRecognizer() { Command = HyperLinkTapCommand, CommandParameter = cm.Text });
@@ -937,10 +950,7 @@ namespace Waarta.Views
             }
             return textlbl;
         }
-        void SetLabelForMessageStatus(Grid g, ChatMessageSentStatus status, string actionsuggestion)
-        {
 
-        }
         /// <summary>
         /// set label for sent message to display pending, sent, recieved or seen status
         /// </summary>

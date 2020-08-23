@@ -14,10 +14,10 @@
 
                 <Image VerticalOptions="Start" IsVisible="false" Margin="5"  HorizontalOptions="Center" x:Name="ProfilePic" />
                 <Label x:Name="NameLbl" IsVisible="false" Margin="5" FontSize="Title" TextColor="Black" Padding="5" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
-                <Button x:Name="ViewProfileBtn" Text="{x:Static resources:AppResource.SetViewProfileBtn}" Style="{StaticResource infoButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="ViewProfileBtn_Clicked" />
-                <Button x:Name="UptProfileBtn" Text="{x:Static resources:AppResource.SetManageProfileBtn}" Style="{StaticResource infoButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="UptProfileBtn_Clicked" />
-                <Button x:Name="ChangeProPicBtn" Text="{x:Static resources:AppResource.SetChangePicBtn}" Style="{StaticResource infoButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="ChangeProPicBtn_Clicked" />
-                <Button x:Name="TAFBtn" Text="{x:Static resources:AppResource.SetTAFBtn}" Style="{StaticResource infoButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="TAFBtn_Clicked"/>
+                <Button x:Name="ViewProfileBtn" Text="{x:Static resources:AppResource.SetViewProfileBtn}" Style="{StaticResource lightButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="ViewProfileBtn_Clicked" />
+                <Button x:Name="UptProfileBtn" Text="{x:Static resources:AppResource.SetManageProfileBtn}" Style="{StaticResource lightButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="UptProfileBtn_Clicked" />
+                <Button x:Name="ChangeProPicBtn" Text="{x:Static resources:AppResource.SetChangePicBtn}" Style="{StaticResource lightButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="ChangeProPicBtn_Clicked" />
+                <Button x:Name="TAFBtn" Text="{x:Static resources:AppResource.SetTAFBtn}" Style="{StaticResource lightButtonStyle}" FontSize="17" IsVisible="false" Margin="10" Clicked="TAFBtn_Clicked"/>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>

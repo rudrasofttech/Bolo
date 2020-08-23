@@ -61,7 +61,7 @@ namespace Waarta.Views
                     Command = _navigationCommand,
                     CommandParameter = section.Link
                 });
-                span.TextColor = Utility.LinkColor;
+                span.TextColor = (Color)AppShell.Current.Resources["TextLight"]; //Utility.LinkColor;
             }
 
             return span;

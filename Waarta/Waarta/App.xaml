@@ -53,10 +53,10 @@
                 <Setter Property="BorderWidth" Value="2" />
             </Style>
             <Style x:Key="lightButtonStyle" TargetType="Button">
-                <Setter Property="BackgroundColor" Value="#dae0e5" />
+                <Setter Property="BackgroundColor" Value="#f8f9fa" />
                 <Setter Property="BorderColor" Value="#d3d9df" />
                 <Setter Property="CornerRadius" Value="4" />
-                <Setter Property="TextColor" Value="#495057" />
+                <Setter Property="TextColor" Value="#28a745" />
                 <Setter Property="BorderWidth" Value="2" />
             </Style>
             <Style x:Key="darkButtonStyle" TargetType="Button">

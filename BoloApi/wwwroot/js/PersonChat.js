@@ -63,7 +63,8 @@
         this.handleProfileImageClick = this.handleProfileImageClick.bind(this);
         this.deleteMyMessagesFromServer = this.deleteMyMessagesFromServer.bind(this);
         this.updateTextInputHeight = this.updateTextInputHeight.bind(this);
-
+        this.fetchSentMessages = this.fetchSentMessages.bind(this);
+        this.setMessageStatus = this.setMessageStatus.bind(this);
         this.messageStatusEnum = {
             Pending: 0,
             Sent: 1,
@@ -87,8 +88,49 @@
     }
 
     hubConnectionReconnected(connectionid) {
-        console.log("Hub Connection Reconnected");
-        //this.sayHello();
+        console.log("Hub Connection Reconnected, Check for sent messages on server");
+        this.fetchSentMessages();
+    }
+
+    //
+    //Function fetches sent messages from server
+    //can be called when signarl hub reconnects or the component is loaded for first time
+    //
+    fetchSentMessages() {
+        fetch('//' + window.location.host + '/api/ChatMessages/SentMessages?sender=' + this.state.person.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        }).then(response => {
+                if (response.status === 200) {
+                    response.json().then(data => {
+                        console.log(data);
+                        for (var k in data) {
+                            if (!this.messages.has(data[k].id)) {
+                                var temp = data[k];
+                                var mi = { id: temp.id, sender: temp.sentBy.id, text: temp.message, timestamp: temp.sentDate, status: this.messageStatusEnum.Received };
+                                this.messages.set(mi.id, mi);
+                                //this.hubConnection.invoke("MessageStatus", mi.id, mi.sender, this.state.myself.id, this.messageStatusEnum.Received)
+                                //    .catch(err => { console.log("Unable to send message received status."); console.error(err); });
+                                this.setMessageStatus(mi.id, "SetReceived");
+                            }
+                        }
+                        this.setState({ dummy: Date.now() }, () => {
+                            localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+                        });
+                    });
+                }
+            });
+    }
+
+    setMessageStatus(mid, action) {
+        fetch('//' + window.location.host + '/api/ChatMessages/' + action + '?mid=' + mid, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        });
     }
 
     startHub() {
@@ -236,7 +278,7 @@
                             var mi = { id: data.id, sender: this.state.myself.id, text: data.message, timestamp: data.sentDate, status: this.messageStatusEnum.Sent };
                             //try to add sent message to current message list
                             this.messages.set(mi.id, mi);
-                            this.setState({dummy: Date.now() }, () => {
+                            this.setState({ dummy: Date.now() }, () => {
                                 localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
                                 this.updateTextInputHeight();
                             });
@@ -267,8 +309,9 @@
 
             this.scrollToBottom();
             this.playmsgbeep();
-            this.hubConnection.invoke("MessageStatus", id, sender, this.state.myself.id, this.messageStatusEnum.Received)
-                .catch(err => { console.log("Unable to send message received status."); console.error(err); });
+            //this.hubConnection.invoke("MessageStatus", id, sender, this.state.myself.id, this.messageStatusEnum.Received)
+            //    .catch(err => { console.log("Unable to send message received status."); console.error(err); });
+            this.setMessageStatus(mi.id, "SetSeen");
         } else {
             if (this.props.receivedMessage !== undefined) {
                 this.props.receivedMessage(mi);
@@ -509,6 +552,7 @@
             case this.messageStatusEnum.Sent:
                 return "Sent"
             case this.messageStatusEnum.Seen:
+                //return "Received";
                 return "Seen";
             default:
                 return "";
@@ -521,6 +565,7 @@
         for (const [key, mi] of this.messages.entries()) {
             if (mi.sender !== this.state.myself.id && mi.status !== this.messageStatusEnum.Seen) {
                 this.messages.get(key).status = this.messageStatusEnum.Seen;
+                this.setMessageStatus(mi.id, "SetSeen");
             }
         }
         localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
@@ -652,8 +697,6 @@
             }
         })
     }
-
-
 
     handlePhotoClick(e) {
         e.preventDefault();
@@ -793,8 +836,6 @@
     handleProfileImageClick(e) {
         this.setState({ profiletoshow: this.state.person, showprofilemodal: true });
     }
-
-
 
     componentDidMount() {
         this.startHub();
@@ -1133,7 +1174,7 @@
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
                                 style={{ height: "40px", overflow: "hidden", resize: "none", position: "absolute", bottom: "0px", left: "0px", maxHeight: "200px" }}></textarea>
                             <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accessKey="o" title="Keyboard Shortcut ALT + o" >😀</button>
-                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message"  style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + s" accessKey="s" /></button>
+                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + s" accessKey="s" /></button>
                         </div>
                     </form>
                     {this.renderEmojiModal()}
