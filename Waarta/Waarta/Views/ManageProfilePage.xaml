@@ -15,9 +15,11 @@
                 <Label Text="{x:Static resources:AppResource.MppThoughtStatusLabel}" Style="{StaticResource labelStyle}" VerticalOptions="Start" HorizontalOptions="Start" />
                 <Entry x:Name="ThougthStatusTxt" MaxLength="300" VerticalOptions="Start" Style="{StaticResource entryStyle}" HorizontalOptions="FillAndExpand" Completed="ThougthStatusTxt_Completed"/>
                 <Label Text="{x:Static resources:AppResource.UniAboutMeLabel}" Style="{StaticResource labelStyle}" VerticalOptions="Start" HorizontalOptions="Start" />
-                <Editor x:Name="BioEditor" Placeholder="{x:Static resources:AppResource.MppBioPH}" 
+                <Frame x:Name="BioEditorFrame" BorderColor="LightGray" HasShadow="False" Padding="5,3,5,0">
+                    <Editor x:Name="BioEditor" Placeholder="{x:Static resources:AppResource.MppBioPH}" 
                     IsTextPredictionEnabled="True" IsSpellCheckEnabled="True"  Style="{StaticResource entryStyle}" Completed="BioEditor_Completed" 
                     HorizontalOptions="FillAndExpand" VerticalOptions="Start" MaxLength="1000" AutoSize="TextChanges" />
+                </Frame>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"></RowDefinition>

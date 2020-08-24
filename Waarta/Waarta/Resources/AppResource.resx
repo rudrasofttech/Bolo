@@ -139,13 +139,13 @@
     <value>Chats</value>
   </data>
   <data name="CPCancelDownloadFileLabel" xml:space="preserve">
-    <value>Tap to Cancel</value>
+    <value>☝ Cancel</value>
   </data>
   <data name="CPDownloadFileLabel" xml:space="preserve">
-    <value>Tap to Download</value>
+    <value>☝ Download</value>
   </data>
   <data name="CPTapFileLabel" xml:space="preserve">
-    <value>Tap to View</value>
+    <value>☝ View</value>
   </data>
   <data name="InviteBtn" xml:space="preserve">
     <value>Invite</value>
@@ -382,18 +382,18 @@ https://waarta.com/m/{0}</value>
     <value>Incomplete profile information. No name provided.</value>
   </data>
   <data name="CPTapVideoLabel" xml:space="preserve">
-    <value>Tap to Play</value>
+    <value>☝ Play</value>
   </data>
   <data name="UniPendingLabel" xml:space="preserve">
-    <value>Pending</value>
+    <value>↝</value>
   </data>
   <data name="UniReceivedLabel" xml:space="preserve">
-    <value>Received</value>
+    <value>⇅</value>
   </data>
   <data name="UniSeenLabel" xml:space="preserve">
-    <value>Seen</value>
+    <value>⇅</value>
   </data>
   <data name="UniSentLabel" xml:space="preserve">
-    <value>Sent</value>
+    <value>↑</value>
   </data>
 </root>

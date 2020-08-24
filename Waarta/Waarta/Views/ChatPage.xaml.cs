@@ -674,15 +674,15 @@ namespace Waarta.Views
             {
                 f.HorizontalOptions = LayoutOptions.End;
                 f.Margin = new Thickness(50, 0, 0, 5);
-                mgrid.BackgroundColor = Color.FromRgb(219, 244, 253);
+                mgrid.BackgroundColor = Color.FromRgba(219, 244, 253, 70);
             }
             else
             {
                 f.HorizontalOptions = LayoutOptions.Start;
                 f.Margin = new Thickness(0, 0, 50, 5);
-                mgrid.BackgroundColor = Color.FromRgb(242, 246, 249);
+                mgrid.BackgroundColor = Color.FromRgba(242, 246, 249, 90);
             }
-            SizeLabel lsize = new SizeLabel() { Text = AppResource.CPDownloadFileLabel, FontSize = 12, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.End };
+            SizeLabel lsize = new SizeLabel() { Text = AppResource.CPDownloadFileLabel, FontSize = 14, FontAttributes= FontAttributes.Bold, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.End };
             switch (cm.MessageType)
             {
                 case ChatMessageType.Text:

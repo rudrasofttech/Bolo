@@ -43,6 +43,11 @@ namespace Waarta.Views
             loading = Color.FromHex("c69500");
             CountryList = new List<string>();
             StatesList = new List<string>();
+
+            if (Device.RuntimePlatform == Device.Android)
+            {
+                BioEditorFrame.BorderColor = Color.Transparent;
+            }
         }
 
         private async void NameTxt_Completed(object sender, EventArgs e)

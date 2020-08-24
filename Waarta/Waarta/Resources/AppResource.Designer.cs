@@ -124,7 +124,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tap to Cancel.
+        ///   Looks up a localized string similar to ☝ Cancel.
         /// </summary>
         internal static string CPCancelDownloadFileLabel {
             get {
@@ -133,7 +133,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tap to Download.
+        ///   Looks up a localized string similar to ☝ Download.
         /// </summary>
         internal static string CPDownloadFileLabel {
             get {
@@ -142,7 +142,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tap to View.
+        ///   Looks up a localized string similar to ☝ View.
         /// </summary>
         internal static string CPTapFileLabel {
             get {
@@ -151,7 +151,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tap to Play.
+        ///   Looks up a localized string similar to ☝ Play.
         /// </summary>
         internal static string CPTapVideoLabel {
             get {
@@ -787,7 +787,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Pending.
+        ///   Looks up a localized string similar to ↝.
         /// </summary>
         internal static string UniPendingLabel {
             get {
@@ -805,7 +805,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Received.
+        ///   Looks up a localized string similar to ⇅.
         /// </summary>
         internal static string UniReceivedLabel {
             get {
@@ -814,7 +814,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Seen.
+        ///   Looks up a localized string similar to ⇅.
         /// </summary>
         internal static string UniSeenLabel {
             get {
@@ -823,7 +823,7 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sent.
+        ///   Looks up a localized string similar to ↑.
         /// </summary>
         internal static string UniSentLabel {
             get {
