@@ -13,7 +13,7 @@
             <Button x:Name="GotoLoginBtn" Text="{x:Static resources:AppResource.ConGotoLoginBtn}" Style="{StaticResource lightButtonStyle}" IsVisible="false" Margin="10" Clicked="GotoLoginBtn_Clicked" />
             <SearchBar x:Name="SearchBar" SearchButtonPressed="SearchBar_SearchButtonPressed" Margin="0" TextChanged="SearchBar_TextChanged"   />
             <ActivityIndicator IsRunning="true" Color="{StaticResource NavigationPrimary}" HorizontalOptions="Center" VerticalOptions="Center" Margin="20" x:Name="Loading" IsVisible="false" />
-            <ListView x:Name="ContactListView" HasUnevenRows="true" SeparatorVisibility="Default" ItemTapped="ListView_ItemTapped" IsPullToRefreshEnabled="True">
+            <ListView x:Name="ContactListView" HasUnevenRows="true" SeparatorVisibility="None" ItemTapped="ListView_ItemTapped" IsPullToRefreshEnabled="True">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
