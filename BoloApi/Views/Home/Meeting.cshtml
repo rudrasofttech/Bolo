@@ -6,20 +6,40 @@
 
 <div id="meetingdiv"></div>
 @section scripts{
+
     <script src="~/libs/moment.min.js"></script>
     <script src="~/libs/simplepeer.min.js"></script>
-    <script src="~/js/TranformMessage.js"></script>
-    <script type="text/babel" src="~/js/Emoji.js">
-    </script>
-    <script type="text/babel" src="~/js/Models.js">
-    </script>
-    <script type="text/babel" src="~/js/Meeting.js">
-    </script>
-    <script type="text/babel">
-        ReactDOM.render(
-        <Meeting meetingid="@ViewData["meetingid"]" pageid="@ViewData["pageid"]" />,
-        document.getElementById('meetingdiv')
-        );
-    </script>
+    <environment include="Development">
+        <script src="~/js/TranformMessage.js"></script>
+        <script type="text/babel" src="~/js/Emoji.js">
+        </script>
+        <script type="text/babel" src="~/js/Models.js">
+        </script>
+        <script type="text/babel" src="~/js/Meeting.js">
+        </script>
+        <script type="text/babel">
+            ReactDOM.render(
+            <Meeting meetingid="@ViewData["meetingid"]" pageid="@ViewData["pageid"]" />,
+            document.getElementById('meetingdiv')
+            );
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script src="~/js/compiled/TranformMessage.js"></script>
+        <script src="~/js/compiled/Emoji.js">
+        </script>
+        <script src="~/js/compiled/Models.js">
+        </script>
+        <script src="~/js/compiled/Meeting.js">
+        </script>
+        <script>
+            "use strict";
+
+            ReactDOM.render( /*#__PURE__*/React.createElement(Meeting, {
+            meetingid: "@ViewData["meetingid"]",
+            pageid: "@ViewData["pageid"]"
+            }), document.getElementById('meetingdiv'));
+        </script>
+    </environment>
 }
 

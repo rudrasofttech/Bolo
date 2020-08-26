@@ -13,6 +13,17 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\images\nopic.jpg" />
+    <Content Remove="wwwroot\js\compiled\Conversation.js" />
+    <Content Remove="wwwroot\js\compiled\HeartBeat.js" />
+    <Content Remove="wwwroot\js\compiled\ManageProfile.js" />
+    <Content Remove="wwwroot\js\compiled\Meeting.js" />
+    <Content Remove="wwwroot\js\compiled\Meetings.js" />
+    <Content Remove="wwwroot\js\compiled\MessageStrip.js" />
+    <Content Remove="wwwroot\js\compiled\Models.js" />
+    <Content Remove="wwwroot\js\compiled\NavMenu.js" />
+    <Content Remove="wwwroot\js\compiled\PersonChat.js" />
+    <Content Remove="wwwroot\js\compiled\RegisterForm.js" />
+    <Content Remove="wwwroot\js\compiled\ViewProfile.js" />
     <Content Remove="wwwroot\js\Conversation.js" />
     <Content Remove="wwwroot\js\HeartBeat.js" />
     <Content Remove="wwwroot\js\ManageProfile.js" />
@@ -55,6 +66,17 @@
   <ItemGroup>
     <None Include="wwwroot\css\custom.css" />
     <None Include="wwwroot\images\nopic.jpg" />
+    <None Include="wwwroot\js\compiled\Conversation.js" />
+    <None Include="wwwroot\js\compiled\HeartBeat.js" />
+    <None Include="wwwroot\js\compiled\ManageProfile.js" />
+    <None Include="wwwroot\js\compiled\Meeting.js" />
+    <None Include="wwwroot\js\compiled\Meetings.js" />
+    <None Include="wwwroot\js\compiled\MessageStrip.js" />
+    <None Include="wwwroot\js\compiled\Models.js" />
+    <None Include="wwwroot\js\compiled\NavMenu.js" />
+    <None Include="wwwroot\js\compiled\PersonChat.js" />
+    <None Include="wwwroot\js\compiled\RegisterForm.js" />
+    <None Include="wwwroot\js\compiled\ViewProfile.js" />
     <None Include="wwwroot\js\Conversation.js" />
     <None Include="wwwroot\js\HeartBeat.js" />
     <None Include="wwwroot\js\ManageProfile.js" />

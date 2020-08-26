@@ -8,21 +8,39 @@
 @section scripts{
     <script src="~/libs/moment.min.js"></script>
     <script src="~/libs/simplepeer.min.js"></script>
-    <script src="~/js/TranformMessage.js"></script>
-    <script type="text/babel" src="~/js/Emoji.js">
-    </script>
-    <script type="text/babel" src="~/js/ViewProfile.js">
-    </script>
-    <script type="text/babel" src="~/js/PersonChat.js">
-    </script>
-    <script type="text/babel" src="~/js/Conversation.js">
-    </script>
-    <script type="text/babel">
-        ReactDOM.render(
-        <Conversation />,
-        document.getElementById('Conversationdiv')
-        );
-    </script>
+    <environment include="Development">
+        <script src="~/js/TranformMessage.js"></script>
+        <script type="text/babel" src="~/js/Emoji.js">
+        </script>
+        <script type="text/babel" src="~/js/ViewProfile.js">
+        </script>
+        <script type="text/babel" src="~/js/PersonChat.js">
+        </script>
+        <script type="text/babel" src="~/js/Conversation.js">
+        </script>
+        <script type="text/babel">
+            ReactDOM.render(
+            <Conversation />,
+            document.getElementById('Conversationdiv')
+            );
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script src="~/js/compiled/TranformMessage.js"></script>
+        <script  src="~/js/compiled/Emoji.js">
+        </script>
+        <script  src="~/js/compiled/ViewProfile.js">
+        </script>
+        <script  src="~/js/compiled/PersonChat.js">
+        </script>
+        <script  src="~/js/compiled/Conversation.js">
+        </script>
+        <script>
+            "use strict";
+
+            ReactDOM.render( /*#__PURE__*/React.createElement(Conversation, null), document.getElementById('Conversationdiv'));
+        </script>
+    </environment>
 }
 
 @section head{

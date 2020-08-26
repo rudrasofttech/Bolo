@@ -10,7 +10,7 @@
 }
 
 @section scripts{
-    
+    <environment include="Development">
         <script type="text/babel" src="~/js/Meetings.js">
         </script>
         <script type="text/babel">
@@ -19,5 +19,15 @@
             document.getElementById('meetingsdiv')
             );
         </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script src="~/js/compiled/Meetings.js">
+        </script>
+        <script>
+            "use strict";
+
+            ReactDOM.render( /*#__PURE__*/React.createElement(Meetings, null), document.getElementById('meetingsdiv'));
+        </script>
+    </environment>
 }
-    
+

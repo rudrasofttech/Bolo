@@ -1167,7 +1167,7 @@
                                     <div className="modal-content">
                                         <div className="modal-body">
                                             <p className="m-2">This meeting id cannot be found. Please recheck with the meeting organizer.</p>
-                                            <p className="m-2">Alternatively you can organize your own meeting. <Link to="/meetings">Organize a Meeting</Link></p>
+                                            <p className="m-2">Alternatively you can organize your own meeting. <a href="/meetings">Organize a Meeting</a></p>
                                         </div>
                                     </div>
                                 </div>
