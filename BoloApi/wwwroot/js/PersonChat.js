@@ -1082,7 +1082,7 @@
         let personprofile = null;
         if (this.state.profiletoshow !== null && this.state.showprofilemodal) {
             personprofile = <div className="modal d-block" tabIndex="-1" role="dialog">
-                <div className="modal-dialog">
+                <div className="modal-dialog modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-body">
                             <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.handleProfileModalClose}>
