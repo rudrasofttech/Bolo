@@ -346,7 +346,7 @@
                 let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img-top" alt="" />
                     : <img src="/images/nopic.jpg" className="card-img-top" alt="" />;
 
-                items.push(<div className="col-6 col-sm-3 col-md-3 col-lg-2" key={key} >
+                items.push(<div className="col-12 col-sm-6 col-md-4 col-lg-3" key={key} >
                     <div className="card mt-1" style={{ width: "100%", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
                         <div className="btn-group" style={{ position: "absolute", right: "5px", top: "5px" }} onClick={(e) => e.stopPropagation()}>
                             <button className="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></button>
@@ -356,7 +356,7 @@
                             </div>
                         </div>
                         {pic}
-                        <div className="card-body" style={{ position: "absolute", backgroundColor: "rgba(0, 0,0,0.3)", width: "100%", bottom: "0px", color: "#fff", padding: "0.25rem" }}>
+                        <div className="card-body" style={{ position: "absolute", backgroundColor: "rgba(0, 0,0,0.8)", width: "100%", bottom: "0px", color: "#fff", padding: "0.25rem" }}>
                             <h6 className="card-title" style={{ marginBottom: "0.3rem" }}>{online} {obj.name} {unseenmsgcount} </h6>
                             <p className="card-text mb-0"><small>{obj.city} {obj.state} {obj.country}</small></p>
                             {thought}

@@ -367,8 +367,6 @@
 
     render() {
         if (this.state.loggedin && this.state.myself !== null) {
-
-
             let loading = this.state.loading ? <div className="progress" style={{ height: "5px" }}>
                 <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%' }}></div>
             </div> : null;
@@ -394,6 +392,7 @@
                                     <small className="form-text text-muted">Optional, but recommended.</small>
                                 </div>
                             </div>
+                            
                             <div className="col-12">
                                 <div className="form-group">
                                     <label htmlFor="genderselect">Gender</label>
@@ -409,21 +408,33 @@
                     </div>
                     <div className="col-md-8">
                         <div className="form-row">
-                            <div className="col-mg-12">
-                                <div className="form-group">
-                                    <label htmlFor="biotxt">About Me</label>
-                                    <textarea className="form-control" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} onBlur={this.saveData} rows="5" placeholder="Write something about yourself."></textarea>
-                                    <small className="form-text text-muted">Optional, but recommended. Use this space to describe yourself. Your interests,  profession, hobbies etc. It's your space use it well.</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="form-row">
                             <div className="col-md-12">
                                 <label htmlFor="thoughtStatus">One line Introduction</label>
                                 <input type="text" name="thoughtstatus" className="form-control" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange} onBlur={this.saveData} />
                                 <small className="form-text text-muted">Optional. Provide a one line introduction of yourself.</small>
                             </div>
                         </div>
+                        <div className="form-row">
+                            <div className="col-mg-12">
+                                <div className="form-group">
+                                    <label htmlFor="biotxt">About Me</label>
+                                    <textarea className="form-control" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} onBlur={this.saveData} rows="10" placeholder="Write something about yourself."></textarea>
+                                    <small className="form-text text-muted">Optional, but recommended. "About Me" should include your introduction, educational qualifications, work history, past achievements, future goals, important links, business description (if this account represent a business entity).</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="form-row">
+                            <div className="col-md-12">
+                                <label htmlFor="visibilityselect">Profile Visibility</label>
+                                <select className="custom-select" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange} onBlur={this.saveData}>
+                                    <option value="0"></option>
+                                    <option value="2">Public</option>
+                                    <option value="1">Private</option>
+                                </select>
+                                <small className="form-text text-muted">Optional, but recommended. Public visibility means your profile will be visible in searches. Private visibility means your profile will not be shown in searches.</small>
+                            </div>
+                        </div>
+                        
                         <div className="form-row">
                             <div className="col-md-4">
                                 <div className="form-group">
@@ -692,18 +703,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div className="form-row">
-                            <div className="col-md-12">
-                                <label htmlFor="visibilityselect">Profile Visibility</label>
-                                <select className="custom-select" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange} onBlur={this.saveData}>
-                                    <option value="0"></option>
-                                    <option value="2">Public</option>
-                                    <option value="1">Private</option>
-                                </select>
-                                <small className="form-text text-muted">Optional, but recommended. Public visibility means your profile will be visible in searches. Private visibility means your profile will not be shown in searches.</small>
-                            </div>
-                        </div>
-                        
                     </div>
                 </div>
                 {loading}
