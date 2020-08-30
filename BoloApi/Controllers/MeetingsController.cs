@@ -105,10 +105,13 @@ namespace Bolo.Controllers
             foreach (var meet in meetings)
             {
                 _context.Meetings.Remove(meet);
-                var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", meet.PublicID);
-                if (Directory.Exists(meetingpath))
+                if (!string.IsNullOrEmpty(meet.PublicID))
                 {
-                    Directory.Delete(meetingpath);
+                    var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", meet.PublicID);
+                    if (Directory.Exists(meetingpath))
+                    {
+                        Directory.Delete(meetingpath, true);
+                    }
                 }
             }
             _ = _context.SaveChangesAsync();

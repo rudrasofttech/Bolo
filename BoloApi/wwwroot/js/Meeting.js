@@ -1359,8 +1359,8 @@
                                             <textarea ref={(input) => { this.textinput = input; }} name="textinput" id="msginput" placeholder="Type a text message..." autoComplete="off"
                                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} rows="1" width="100%"
                                                 style={{ height: "40px", overflow: "hidden", resize: "none", maxHeight: "200px" }}></textarea>
-                                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} style={{ position: "absolute", right: "60px", bottom: "5px" }} onClick={this.handleEmojiModal}>😀</button>
-                                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary" title="Send Message" style={{ position: "absolute", right: "20px", bottom: "5px" }}>
+                                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-warning d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} style={{ position: "absolute", right: "60px", bottom: "5px" }} onClick={this.handleEmojiModal}><img src="/icons/smile.svg" alt="" width="15" height="15" title="Send Message" /></button>
+                                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-dark" title="Send Message" style={{ position: "absolute", right: "20px", bottom: "5px" }}>
                                                 <img src="/icons/send.svg" alt="" width="15" height="15" title="Send Message" />
                                             </button>
                                             <button type="button" className="btn btn-primary d-none" title="Show Chat Window" onClick={this.showChatList}><img src="/icons/message-square.svg" alt="" width="24" height="24" title="Chat Window" /></button>

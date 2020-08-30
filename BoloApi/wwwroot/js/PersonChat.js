@@ -1173,8 +1173,8 @@
                             <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accessKey="t" title="Keyboard Shortcut ALT + t"
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
                                 style={{ height: "40px", overflow: "hidden", resize: "none", position: "absolute", bottom: "0px", left: "0px", maxHeight: "200px" }}></textarea>
-                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-primary d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accessKey="o" title="Keyboard Shortcut ALT + o" >😀</button>
-                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-primary " title="Send Message" style={{ position: "absolute", right: "5px", bottom: "3px" }}><img src="/icons/send.svg" alt="" width="24" height="24" title="Keyboard Shortcut ALT + s" accessKey="s" /></button>
+                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-warning d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accessKey="o" title="Keyboard Shortcut ALT + o" ><img src="/icons/smile.svg" alt="" width="24" height="24" /></button>
+                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-dark " title="Send Message" style={{ position: "absolute", right: "5px", bottom: "3px" }} title="Keyboard Shortcut ALT + s" accessKey="s"><img src="/icons/send.svg" alt="" width="24" height="24" /></button>
                         </div>
                     </form>
                     {this.renderEmojiModal()}

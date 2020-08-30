@@ -133,7 +133,7 @@ class NavMenu extends React.Component {
                         <div className="modal-content">
                             <div className="modal-body">
                                 <button type="button" className="close pull-right" data-dismiss="modal" aria-label="Close" onClick={this.closeRegisterModal}>
-                                    <span aria-hidden="true">&times;</span>
+                                    <span aria-hidden="true">X</span>
                                 </button>
                                 <RegisterForm onLogin={this.loginHandler} beginWithRegister={this.state.registerFormBeginWith} />
                             </div>
@@ -155,7 +155,7 @@ class NavMenu extends React.Component {
                         <div className="modal-content">
                             <div className="modal-body">
                                 <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}>
-                                    <span aria-hidden="true">&times;</span>
+                                    <span aria-hidden="true">X</span>
                                 </button>
                                 <ManageProfile onProfileChange={this.handleProfileChange} />
                             </div>
