@@ -1,21 +1,6 @@
-﻿.bd-placeholder-img {
-    font-size: 1.125rem;
-    text-anchor: middle;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-@@media (min-width: 768px) {
-    .bd-placeholder-img-lg {
-        font-size: 3.5rem;
-    }
-}
-
-/*
-        * Globals
-        */
+﻿/*
+ * Globals
+ */
 
 /* Links */
 a,
@@ -36,8 +21,8 @@ a:hover {
 
 
 /*
-        * Base structure
-        */
+ * Base structure
+ */
 
 html,
 body {
@@ -59,8 +44,8 @@ body {
 
 
 /*
-        * Header
-        */
+ * Header
+ */
 .masthead {
     margin-bottom: 2rem;
 }
@@ -91,7 +76,7 @@ body {
     border-bottom-color: #fff;
 }
 
-@@media (min-width: 48em) {
+@media (min-width: 48em) {
     .masthead-brand {
         float: left;
     }
@@ -103,8 +88,8 @@ body {
 
 
 /*
-        * Cover
-        */
+ * Cover
+ */
 .cover {
     padding: 0 1.5rem;
 }
@@ -116,8 +101,8 @@ body {
 
 
 /*
-        * Footer
-        */
+ * Footer
+ */
 .mastfoot {
     color: rgba(255, 255, 255, .5);
 }

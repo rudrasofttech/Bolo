@@ -154,7 +154,7 @@
                 <label>Mobile or Email</label>
                 <input type="text" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Mobile or Email" />
             </div>
-            <button className="btn btn-primary" type="submit">Generate OTP</button>
+            <button className="btn btn-dark" type="submit">Generate OTP</button>
         </form>;
     }
 
@@ -168,7 +168,7 @@
                 <label>OTP</label>
                 <input className="form-control" required name="OTP" type="password" onChange={this.handleChange} />
             </div>
-            <button className="btn btn-primary" type="submit">Verify</button>
+            <button className="btn btn-dark" type="submit">Verify</button>
         </form>;
     }
 
@@ -206,7 +206,7 @@
                             <small className="form-text text-muted">We'll never share your email with anyone else.</small>
                         </div>
 
-                        <button className="btn btn-primary" type="submit">Submit</button>
+                        <button className="btn btn-dark" type="submit">Submit</button>
                     </form>
 
                     <p className="text-center mt-2">

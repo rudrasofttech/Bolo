@@ -210,7 +210,7 @@
 
     //search for members
     search() {
-        this.setState({ loading: true});
+        this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/Members/search?s=' + this.state.searchtext, {
             method: 'get',
             headers: {
@@ -336,30 +336,37 @@
             if (this.state.myself === null || obj.id !== this.state.myself.id) {
                 let thought = null;
                 if (obj.thoughtStatus !== "") {
-                    thought = <p className="card-text"><small>{obj.thoughtStatus}</small></p>
+                    thought = <p className="card-text mb-0"><small>{obj.thoughtStatus}</small></p>
                 }
                 let online = <span className="offline"></span>;
                 if (obj.activity !== 5) {
                     online = <span className="online"></span>;
                 }
                 let unseenmsgcount = contact.unseenMessageCount > 0 ? <span className="badge badge-primary">{contact.unseenMessageCount}</span> : null;
-                let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img-top" alt="" />
-                    : <img src="/images/nopic.jpg" className="card-img-top" alt="" />;
+                let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" />
+                    : <img src="/images/nopic.jpg" className="card-img" alt="" />;
 
                 items.push(<div className="col-12 col-sm-6 col-md-4 col-lg-3" key={key} >
-                    <div className="card mt-1" style={{ width: "100%", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
-                        <div className="btn-group" style={{ position: "absolute", right: "5px", top: "5px" }} onClick={(e) => e.stopPropagation()}>
-                            <button className="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></button>
-                            <div className="dropdown-menu dropdown-menu-right " aria-labelledby="dropdownMenuButton">
-                                <a className="dropdown-item" href="#" onClick={() => this.handleProfileItemClick(obj.id)}>Profile</a>
-                                <a className="dropdown-item" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>
+                    <div className="card mb-3" style={{ maxWidth: "540px", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
+                        <div className="row no-gutters">
+                            <div className="col-md-4">
+                                {pic}
                             </div>
-                        </div>
-                        {pic}
-                        <div className="card-body" style={{ position: "absolute", backgroundColor: "rgba(0, 0,0,0.8)", width: "100%", bottom: "0px", color: "#fff", padding: "0.25rem" }}>
-                            <h6 className="card-title" style={{ marginBottom: "0.3rem" }}>{online} {obj.name} {unseenmsgcount} </h6>
-                            <p className="card-text mb-0"><small>{obj.city} {obj.state} {obj.country}</small></p>
-                            {thought}
+
+                            <div className="col-md-8">
+                                <div className="card-body p-3" style={{ position: "relative" }}>
+                                    <div className="btn-group" style={{ position: "absolute", right: "5px", top: "5px" }} onClick={(e) => e.stopPropagation()}>
+                                        <button className="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></button>
+                                        <div className="dropdown-menu dropdown-menu-right " aria-labelledby="dropdownMenuButton">
+                                            <a className="dropdown-item" href="#" onClick={() => this.handleProfileItemClick(obj.id)}>Profile</a>
+                                            <a className="dropdown-item" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>
+                                        </div>
+                                    </div>
+                                    <h6 className="card-title mb-0">{online} {obj.name} {unseenmsgcount} </h6>
+                                    <p className="card-text mb-0"><small>{obj.city} {obj.state} {obj.country}</small></p>
+                                    {thought}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>);
@@ -372,7 +379,7 @@
             return <div className="row justify-content-center">
                 <div className="col-12">
                     <div className="alert alert-light" role="alert">
-                        No profiles to show here. 
+                        No profiles to show here.
                         <br />
                         Search for people based on their name, location, profession or gender etc.
                         Here are some examples of search phrases.

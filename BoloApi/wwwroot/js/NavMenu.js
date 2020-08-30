@@ -207,7 +207,7 @@ class NavMenu extends React.Component {
                             <div className="collapse navbar-collapse " id="navbarMainMenu">
                                 <ul className="nav navbar-nav ml-auto">
                                     <li className="nav-item">
-                                        <a className="nav-link text-light" href="/Chat">Chat</a>
+                                        <a className="nav-link text-light" href="/Chat">Conversations</a>
                                     </li>
                                     <li className="nav-item">
                                         <a className="nav-link text-light" href="/Meetings">Meetings</a>
