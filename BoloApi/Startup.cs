@@ -117,6 +117,22 @@ namespace BoloApi
                         action = "Chat"
                     });
                 endpoints.MapControllerRoute(
+                    name: "Privacy",
+                    pattern: "privacy",
+                    new
+                    {
+                        controller = "Home",
+                        action = "Privacy"
+                    });
+                endpoints.MapControllerRoute(
+                    name: "FAQ",
+                    pattern: "faq",
+                    new
+                    {
+                        controller = "Home",
+                        action = "FAQ"
+                    });
+                endpoints.MapControllerRoute(
                     name: "m",
                     pattern: "m/{id}",
                     new

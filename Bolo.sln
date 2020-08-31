@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waarta.Android", "Waarta\Wa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waarta.iOS", "Waarta\Waarta.iOS\Waarta.iOS.csproj", "{CAEC736E-ED43-4E84-BC4C-20DA6D51B192}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waarta", "Waarta\Waarta\Waarta.csproj", "{A995DEF0-A70D-4807-AA75-FA4C5F598419}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Waarta", "Waarta\Waarta\Waarta.csproj", "{A995DEF0-A70D-4807-AA75-FA4C5F598419}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
