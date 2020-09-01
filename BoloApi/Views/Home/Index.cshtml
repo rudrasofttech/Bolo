@@ -12,9 +12,18 @@
 
     <title>Waarta</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <meta name="theme-color" content="#563d7c" />
     <link href="~/css/home.css" rel="stylesheet" />
+    <script src="~/libs/react.development.js"></script>
+    <script src="~/libs/react-dom.development.js"></script>
+    <environment include="Development">
+        <script src="~/libs/babel.min.js" charset="utf-8"></script>
+    </environment>
 </head>
 <body class="text-center">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
@@ -32,9 +41,7 @@
         <main role="main" class="inner cover">
             <h1 class="cover-heading" style="font-size:3.5rem;">वार्ता</h1>
             <p class="lead">Easily connect with people. Have meaningful conversations. Free exchange of Ideas. Get things done.<br /> Made in India.</p>
-            <p class="lead">
-                <a href="/meetings" class="btn btn-lg btn-secondary m-2">Start a Meeting</a><a href="/chat" class="btn btn-lg btn-secondary m-2">Start Conversation</a>
-            </p>
+            <div id="Welcomediv"></div>
         </main>
 
         <footer class="mastfoot mt-auto">
@@ -43,5 +50,34 @@
             </div>
         </footer>
     </div>
+
+    <environment include="Development">
+        <script type="text/babel" src="~/js/ManageProfile.js">
+        </script>
+        <script type="text/babel" src="~/js/RegisterForm.js">
+        </script>
+        <script type="text/babel" src="~/js/Welcome.js">
+        </script>
+        <script type="text/babel">
+            ReactDOM.render(
+            <Welcome />,
+            document.getElementById('Welcomediv')
+            );
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script  src="~/js/compiled/ManageProfile.js">
+        </script>
+        <script src="~/js/compiled/RegisterForm.js">
+        </script>
+        <script src="~/js/compiled/Welcome.js">
+        </script>
+        <script>
+            "use strict";
+
+            ReactDOM.render( /*#__PURE__*/React.createElement(Welcome, null), document.getElementById('Welcomediv'));
+        </script>
+    </environment>
+
 </body>
 </html>
