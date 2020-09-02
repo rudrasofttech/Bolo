@@ -211,6 +211,8 @@ namespace Bolo.Controllers
             else
             {
                 MemberDTO result = new MemberDTO(member);
+                result.Phone = member.Phone;
+                result.Email = member.Email;
                 return result;
             }
         }
@@ -354,6 +356,29 @@ namespace Bolo.Controllers
                     return BadRequest("duplicatedata");
                 }
                 member.Email = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savephone")]
+        public async Task<IActionResult> SavePhone([FromQuery] string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                int c = await _context.Members.CountAsync(t => t.ID != member.ID && t.Phone == d);
+                if (c > 0)
+                {
+                    return BadRequest("duplicatedata");
+                }
+                member.Phone = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
                 return Ok();

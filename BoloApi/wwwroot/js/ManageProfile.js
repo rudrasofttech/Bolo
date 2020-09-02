@@ -38,6 +38,14 @@
     handleChange(e) {
         let m = this.state.myself;
         switch (e.target.name) {
+            case 'phone':
+                m.phone = e.target.value;
+
+                break;
+            case 'email':
+                m.email = e.target.value;
+
+                break;
             case 'bio':
                 m.bio = e.target.value;
 
@@ -169,7 +177,7 @@
                         localStorage.removeItem("token");
                         this.setState({ loggedin: false, loading: false });
                     } else if (response.status === 200) {
-                        this.setState({ loading: false });
+                        this.setState({ loading: false, message: '', bsstyle: '' });
                         if (localStorage.getItem("token") !== null) {
                             this.validate(localStorage.getItem("token"));
                         }
@@ -177,7 +185,7 @@
                             this.state.onProfileChange();
                         }
                     } else {
-                        this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                        this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
                     }
                 });
         } else {
@@ -370,6 +378,7 @@
             let loading = this.state.loading ? <div className="progress" style={{ height: "5px" }}>
                 <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%' }}></div>
             </div> : null;
+            let message = this.state.message !== "" ? <MessageStrip bsstyle={this.state.bsstyle} message={this.state.message} /> : null;
             let pic = this.state.myself.pic !== "" ? <React.Fragment><img src={this.state.myself.pic} className="rounded mx-auto d-block img-fluid" alt="" />
                 <button type="button" className="btn btn-sm btn-light m-1" onClick={this.removeProfilePicture}>Remove Picture</button></React.Fragment> : <img src="/images/nopic.jpg" className="rounded mx-auto d-block img-fluid" alt="" />;
             return <React.Fragment>
@@ -392,7 +401,7 @@
                                     <small className="form-text text-muted">Optional, but recommended.</small>
                                 </div>
                             </div>
-                            
+
                             <div className="col-12">
                                 <div className="form-group">
                                     <label htmlFor="genderselect">Gender</label>
@@ -404,6 +413,20 @@
                                     </select>
                                 </div>
                             </div>
+                            
+                                <div className="col-md-12">
+                                    <div className="form-group">
+                                        <label>Mobile Phone</label>
+                                        <input type="text" name="phone" className="form-control" maxLength="15" value={this.state.myself.phone} onChange={this.handleChange} onBlur={this.saveData} />
+                                    </div>
+                                </div>
+                                <div className="col-md-12">
+                                    <div className="form-group">
+                                        <label>Email</label>
+                                        <input type="email" name="email" className="form-control" maxLength="250" value={this.state.myself.email} onChange={this.handleChange} onBlur={this.saveData} />
+                                    </div>
+                                </div>
+                            
                         </div>
                     </div>
                     <div className="col-md-8">
@@ -706,6 +729,7 @@
                     </div>
                 </div>
                 {loading}
+                {message}
             </React.Fragment>;
         } else {
             return null;

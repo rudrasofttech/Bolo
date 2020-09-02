@@ -151,7 +151,7 @@ class NavMenu extends React.Component {
         if (this.state.showprofilemodal) {
             return (
                 <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div className="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div className="modal-dialog modal-dialog-scrollable modal-xl">
                         <div className="modal-content">
                             <div className="modal-body">
                                 <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}>

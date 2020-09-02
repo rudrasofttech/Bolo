@@ -297,6 +297,9 @@ namespace Bolo.Models
         public string City { get; set; }
         public string ThoughtStatus { get; set; }
 
+        public string Phone { get; set; }
+        public string Email { get; set; }
+
         public DateTime LastPulse { get; set; }
         public MemberDTO()
         {
@@ -327,6 +330,8 @@ namespace Bolo.Models
             State = string.IsNullOrEmpty(m.State) ? "" : m.State;
             City = string.IsNullOrEmpty(m.City) ? "" : m.City;
             ThoughtStatus = string.IsNullOrEmpty(m.ThoughtStatus) ? "" : m.ThoughtStatus;
+            Phone = "";
+            Email = "";
         }
     }
 
