@@ -28,7 +28,7 @@
     isAlive() {
         var dt = new Date(this.lastpulse);
         dt.setSeconds(dt.getSeconds() + 40);
-        
+
         if (dt < Date.now()) {
             return false;
         } else {
@@ -44,13 +44,21 @@ var MessageEnum = {
     File: 4
 }
 
+var BoloRelationType =
+{
+    Temporary: 1,
+    Confirmed: 2,
+    Search: 3,
+    Blocked: 4
+}
+
 var MessageStatusEnum = {
-    notify:0, 
+    notify: 0,
     inqueue: 1,
     inprogress: 2,
-    ready : 5,
+    ready: 5,
     sent: 3,
-    error : 4
+    error: 4
 }
 
 class MessageInfo {

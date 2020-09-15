@@ -837,6 +837,10 @@
         this.setState({ profiletoshow: this.state.person, showprofilemodal: true });
     }
 
+    handleContactRelationshipChange(e) {
+        
+    }
+
     componentDidMount() {
         this.startHub();
         this.scrollToBottom();
@@ -1136,6 +1140,9 @@
                                 <td className="noPadding">
                                     <h5 className="ml-1" style={{ maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={this.state.person.name}>{online} {this.state.person.name}</h5>
                                 </td>
+                                <td width="50px" style={{ paddingRight: "10px" }}>
+                                    <BlockContact myself={this.state.myself} person={this.state.person} onRelationshipChange={this.handleContactRelationshipChange} />
+                                </td>
                                 <td width="37px">
                                     <li className="list-inline-item">
                                         <div className="dropdown">
@@ -1155,6 +1162,7 @@
                                 </td><td width="37px">
                                     {audiotoggleele}
                                 </td>
+                                
                             </tr>
                         </tbody>
                     </table>
@@ -1189,7 +1197,5 @@
                 <HeartBeat activity="4" interval="3000" />
             </React.Fragment >
         );
-
-
     }
 }

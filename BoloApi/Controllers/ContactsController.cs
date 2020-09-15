@@ -34,17 +34,16 @@ namespace Bolo.Controllers
 
         // GET: api/Contacts/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Contact>> GetContact(int id)
+        public async Task<ActionResult<ContactDTO>> GetContact(Guid id)
         {
-            var contact = await _context.Contacts.FindAsync(id);
+            var contact = await _context.Contacts.Include(i => i.Owner).Include(i => i.Person).FirstOrDefaultAsync(t => t.Owner.PublicID == new Guid(User.Identity.Name) && t.Person.PublicID == id);
 
             if (contact == null)
             {
                 return NotFound();
             }
 
-            return contact;
+            return new ContactDTO(contact);
         }
 
         [HttpGet]
@@ -63,6 +62,24 @@ namespace Bolo.Controllers
             }
 
             return result;
+        }
+
+        [HttpGet]
+        [Route("ChangeRelation/{id}")]
+        public async Task<ActionResult<ContactDTO>> ChangeRelationship(Guid id, [FromQuery]BoloRelationType t)
+        {
+            var contact = await _context.Contacts.Include(i => i.Owner).Include(i => i.Person).FirstOrDefaultAsync(t => t.Owner.PublicID == new Guid(User.Identity.Name) && t.Person.PublicID == id);
+
+            if (contact == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                contact.BoloRelation = t;
+                await _context.SaveChangesAsync();
+                return Ok(new ContactDTO(contact));
+            }
         }
 
         // PUT: api/Contacts/5

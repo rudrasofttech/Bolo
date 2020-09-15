@@ -115,16 +115,16 @@ namespace Bolo.Controllers
             if (sender != null)
             {
                 var receiver = _context.Members.FirstOrDefault(t => t.PublicID == chatMessage.SentTo);
-                //TODO: you can also check for blocked user here before saveing the message
+                //TODO: you can also check for blocked user here before saving the message
                 if (receiver != null)
                 {
-                    bool isContactSenderReceiver = _context.Contacts.Count(t => t.Owner.ID == sender.ID && t.Person.ID == receiver.ID) > 0;
+                    Contact c = await _context.Contacts.FirstOrDefaultAsync(t => t.Owner.ID == sender.ID && t.Person.ID == receiver.ID);
                     //if receiver is not in contact list of sender than add as temporary contact
-                    if (!isContactSenderReceiver)
+                    if (c == null)
                     {
-                        Contact c = new Contact()
+                        c = new Contact()
                         {
-                            BoloRelation = BoloRelationType.Temporary,
+                            BoloRelation = BoloRelationType.Confirmed,
                             CreateDate = DateTime.UtcNow,
                             Owner = sender,
                             Person = receiver
@@ -137,23 +137,22 @@ namespace Bolo.Controllers
                             RecentMessageDate = DateTime.UtcNow
                         };
                         _ = _hubContext.Clients.User(sender.PublicID.ToString().ToLower()).SendAsync("ContactSaved", cdto);
-                        //await Clients.User(sender.ToString().ToLower()).SendAsync("ContactSaved", cdto);
                     }
+                    
 
-                    bool isContactReceiverSender = _context.Contacts.Count(t => t.Owner.ID == receiver.ID && t.Person.ID == sender.ID) > 0;
-                    //if sender in not in contact list of receiver than add as temporary conact
-                    if (!isContactReceiverSender)
+                    Contact c2 = await _context.Contacts.FirstOrDefaultAsync(t => t.Owner.ID == receiver.ID && t.Person.ID == sender.ID);
+                    //if sender in not in contact list of receiver than add as temporary contact
+                    if (c2 == null)
                     {
-                        Contact c = new Contact() { BoloRelation = BoloRelationType.Temporary, CreateDate = DateTime.UtcNow, Owner = receiver, Person = sender };
-                        _context.Contacts.Add(c);
+                        c2 = new Contact() { BoloRelation = BoloRelationType.Temporary, CreateDate = DateTime.UtcNow, Owner = receiver, Person = sender };
+                        _context.Contacts.Add(c2);
                         await _context.SaveChangesAsync();
-                        ContactDTO cdto = new ContactDTO(c)
+                        ContactDTO cdto = new ContactDTO(c2)
                         {
                             RecentMessage = chatMessage.Text,
                             RecentMessageDate = DateTime.UtcNow
                         };
                         _ = _hubContext.Clients.User(receiver.PublicID.ToString().ToLower()).SendAsync("ContactSaved", cdto);
-                        //await Clients.User(receiver.ToString().ToLower()).SendAsync("ContactSaved", cdto);
                     }
 
                     ChatMessage cm = new ChatMessage()
@@ -166,15 +165,19 @@ namespace Bolo.Controllers
                         SentStatus = ChatMessageSentStatus.Sent,
                         SentTo = receiver
                     };
-                    _context.ChatMessages.Add(cm);
-                    await _context.SaveChangesAsync();
-                    _ = _hubContext.Clients.User(receiver.PublicID.ToString().ToLower()).SendAsync("ReceiveTextMessage", sender.PublicID.ToString().ToLower(), cm.Message, cm.SentDate, cm.PublicID);
-
-                    MemberDTO recedto = new MemberDTO(receiver);
-                    if (recedto.Activity == ActivityStatus.Offline || recedto.Activity == ActivityStatus.Meeting)
+                    //send and save this message only if receiver has not blocked you
+                    if (c2.BoloRelation != BoloRelationType.Blocked)
                     {
-                        string email = System.IO.File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
-                        Utility.SendEmail(receiver.Email, receiver.Name, sender.Email, sender.Name, String.Format("{0} sent a message on Waarta.", sender.Name), email);
+                        _context.ChatMessages.Add(cm);
+                        await _context.SaveChangesAsync();
+                        _ = _hubContext.Clients.User(receiver.PublicID.ToString().ToLower()).SendAsync("ReceiveTextMessage", sender.PublicID.ToString().ToLower(), cm.Message, cm.SentDate, cm.PublicID);
+
+                        MemberDTO recedto = new MemberDTO(receiver);
+                        if (recedto.Activity == ActivityStatus.Offline || recedto.Activity == ActivityStatus.Meeting)
+                        {
+                            string email = System.IO.File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
+                            Utility.SendEmail(receiver.Email, receiver.Name, sender.Email, sender.Name, String.Format("{0} sent a message on Waarta.", sender.Name), email);
+                        }
                     }
                     return Ok(new ChatMessageDTO(cm));
                 }

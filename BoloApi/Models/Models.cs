@@ -16,8 +16,9 @@ namespace Bolo.Models
     {
 
         Temporary = 1,
-        Mutual = 2,
-        Search = 3
+        Confirmed = 2,
+        Search = 3,
+        Blocked = 4
     }
     public enum ChatMessageType
     {
@@ -151,8 +152,6 @@ namespace Bolo.Models
         public string Message { get; set; }
         public MemberNotificationType NotificationType { get; set; }
     }
-
-
     public class MemberNotificationDTO
     {
         public Guid ID { get; set; }
@@ -179,7 +178,6 @@ namespace Bolo.Models
             NotificationType = mn.NotificationType;
         }
     }
-
     public class ChatMessage
     {
         public int ID { get; set; }
@@ -383,110 +381,5 @@ namespace Bolo.Models
         public int Port { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
-    }
-
-    public enum EntryType
-    {
-        Photo,
-        ShortVideo,
-        Album
-    }
-
-    public enum PostStatusType
-    {
-        Draft,
-        Publish,
-        Delete
-    }
-
-    public enum FollowRequestStatus
-    {
-        Requested,
-        Approved
-    }
-    public class Post
-    {
-        public int ID { get; set; }
-        public Member Owner { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime ModifyDate { get; set; }
-        public EntryType PostType
-        {
-            get; set;
-        }
-        public PostStatusType Status { get; set; }
-        [MaxLength(1000)]
-        public String Description { get; set; }
-        [Column(TypeName = "geometry")]
-        public Point Location { get; set; }
-        [MaxLength(250)]
-        public string LocationName { get; set; }
-        [MaxLength(250)]
-        public string FilePath { get; set; }
-    }
-
-    public class PostDisplayDTO
-    {
-        public int ID { get; set; }
-        public string ChannelName { get; set; }
-        public DateTime CreateDate { get; set; }
-        public EntryType PostType
-        {
-            get; set;
-        }
-        public String Description { get; set; }
-        public Point Location { get; set; }
-        public string LocationName { get; set; }
-        public string FilePath { get; set; }
-
-        public PostDisplayDTO() { }
-        public PostDisplayDTO(Post p)
-        {
-            ID = p.ID;
-            ChannelName = p.Owner.Channelname;
-            CreateDate = p.CreateDate;
-            PostType = p.PostType;
-            Description = p.Description;
-            Location = p.Location;
-            LocationName = p.LocationName;
-            FilePath = p.FilePath;
-        }
-    }
-
-    public class PostEntryDTO
-    {
-        public String Description { get; set; }
-        public Point Location { get; set; }
-        public string LocationName { get; set; }
-        public EntryType PostType
-        {
-            get; set;
-        }
-    }
-
-    public class Follower
-    {
-        public int ID { get; set; }
-        public Member Owner { get; set; }
-        public Member FollowedBy { get; set; }
-        public DateTime CreateDate { get; set; }
-        public FollowRequestStatus Status { get; set; }
-    }
-
-    public class PostComment
-    {
-        public int ID { get; set; }
-        public Member Owner { get; set; }
-        public string Comment { get; set; }
-        public DateTime CreateDate { get; set; }
-        public Post Post { get; set; }
-    }
-
-    public class PostLike
-    {
-        public int ID { get; set; }
-        public Member Owner { get; set; }
-        public DateTime CreateDate { get; set; }
-        public Post Post { get; set; }
     }
 }

@@ -10,9 +10,13 @@
     <script src="~/libs/simplepeer.min.js"></script>
     <environment include="Development">
         <script src="~/js/TranformMessage.js"></script>
+        <script type="text/babel" src="~/js/Models.js">
+        </script>
         <script type="text/babel" src="~/js/Emoji.js">
         </script>
         <script type="text/babel" src="~/js/ViewProfile.js">
+        </script>
+        <script type="text/babel" src="~/js/BlockContact.js">
         </script>
         <script type="text/babel" src="~/js/PersonChat.js">
         </script>
@@ -27,13 +31,17 @@
     </environment>
     <environment include="Staging,Production" exclude="Development">
         <script src="~/js/compiled/TranformMessage.js"></script>
-        <script  src="~/js/compiled/Emoji.js">
+        <script src="~/js/compiled/Models.js">
         </script>
-        <script  src="~/js/compiled/ViewProfile.js">
+        <script src="~/js/compiled/Emoji.js">
         </script>
-        <script  src="~/js/compiled/PersonChat.js">
+        <script src="~/js/compiled/ViewProfile.js">
         </script>
-        <script  src="~/js/compiled/Conversation.js">
+        <script src="~/js/compiled/BlockContact.js">
+        </script>
+        <script src="~/js/compiled/PersonChat.js">
+        </script>
+        <script src="~/js/compiled/Conversation.js">
         </script>
         <script>
             "use strict";
