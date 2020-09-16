@@ -65,6 +65,9 @@
         this.updateTextInputHeight = this.updateTextInputHeight.bind(this);
         this.fetchSentMessages = this.fetchSentMessages.bind(this);
         this.setMessageStatus = this.setMessageStatus.bind(this);
+        this.setContactRelation = this.setContactRelation.bind(this);
+        this.handleAddToContacts = this.handleAddToContacts.bind(this);
+        this.handleBlockandRemove = this.handleBlockandRemove.bind(this);
         this.messageStatusEnum = {
             Pending: 0,
             Sent: 1,
@@ -90,6 +93,34 @@
     hubConnectionReconnected(connectionid) {
         console.log("Hub Connection Reconnected, Check for sent messages on server");
         this.fetchSentMessages();
+    }
+
+    setContactRelation(relationship) {
+        fetch('//' + window.location.host + '/api/Contacts/ChangeRelation/' + this.state.person.id + '?t=' + relationship, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        }).then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    let contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ?
+                        new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+                    if (contactlist.get(this.state.person.id) !== undefined) {
+                        contactlist.get(this.state.person.id).boloRelation = data.boloRelation;
+                        localStorage.setItem("contacts", JSON.stringify(Array.from(contactlist)));
+                    }
+
+                    if (data.boloRelation === BoloRelationType.Blocked) {
+                        try {
+                            this.props.handleShowSearch(true);
+                        } catch (err) {
+                            console.log("Error in blocking and removing contact. " + err);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     //
@@ -841,6 +872,14 @@
         
     }
 
+    handleAddToContacts() {
+        this.setContactRelation(BoloRelationType.Confirmed);
+    }
+
+    handleBlockandRemove() {
+        this.setContactRelation(BoloRelationType.Blocked);
+    }
+
     componentDidMount() {
         this.startHub();
         this.scrollToBottom();
@@ -880,16 +919,16 @@
         }
     }
 
+    getFileExtensionBasedName(filename) {
+        return filename.substring(61, filename.length);
+    }
+
     renderEmojiModal() {
         if (this.state.showemojimodal) {
             return <div style={{ position: "fixed", bottom: "42px", right: "0px" }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
         } else {
             return null;
         }
-    }
-
-    getFileExtensionBasedName(filename) {
-        return filename.substring(61, filename.length);
     }
 
     renderVideoCallModal() {
@@ -947,6 +986,31 @@
         }
     }
 
+    renderContactRelationChange() {
+        let html = null;
+        let contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+        let style = {
+            margin: "0 auto", maxWidth: "80%", width: "25rem"
+        };
+        if (contactlist.get(this.state.person.id) !== undefined) {
+            if (contactlist.get(this.state.person.id).boloRelation === BoloRelationType.Temporary) {
+                html = <li style={style} >
+                    <div className="card bg-light mb-3">
+                        <div class="card-header">New Contact</div>
+                        <div class="card-body">
+                            <h5 className="card-title">Take Action Here</h5>
+                            <p class="card-text">This person is not your contact list.</p>
+                            <button className="btn btn-primary mr-2" onClick={this.handleAddToContacts}>Add to Contacts</button>
+                            <button className="btn btn-dark" onClick={this.handleBlockandRemove}>Block and Remove</button>
+                        </div>
+                    </div>
+                </li>;
+            }
+        }
+
+        return html;
+    }
+
     renderMessages() {
         let sentlistyle = { display: "block", textAlign: 'right' };
         let reclistyle = { display: "block", textAlign: 'left' };
@@ -993,6 +1057,7 @@
 
         return <React.Fragment>
             {items}
+            {this.renderContactRelationChange()}
             <li style={{ float: "left", clear: "both" }}
                 ref={(el) => { this.messagesEnd = el; }}>
             </li>
@@ -1073,9 +1138,7 @@
     }
 
     render() {
-
         if (this.messages.length == 0) { profile = <ViewProfile profile={this.state.person} />; }
-
         let pic = <img src="/images/nopic.jpg" className="mx-auto d-block img-fluid" alt="No Pic" style={{ cursor: "pointer" }} onClick={this.handleProfileImageClick} />;
         if (this.state.person !== null) {
             if (this.state.person.pic !== "") {

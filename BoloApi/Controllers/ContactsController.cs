@@ -129,10 +129,9 @@ namespace Bolo.Controllers
 
         // DELETE: api/Contacts/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Contact>> DeleteContact(int id)
+        public async Task<ActionResult<ContactDTO>> DeleteContact(Guid id)
         {
-            var contact = await _context.Contacts.FindAsync(id);
+            var contact = await _context.Contacts.Include(t => t.Owner).Include(t => t.Person).FirstOrDefaultAsync(t => t.Owner.PublicID == new Guid(User.Identity.Name) && t.Person.PublicID == id);
             if (contact == null)
             {
                 return NotFound();
@@ -141,7 +140,7 @@ namespace Bolo.Controllers
             _context.Contacts.Remove(contact);
             await _context.SaveChangesAsync();
 
-            return contact;
+            return new ContactDTO(contact);
         }
 
         private bool ContactExists(int id)

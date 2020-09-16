@@ -343,6 +343,7 @@
                     online = <span className="online"></span>;
                 }
                 let unseenmsgcount = contact.unseenMessageCount > 0 ? <span className="badge badge-primary">{contact.unseenMessageCount}</span> : null;
+                let blocked = contact.boloRelation === BoloRelationType.Blocked ? <span className="badge badge-danger">Blocked</span> : null;
                 let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" />
                     : <img src="/images/nopic.jpg" className="card-img" alt="" />;
 
@@ -362,7 +363,7 @@
                                             <a className="dropdown-item" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>
                                         </div>
                                     </div>
-                                    <h6 className="card-title mb-0">{online} {obj.name} {unseenmsgcount} </h6>
+                                    <h6 className="card-title mb-0">{online} {obj.name} {unseenmsgcount} {blocked}</h6>
                                     <p className="card-text mb-0"><small>{obj.city} {obj.state} {obj.country}</small></p>
                                     {thought}
                                 </div>
