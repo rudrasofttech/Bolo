@@ -124,6 +124,24 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Allow Person.
+        /// </summary>
+        internal static string CPAddtoContact {
+            get {
+                return ResourceManager.GetString("CPAddtoContact", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Block Person.
+        /// </summary>
+        internal static string CPBlockRemove {
+            get {
+                return ResourceManager.GetString("CPBlockRemove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ☝ Cancel.
         /// </summary>
         internal static string CPCancelDownloadFileLabel {
@@ -138,6 +156,42 @@ namespace Waarta.Resources {
         internal static string CPDownloadFileLabel {
             get {
                 return ResourceManager.GetString("CPDownloadFileLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Take Action.
+        /// </summary>
+        internal static string CPNewContact {
+            get {
+                return ResourceManager.GetString("CPNewContact", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This person is not in your contact list..
+        /// </summary>
+        internal static string CPNewContactText {
+            get {
+                return ResourceManager.GetString("CPNewContactText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have blocked this person..
+        /// </summary>
+        internal static string CPPersonBlocked {
+            get {
+                return ResourceManager.GetString("CPPersonBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have unblocked this person..
+        /// </summary>
+        internal static string CPPersonUnblocked {
+            get {
+                return ResourceManager.GetString("CPPersonUnblocked", resourceCulture);
             }
         }
         
@@ -670,6 +724,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Block Person.
+        /// </summary>
+        internal static string UniBlockPerson {
+            get {
+                return ResourceManager.GetString("UniBlockPerson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string UniCancelDownloadBtn {
@@ -859,6 +922,15 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unblock Person.
+        /// </summary>
+        internal static string UniUnblockPerson {
+            get {
+                return ResourceManager.GetString("UniUnblockPerson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to contact waarta server. Please check your internet connection..
         /// </summary>
         internal static string UniUnreachableHostExceptionMessage {
@@ -882,6 +954,15 @@ namespace Waarta.Resources {
         internal static string UniVideosText {
             get {
                 return ResourceManager.GetString("UniVideosText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View Profile.
+        /// </summary>
+        internal static string UniViewProfile {
+            get {
+                return ResourceManager.GetString("UniViewProfile", resourceCulture);
             }
         }
     }

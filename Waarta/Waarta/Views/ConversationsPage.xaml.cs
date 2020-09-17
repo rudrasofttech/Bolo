@@ -272,24 +272,33 @@ namespace Waarta.Views
             }
         }
 
-        private async void OpenChatPage(MemberDTO m)
+        private async void OpenChatPage(ContactDTO c)
         {
 
             ChatPage cp = new ChatPage
             {
-                Other = m,
+                Relation = c.BoloRelation,
+                Other = c.Person,
                 Myself = mdto,
                 ShouldCreateMessageGrid = true
             };
             cp.UnseenMessageStatusUpdated += Cp_UnseenMessageStatusUpdated;
-         
+            cp.ContactRelationshipChanged += Cp_ContactRelationshipChanged;
             await Navigation.PushAsync(cp);
+        }
+
+        private void Cp_ContactRelationshipChanged(object sender, ContactDTO e)
+        {
+            if (ContactDictionary.ContainsKey(e.Person.ID))
+            {
+                ContactDictionary[e.Person.ID].BoloRelation = e.BoloRelation;
+            }
         }
 
         private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             ContactDTO item = e.Item as ContactDTO;
-            OpenChatPage(item.Person);
+            OpenChatPage(item);
         }
 
         private void Cp_UnseenMessageStatusUpdated(object sender, MemberDTO e)
@@ -366,7 +375,7 @@ namespace Waarta.Views
         {
             var mi = ((MenuItem)sender);
             ContactDTO item = (ContactDTO)mi.CommandParameter;
-            OpenChatPage(item.Person);
+            OpenChatPage(item);
         }
 
         private void ProfileMenuItem_Clicked(object sender, EventArgs e)

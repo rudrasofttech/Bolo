@@ -1,21 +1,13 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Newtonsoft.Json;
 using Plugin.FilePicker;
 using Plugin.FilePicker.Abstractions;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Xml;
 using Waarta.Helpers;
 using Waarta.Models;
 using Waarta.Resources;
@@ -33,10 +25,15 @@ namespace Waarta.Views
         readonly WaartaDataStore ds;
         readonly MemberService ms;
         readonly ChatMessageService cms;
+        readonly ContactsService contactsService;
 
         readonly IKeyboardNotifications KeyboardNotification;
+
+        private Grid NewContact = null;
         public MemberDTO Other { get; set; }
         public MemberDTO Myself { get; set; }
+        public BoloRelationType Relation { get; set; }
+
         public Dictionary<Guid, ChatMessage> MessageList { get; set; }
         public bool ShouldCreateMessageGrid;
         public ICommand HyperLinkTapCommand => new Command<string>(async (url) =>
@@ -60,12 +57,15 @@ namespace Waarta.Views
         });
 
         public event EventHandler<MemberDTO> UnseenMessageStatusUpdated;
+        public event EventHandler<ContactDTO> ContactRelationshipChanged;
         public ChatPage()
         {
             InitializeComponent();
             ds = new WaartaDataStore();
             ms = new MemberService();
             cms = new ChatMessageService();
+            contactsService = new ContactsService();
+
             hc = new HubConnectionBuilder().WithUrl("https://waarta.com/personchathub", options =>
             {
                 options.AccessTokenProvider = () => Task.FromResult(Waarta.Helpers.Settings.Token);
@@ -123,9 +123,9 @@ namespace Waarta.Views
         private async Task Hc_Reconnected(string arg)
         {
             List<ChatMessageDTO> list = await cms.GetSendMessages(Other);
-            if(list != null)
+            if (list != null)
             {
-                foreach(var cmdto in list)
+                foreach (var cmdto in list)
                 {
                     if (!MessageList.ContainsKey(cmdto.ID))
                     {
@@ -273,7 +273,7 @@ namespace Waarta.Views
                     if (temp.ToString("yyyy MMM d") != cm.TimeStamp.ToString("yyyy MMM d"))
                     {
                         temp = cm.TimeStamp;
-                        AddDateLabelToStack(cm.TimeStamp);
+                        AddGenericLabelToStack(cm.TimeStamp.ToLocalTime().ToString("yyyy MMM d"));
                     }
                     if (cm.Status == ChatMessageSentStatus.Received)
                     {
@@ -281,6 +281,11 @@ namespace Waarta.Views
                     }
                     cm.Text = cm.Text;
                     AddMsgToStack(cm);
+                }
+                AddContactConfirmationForm();
+                if (Relation == BoloRelationType.Blocked)
+                {
+                    AddGenericLabelToStack(AppResource.CPPersonBlocked);
                 }
                 ShouldCreateMessageGrid = false;
                 try
@@ -460,8 +465,6 @@ namespace Waarta.Views
         //    MessageList.Add(cm.ID, cm);
         //}
 
-
-
         async void DownloadFile(ChatMessageDownloadModel cmdm)
         {
             Grid grid = cmdm.Grid;
@@ -620,11 +623,95 @@ namespace Waarta.Views
             }
         }
 
-        private Label AddDateLabelToStack(DateTime dt)
+        private void AddContactConfirmationForm()
+        {
+            if (Relation == BoloRelationType.Temporary || Relation == BoloRelationType.Search)
+            {
+                NewContact = new Grid()
+                {
+                    Padding = new Thickness(0),
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    BackgroundColor = Color.FromHex("#f8f9fa"),
+                    Margin = new Thickness(20)
+                };
+                //row holds message option button
+                NewContact.RowDefinitions.Add(new RowDefinition() { Height = 25 });
+                NewContact.RowDefinitions.Add(new RowDefinition() { Height = 25 });
+                NewContact.RowDefinitions.Add(new RowDefinition());
+                NewContact.RowDefinitions.Add(new RowDefinition());
+                NewContact.ColumnDefinitions.Add(new ColumnDefinition());
+
+                NewContact.BindingContext = Other;
+                Label heading = new Label()
+                {
+                    Text = AppResource.CPNewContact,
+                    FontSize = 23,
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    HorizontalTextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(0),
+                    Padding = new Thickness(0)
+                };
+                NewContact.Children.Add(heading, 0, 0);
+                Label helptext = new Label()
+                {
+                    Text = AppResource.CPNewContactText,
+                    FontSize = 15,
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    HorizontalTextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(0),
+                    Padding = new Thickness(0)
+                };
+                NewContact.Children.Add(helptext, 0, 1);
+                Button acceptButton = new Button()
+                {
+                    Text = AppResource.CPAddtoContact,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center,
+                    Margin = new Thickness(3),
+                    Padding = new Thickness(10)
+                };
+                acceptButton.Clicked += AcceptButton_Clicked;
+                NewContact.Children.Add(acceptButton, 0, 2);
+                Button blockButton = new Button()
+                {
+                    Text = AppResource.CPBlockRemove,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center,
+                    Margin = new Thickness(3),
+                    Padding = new Thickness(10)
+                };
+                blockButton.Clicked += BlockButton_Clicked;
+                NewContact.Children.Add(blockButton, 0, 3);
+                MsgStack.Children.Add(NewContact);
+            }
+        }
+
+        private async void BlockButton_Clicked(object sender, EventArgs e)
+        {
+            ContactDTO temp = await contactsService.SetRelationship(Other, BoloRelationType.Blocked);
+            if (temp != null)
+            {
+                MsgStack.Children.Remove(NewContact);
+                ContactRelationshipChanged?.Invoke(this, temp);
+                AddGenericLabelToStack(AppResource.CPPersonBlocked);
+            }
+        }
+
+        private async void AcceptButton_Clicked(object sender, EventArgs e)
+        {
+            ContactDTO temp = await contactsService.SetRelationship(Other, BoloRelationType.Confirmed);
+            if(temp != null)
+            {
+                MsgStack.Children.Remove(NewContact);
+                ContactRelationshipChanged?.Invoke(this, temp);
+            }
+        }
+
+        private Label AddGenericLabelToStack(String text)
         {
             Label dtlbl = new Label()
             {
-                Text = dt.ToLocalTime().ToString("yyyy MMM d"),
+                Text = text,
                 TextColor = Color.FromHex("495057"),
                 BackgroundColor = Color.Transparent,
                 Margin = new Thickness(7),
@@ -682,7 +769,7 @@ namespace Waarta.Views
                 f.Margin = new Thickness(0, 0, 50, 5);
                 mgrid.BackgroundColor = Color.FromRgba(242, 246, 249, 97);
             }
-            SizeLabel lsize = new SizeLabel() { Text = AppResource.CPDownloadFileLabel, FontSize = 14, FontAttributes= FontAttributes.Bold, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.End };
+            SizeLabel lsize = new SizeLabel() { Text = AppResource.CPDownloadFileLabel, FontSize = 14, FontAttributes = FontAttributes.Bold, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.End };
             switch (cm.MessageType)
             {
                 case ChatMessageType.Text:
@@ -826,7 +913,6 @@ namespace Waarta.Views
             ChatMessage cm = (ChatMessage)(sender as ImageButton).CommandParameter;
             ShowPDF(cm);
         }
-
 
         private async void ShowPDF(ChatMessage cm)
         {
@@ -1080,7 +1166,6 @@ namespace Waarta.Views
             ShowVideo(cm);
         }
 
-
         private async void ShowVideo(ChatMessage cm)
         {
             VideoPage vp = new VideoPage();
@@ -1298,6 +1383,35 @@ namespace Waarta.Views
         {
             ProfilePage pp = new ProfilePage() { BindingContext = Other };
             await Navigation.PushAsync(pp);
+        }
+
+        private async void TBChatOptions_Clicked(object sender, EventArgs e)
+        {
+            string block = AppResource.UniBlockPerson;
+            if (Relation == BoloRelationType.Blocked)
+            {
+                block = AppResource.UniUnblockPerson;
+            }
+            string action = await DisplayActionSheet(AppResource.UniOptions, AppResource.UniCancelText, null, AppResource.UniViewProfile, block);
+            if (action == AppResource.UniViewProfile)
+            {
+                ProfilePage pp = new ProfilePage() { BindingContext = Other };
+                await Navigation.PushAsync(pp);
+            }
+            else if (action == AppResource.UniBlockPerson)
+            {
+                ContactDTO cdto = await contactsService.SetRelationship(Other, BoloRelationType.Blocked);
+                Relation = cdto.BoloRelation;
+                AddGenericLabelToStack(AppResource.CPPersonBlocked);
+                ContactRelationshipChanged?.Invoke(this, cdto);
+            }
+            else if (action == AppResource.UniUnblockPerson)
+            {
+                ContactDTO cdto = await contactsService.SetRelationship(Other, BoloRelationType.Confirmed);
+                Relation = cdto.BoloRelation;
+                AddGenericLabelToStack(AppResource.CPPersonUnblocked);
+                ContactRelationshipChanged?.Invoke(this, cdto);
+            }
         }
     }
 

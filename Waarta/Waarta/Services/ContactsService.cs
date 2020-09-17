@@ -59,5 +59,34 @@ namespace Waarta.Services
                 throw new ServerErrorException();
             }
         }
+
+        public async Task<ContactDTO> SetRelationship(MemberDTO other, BoloRelationType rt)
+        {
+            try
+            {
+                HttpResponseMessage response = await _client.GetAsync(string.Format("{0}ChangeRelation/{1}?t={2}", apiurl, other.ID, rt));
+                if (response.IsSuccessStatusCode)
+                {
+                    return JsonConvert.DeserializeObject<ContactDTO>(await response.Content.ReadAsStringAsync());
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException();
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new NotFoundException();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("\tERROR {0}", ex.Message);
+                throw new ServerErrorException();
+            }
+        }
     }
 }

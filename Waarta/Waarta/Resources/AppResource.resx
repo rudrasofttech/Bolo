@@ -396,4 +396,31 @@ https://waarta.com/m/{0}</value>
   <data name="UniSentLabel" xml:space="preserve">
     <value>↑</value>
   </data>
+  <data name="CPPersonBlocked" xml:space="preserve">
+    <value>You have blocked this person.</value>
+  </data>
+  <data name="CPPersonUnblocked" xml:space="preserve">
+    <value>You have unblocked this person.</value>
+  </data>
+  <data name="UniBlockPerson" xml:space="preserve">
+    <value>Block Person</value>
+  </data>
+  <data name="UniUnblockPerson" xml:space="preserve">
+    <value>Unblock Person</value>
+  </data>
+  <data name="UniViewProfile" xml:space="preserve">
+    <value>View Profile</value>
+  </data>
+  <data name="CPAddtoContact" xml:space="preserve">
+    <value>Allow Person</value>
+  </data>
+  <data name="CPBlockRemove" xml:space="preserve">
+    <value>Block Person</value>
+  </data>
+  <data name="CPNewContact" xml:space="preserve">
+    <value>Take Action</value>
+  </data>
+  <data name="CPNewContactText" xml:space="preserve">
+    <value>This person is not in your contact list.</value>
+  </data>
 </root>

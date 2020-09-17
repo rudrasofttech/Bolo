@@ -8577,22 +8577,25 @@ namespace Waarta.Droid
 			public const int settings = 2131165308;
 			
 			// aapt resource value: 0x7F07007D
-			public const int tab_about = 2131165309;
+			public const int slash = 2131165309;
 			
 			// aapt resource value: 0x7F07007E
-			public const int tab_feed = 2131165310;
+			public const int tab_about = 2131165310;
 			
 			// aapt resource value: 0x7F07007F
-			public const int tooltip_frame_dark = 2131165311;
+			public const int tab_feed = 2131165311;
 			
 			// aapt resource value: 0x7F070080
-			public const int tooltip_frame_light = 2131165312;
+			public const int tooltip_frame_dark = 2131165312;
 			
 			// aapt resource value: 0x7F070081
-			public const int user = 2131165313;
+			public const int tooltip_frame_light = 2131165313;
 			
 			// aapt resource value: 0x7F070082
-			public const int verticalellipsis = 2131165314;
+			public const int user = 2131165314;
+			
+			// aapt resource value: 0x7F070083
+			public const int verticalellipsis = 2131165315;
 			
 			static Drawable()
 			{

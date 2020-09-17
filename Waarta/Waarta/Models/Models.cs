@@ -14,8 +14,9 @@ namespace Waarta.Models
     public enum BoloRelationType
     {
         Temporary = 1,
-        Mutual = 2,
-        Search = 3
+        Confirmed = 2,
+        Search = 3,
+        Blocked = 4
     }
 
     public enum Gender

@@ -6,7 +6,9 @@
              mc:Ignorable="d"
              x:Class="Waarta.Views.ChatPage" BackgroundColor="White" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Clicked="ProPic_Clicked" x:Name="TBProPic" IconImageSource="user.png" />
+        <!--<ToolbarItem Clicked="ProPic_Clicked" x:Name="TBProPic" IconImageSource="user.png" />-->
+        <ToolbarItem x:Name="TBChatOptions" Clicked="TBChatOptions_Clicked" IconImageSource="verticalellipsis.png" />
+        
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <StackLayout Margin="0" Padding="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
