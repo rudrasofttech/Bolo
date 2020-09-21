@@ -990,7 +990,7 @@
         let html = null;
         let contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
         let style = {
-            margin: "0 auto", maxWidth: "80%", width: "25rem"
+            margin: "0 auto", maxWidth: "80%", width: "25rem", padding:"15px"
         };
         if (contactlist.get(this.state.person.id) !== undefined) {
             if (contactlist.get(this.state.person.id).boloRelation === BoloRelationType.Temporary) {

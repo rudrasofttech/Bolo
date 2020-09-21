@@ -57,30 +57,30 @@
 
     render() {
         let loading = this.state.loading ? <div> <Progress animated color="info" value="100" className="loaderheight" /> </div> : null;
-        //if (!this.state.loggedin) {
-        //    return <div>
-        //        <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false}  fixed={false} />
-        //        <main role="main" className="inner cover meetingsmain mr-5 ml-5">
-        //            <h1 className="cover-heading">Online Meetings</h1>
-        //            <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
-        //            important discussions, future planning or interviews. Salient Features-</p>
-        //            <ul>
-        //                <li>Text, Audio and Video Chat Enabled</li>
-        //                <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
-        //                <li>Peer to Peer technlogy</li>
-        //                <li>Secured with SSL</li>
-        //                <li>Free to use</li>
-        //            </ul>
+        if (!this.state.loggedin) {
+            return <div>
+                <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false}  fixed={false} />
+                <main role="main" className="inner cover meetingsmain mr-5 ml-5">
+                    <h1 className="cover-heading">Online Meetings</h1>
+                    <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
+                    important discussions, future planning or interviews. Salient Features-</p>
+                    <ul>
+                        <li>Text, Audio and Video Chat Enabled</li>
+                        <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
+                        <li>Peer to Peer technlogy</li>
+                        <li>Secured with SSL</li>
+                        <li>Free to use</li>
+                    </ul>
 
-        //            <p className="lead">
-        //                <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
-        //            </p>
+                    <p className="lead">
+                        <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
+                    </p>
 
-        //        </main><HeartBeat activity="1" interval="20000" />
-        //    </div>;
+                </main><HeartBeat activity="1" interval="20000" />
+            </div>;
 
-        //}
-        //else {
+        }
+        else {
             let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">
                 <MessageStrip message={this.state.message} bsstyle={this.state.bsstyle} />
             </div> : null;
@@ -119,7 +119,7 @@
                     {loading}
                     {messagecontent}
                 </div>);
-        //}
+        }
     }
 
 }

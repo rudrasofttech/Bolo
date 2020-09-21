@@ -15,24 +15,24 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 
-namespace Bolo.Controllers
+namespace BoloWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class MeetingsController : ControllerBase
+    public class DiscussionsController : ControllerBase
     {
         private readonly BoloContext _context;
 
-        public MeetingsController(BoloContext context)
+        public DiscussionsController(BoloContext context)
         {
             _context = context;
         }
 
-        // GET: api/Meetings
+        // GET: api/Discussions
         [HttpGet]
 
-        public async Task<ActionResult<List<MeetingDTO>>> GetMeetings()
+        public async Task<ActionResult<List<DiscussionDTO>>> GetDiscussions()
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -40,37 +40,37 @@ namespace Bolo.Controllers
                 return NotFound();
             }
 
-            var ownedm = _context.Meetings.Include(t => t.Owner).Where(t => t.Owner.ID == member.ID).Select(t => new MeetingDTO()
+            var ownedm = _context.Discussions.Include(t => t.Owner).Where(t => t.Owner.ID == member.ID).Select(t => new DiscussionDTO()
             {
                 CreateDate = t.CreateDate,
                 ID = t.PublicID,
                 Owner = new MemberDTO(t.Owner),
                 Name = t.Name,
                 Purpose = t.Purpose
-            }).ToList<MeetingDTO>();
-            
-            List<MeetingDTO> meetings = new List<MeetingDTO>();
+            }).ToList<DiscussionDTO>();
+
+            List<DiscussionDTO> meetings = new List<DiscussionDTO>();
             meetings.AddRange(ownedm);
             return meetings;
         }
 
-        // GET: api/Meetings/5
+        // GET: api/Discussions/5
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<MeetingDTO>> GetMeeting(string id)
+        public async Task<ActionResult<DiscussionDTO>> GetDiscussion(string id)
         {
-            var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());
+            var d = await _context.Discussions.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());
 
-            if (meeting == null)
+            if (d == null)
             {
                 return NotFound();
             }
             else
             {
-                MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
-                if (meeting.Owner != null)
+                DiscussionDTO result = new DiscussionDTO() { ID = d.PublicID, CreateDate = d.CreateDate, Name = d.Name, Purpose = d.Purpose };
+                if (d.Owner != null)
                 {
-                    result.Owner = new MemberDTO(meeting.Owner);
+                    result.Owner = new MemberDTO(d.Owner);
                 }
                 return result;
             }
@@ -80,14 +80,14 @@ namespace Bolo.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMeeting(int id, Meeting meeting)
+        public async Task<IActionResult> PutDiscussion(int id, Discussion discussion)
         {
-            if (id != meeting.ID)
+            if (id != discussion.ID)
             {
                 return BadRequest();
             }
 
-            _context.Entry(meeting).State = EntityState.Modified;
+            _context.Entry(discussion).State = EntityState.Modified;
 
             try
             {
@@ -95,7 +95,7 @@ namespace Bolo.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!MeetingExists(id))
+                if (!DiscussionExists(id))
                 {
                     return NotFound();
                 }
@@ -113,16 +113,16 @@ namespace Bolo.Controllers
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
         [AllowAnonymous]
-        public async Task<ActionResult<MeetingDTO>> PostMeeting(CreateMeetingDTO m)
+        public async Task<ActionResult<DiscussionDTO>> PostMeeting(CreateDiscussionDTO m)
         {
             //remove unnamed meeting which are older than 48 hours
-            var meetings = _context.Meetings.Where(t => t.Name == string.Empty && t.CreateDate < DateTime.Now.AddHours(-48));
+            var meetings = _context.Discussions.Where(t => t.Name == string.Empty && t.CreateDate < DateTime.Now.AddHours(-48));
             foreach (var meet in meetings)
             {
-                _context.Meetings.Remove(meet);
+                _context.Discussions.Remove(meet);
                 if (!string.IsNullOrEmpty(meet.PublicID))
                 {
-                    var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", meet.PublicID);
+                    var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "discussion", meet.PublicID);
                     if (Directory.Exists(meetingpath))
                     {
                         Directory.Delete(meetingpath, true);
@@ -131,7 +131,7 @@ namespace Bolo.Controllers
             }
             _ = _context.SaveChangesAsync();
 
-            Meeting meeting = new Meeting
+            Discussion discussion = new Discussion
             {
                 CreateDate = DateTime.UtcNow,
                 Status = RecordStatus.Active,
@@ -140,29 +140,29 @@ namespace Bolo.Controllers
             };
             if (User.Identity.IsAuthenticated)
             {
-                meeting.Owner = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                discussion.Owner = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
             }
             else
             {
-                meeting.Owner = null;
+                discussion.Owner = null;
             }
-            _context.Meetings.Add(meeting);
+            _context.Discussions.Add(discussion);
             await _context.SaveChangesAsync();
 
-            string id = string.Format("{0}{1}{2}{3}{4}{5}{6}", meeting.ID, DateTime.Now.DayOfYear, DateTime.Now.Month, DateTime.Now.Hour, DateTime.Now.Day, DateTime.Now.Minute, DateTime.Now.Second);
+            string id = string.Format("{0}{1}{2}{3}{4}{5}{6}", discussion.ID, DateTime.Now.DayOfYear, DateTime.Now.Month, DateTime.Now.Hour, DateTime.Now.Day, DateTime.Now.Minute, DateTime.Now.Second);
             if (id.Length > 9)
             {
                 id = id.Substring(0, 9);
             }
             //id = string.Format("{0}{1}{2}", id.Substring(0, 8), meeting.ID, id.Substring(8, 4));
 
-            meeting.PublicID = id;
+            discussion.PublicID = id;
             await _context.SaveChangesAsync();
 
-            MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
-            if (meeting.Owner != null)
+            DiscussionDTO result = new DiscussionDTO() { ID = discussion.PublicID, CreateDate = discussion.CreateDate, Name = discussion.Name, Purpose = discussion.Purpose };
+            if (discussion.Owner != null)
             {
-                result.Owner = new MemberDTO(meeting.Owner);
+                result.Owner = new MemberDTO(discussion.Owner);
             }
             return result;
         }
@@ -172,7 +172,7 @@ namespace Bolo.Controllers
         [Route("media/{id}")]
         public ActionResult GetMedia(string id, [FromQuery] string f)
         {
-            var fpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, f);
+            var fpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "discussion", id, f);
             switch (Path.GetExtension(fpath).ToLower())
             {
                 case ".jpg":
@@ -211,7 +211,133 @@ namespace Bolo.Controllers
 
         }
 
-       
+        [HttpGet]
+        [Route("remove/{id}")]
+        public async Task<ActionResult> RemoveMemberAsync(string id, [FromQuery] Guid member)
+        {
+            var d = await _context.Discussions.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID == id);
+            if (d == null)
+            {
+                return NotFound();
+            }
+            //check if member is not owner of the meeting
+            //owners cannot be removed from their meetings
+            if (d.Owner.PublicID == member)
+            {
+                return BadRequest();
+            }
+            bool userHasAuthorityToBlock = false;
+            //at first check if logged user is the owner of meeting
+            if (d.Owner.PublicID == new Guid(User.Identity.Name))
+            {
+                userHasAuthorityToBlock = true;
+            }
+            //if not than check if user is admin of the meeting
+            if (!userHasAuthorityToBlock)
+            {
+                var mm = await _context.DiscussionMembers.FirstOrDefaultAsync(t => t.Member.PublicID == new Guid(User.Identity.Name) && t.Relation == DiscussionRelationType.Admin && t.Discussion.PublicID == id);
+                if (mm != null)
+                {
+                    userHasAuthorityToBlock = true;
+                }
+            }
+            if (userHasAuthorityToBlock)
+            {
+                var mm2 = await _context.DiscussionMembers.FirstOrDefaultAsync(t => t.Member.PublicID == member && t.Discussion.PublicID == id);
+                if (mm2 != null)
+                {
+                    _context.DiscussionMembers.Remove(mm2);
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("approve/{id}")]
+        public async Task<ActionResult> ApproveMemberAsync(string id, [FromQuery] Guid member)
+        {
+            var d = await _context.Discussions.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID == id);
+            if (d == null)
+            {
+                return NotFound();
+            }
+            //check if member is not owner of the meeting
+            //owners cannot be removed from their meetings
+            if (d.Owner.PublicID == member)
+            {
+                return BadRequest();
+            }
+            bool userHasAuthorityToApprove = false;
+            //at first check if logged user is the owner of meeting
+            if (d.Owner.PublicID == new Guid(User.Identity.Name))
+            {
+                userHasAuthorityToApprove = true;
+            }
+            //if not than check if user is admin of the meeting
+            if (!userHasAuthorityToApprove)
+            {
+                var mm = await _context.DiscussionMembers.FirstOrDefaultAsync(t => t.Member.PublicID == new Guid(User.Identity.Name) && t.Relation == DiscussionRelationType.Admin && t.Discussion.PublicID == id);
+                if (mm != null)
+                {
+                    userHasAuthorityToApprove = true;
+                }
+            }
+            if (userHasAuthorityToApprove)
+            {
+                var mm2 = await _context.DiscussionMembers.FirstOrDefaultAsync(t => t.Member.PublicID == member && t.Discussion.PublicID == id);
+                if (mm2 != null)
+                {
+                    mm2.Relation = DiscussionRelationType.Member;
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("join/{id}")]
+        public async Task<ActionResult> JoinMeeting(string id)
+        {
+            var d = await _context.Discussions.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID == id);
+            if (d == null)
+            {
+                return NotFound("Not Found");
+            }
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound("Member Not Found");
+            }
+            var mm = await _context.DiscussionMembers.FirstOrDefaultAsync(t => t.Member.PublicID == new Guid(User.Identity.Name) && t.Discussion.PublicID == id);
+            if (mm == null)
+            {
+                DiscussionMember mmnew = new DiscussionMember()
+                {
+                    CreateDate = DateTime.UtcNow,
+                    Discussion = d,
+                    Relation = DiscussionRelationType.Requested,
+                    Member = member
+                };
+                _context.DiscussionMembers.Add(mmnew);
+                await _context.SaveChangesAsync();
+
+            }
+            return Ok();
+        }
+
         [HttpGet]
         [Route("DownloadChunk")]
         public ActionResult DownloadFile([FromQuery] string filename, [FromQuery] int position, [FromQuery] string id)
@@ -220,7 +346,7 @@ namespace Bolo.Controllers
             {
                 return Ok(new { data = string.Empty, position = -1, length = -1 });
             }
-            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, filename);
+            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "discussion", id, filename);
             if (System.IO.File.Exists(filepath))
             {
                 byte[] array = System.IO.File.ReadAllBytes(filepath);
@@ -260,12 +386,12 @@ namespace Bolo.Controllers
             if (gfn)
                 filename = Guid.NewGuid().ToString().ToLower() + Path.GetExtension(filename);
 
-            var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", meetingid);
-            if (!Directory.Exists(meetingpath))
+            var discussionpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "discussion", meetingid);
+            if (!Directory.Exists(discussionpath))
             {
-                Directory.CreateDirectory(meetingpath);
+                Directory.CreateDirectory(discussionpath);
             }
-            var path = Path.Combine(meetingpath, filename);
+            var path = Path.Combine(discussionpath, filename);
 
 
             //string[] arr = f.Split(";base64,");
@@ -314,8 +440,8 @@ namespace Bolo.Controllers
         public ActionResult GenerateThumbnail([FromQuery] string filename, [FromQuery] string id)
         {
             string ffmpegpath = Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg", "ffmpeg.exe");
-            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, filename);
-            string thumbpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", id, filename.ToLower().Replace(Path.GetExtension(filename.ToLower()), "-thumb.jpg"));
+            string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "discussion", id, filename);
+            string thumbpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "discussion", id, filename.ToLower().Replace(Path.GetExtension(filename.ToLower()), "-thumb.jpg"));
             if (System.IO.File.Exists(filepath))
             {
                 if (filename.ToLower().EndsWith(".ogg") || filename.ToLower().EndsWith(".mp4") || filename.ToLower().EndsWith(".webm") || filename.ToLower().EndsWith(".mov"))
@@ -346,25 +472,29 @@ namespace Bolo.Controllers
             return Ok();
         }
 
-        // DELETE: api/Meetings/5
+        // DELETE: api/Discussions/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Meeting>> DeleteMeeting(int id)
+        public async Task<ActionResult> DeleteDiscussion(string id)
         {
-            var meeting = await _context.Meetings.FindAsync(id);
-            if (meeting == null)
+            var d = await _context.Discussions.FirstOrDefaultAsync(t => t.PublicID == id);
+            if (d == null)
             {
                 return NotFound();
             }
-
-            _context.Meetings.Remove(meeting);
+            var discussionpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "discussion", id);
+            if (Directory.Exists(discussionpath))
+            {
+                Directory.Delete(discussionpath, true);
+            }
+            _context.Discussions.Remove(d);
             await _context.SaveChangesAsync();
 
-            return meeting;
+            return Ok();
         }
 
-        private bool MeetingExists(int id)
+        private bool DiscussionExists(int id)
         {
-            return _context.Meetings.Any(e => e.ID == id);
+            return _context.Discussions.Any(e => e.ID == id);
         }
     }
 }

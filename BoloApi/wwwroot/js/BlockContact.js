@@ -13,7 +13,7 @@
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"),
             blocked: null
         };
-        this.contactlist = new Map();
+        
         this.fetchContactDetail = this.fetchContactDetail.bind(this);
         this.handleUnblockClick = this.handleUnblockClick.bind(this);
         this.handleBlockClick = this.handleBlockClick.bind(this);
@@ -21,7 +21,7 @@
     }
 
     componentDidMount() {
-        this.contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+        
         this.fetchContactDetail();
     }
 
@@ -47,9 +47,10 @@
                     } else {
                         this.setState({ blocked: false });
                     }
-                    if (this.contactlist.get(this.state.person.id) !== undefined) {
-                        this.contactlist.get(this.state.person.id).boloRelation = data.boloRelation;
-                        localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
+                    var contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+                    if (contactlist.get(this.state.person.id) !== undefined) {
+                        contactlist.get(this.state.person.id).boloRelation = data.boloRelation;
+                        localStorage.setItem("contacts", JSON.stringify(Array.from(contactlist)));
                     }
                 });
             }

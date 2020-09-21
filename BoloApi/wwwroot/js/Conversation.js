@@ -174,9 +174,10 @@
                             if (this.contactlist.get(data[k].person.id) === undefined) {
                                 this.contactlist.set(data[k].person.id.toLowerCase(), data[k]);
                             } else {
-                                this.contactlist.get(data[k].person.id).recentMessage = data[k].recentMessage;
-                                this.contactlist.get(data[k].person.id).recentMessageDate = data[k].recentMessageDate;
-                                this.contactlist.get(data[k].person.id).person = data[k].person;
+                                //this.contactlist.get(data[k].person.id).recentMessage = data[k].recentMessage;
+                                //this.contactlist.get(data[k].person.id).recentMessageDate = data[k].recentMessageDate;
+                                //this.contactlist.get(data[k].person.id).person = data[k].person;
+                                this.contactlist.set(data[k].person.id, data[k]);
                             }
 
                             if (data[k].messagesOnServer.length > 0) {
