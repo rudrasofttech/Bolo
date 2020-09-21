@@ -102,7 +102,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\data\meeting\" />
-    <Folder Include="wwwroot\data\discussion\" />
   </ItemGroup>
 
   <ItemGroup>

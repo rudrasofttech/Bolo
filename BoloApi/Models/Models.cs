@@ -19,12 +19,7 @@ namespace Bolo.Models
         Search = 3,
         Blocked = 4
     }
-    //public enum DiscussionRelationType
-    //{
-    //    Requested = 1,
-    //    Member = 2,
-    //    Admin = 3
-    //}
+
     public enum ChatMessageType
     {
         Text = 1,
@@ -145,46 +140,6 @@ namespace Bolo.Models
         public string Purpose { get; set; }
 
     }
-
-    //public class Discussion
-    //{
-    //    public int ID { get; set; }
-    //    public Member Owner { get; set; }
-    //    public DateTime CreateDate { get; set; }
-    //    public string PublicID { get; set; }
-
-    //    public RecordStatus Status { get; set; }
-    //    [MaxLength(100)]
-    //    public String Name { get; set; }
-    //    [MaxLength(500)]
-    //    public string Purpose { get; set; }
-
-    //}
-
-    //public class DiscussionMember
-    //{
-    //    public int ID { get; set; }
-    //    public Member Member { get; set; }
-    //    public Discussion Discussion { get; set; }
-    //    public DiscussionRelationType Relation { get; set; }
-    //    public DateTime CreateDate { get; set; }
-    //}
-
-    //public class DiscussionMessage
-    //{
-    //    public int ID { get; set; }
-    //    public Member Sender { get; set; }
-    //    public Discussion Discussion { get; set; }
-    //    public DateTime SentDate { get; set; }
-    //    public string Message { get; set; }
-    //    public Guid PublicID { get; set; }
-
-    //    public DiscussionMessage()
-    //    {
-    //        PublicID = Guid.NewGuid();
-    //        Message = String.Empty;
-    //    }
-    //}
 
     public class MemberNotification
     {
@@ -324,14 +279,6 @@ namespace Bolo.Models
         public string Purpose { get; set; }
     }
 
-    //public class CreateDiscussionDTO
-    //{
-    //    [MaxLength(100)]
-    //    public String Name { get; set; }
-    //    [MaxLength(500)]
-    //    public string Purpose { get; set; }
-    //}
-
     public class MemberDTO
     {
         public Guid ID { get; set; }
@@ -397,32 +344,6 @@ namespace Bolo.Models
         public string Purpose { get; set; }
 
     }
-
-    //public class DiscussionDTO
-    //{
-    //    public MemberDTO Owner { get; set; }
-    //    public DateTime CreateDate { get; set; }
-    //    public string ID { get; set; }
-    //    [MaxLength(100)]
-    //    public String Name { get; set; }
-    //    [MaxLength(500)]
-    //    public string Purpose { get; set; }
-    //}
-
-    //public class DiscussionMessageDTO
-    //{
-    //    public MemberDTO Sender { get; set; }
-    //    public DiscussionDTO Discussion { get; set; }
-    //    public DateTime SentDate { get; set; }
-    //    public string Message { get; set; }
-    //    public Guid PublicID { get; set; }
-
-    //    public DiscussionMessageDTO()
-    //    {
-    //        PublicID = Guid.NewGuid();
-    //        Message = String.Empty;
-    //    }
-    //}
 
     public class RegisterDTO
     {
