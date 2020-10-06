@@ -616,6 +616,24 @@ namespace Waarta.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Past.
+        /// </summary>
+        internal static string OldMeetingBtn {
+            get {
+                return ResourceManager.GetString("OldMeetingBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Past Meetings.
+        /// </summary>
+        internal static string OMTitle {
+            get {
+                return ResourceManager.GetString("OMTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Profile.
         /// </summary>
         internal static string PPTitle {

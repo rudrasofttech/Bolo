@@ -351,14 +351,13 @@
                 items.push(<div className="col-12 col-sm-6 col-md-4 col-lg-3" key={key} >
                     <div className="card mb-3" style={{ maxWidth: "540px", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
                         <div className="row no-gutters">
-                            <div className="col-md-4">
+                            <div className="col-4">
                                 {pic}
                             </div>
-
-                            <div className="col-md-8">
-                                <div className="card-body p-3" style={{ position: "relative" }}>
+                            <div className="col-8">
+                                <div className="card-body p-1" style={{ position: "relative" }}>
                                     <div className="btn-group" style={{ position: "absolute", right: "5px", top: "5px" }} onClick={(e) => e.stopPropagation()}>
-                                        <button className="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></button>
+                                        <button className="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></button>
                                         <div className="dropdown-menu dropdown-menu-right " aria-labelledby="dropdownMenuButton">
                                             <a className="dropdown-item" href="#" onClick={() => this.handleProfileItemClick(obj.id)}>Profile</a>
                                             <a className="dropdown-item" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>

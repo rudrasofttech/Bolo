@@ -7,6 +7,7 @@
              x:Class="Waarta.Views.MeetingsPage" xmlns:resources="clr-namespace:Waarta.Resources" Appearing="ContentPage_Appearing">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="{x:Static resources:AppResource.MeetsJoinBtn}" Clicked="ToolbarItem_Clicked" />
+        <ToolbarItem Text="{x:Static resources:AppResource.OldMeetingBtn}" Clicked="ToolbarItem_Clicked_1" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <ScrollView>

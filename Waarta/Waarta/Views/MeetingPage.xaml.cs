@@ -1162,11 +1162,11 @@ namespace Waarta.Views
             }
         }
 
-        public void LeaveMeeting()
+        public async void LeaveMeeting()
         {
             if (hc != null && hc.State == HubConnectionState.Connected)
             {
-                hc.InvokeAsync("LeaveMeeting", Meeting.ID, Myself.MemberID);
+                await hc.InvokeAsync("LeaveMeeting", Meeting.ID, Myself.MemberID);
             }
             if (String.IsNullOrEmpty(Meeting.Name))
             {
@@ -1181,12 +1181,12 @@ namespace Waarta.Views
         private async void LeaveBtn_Clicked(object sender, EventArgs e)
         {
             LeaveMeeting();
-            try
-            {
-                _ = hc.StopAsync();
-                _ = hc.DisposeAsync();
-            }
-            catch { }
+            //try
+            //{
+            //    _ = hc.StopAsync();
+            //    _ = hc.DisposeAsync();
+            //}
+            //catch { }
 
             await Navigation.PopAsync();
         }

@@ -1186,7 +1186,7 @@
         let videohtml = this.renderVideo();
         let chatmsgcontstyle = {};
         if (videohtml === null && this.detectXtralargeScreen()) {
-            chatmsgcontstyle = { padding: "0px 200px" };
+            chatmsgcontstyle = { padding: "0px 10px" };
         }
         return (
             <React.Fragment>

@@ -49,6 +49,20 @@ namespace Waarta.Services
             }
         }
 
+        public async Task<List<MeetingDTO>> GetMeetings()
+        {
+            HttpResponseMessage response = await _client.GetAsync(apiurl);
+            if (response.IsSuccessStatusCode)
+            {
+                List<MeetingDTO> result = JsonConvert.DeserializeObject<List<MeetingDTO>>(await response.Content.ReadAsStringAsync());
+                return result;
+            }
+            else
+            {
+                return new List<MeetingDTO>();
+            }
+        }
+
         public async Task<MeetingDTO> CreateMeeting(CreateMeetingDTO dto)
         {
             try

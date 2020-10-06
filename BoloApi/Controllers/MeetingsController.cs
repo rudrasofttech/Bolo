@@ -40,7 +40,10 @@ namespace Bolo.Controllers
                 return NotFound();
             }
 
-            var ownedm = _context.Meetings.Include(t => t.Owner).Where(t => t.Owner.ID == member.ID).Select(t => new MeetingDTO()
+            var ownedm = _context.Meetings.Include(t => t.Owner)
+                .Where(t => t.Owner.ID == member.ID)
+                .OrderByDescending(t => t.CreateDate)
+                .Select(t => new MeetingDTO()
             {
                 CreateDate = t.CreateDate,
                 ID = t.PublicID,
@@ -348,18 +351,31 @@ namespace Bolo.Controllers
 
         // DELETE: api/Meetings/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Meeting>> DeleteMeeting(int id)
+        public async Task<ActionResult<MeetingDTO>> DeleteMeeting(string id)
         {
-            var meeting = await _context.Meetings.FindAsync(id);
+            var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID == id);
             if (meeting == null)
             {
                 return NotFound();
             }
+            var meetingpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "meeting", meeting.PublicID);
+            
+            //if meeting path exist then delete the folder and its content
+            if (Directory.Exists(meetingpath))
+            {
+                Directory.Delete(meetingpath, true);
+            }
 
             _context.Meetings.Remove(meeting);
+
             await _context.SaveChangesAsync();
 
-            return meeting;
+            return new MeetingDTO() { CreateDate = meeting.CreateDate,
+                ID = meeting.PublicID,
+                Name = meeting.Name,
+                Owner = new MemberDTO(meeting.Owner),
+                Purpose = meeting.Purpose
+            };
         }
 
         private bool MeetingExists(int id)
