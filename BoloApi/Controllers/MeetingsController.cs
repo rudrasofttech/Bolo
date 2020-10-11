@@ -350,10 +350,14 @@ namespace Bolo.Controllers
         }
 
         // DELETE: api/Meetings/5
-        [HttpDelete("{id}")]
+        [HttpGet]
+        [Route("Remove/{id}")]
         public async Task<ActionResult<MeetingDTO>> DeleteMeeting(string id)
         {
-            var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID == id);
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            
+            var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => 
+            t.PublicID == id && t.Owner.ID == member.ID);
             if (meeting == null)
             {
                 return NotFound();

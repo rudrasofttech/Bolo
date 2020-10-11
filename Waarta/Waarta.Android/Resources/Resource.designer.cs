@@ -8592,10 +8592,13 @@ namespace Waarta.Droid
 			public const int tooltip_frame_light = 2131165313;
 			
 			// aapt resource value: 0x7F070082
-			public const int user = 2131165314;
+			public const int trash = 2131165314;
 			
 			// aapt resource value: 0x7F070083
-			public const int verticalellipsis = 2131165315;
+			public const int user = 2131165315;
+			
+			// aapt resource value: 0x7F070084
+			public const int verticalellipsis = 2131165316;
 			
 			static Drawable()
 			{

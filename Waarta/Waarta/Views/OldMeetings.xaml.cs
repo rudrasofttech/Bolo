@@ -14,6 +14,7 @@ namespace Waarta.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class OldMeetings : ContentPage
     {
+        readonly WaartaDataStore ds;
         readonly MeetingsService mss;
         List<MeetingDTO> meetings;
         MemberDTO mdto = null;
@@ -21,6 +22,7 @@ namespace Waarta.Views
         {
             InitializeComponent();
             mss = new MeetingsService();
+            ds = new WaartaDataStore();
         }
 
         
@@ -53,8 +55,46 @@ namespace Waarta.Views
                 mss.Token = Waarta.Helpers.Settings.Token;
             }
             Title = Waarta.Resources.AppResource.OMTitle;
+            ActivityInd.IsVisible = true;
             meetings = await mss.GetMeetings();
             MeetingsListView.ItemsSource = meetings;
+            ActivityInd.IsVisible = false;
+        }
+
+        private async void RemoveMenuItem_Clicked(object sender, EventArgs e)
+        {
+            var mi = ((MenuItem)sender);
+            MeetingDTO item = (MeetingDTO)mi.CommandParameter;
+            ActivityInd.IsVisible = true;
+            MeetingsListView.IsVisible = false;
+            try
+            {
+                bool result = await mss.RemoveMeeting(item.ID);
+                if (result)
+                {
+                    string meetingsdata = ds.GetMeetingsListData();
+                    Dictionary<string, MeetingDTO> meetingslist = new Dictionary<string, MeetingDTO>();
+                    if (!string.IsNullOrEmpty(meetingsdata))
+                    {
+                        meetingslist = (Dictionary<string, MeetingDTO>)JsonConvert.DeserializeObject(meetingsdata, typeof(Dictionary<string, MeetingDTO>));
+                    }
+                    if (!meetingslist.ContainsKey(item.ID))
+                    {
+                        meetingslist.Remove(item.ID);
+                        ds.SaveMeetingsListData(JsonConvert.SerializeObject(meetingslist));
+                    }
+                    meetings = await mss.GetMeetings();
+                    MeetingsListView.ItemsSource = meetings;
+                }
+            }
+            catch(Exception ex) {
+                await DisplayAlert("Error", ex.Message, "Cancel");
+            }
+            finally
+            {
+                ActivityInd.IsVisible = false;
+                MeetingsListView.IsVisible = true;
+            }
         }
     }
 }

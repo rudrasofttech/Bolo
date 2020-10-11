@@ -63,6 +63,19 @@ namespace Waarta.Services
             }
         }
 
+        public async Task<bool> RemoveMeeting(string id)
+        {
+            HttpResponseMessage response = await _client.GetAsync(apiurl + "remove/" + id);
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public async Task<MeetingDTO> CreateMeeting(CreateMeetingDTO dto)
         {
             try

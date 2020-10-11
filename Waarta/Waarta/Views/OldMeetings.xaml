@@ -4,10 +4,16 @@
              x:Class="Waarta.Views.OldMeetings" Appearing="ContentPage_Appearing">
     <ContentPage.Content>
         <StackLayout>
-            <ListView x:Name="MeetingsListView" HasUnevenRows="true" Margin="5" ItemSelected="MeetingsListView_ItemSelected" IsPullToRefreshEnabled="True">
+            <ActivityIndicator x:Name="ActivityInd"
+                           VerticalOptions="CenterAndExpand"
+                           HorizontalOptions="Fill" IsRunning="True" IsVisible="True" />
+            <ListView x:Name="MeetingsListView" HasUnevenRows="true" Margin="5" ItemSelected="MeetingsListView_ItemSelected" IsPullToRefreshEnabled="False">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
+                            <ViewCell.ContextActions>
+                                <MenuItem Text="Delete" Clicked="RemoveMenuItem_Clicked" CommandParameter="{Binding .}" IsDestructive="True" />
+                            </ViewCell.ContextActions>
                             <Grid Padding="10">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -15,6 +21,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"  />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="32" />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Row="0" Grid.Column="0" FontSize="17" Margin="0,5,0,0" Text="{Binding Name}" VerticalOptions="Start" TextColor="Black" />
                                 <Label Grid.Row="0" Grid.Column="1" FontSize="10" IsVisible="false" Margin="0,5,0,0" Text="{Binding CreateDate}" VerticalOptions="Center" HorizontalOptions="Start" TextColor="Black" />

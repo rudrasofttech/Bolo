@@ -760,13 +760,13 @@ namespace Waarta.Views
             if (cm.Sender == Myself.ID)
             {
                 f.HorizontalOptions = LayoutOptions.End;
-                f.Margin = new Thickness(50, 0, 0, 5);
+                mgrid.Margin = new Thickness(0, 0, 30, 5);
                 mgrid.BackgroundColor = Color.FromRgba(219, 244, 253, 97);
             }
             else
             {
                 f.HorizontalOptions = LayoutOptions.Start;
-                f.Margin = new Thickness(0, 0, 50, 5);
+                mgrid.Margin = new Thickness(30, 0, 0, 5);
                 mgrid.BackgroundColor = Color.FromRgba(242, 246, 249, 97);
             }
             SizeLabel lsize = new SizeLabel() { Text = AppResource.CPDownloadFileLabel, FontSize = 14, FontAttributes = FontAttributes.Bold, HeightRequest = 20, VerticalTextAlignment = TextAlignment.Center, HorizontalTextAlignment = TextAlignment.End };
