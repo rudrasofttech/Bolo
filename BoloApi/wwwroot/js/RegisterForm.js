@@ -150,7 +150,7 @@
 
     renderOTPForm() {
         return <form autoComplete="off" onSubmit={this.handleGenerateOTP}>
-            <div className="form-group">
+            <div className="mb-3">
                 <label>Mobile or Email</label>
                 <input type="text" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Mobile or Email" />
             </div>
@@ -160,11 +160,11 @@
 
     renderLoginForm() {
         return <form onSubmit={this.handleLogin}>
-            <div className="form-group">
+            <div className="mb-3">
                 <label>Mobile or Email</label>
                 <input type="text" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Mobile or Email" />
             </div>
-            <div className="form-group">
+            <div className="mb-3">
                 <label>OTP</label>
                 <input className="form-control" required name="OTP" type="password" onChange={this.handleChange} />
             </div>
@@ -196,11 +196,11 @@
                 <h3>Register</h3>
                 <div >
                     <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
-                        <div className="form-group">
+                        <div className="mb-3">
                             <label>Your Name</label>
                             <input type="text" className="form-control" required name="registername" value={this.state.registername} onChange={this.handleChange} />
                         </div>
-                        <div className="form-group">
+                        <div className="mb-3">
                             <label>Your Email</label>
                             <input type="email" className="form-control" required name="registeremail" value={this.state.registeremail} onChange={this.handleChange} placeholder="me@bolo.com" />
                             <small className="form-text text-muted">We'll never share your email with anyone else.</small>
@@ -210,7 +210,7 @@
                     </form>
 
                     <p className="text-center mt-2">
-                        Already a Member! <button type="button" onClick={this.handleLoginClickHere} className="btn btn-success btn-sm">Login Here</button> </p>
+                        Already a Member! <a onClick={this.handleLoginClickHere} className="link-success">Login Here</a> </p>
                     {messagecontent}
                     {loading}
                 </div>
@@ -220,7 +220,7 @@
                 <div >
                     {logincontents}
                     <p className="text-center mt-2">
-                        Register for FREE <button type="button" onClick={this.handleRegisterClickHere} className="btn btn-success btn-sm">Click Here</button></p>
+                        Register for FREE <a onClick={this.handleRegisterClickHere} className="link-success">Click Here</a></p>
                     {messagecontent}
                     {loading}
                 </div>

@@ -139,12 +139,9 @@ class NavMenu extends React.Component {
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-body">
-                                <button type="button" className="close pull-right" data-dismiss="modal" aria-label="Close" onClick={this.closeRegisterModal}>
-                                    <span aria-hidden="true">X</span>
-                                </button>
+                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close" onClick={this.closeRegisterModal}></button>
                                 <RegisterForm onLogin={this.loginHandler} beginWithRegister={this.state.registerFormBeginWith} />
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -192,44 +189,33 @@ class NavMenu extends React.Component {
         if (loggedin && this.state.memberpic !== "") {
             profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded-circle" />
         }
+        
         if (loggedin) {
-            linkitems.push(<li className="nav-item" key={"memberlinkli"}><button type="button" className="btn btn-link text-light nav-link membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button></li>);
-            linkitems.push(<li className="nav-item" key={"logoutlinkli"}><button type="button" className="btn btn-link text-light nav-link" onClick={this.handleLogout}>Logout</button></li>);
+            linkitems.push(<button key={"memberlinkli"} type="button" className="btn btn-light me-2 membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button>);
+            linkitems.push(<button key={"logoutlinkli"} type="button" className="btn btn-light" onClick={this.handleLogout}>Logout</button>);
         } else {
-            linkitems.push(<li className="nav-item" key={"loginlinkli"}><button type="button" className="btn btn-link text-light nav-link" onClick={this.handleLogin}>Login</button></li>);
-            linkitems.push(<li className="nav-item" key={"registerlinkli"}><button type="button" className="btn btn-link text-light nav-link" onClick={this.handleRegister}>Register</button></li>);
+            linkitems.push(<button key={"loginlinkli"} type="button" className="btn btn-light bg-white me-2" onClick={this.handleLogin}>Login</button>);
+            linkitems.push(<button key={"registerlinkli"} type="button" className="btn btn-light" onClick={this.handleRegister}>Register</button>);
         }
 
         return (
             <React.Fragment>
-                <header>
-                    <nav className={navclassnames}>
-                        <div className="container-fluid">
-                            <a className="navbar-brand" href="/">Waarta</a>
-                            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMainMenu" aria-controls="navbarMainMenu"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                                <span className="navbar-toggler-icon"></span>
-                            </button>
-                            <div className="collapse navbar-collapse " id="navbarMainMenu">
-                                <ul className="nav navbar-nav ml-auto">
-                                    <li className="nav-item">
-                                        <a className="nav-link text-light" href="/faq">FAQ</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link text-light" href="/privacy">Privacy</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link text-light" href="/Chat">Conversations</a>
-                                    </li>
-                                    <li className="nav-item">
-                                        <a className="nav-link text-light" href="/Meetings">Meetings</a>
-                                    </li>
-                                    {linkitems}
-                                </ul>
-                            </div>
+                <div className="container-fluid bg-dark">
+                    <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 ">
+                        <a href="/" className="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-white text-decoration-none">
+                            Waarta
+                        </a>
+                        <ul className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                            <li><a className="nav-link px-2 text-white" href="/faq">FAQ</a></li>
+                            <li><a className="nav-link px-2 text-white" href="/privacy">Privacy</a></li>
+                            <li><a className="nav-link px-2 text-white" href="/Chat">Conversations</a></li>
+                            <li><a className="nav-link px-2 text-white" href="/Meetings">Meetings</a></li>
+                        </ul>
+                        <div className="col-md-3 text-end">
+                            {linkitems}
                         </div>
-                    </nav>
-                </header>
+                    </header>
+                </div>
                 {this.renderProfileModal()}
                 {this.renderRegisterModal()}
 
