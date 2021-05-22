@@ -18,7 +18,8 @@ class NavMenu extends React.Component {
             showleavemeeting: this.props.onLeaveMeeting === undefined ? false : true,
             onProfileChange: this.props.onProfileChange === undefined ? null : this.props.onProfileChange,
             registerFormBeginWith: this.props.registerFormBeginWith === undefined ? true : this.props.registerFormBeginWith,
-            membername: '',
+            membername: (localStorage.getItem("membername") !== null) ? localStorage.getItem("membername") : '',
+            memberpic: (localStorage.getItem("memberpic") !== null) ? localStorage.getItem("memberpic") : '',
             memberid: '',
             fixed: this.props.fixed === undefined ? true : this.props.fixed,
             showprofilemodal: false
@@ -82,6 +83,8 @@ class NavMenu extends React.Component {
     handleLogout(e) {
         e.preventDefault();
         localStorage.removeItem("token");
+        localStorage.removeItem("membername");
+        localStorage.removeItem("memberpic");
         location.reload();
     }
 
@@ -103,9 +106,13 @@ class NavMenu extends React.Component {
             .then(response => {
                 if (response.status === 401) {
                     localStorage.removeItem("token");
-                    this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false });
+                    localStorage.setItem("membername", "");
+                    localStorage.setItem("memberpic", "");
+                    this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false, membername: '' });
                 } else if (response.status === 200) {
                     response.json().then(data => {
+                        localStorage.setItem("membername", data.name);
+                        localStorage.setItem("memberpic", data.pic);
                         this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, membername: data.name, memberid: data.id, memberpic: data.pic });
                     });
                 }
@@ -151,14 +158,13 @@ class NavMenu extends React.Component {
         if (this.state.showprofilemodal) {
             return (
                 <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div className="modal-dialog modal-dialog-scrollable modal-xl">
+                    <div className="modal-dialog modal-fullscreen">
                         <div className="modal-content">
-                            <div className="modal-body">
-                                <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}>
-                                    <span aria-hidden="true">X</span>
-                                </button>
-                                <ManageProfile onProfileChange={this.handleProfileChange} />
+                            <div className="modal-header">
+                                <h5 className="modal-title">Profile Information</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}></button>
                             </div>
+                            <ManageProfile onProfileChange={this.handleProfileChange} />
                         </div>
                     </div>
                 </div>
@@ -184,7 +190,7 @@ class NavMenu extends React.Component {
         //}
         let profilepic = null;
         if (loggedin && this.state.memberpic !== "") {
-            profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded-circle"  />
+            profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded-circle" />
         }
         if (loggedin) {
             linkitems.push(<li className="nav-item" key={"memberlinkli"}><button type="button" className="btn btn-link text-light nav-link membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button></li>);
