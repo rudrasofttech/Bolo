@@ -430,11 +430,12 @@
         if (this.state.showsearch) {
             searchhtml = <div className="col-12 searchcont">
                 <form onSubmit={this.handleSearchSubmit} className="searchform1 form-inline mt-2 mb-2">
-                    <input type="search" className="form-control rounded-0" name="searchtext" id="search-input"
-                        onChange={this.handleChange} title="Find People by Name, Location, Profession etc."
-                        placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
-                        autoComplete="off" spellCheck="false" style={{ width: "calc(100% - 50px)" }} />
-                    <button type="submit" className="btn btn-light"><img src="/icons/search.svg" alt="" width="24" height="24" title="Search People" /></button>
+                    <div className="input-group mb-3">
+                        <input type="search" className="form-control" onChange={this.handleChange} title="Find People by Name, Location, Profession etc." name="searchtext" id="search-input" placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
+                            autoComplete="off" spellCheck="false" aria-describedby="button-addon2" />
+                        <button className="btn btn-light" type="submit" id="button-addon2"><img src="/icons/search.svg" alt="" width="24" height="24" title="Search People" /></button>
+                    </div>
+
                 </form>
                 {this.renderPeopleList()}
             </div>;

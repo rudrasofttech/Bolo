@@ -201,7 +201,7 @@ class NavMenu extends React.Component {
         return (
             <React.Fragment>
                 <div className="container-fluid bg-dark">
-                    <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 ">
+                    <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-1 ">
                         <a href="/" className="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-white text-decoration-none">
                             Waarta
                         </a>

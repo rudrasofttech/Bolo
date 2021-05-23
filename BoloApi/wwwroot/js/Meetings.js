@@ -114,8 +114,8 @@
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" >Previous Meetings</h5>
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handlePrevMeeting}>
-                                <span aria-hidden="true">&times;</span>
+                            <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close" onClick={this.handlePrevMeeting}>
+                                
                             </button>
                         </div>
                         <div className="modal-body">
@@ -168,38 +168,40 @@
                 <MessageStrip message={this.state.message} bsstyle={this.state.bsstyle} />
             </div> : null;
             return (
-                <div>
+                <React.Fragment>
                     <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
-                    <main role="main" className="inner cover meetingsmain mr-5 ml-5">
-                        <h1 className="cover-heading">Online Meetings</h1>
-                        <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
+                    <div className="container-fluid">
+                        <main role="main" className="inner cover meetingsmain mr-5 ml-5">
+                            <h1 className="cover-heading">Online Meetings</h1>
+                            <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
                     important discussions, future planning or interviews. Salient Features-</p>
 
-                        <div className="row">
-                            <div className="col-md-6">
-                                <form onSubmit={this.handleStartMeeting}>
-                                    <div className="form-group">
-                                        <label htmlFor="meetingnametxt">Name</label>
-                                        <input type="text" className="form-control" id="meetingnametxt" placeholder="Friendly name of your meeting" name="name" maxLength="50" onChange={this.handleChange} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="purposetxt">Purpose</label>
-                                        <input type="text" className="form-control" id="purposetxt" placeholder="What is the agenda of the meeting" maxLength="250" name="purpose" onChange={this.handleChange} />
-                                    </div>
-                                    <h3>
-                                        <button type="submit" className="btn btn-primary my-2 startmeeting" >Create a Meeting</button>
-                                        <button type="button" className="btn my-2 btn-warning float-right startmeeting" onClick={this.handlePrevMeeting}>Previous Meetings</button>
-                                    </h3>
-                                </form>
-                                {loading}
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <form onSubmit={this.handleStartMeeting}>
+                                        <div className="form-group">
+                                            <label htmlFor="meetingnametxt">Name</label>
+                                            <input type="text" className="form-control" id="meetingnametxt" placeholder="Friendly name of your meeting" name="name" maxLength="50" onChange={this.handleChange} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="purposetxt">Purpose</label>
+                                            <input type="text" className="form-control" id="purposetxt" placeholder="What is the agenda of the meeting" maxLength="250" name="purpose" onChange={this.handleChange} />
+                                        </div>
+                                        <div>
+                                            <button type="submit" className="btn btn-primary my-2 me-2 startmeeting" >Start</button>
+                                            <button type="button" className="btn btn-link float-right startmeeting" onClick={this.handlePrevMeeting}>Previous Meetings</button>
+                                        </div>
+                                    </form>
+                                    {loading}
+                                </div>
                             </div>
-                        </div>
-                    </main>
-                    <HeartBeat activity="1" interval="3000" />
+                        </main>
+                        <HeartBeat activity="1" interval="3000" />
 
-                    {messagecontent}
-                    {this.renderMeetingList()}
-                </div>);
+                        {messagecontent}
+                        {this.renderMeetingList()}
+                    </div>
+                </React.Fragment>);
         }
     }
 

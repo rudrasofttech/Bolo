@@ -721,6 +721,10 @@ namespace Bolo.Controllers
         [AllowAnonymous]
         public ActionResult<IEnumerable<MemberDTO>> Search(string s)
         {
+            if (string.IsNullOrEmpty(s))
+            {
+                return null;
+            }
             string[] keywords = s.Trim().Split(" ".ToCharArray());
             List<string> avoid = "a,an,the,in,of,is,it,there,their,where,were,do,you,from".Split(",".ToCharArray()).ToList<string>();
             List<string> males = "man,boy,male,men".Split(",".ToCharArray()).ToList<string>();
