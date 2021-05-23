@@ -10,6 +10,9 @@ using System.Web;
 using System.IO;
 using System.Net;
 using System.Text;
+using Microsoft.Extensions.Configuration;
+using Bolo.Models;
+using Microsoft.Extensions.Options;
 
 namespace Bolo.Helper
 {
@@ -44,38 +47,6 @@ namespace Bolo.Helper
             return string.Format("{0}{1}{2}{3}{4}{5}", r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9));
         }
 
-        public static void SendEmail(string toemail, string toname, string fromemail, string fromname, string Subject, string Body)
-        {
-            try
-            {
-                MimeMessage message = new MimeMessage();
-
-                MailboxAddress from = new MailboxAddress(fromname, fromemail);
-                message.From.Add(from);
-
-                MailboxAddress to = new MailboxAddress(toname, toemail);
-                message.To.Add(to);
-                message.ReplyTo.Add(from);
-                message.Subject = Subject;
-                BodyBuilder bodyBuilder = new BodyBuilder
-                {
-                    HtmlBody = Body,
-                    TextBody = Body
-                };
-                //bodyBuilder.Attachments.Add(env.WebRootPath + "\\file.png");
-                message.Body = bodyBuilder.ToMessageBody();
-                using SmtpClient client = new SmtpClient();
-                client.Connect("smtp.gmail.com", 465, true);
-                client.Authenticate("waarta@rudrasofttech.com", "hjgTY23#@sd");
-                client.Send(message);
-                client.Disconnect(true);
-                client.Dispose();
-            }
-            catch(Exception ex) {
-                throw ex;
-            }
-        }
-
         public static string SendSMS(string phone, string message)
         {
             string url = "http://login.bulksmsgateway.in/sendmessage.php";
@@ -107,6 +78,48 @@ namespace Bolo.Helper
                 // Close and clean up the StreamReader sr.Close();
             }
             return result;
+        }
+    }
+
+    public class EmailUtility
+    {
+        private readonly IConfiguration _config;
+        public EmailUtility(IConfiguration config)
+        {
+            _config = config;
+        }
+
+        public void SendEmail(string toemail, string toname, string fromemail, string fromname, string Subject, string Body)
+        {
+            try
+            {
+                MimeMessage message = new MimeMessage();
+
+                MailboxAddress from = new MailboxAddress(fromname, fromemail);
+                message.From.Add(from);
+
+                MailboxAddress to = new MailboxAddress(toname, toemail);
+                message.To.Add(to);
+                message.ReplyTo.Add(from);
+                message.Subject = Subject;
+                BodyBuilder bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = Body,
+                    TextBody = Body
+                };
+                //bodyBuilder.Attachments.Add(env.WebRootPath + "\\file.png");
+                message.Body = bodyBuilder.ToMessageBody();
+                using SmtpClient client = new SmtpClient();
+                client.Connect(_config["EmailSetting:Smtp:Host"], Int32.Parse(_config["EmailSetting:Smtp:Port"]), true);
+                client.Authenticate(_config["EmailSetting:Smtp:Username"], _config["EmailSetting:Smtp:Password"]);
+                client.Send(message);
+                client.Disconnect(true);
+                client.Dispose();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

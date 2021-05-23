@@ -72,6 +72,16 @@ namespace Bolo.Models
         Female = 2,
         Other = 3
     }
+
+    public class SmtpSetting
+    {
+        public string From { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Host { get; set; }
+        public int Port { get; set; }
+    }
+
     public class Member
     {
         public int ID { get; set; }

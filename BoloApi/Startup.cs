@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Bolo.Data;
 using Bolo.Helper;
 using Bolo.Hubs;
+using Bolo.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -35,8 +36,8 @@ namespace BoloApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(c => c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod()));
-            services.AddDbContext<BoloContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.UseNetTopologySuite()));
+            services.AddDbContext<BoloContext>(options => 
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), x => x.UseNetTopologySuite()));
 
             services.AddControllersWithViews();
 
@@ -85,6 +86,8 @@ namespace BoloApi
             {
                 options.MaximumReceiveMessageSize = null;
             });
+
+            services.Configure<SmtpSetting>(Configuration.GetSection("SmtpSetting"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

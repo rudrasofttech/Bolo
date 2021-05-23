@@ -111,7 +111,8 @@ namespace Bolo.Hubs
                     _context.ChatMessages.Add(cm);
                     await _context.SaveChangesAsync();
                     string email = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
-                    Utility.SendEmail(mreceiver.Email, mreceiver.Name, msender.Email, msender.Name, String.Format("{0} sent a message on Waarta.", msender.Name), email);
+                    
+                    //Utility.SendEmail(mreceiver.Email, mreceiver.Name, msender.Email, msender.Name, String.Format("{0} sent a message on Waarta.", msender.Name), email);
                 }
             }
         }

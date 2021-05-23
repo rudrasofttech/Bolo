@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.SignalR;
 using Bolo.Hubs;
 using System.IO;
 using Bolo.Helper;
+using Microsoft.Extensions.Configuration;
 
 namespace Bolo.Controllers
 {
@@ -22,11 +23,13 @@ namespace Bolo.Controllers
     public class ChatMessagesController : ControllerBase
     {
         private readonly BoloContext _context;
+        private readonly IConfiguration _config;
         private readonly IHubContext<PersonChatHub> _hubContext;
-        public ChatMessagesController(BoloContext context, IHubContext<PersonChatHub> hubContext)
+        public ChatMessagesController(BoloContext context, IConfiguration config, IHubContext<PersonChatHub> hubContext)
         {
             _context = context;
             _hubContext = hubContext;
+            _config = config;
         }
 
         // GET: api/ChatMessages
@@ -176,7 +179,8 @@ namespace Bolo.Controllers
                         if (recedto.Activity == ActivityStatus.Offline || recedto.Activity == ActivityStatus.Meeting)
                         {
                             string email = System.IO.File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
-                            Utility.SendEmail(receiver.Email, receiver.Name, sender.Email, sender.Name, String.Format("{0} sent a message on Waarta.", sender.Name), email);
+                            EmailUtility eu = new EmailUtility(_config);
+                            eu.SendEmail(receiver.Email, receiver.Name, sender.Email, sender.Name, String.Format("{0} sent a message on Waarta.", sender.Name), email);
                         }
                     }
                     return Ok(new ChatMessageDTO(cm));

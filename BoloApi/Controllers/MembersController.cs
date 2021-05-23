@@ -82,7 +82,8 @@ namespace Bolo.Controllers
                 }
                 if (!string.IsNullOrEmpty(member.Email))
                 {
-                    Helper.Utility.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
+                    EmailUtility eu = new EmailUtility(_config);
+                    eu.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
                 }
                 if (!string.IsNullOrEmpty(member.Phone))
                 {
@@ -119,7 +120,8 @@ namespace Bolo.Controllers
                 }
                 if (!string.IsNullOrEmpty(member.Email))
                 {
-                    Helper.Utility.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
+                    EmailUtility eu = new EmailUtility(_config);
+                    eu.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
                 }
                 if (!string.IsNullOrEmpty(member.Phone))
                 {
@@ -704,7 +706,8 @@ namespace Bolo.Controllers
             await _context.SaveChangesAsync();
             if (!string.IsNullOrEmpty(model.Email))
             {
-                Helper.Utility.SendEmail(model.Email, "", "contact@bolo.com", "", "Bolo OTP", string.Format("You passcode is: {0}", OTP));
+                EmailUtility eu = new EmailUtility(_config);
+                eu.SendEmail(model.Email, "", "contact@bolo.com", "", "Bolo OTP", string.Format("You passcode is: {0}", OTP));
             }
             if (!string.IsNullOrEmpty(model.Phone))
             {
