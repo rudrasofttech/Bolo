@@ -128,7 +128,7 @@
     render() {
         if (this.state.profile !== null) {
             var d = new Date();
-            let pic = <React.Fragment><img src="/images/nopic.jpg" className="rounded mx-auto d-block img-fluid" alt="" /></React.Fragment>;
+            let pic = <React.Fragment><img src="/images/nopic.jpg" style={{ width : "50px"}} className="rounded mx-auto d-block img-fluid" alt="" /></React.Fragment>;
 
             if (this.state.profile.pic !== "") {
                 pic = <React.Fragment><img src={this.state.profile.pic} className="rounded mx-auto d-block img-fluid" alt="" /></React.Fragment>;

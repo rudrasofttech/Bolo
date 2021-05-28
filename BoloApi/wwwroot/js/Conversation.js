@@ -337,7 +337,7 @@
             if (this.state.myself === null || obj.id !== this.state.myself.id) {
                 let thought = null;
                 if (obj.thoughtStatus !== "") {
-                    thought = <p className="card-text mb-0"><small>{obj.thoughtStatus}</small></p>
+                    thought = <p className="card-text"><small>{obj.thoughtStatus}</small></p>
                 }
                 let online = <span className="offline"></span>;
                 if (obj.activity !== 5) {
@@ -349,25 +349,15 @@
                     : <img src="/images/nopic.jpg" className="card-img" alt="" />;
 
                 items.push(<div className="col-12 col-sm-6 col-md-4 col-lg-3" key={key} >
-                    <div className="card mb-3" style={{ maxWidth: "540px", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
-                        <div className="row no-gutters">
-                            <div className="col-4">
-                                {pic}
-                            </div>
-                            <div className="col-8">
-                                <div className="card-body p-1" style={{ position: "relative" }}>
-                                    <div className="btn-group" style={{ position: "absolute", right: "5px", top: "5px" }} onClick={(e) => e.stopPropagation()}>
-                                        <button className="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></button>
-                                        <div className="dropdown-menu dropdown-menu-right " aria-labelledby="dropdownMenuButton">
-                                            <a className="dropdown-item" href="#" onClick={() => this.handleProfileItemClick(obj.id)}>Profile</a>
-                                            <a className="dropdown-item" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>
-                                        </div>
-                                    </div>
-                                    <h6 className="card-title mb-0">{online} {obj.name} {unseenmsgcount} {blocked}</h6>
-                                    <p className="card-text mb-0"><small>{obj.city} {obj.state} {obj.country}</small></p>
-                                    {thought}
-                                </div>
-                            </div>
+                    <div className="card mb-1" style={{ maxWidth: "400px", cursor: "pointer" }}>
+
+                        <div className="card-body" style={{ position: "relative" }}>
+                            <span style={{ maxWidth: "30px", display: "inline-block", float: "right" }} >{pic}</span>
+                            <h5 className="card-title">{online} {obj.name} {unseenmsgcount} {blocked}</h5>
+                            <h6 className="card-subtitle mb-2 text-muted">{obj.city} {obj.state} {obj.country}</h6>
+                            {thought}
+                            <a className="card-link" href="#" onClick={() => this.handleProfileItemClick(obj.id)}>Profile</a>
+                            <a className="card-link" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>
                         </div>
                     </div>
                 </div>);
@@ -410,12 +400,13 @@
         }
         else if (this.state.profiletoshow !== null && this.state.showprofilemodal) {
             personchatorprofile = <div className="modal d-block" tabIndex="-1" role="dialog">
-                <div className="modal-dialog modal-dialog-scrollable">
+                <div className="modal-dialog modal-lg modal-dialog-scrollable">
                     <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Profile</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleProfileModalClose}></button>
+                        </div>
                         <div className="modal-body">
-                            <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.handleProfileModalClose}>
-                                <span aria-hidden="true">x</span>
-                            </button>
                             <ViewProfile profile={this.state.profiletoshow} />
                         </div>
                     </div>
@@ -429,11 +420,11 @@
         let searchhtml = null;
         if (this.state.showsearch) {
             searchhtml = <div className="col-12 searchcont">
-                <form onSubmit={this.handleSearchSubmit} className="searchform1 form-inline mt-2 mb-2">
-                    <div className="input-group mb-3">
+                <form onSubmit={this.handleSearchSubmit} className="searchform1 form-inline mt-1 mb-1">
+                    <div className="input-group mb-1">
                         <input type="search" className="form-control" onChange={this.handleChange} title="Find People by Name, Location, Profession etc." name="searchtext" id="search-input" placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
                             autoComplete="off" spellCheck="false" aria-describedby="button-addon2" />
-                        <button className="btn btn-light" type="submit" id="button-addon2"><img src="/icons/search.svg" alt="" width="24" height="24" title="Search People" /></button>
+                        <button className="btn" type="submit" id="button-addon2"><img src="/icons/search.svg" alt="" width="24" height="24" title="Search People" /></button>
                     </div>
 
                 </form>
@@ -444,7 +435,7 @@
         return (
             <React.Fragment>
                 <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
-                <div className="container-fluid">
+                <div className="container-fluid bg-light">
                     <div className="row">
                         {searchhtml}
                         {loading}
