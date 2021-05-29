@@ -343,8 +343,8 @@
                 if (obj.activity !== 5) {
                     online = <span className="online"></span>;
                 }
-                let unseenmsgcount = contact.unseenMessageCount > 0 ? <span className="badge badge-primary">{contact.unseenMessageCount}</span> : null;
-                let blocked = contact.boloRelation === BoloRelationType.Blocked ? <span className="badge badge-danger">Blocked</span> : null;
+                let unseenmsgcount = contact.unseenMessageCount > 0 ? <span className="badge bg-primary">{contact.unseenMessageCount}</span> : null;
+                let blocked = contact.boloRelation === BoloRelationType.Blocked ? <span className="badge bg-danger">Blocked</span> : null;
                 let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" />
                     : <img src="/images/nopic.jpg" className="card-img" alt="" />;
 
