@@ -346,9 +346,9 @@
                 let unseenmsgcount = contact.unseenMessageCount > 0 ? <span className="badge bg-primary">{contact.unseenMessageCount}</span> : null;
                 let blocked = contact.boloRelation === BoloRelationType.Blocked ? <span className="badge bg-danger">Blocked</span> : null;
                 let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" />
-                    : <img src="/images/nopic.jpg" className="card-img" alt="" />;
+                    : null;
 
-                items.push(<div className="col-12 col-sm-6 col-md-4 col-lg-3" key={key} >
+                items.push(<div className="col-12 col-sm-6 col-md-3 col-lg-3" key={key} >
                     <div className="card mb-1" style={{ maxWidth: "400px", cursor: "pointer" }}>
 
                         <div className="card-body" style={{ position: "relative" }}>

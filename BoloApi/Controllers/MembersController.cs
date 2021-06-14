@@ -721,15 +721,21 @@ namespace Bolo.Controllers
         [AllowAnonymous]
         public ActionResult<IEnumerable<MemberDTO>> Search(string s)
         {
+            
             if (string.IsNullOrEmpty(s))
             {
-                return null;
+                return new List<MemberDTO>();
+            }
+            else if (s.Trim().Length < 3)
+            {
+                return new List<MemberDTO>();
             }
             string[] keywords = s.Trim().Split(" ".ToCharArray());
             List<string> avoid = "a,an,the,in,of,is,it,there,their,where,were,do,you,from".Split(",".ToCharArray()).ToList<string>();
             List<string> males = "man,boy,male,men".Split(",".ToCharArray()).ToList<string>();
             List<string> females = "woman,girl,female,women".Split(",".ToCharArray()).ToList<string>();
             var query = _context.Members.Where(t => t.Visibility == MemberProfileVisibility.Public);
+            List<string> searchfor = new List<string>();
             foreach (var k in keywords)
             {
                 if (avoid.Contains(k.Trim()))
@@ -757,7 +763,7 @@ namespace Bolo.Controllers
             {
                 query = query.Where(t => t.PublicID != new Guid(User.Identity.Name));
             }
-            return query.Select(t => new MemberDTO(t)).Take(30).ToList();
+            return query.Select(t => new MemberDTO(t)).Take(5).ToList();
         }
 
         [HttpGet]

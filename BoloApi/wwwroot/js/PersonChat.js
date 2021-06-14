@@ -1000,8 +1000,8 @@
                         <div class="card-body">
                             <h5 className="card-title">Take Action Here</h5>
                             <p class="card-text">This person is not your contact list.</p>
-                            <button className="btn btn-primary mr-2" onClick={this.handleAddToContacts}>Add to Contacts</button>
-                            <button className="btn btn-dark" onClick={this.handleBlockandRemove}>Block and Remove</button>
+                            <button className="btn btn-success me-2" onClick={this.handleAddToContacts}>Add to Contacts</button>
+                            <button className="btn btn-outline-dark" onClick={this.handleBlockandRemove}>Block and Remove</button>
                         </div>
                     </div>
                 </li>;
@@ -1162,16 +1162,16 @@
             </div>;
         }
 
-        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-sm btn-primary mr-1 ml-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+        let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-sm btn-primary ms-1 me-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
             <img src="/icons/video.svg" alt="" width="24" height="24" title="Video On" />
-        </button> : <button type="button" className="btn btn-secondary btn-sm mr-1 ml-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+        </button> : <button type="button" className="btn btn-secondary btn-sm ms-1 me-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
                 <img src="/icons/video.svg" alt="" width="24" height="24" title="Video Off" />
             </button>;
         let audiotoggleele = this.state.audioplaying ?
-            <button type="button" className="btn btn-primary btn-sm mr-1 ml-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
+            <button type="button" className="btn btn-primary btn-sm ms-1 me-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
                 <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone On" />
             </button>
-            : <button type="button" className="btn btn-secondary btn-sm mr-1 ml-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
+            : <button type="button" className="btn btn-secondary btn-sm ms-1 me-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
                 <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone Off" />
             </button>;
         //if browser is edge or ie no need to show video or audio control button
