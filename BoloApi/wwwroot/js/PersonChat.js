@@ -134,25 +134,25 @@
                 'Authorization': 'Bearer ' + this.state.token
             }
         }).then(response => {
-                if (response.status === 200) {
-                    response.json().then(data => {
-                        console.log(data);
-                        for (var k in data) {
-                            if (!this.messages.has(data[k].id)) {
-                                var temp = data[k];
-                                var mi = { id: temp.id, sender: temp.sentBy.id, text: temp.message, timestamp: temp.sentDate, status: this.messageStatusEnum.Received };
-                                this.messages.set(mi.id, mi);
-                                //this.hubConnection.invoke("MessageStatus", mi.id, mi.sender, this.state.myself.id, this.messageStatusEnum.Received)
-                                //    .catch(err => { console.log("Unable to send message received status."); console.error(err); });
-                                this.setMessageStatus(mi.id, "SetReceived");
-                            }
+            if (response.status === 200) {
+                response.json().then(data => {
+                    console.log(data);
+                    for (var k in data) {
+                        if (!this.messages.has(data[k].id)) {
+                            var temp = data[k];
+                            var mi = { id: temp.id, sender: temp.sentBy.id, text: temp.message, timestamp: temp.sentDate, status: this.messageStatusEnum.Received };
+                            this.messages.set(mi.id, mi);
+                            //this.hubConnection.invoke("MessageStatus", mi.id, mi.sender, this.state.myself.id, this.messageStatusEnum.Received)
+                            //    .catch(err => { console.log("Unable to send message received status."); console.error(err); });
+                            this.setMessageStatus(mi.id, "SetReceived");
                         }
-                        this.setState({ dummy: Date.now() }, () => {
-                            localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
-                        });
+                    }
+                    this.setState({ dummy: Date.now() }, () => {
+                        localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
                     });
-                }
-            });
+                });
+            }
+        });
     }
 
     setMessageStatus(mid, action) {
@@ -869,7 +869,7 @@
     }
 
     handleContactRelationshipChange(e) {
-        
+
     }
 
     handleAddToContacts() {
@@ -990,7 +990,7 @@
         let html = null;
         let contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
         let style = {
-            margin: "0 auto", maxWidth: "80%", width: "25rem", padding:"15px"
+            margin: "0 auto", maxWidth: "80%", width: "25rem", padding: "15px"
         };
         if (contactlist.get(this.state.person.id) !== undefined) {
             if (contactlist.get(this.state.person.id).boloRelation === BoloRelationType.Temporary) {
@@ -1165,8 +1165,8 @@
         let videotoggleele = this.state.videoplaying ? <button type="button" className="btn btn-sm btn-primary ms-1 me-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
             <img src="/icons/video.svg" alt="" width="24" height="24" title="Video On" />
         </button> : <button type="button" className="btn btn-secondary btn-sm ms-1 me-1 videoctrl" onClick={this.handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
-                <img src="/icons/video.svg" alt="" width="24" height="24" title="Video Off" />
-            </button>;
+            <img src="/icons/video.svg" alt="" width="24" height="24" title="Video Off" />
+        </button>;
         let audiotoggleele = this.state.audioplaying ?
             <button type="button" className="btn btn-primary btn-sm ms-1 me-1 audioctrl" onClick={this.handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
                 <img src="/icons/mic.svg" alt="" width="24" height="24" title="Microphone On" />
@@ -1209,14 +1209,17 @@
                                 <td width="37px">
                                     <li className="list-inline-item">
                                         <div className="dropdown">
-                                            <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <img src="/icons/file-plus.svg" alt="" width="24" height="24" title="Share Files" />
                                             </a>
-                                            <div className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
-                                                <a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
-                                                <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,.xls,.xlsx,.docx,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
-                                            </div>
+                                            <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li>
+                                                    <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
+                                                </li>
+                                                <li><a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
+                                                    <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,.xls,.xlsx,.docx,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
+                                                </li>
+                                            </ul>
                                         </div>
                                     </li>
                                 </td>
@@ -1225,7 +1228,7 @@
                                 </td><td width="37px">
                                     {audiotoggleele}
                                 </td>
-                                
+
                             </tr>
                         </tbody>
                     </table>

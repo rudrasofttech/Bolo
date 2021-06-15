@@ -1,5 +1,6 @@
 ﻿using Bolo.Models;
 using Microsoft.EntityFrameworkCore;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace Bolo.Data
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Contact> Contacts { get; set; }
 
+        public DbSet<MeetingMember> MeetingMembers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
@@ -25,6 +28,7 @@ namespace Bolo.Data
             modelBuilder.Entity<Meeting>().ToTable("Meeting");
             modelBuilder.Entity<ChatMessage>().ToTable("ChatMessage");
             modelBuilder.Entity<Contact>().ToTable("Contact");
+            modelBuilder.Entity<MeetingMember>().ToTable("MeetingMember");
         }
     }
 }

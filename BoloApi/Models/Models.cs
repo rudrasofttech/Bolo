@@ -12,6 +12,15 @@ using System.Threading.Tasks;
 
 namespace Bolo.Models
 {
+    public enum MeetingMemberType
+    {
+        General = 1,
+        Auditor = 2,
+        Admin = 3,
+        Pending = 4,
+        Blocked = 5,
+        Owner = 6
+    }
     public enum BoloRelationType
     {
         Temporary = 1,
@@ -149,6 +158,30 @@ namespace Bolo.Models
         [MaxLength(250)]
         public string Purpose { get; set; }
 
+    }
+
+    public class MeetingMember
+    {
+        public int ID { get; set; }
+        public Meeting Meeting { get; set; }
+        public Member Member { get; set; }
+        public MeetingMemberType MemberType { get; set; }
+        public DateTime CreateDate { get; set; }
+        
+    }
+
+    public class MeetingMemberDTO
+    {
+        public MemberDTO Member { get; set; }
+        public MeetingMemberType MemberType { get; set; }
+        public DateTime MemberSince { get; set; }
+        public MeetingMemberDTO()
+        {
+        }
+        public MeetingMemberDTO(MemberDTO mdto)
+        {
+            Member = mdto;
+        }
     }
 
     public class MemberNotification
@@ -352,6 +385,7 @@ namespace Bolo.Models
         public String Name { get; set; }
         [MaxLength(250)]
         public string Purpose { get; set; }
+        public MeetingMemberType MemberRelation { get; set; }
 
     }
 

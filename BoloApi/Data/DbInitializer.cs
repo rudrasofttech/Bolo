@@ -26,6 +26,18 @@ namespace Bolo.Data
                 OTPExpiry = DateTime.UtcNow.AddDays(365),
                 Phone = "9871500276",
                 Status= RecordStatus.Active,
+                Visibility = MemberProfileVisibility.Public,
+                Activity = ActivityStatus.Online,
+                BirthYear = 1983,
+                Channelname = "",
+                Bio = "",
+                City = "Noida",
+                Country = "India",
+                Pic = "",
+                State = "Uttar Pradesh",
+                ThoughtStatus = "",
+                Gender = Gender.Male,
+                LastPulse = DateTime.UtcNow,
             PublicID = Guid.NewGuid()} };
 
             foreach (Member m in members)

@@ -14,7 +14,7 @@
         this.loginHandler = this.loginHandler.bind(this);
         this.handleStartMeeting = this.handleStartMeeting.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.handlePrevMeeting = this.handlePrevMeeting.bind(this);
+        this.getMeetings = this.getMeetings.bind(this);
     }
 
     loginHandler() {
@@ -23,34 +23,32 @@
         }
     }
 
-    handlePrevMeeting() {
-        if (this.state.showmeetinglistmodal) {
-            this.setState({ showmeetinglistmodal: false });
-        } else {
-            this.setState({ loading: true });
-            let token = localStorage.getItem("token");
-            if (token === null) {
-                token = "";
-            }
-            fetch('//' + window.location.host + '/api/Meetings', {
-                method: 'get',
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
-            })
-                .then(response => {
-                    if (response.status === 401) {
-                        this.setState({ loading: false });
-                    } else if (response.status === 200) {
-                        response.json().then(data => {
-                            //console.log(data);
-                            this.setState({ loading: false, meetinglist: data, showmeetinglistmodal: true });
-                        });
-                    } else {
-                        this.setState({ loading: false });
-                    }
-                });
+    getMeetings() {
+
+        this.setState({ loading: true });
+        let token = localStorage.getItem("token");
+        if (token === null) {
+            token = "";
         }
+        fetch('//' + window.location.host + '/api/Meetings', {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    this.setState({ loading: false });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        //console.log(data);
+                        this.setState({ loading: false, meetinglist: data });
+                    });
+                } else {
+                    this.setState({ loading: false });
+                }
+            });
+
     }
 
     handleStartMeeting(e) {
@@ -77,6 +75,7 @@
             });
     }
 
+
     handleChange(e) {
         switch (e.target.name) {
             case 'name':
@@ -90,49 +89,36 @@
         }
     }
 
+    componentDidMount() {
+        this.getMeetings();
+    }
+
     renderMeetingList() {
-        if (this.state.showmeetinglistmodal) {
-            var items = [];
-            for (var k in this.state.meetinglist) {
-                var obj = this.state.meetinglist[k];
-                if (obj.name !== null && obj.name !== "") {
-                    items.push(<tr key={obj.id}>
-                        <td>
-                            <strong>{obj.name}</strong><br />
-                            <span>{moment(obj.createDate.replace(" UTC", "")).fromNow(true)}</span>
-                        </td>
-                        <td style={{ textAlign: "right" }}>
-                            <a className="btn btn-sm btn-info" href={"//" + window.location.host + "/m/" + obj.id}>
-                                Start Meeting
-                            </a>
-                        </td>
-                    </tr>);
-                }
-            }
-            return <div className="modal d-block" id="meetingModal" tabindex="-1" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-scrollable">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" >Previous Meetings</h5>
-                            <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close" onClick={this.handlePrevMeeting}>
-                                
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="table-responsive">
-                                <table className="table table-borderless">
-                                    <tbody>
-                                        {items}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+        console.log(this.state.meetinglist);
+        var items = [];
+        for (var k in this.state.meetinglist) {
+            
+            var obj = this.state.meetinglist[k];
+            if (obj.name !== null && obj.name !== "") {
+                items.push(<div className="col-12 col-sm-6 col-md-3 col-lg-3"><div key={obj.id} className="card border-dark mb-1">
+                    <div className="card-header">
+                        {obj.name}
+                        
                     </div>
-                </div>
-            </div>;
-        } else {
-            return null;
+                    <div className="card-body text-dark">
+                        <p className="card-text">{obj.purpose}</p>
+                        <p className="card-text">{moment(obj.createDate.replace(" UTC", "")).fromNow(true)}</p>
+                    </div>
+                    <div className="card-footer bg-transparent border-success">
+                        <a className="btn btn-sm" href={"//" + window.location.host + "/m/" + obj.id}>Go To</a></div>
+                </div></div>);
+            }
         }
+        return <div className="row">
+            
+                {items}
+            
+        </div>;
     }
 
     render() {
@@ -157,7 +143,6 @@
                     <p className="lead">
                         <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
                     </p>
-
                 </main>
                 <HeartBeat activity="1" interval="20000" />
             </div>;
@@ -172,6 +157,7 @@
                     <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
                     <div className="container-fluid">
                         <main role="main" className="inner cover meetingsmain mr-5 ml-5">
+                            {this.renderMeetingList()}
                             <h1 className="cover-heading">Online Meetings</h1>
                             <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
                     important discussions, future planning or interviews. Salient Features-</p>
@@ -199,7 +185,7 @@
                         <HeartBeat activity="1" interval="3000" />
 
                         {messagecontent}
-                        {this.renderMeetingList()}
+                        
                     </div>
                 </React.Fragment>);
         }
