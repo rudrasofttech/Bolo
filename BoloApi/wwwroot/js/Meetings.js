@@ -8,11 +8,13 @@
         this.state = {
             loading: false, loggedin: loggedin,
             bsstyle: '', message: '', meetingid: '', name: '', purpose: '',
-            showmeetinglistmodal: false, meetinglist: []
+            showcreateform: false, meetinglist: []
         };
 
         this.loginHandler = this.loginHandler.bind(this);
         this.handleStartMeeting = this.handleStartMeeting.bind(this);
+        this.handleCreateDiscussionButton = this.handleCreateDiscussionButton.bind(this);
+        this.handleCloseCreateDiscussionButton = this.handleCloseCreateDiscussionButton.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.getMeetings = this.getMeetings.bind(this);
     }
@@ -49,6 +51,14 @@
                 }
             });
 
+    }
+
+    handleCreateDiscussionButton(e) {
+        this.setState({ showcreateform: !this.state.showcreateform });
+    }
+
+    handleCloseCreateDiscussionButton(e) {
+        this.setState({ showcreateform: false });
     }
 
     handleStartMeeting(e) {
@@ -93,32 +103,70 @@
         this.getMeetings();
     }
 
+    renderCreateDiscussionForm() {
+        if (this.state.showcreateform) {
+            return <div>
+                <div className="modal d-block" tabindex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">New Discussion</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleCloseCreateDiscussionButton}></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="form-group">
+                                    <label htmlFor="meetingnametxt">Name</label>
+                                    <input type="text" className="form-control" id="meetingnametxt" placeholder="Friendly name" name="name" maxLength="50" onChange={this.handleChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="purposetxt">Purpose</label>
+                                    <input type="text" className="form-control" id="purposetxt" placeholder="Ellaborate on the purpose of discussion" maxLength="250" name="purpose" onChange={this.handleChange} />
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="submit" className="btn btn-primary my-2 me-2 startmeeting" onClick={this.handleStartMeeting}>Create</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>;
+        }
+        else {
+            return null;
+        }
+    }
+
     renderMeetingList() {
-        console.log(this.state.meetinglist);
         var items = [];
+        items.push(<div className="col-12 col-sm-3 col-md-3 col-lg-3"><div key={0} className="card border-dark mb-1">
+            <div className="card-header">
+                New Discussion
+            </div>
+            <div className="card-body text-dark">
+                <p className="card-text">Create a new discussion, invite people and share ideas.</p>
+            </div>
+            <div className="card-footer bg-transparent border-success"><button className="btn btn-sm btn-success" onClick={this.handleCreateDiscussionButton}>Create</button></div>
+        </div>
+        </div>);
+
         for (var k in this.state.meetinglist) {
-            
             var obj = this.state.meetinglist[k];
             if (obj.name !== null && obj.name !== "") {
-                items.push(<div className="col-12 col-sm-6 col-md-3 col-lg-3"><div key={obj.id} className="card border-dark mb-1">
+                items.push(<div className="col-12 col-sm-3 col-md-3 col-lg-3"><div key={obj.id} className="card border-dark mb-1">
                     <div className="card-header">
                         {obj.name}
-                        
+                        <span style={{ "float": "right" }}>{moment(obj.createDate.replace(" UTC", "")).fromNow(true)}</span>
                     </div>
                     <div className="card-body text-dark">
-                        <p className="card-text">{obj.purpose}</p>
-                        <p className="card-text">{moment(obj.createDate.replace(" UTC", "")).fromNow(true)}</p>
+                        <p className="card-text" style={{ "textOverflow": "ellipsis", "overflow" : "hidden", "whiteSpace" : "nowrap" }}>{obj.purpose}</p>
                     </div>
                     <div className="card-footer bg-transparent border-success">
-                        <a className="btn btn-sm" href={"//" + window.location.host + "/m/" + obj.id}>Go To</a></div>
-                </div></div>);
+                        <a className="btn btn-sm btn-primary" href={"//" + window.location.host + "/m/" + obj.id}>Go To</a></div>
+                </div>
+                </div>);
             }
         }
-        return <div className="row">
-            
-                {items}
-            
-        </div>;
+        return <div className="row">{items}</div>;
     }
 
     render() {
@@ -158,34 +206,12 @@
                     <div className="container-fluid">
                         <main role="main" className="inner cover meetingsmain mr-5 ml-5">
                             {this.renderMeetingList()}
-                            <h1 className="cover-heading">Online Meetings</h1>
-                            <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
-                    important discussions, future planning or interviews. Salient Features-</p>
-
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <form onSubmit={this.handleStartMeeting}>
-                                        <div className="form-group">
-                                            <label htmlFor="meetingnametxt">Name</label>
-                                            <input type="text" className="form-control" id="meetingnametxt" placeholder="Friendly name of your meeting" name="name" maxLength="50" onChange={this.handleChange} />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="purposetxt">Purpose</label>
-                                            <input type="text" className="form-control" id="purposetxt" placeholder="What is the agenda of the meeting" maxLength="250" name="purpose" onChange={this.handleChange} />
-                                        </div>
-                                        <div>
-                                            <button type="submit" className="btn btn-primary my-2 me-2 startmeeting" >Start</button>
-                                            <button type="button" className="btn btn-link float-right startmeeting" onClick={this.handlePrevMeeting}>Previous Meetings</button>
-                                        </div>
-                                    </form>
-                                    {loading}
-                                </div>
-                            </div>
+                            {this.renderCreateDiscussionForm()}
                         </main>
                         <HeartBeat activity="1" interval="3000" />
 
                         {messagecontent}
-                        
+
                     </div>
                 </React.Fragment>);
         }
