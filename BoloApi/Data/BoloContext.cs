@@ -20,6 +20,7 @@ namespace Bolo.Data
         public DbSet<Contact> Contacts { get; set; }
 
         public DbSet<MeetingMember> MeetingMembers { get; set; }
+        public DbSet<MeetingMessage> MeetingMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +30,7 @@ namespace Bolo.Data
             modelBuilder.Entity<ChatMessage>().ToTable("ChatMessage");
             modelBuilder.Entity<Contact>().ToTable("Contact");
             modelBuilder.Entity<MeetingMember>().ToTable("MeetingMember");
+            modelBuilder.Entity<MeetingMessage>().ToTable("MeetingMessage");
         }
     }
 }

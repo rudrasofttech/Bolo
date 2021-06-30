@@ -15,8 +15,10 @@
         this.handleStartMeeting = this.handleStartMeeting.bind(this);
         this.handleCreateDiscussionButton = this.handleCreateDiscussionButton.bind(this);
         this.handleCloseCreateDiscussionButton = this.handleCloseCreateDiscussionButton.bind(this);
+        this.handleGotoMeeting = this.handleGotoMeeting.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.getMeetings = this.getMeetings.bind(this);
+        this.handleShowDiscussions = this.handleShowDiscussions.bind(this);
     }
 
     loginHandler() {
@@ -53,6 +55,14 @@
 
     }
 
+    handleShowDiscussions() {
+        this.setState({ meetingid: '' });
+    }
+
+    handleGotoMeeting(id, e) {
+        this.setState({ meetingid: id });
+    }
+
     handleCreateDiscussionButton(e) {
         this.setState({ showcreateform: !this.state.showcreateform });
     }
@@ -76,8 +86,8 @@
                 if (response.status === 200) {
                     response.json().then(data => {
                         console.log(data);
-                        window.location.href = "/m/" + data.id;
-                        //this.setState({ meetingid: data.id });
+                        //window.location.href = "/m/" + data.id;
+                        this.setState({ meetingid: data.id });
                     });
                 } else {
                     this.setState({ bsstyle: 'danger', message: 'Unable to create a meeting. Please try again.' });
@@ -143,7 +153,7 @@
                 New Discussion
             </div>
             <div className="card-body text-dark">
-                <p className="card-text">Create a new discussion, invite people and share ideas.</p>
+                <p className="card-text">Invite friends and share ideas.</p>
             </div>
             <div className="card-footer bg-transparent border-success"><button className="btn btn-sm btn-success" onClick={this.handleCreateDiscussionButton}>Create</button></div>
         </div>
@@ -161,7 +171,7 @@
                         <p className="card-text" style={{ "textOverflow": "ellipsis", "overflow" : "hidden", "whiteSpace" : "nowrap" }}>{obj.purpose}</p>
                     </div>
                     <div className="card-footer bg-transparent border-success">
-                        <a className="btn btn-sm btn-primary" href={"//" + window.location.host + "/m/" + obj.id}>Go To</a></div>
+                        <a className="btn btn-sm btn-primary" onClick={this.handleGotoMeeting.bind(this, obj.id)}>Go To</a></div>
                 </div>
                 </div>);
             }
@@ -195,6 +205,19 @@
                 <HeartBeat activity="1" interval="20000" />
             </div>;
 
+        }
+        else if (this.state.meetingid != '') {
+            var d = null;
+            for (var k in this.state.meetinglist) {
+                if (this.state.meetinglist[k].id === this.state.meetingid) {
+                    d = this.state.meetinglist[k];
+                    break;
+                }
+            }
+            return (
+                <React.Fragment>
+                    <div className="container-fluid">
+                        <Discussion discussion={d} handleShowDiscussions={this.handleShowDiscussions } /></div></React.Fragment>);
         }
         else {
             let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">

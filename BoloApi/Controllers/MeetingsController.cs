@@ -14,6 +14,8 @@ using Org.BouncyCastle.Ocsp;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using Microsoft.AspNetCore.SignalR;
+using Bolo.Hubs;
 
 namespace Bolo.Controllers
 {
@@ -23,10 +25,11 @@ namespace Bolo.Controllers
     public class MeetingsController : ControllerBase
     {
         private readonly BoloContext _context;
-
-        public MeetingsController(BoloContext context)
+        private readonly IHubContext<PersonChatHub> _hubContext;
+        public MeetingsController(BoloContext context, IHubContext<PersonChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // GET: api/Meetings
@@ -50,7 +53,8 @@ namespace Bolo.Controllers
                     Owner = new MemberDTO(t.Owner),
                     Name = t.Name,
                     Purpose = t.Purpose,
-                    MemberRelation = MeetingMemberType.Owner
+                    MemberRelation = MeetingMemberType.Owner,
+                    Pic = t.Pic
                 }).ToList<MeetingDTO>();
             //get list of meeting of which member is part of but not blocked
             var partof = _context.MeetingMembers.Include(t => t.Meeting)
@@ -62,7 +66,8 @@ namespace Bolo.Controllers
                     Owner = null,
                     Name = t.Meeting.Name,
                     Purpose = t.Meeting.Purpose,
-                    MemberRelation = t.MemberType
+                    MemberRelation = t.MemberType,
+                    Pic = t.Meeting.Pic
                 }).ToList<MeetingDTO>();
 
             List<MeetingDTO> meetings = new List<MeetingDTO>();
@@ -84,7 +89,12 @@ namespace Bolo.Controllers
             }
             else
             {
-                MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
+                MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, 
+                    CreateDate = meeting.CreateDate, 
+                    Name = meeting.Name, 
+                    Purpose = meeting.Purpose,
+                    Pic = meeting.Pic
+                };
                 if (meeting.Owner != null)
                 {
                     result.Owner = new MemberDTO(meeting.Owner);
@@ -93,7 +103,137 @@ namespace Bolo.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("savepic")]
+        public async Task<IActionResult> SavePic([FromForm] string pic, [FromForm] string mid)
+        {
 
+            var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == mid.ToLower());
+
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+            //can logged in member remove member to a meeting
+            bool cansave = false;
+            var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            if (meeting.Owner.ID == member.ID)
+            {
+                cansave = true;
+            }
+
+            var mm = _context.MeetingMembers.Include(t => t.Meeting).Include(t => t.Member)
+                .FirstOrDefault(t => t.Meeting.ID == meeting.ID && t.Member.ID == member.ID);
+            if (mm != null)
+            {
+                if (mm.MemberType == MeetingMemberType.Admin)
+                {
+                    cansave = true;
+                }
+
+            }
+            if (cansave)
+            {
+                meeting.Pic = pic;
+                await _context.SaveChangesAsync();
+                MeetingDTO mdto = new MeetingDTO() { CreateDate = meeting.CreateDate, ID = meeting.PublicID, MemberRelation = MeetingMemberType.Owner, Name = meeting.Name, Owner = new MemberDTO(meeting.Owner), Pic = meeting.Pic, Purpose = meeting.Purpose };
+                _ = _hubContext.Clients.User(meeting.Owner.PublicID.ToString().ToLower()).SendAsync("DiscussionInfoUpdated", meeting.PublicID, mdto);
+                foreach (MeetingMember mmem in _context.MeetingMembers.Where(t => t.Meeting.PublicID == mid && (t.MemberType != MeetingMemberType.Blocked && t.MemberType != MeetingMemberType.Pending)))
+                {
+                    mdto.MemberRelation = mmem.MemberType;
+                    _ = _hubContext.Clients.User(mmem.Member.PublicID.ToString().ToLower()).SendAsync("DiscussionInfoUpdated", meeting.PublicID, mdto);
+                }
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("savename")]
+        public async Task<IActionResult> SaveName([FromForm] string name, [FromForm] string mid)
+        {
+
+            var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == mid.ToLower());
+
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+            //can logged in member remove member to a meeting
+            bool cansave = false;
+            var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            if (meeting.Owner.ID == member.ID)
+            {
+                cansave = true;
+            }
+
+            var mm = _context.MeetingMembers.Include(t => t.Meeting).Include(t => t.Member)
+                .FirstOrDefault(t => t.Meeting.ID == meeting.ID && t.Member.ID == member.ID);
+            if (mm != null)
+            {
+                if (mm.MemberType == MeetingMemberType.Admin)
+                {
+                    cansave = true;
+                }
+
+            }
+            if (cansave)
+            {
+                meeting.Name = name;
+                await _context.SaveChangesAsync();
+                MeetingDTO mdto = new MeetingDTO() { CreateDate = meeting.CreateDate, ID = meeting.PublicID, MemberRelation = MeetingMemberType.Owner, Name = meeting.Name, Owner = new MemberDTO(meeting.Owner), Pic = meeting.Pic, Purpose = meeting.Purpose };
+                _ = _hubContext.Clients.User(meeting.Owner.PublicID.ToString().ToLower()).SendAsync("DiscussionInfoUpdated", meeting.PublicID, mdto);
+                foreach (MeetingMember mmem in _context.MeetingMembers.Where(t => t.Meeting.PublicID == mid && (t.MemberType != MeetingMemberType.Blocked && t.MemberType != MeetingMemberType.Pending)))
+                {
+                    mdto.MemberRelation = mmem.MemberType;
+                    _ = _hubContext.Clients.User(mmem.Member.PublicID.ToString().ToLower()).SendAsync("DiscussionInfoUpdated", meeting.PublicID, mdto);
+                }
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("savepurpose")]
+        public async Task<IActionResult> SavePurpose([FromForm] string purpose, [FromForm] string mid)
+        {
+
+            var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == mid.ToLower());
+
+            if (meeting == null)
+            {
+                return NotFound();
+            }
+            //can logged in member remove member to a meeting
+            bool cansave = false;
+            var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            if (meeting.Owner.ID == member.ID)
+            {
+                cansave = true;
+            }
+
+            var mm = _context.MeetingMembers.Include(t => t.Meeting).Include(t => t.Member)
+                .FirstOrDefault(t => t.Meeting.ID == meeting.ID && t.Member.ID == member.ID);
+            if (mm != null)
+            {
+                if (mm.MemberType == MeetingMemberType.Admin)
+                {
+                    cansave = true;
+                }
+
+            }
+            if (cansave)
+            {
+                meeting.Purpose = purpose;
+                await _context.SaveChangesAsync();
+                MeetingDTO mdto = new MeetingDTO() { CreateDate = meeting.CreateDate, ID = meeting.PublicID, MemberRelation = MeetingMemberType.Owner, Name = meeting.Name, Owner = new MemberDTO(meeting.Owner), Pic = meeting.Pic, Purpose = meeting.Purpose };
+                _ = _hubContext.Clients.User(meeting.Owner.PublicID.ToString().ToLower()).SendAsync("DiscussionInfoUpdated", meeting.PublicID, mdto);
+                foreach (MeetingMember mmem in _context.MeetingMembers.Where(t => t.Meeting.PublicID == mid && (t.MemberType != MeetingMemberType.Blocked && t.MemberType != MeetingMemberType.Pending)))
+                {
+                    mdto.MemberRelation = mmem.MemberType;
+                    _ = _hubContext.Clients.User(mmem.Member.PublicID.ToString().ToLower()).SendAsync("DiscussionInfoUpdated", meeting.PublicID, mdto);
+                }
+            }
+            return Ok();
+        }
 
         // PUT: api/Meetings/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
@@ -352,7 +492,8 @@ namespace Bolo.Controllers
                 CreateDate = DateTime.UtcNow,
                 Status = RecordStatus.Active,
                 Name = m.Name,
-                Purpose = m.Purpose
+                Purpose = m.Purpose,
+                Pic = m.Pic
             };
             if (User.Identity.IsAuthenticated)
             {
@@ -375,7 +516,8 @@ namespace Bolo.Controllers
             meeting.PublicID = id;
             await _context.SaveChangesAsync();
 
-            MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose };
+            MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID,
+                CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose, Pic = meeting.Pic };
             if (meeting.Owner != null)
             {
                 result.Owner = new MemberDTO(meeting.Owner);

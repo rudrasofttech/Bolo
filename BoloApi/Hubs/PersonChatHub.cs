@@ -25,6 +25,7 @@ namespace Bolo.Hubs
             _context = context;
         }
 
+        #region PersonalChat Functions
         /// <summary>
         /// Use this function in client which do have capability to genereate messageids
         /// </summary>
@@ -162,6 +163,9 @@ namespace Bolo.Hubs
         {
             await Clients.User(callee).SendAsync("EndPeer", caller);
         }
+        #endregion
 
+        #region Discussion Functions
+        #endregion
     }
 }

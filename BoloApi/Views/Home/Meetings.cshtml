@@ -11,9 +11,18 @@
 
 @section scripts{
     <script src="~/libs/moment.min.js"></script>
+    <script src="~/libs/simplepeer.min.js"></script>
     <environment include="Development">
+        <script src="~/js/TranformMessage.js"></script>
+        <script type="text/babel" src="~/js/Emoji.js">
+        </script>
+        <script type="text/babel" src="~/js/Models.js">
+        </script>
+        <script type="text/babel" src="~/js/Discussion.js">
+        </script>
         <script type="text/babel" src="~/js/Meetings.js">
         </script>
+
         <script type="text/babel">
             ReactDOM.render(
             <Meetings />,
@@ -22,8 +31,15 @@
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
-        <script src="~/js/compiled/Meetings.js">
+        <script src="~/js/compiled/TranformMessage.js"></script>
+        <script src="~/js/compiled/Emoji.js">
         </script>
+        <script src="~/js/compiled/Models.js">
+        </script>
+        <script src="~/js/compiled/Discussion.js"></script>
+        <script src="~/js/compiled/Meetings.js"></script>
+
+
         <script>
             "use strict";
 

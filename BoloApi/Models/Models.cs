@@ -157,7 +157,7 @@ namespace Bolo.Models
         public String Name { get; set; }
         [MaxLength(250)]
         public string Purpose { get; set; }
-
+        public string Pic { get; set; }
     }
 
     public class MeetingMember
@@ -182,6 +182,29 @@ namespace Bolo.Models
         {
             Member = mdto;
         }
+    }
+
+    public class MeetingMessage
+    {
+        public Guid ID { get; set; }
+        public Member SentBy { get; set; }
+        public Meeting Meeting { get; set; }
+        public DateTime SentDate { get; set; }
+        public string Message { get; set; }
+
+        public MeetingMessage()
+        {
+            Message = String.Empty;
+        }
+    }
+
+    public class MeetingMessageDTO
+    {
+        public Guid ID { get; set; }
+        public MemberDTO SentBy { get; set; }
+        public DateTime SentDate { get; set; }
+        public string Message { get; set; }
+
     }
 
     public class MemberNotification
@@ -320,6 +343,13 @@ namespace Bolo.Models
         public String Name { get; set; }
         [MaxLength(250)]
         public string Purpose { get; set; }
+
+        public string Pic { get; set; }
+
+        public CreateMeetingDTO()
+        {
+            Pic = string.Empty;
+        }
     }
 
     public class MemberDTO
@@ -382,13 +412,19 @@ namespace Bolo.Models
         public DateTime CreateDate { get; set; }
         public string ID { get; set; }
 
+        public string Pic { get; set; }
         public String Name { get; set; }
         [MaxLength(250)]
         public string Purpose { get; set; }
         public MeetingMemberType MemberRelation { get; set; }
+        
 
     }
-
+    public class MeetingSendMessageDTO
+    {
+        public string meetingid { get; set; }
+        public string message { get; set; }
+    }
     public class RegisterDTO
     {
         [MaxLength(200)]

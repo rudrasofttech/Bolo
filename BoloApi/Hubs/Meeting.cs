@@ -11,7 +11,7 @@ using System.Web;
 
 namespace Bolo.Hubs
 {
-    //[Authorize]
+    [Authorize]
     public class MeetingHub : Hub
     {
         private readonly BoloContext _context;
@@ -38,7 +38,7 @@ namespace Bolo.Hubs
             };
             //This client function will set User detail in browser memory.
             await Clients.Client(Context.ConnectionId).SendAsync("SetMyself", ui);
-            
+
         }
 
         /// <summary>
@@ -97,6 +97,9 @@ namespace Bolo.Hubs
                 {
                     m.Activity = ActivityStatus.Online;
                     await _context.SaveChangesAsync();
+                    MeetingMember mm = _context.MeetingMembers.FirstOrDefault(t => t.Member.ID == m.ID && t.Meeting.PublicID == room);
+                    _context.MeetingMembers.Remove(mm);
+                    await _context.SaveChangesAsync();
                 }
             }
         }
@@ -123,14 +126,27 @@ namespace Bolo.Hubs
         /// <param name="sender"></param>
         /// <param name="text"></param>
         /// <returns></returns>
-        public async Task SendTextMessage(string room, UserInfo sender, string text)
+        public async Task SendTextMessage(string room, string text)
         {
-            await Clients.Group(room).SendAsync("ReceiveTextMessage", sender, text, DateTime.UtcNow);
+
+            Member m = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(Context.User.Identity.Name));
+            Meeting meeting = _context.Meetings.FirstOrDefault(t => t.PublicID == room);
+            MeetingMessage mm = new MeetingMessage() { ID = Guid.NewGuid(), Meeting = meeting, Message = text, SentBy = m, SentDate = DateTime.UtcNow };
+            _context.MeetingMessages.Add(mm);
+            await _context.SaveChangesAsync();
+
+            await Clients.Group(room).SendAsync("ReceiveTextMessage", new MeetingMessageDTO() { ID = mm.ID, Message = text, SentBy = new MemberDTO(m), SentDate = mm.SentDate });
         }
 
         public async Task SendTextMessageWithID(string room, UserInfo sender, string text, Guid Id)
         {
-            await Clients.OthersInGroup(room).SendAsync("ReceiveTextMessage", sender, text, DateTime.UtcNow);
+            Member m = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(Context.User.Identity.Name));
+            Meeting meeting = _context.Meetings.FirstOrDefault(t => t.PublicID == room);
+            MeetingMessage mm = new MeetingMessage() { ID = Id, Meeting = meeting, Message = text, SentBy = m, SentDate = DateTime.UtcNow };
+            _context.MeetingMessages.Add(mm);
+            await _context.SaveChangesAsync();
+
+            await Clients.OthersInGroup(room).SendAsync("ReceiveTextMessage", new MeetingMessageDTO() { ID = mm.ID, Message = text, SentBy = new MemberDTO(m), SentDate = mm.SentDate });
         }
 
 
@@ -149,10 +165,10 @@ namespace Bolo.Hubs
         /// <returns></returns>
         public async Task SendSignal(object signal, string target, UserInfo sender, string room)
         {
-            
-                //ReceiveSignal Who sent, data
-                await Clients.Group(room).SendAsync("ReceiveSignal", target, sender, signal);
-            
+
+            //ReceiveSignal Who sent, data
+            await Clients.Group(room).SendAsync("ReceiveSignal", target, sender, signal);
+
         }
 
         /// <summary>
