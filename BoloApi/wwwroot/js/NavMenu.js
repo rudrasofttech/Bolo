@@ -191,11 +191,11 @@ class NavMenu extends React.Component {
         }
         
         if (loggedin) {
-            linkitems.push(<button key={"memberlinkli"} type="button" className="btn btn-light me-2 membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button>);
-            linkitems.push(<button key={"logoutlinkli"} type="button" className="btn btn-light" onClick={this.handleLogout}>Logout</button>);
+            linkitems.push(<button key={"memberlinkli"} type="button" className="btn btn-dark me-2 membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button>);
+            linkitems.push(<button key={"logoutlinkli"} type="button" className="btn btn-dark" title="Sign out" onClick={this.handleLogout}><i className="bi bi-power"></i></button>);
         } else {
-            linkitems.push(<button key={"loginlinkli"} type="button" className="btn btn-light bg-white me-2" onClick={this.handleLogin}>Login</button>);
-            linkitems.push(<button key={"registerlinkli"} type="button" className="btn btn-light" onClick={this.handleRegister}>Register</button>);
+            linkitems.push(<button key={"loginlinkli"} type="button" className="btn btn-dark me-2" onClick={this.handleLogin}>Login</button>);
+            linkitems.push(<button key={"registerlinkli"} type="button" className="btn btn-dark" onClick={this.handleRegister}>Register</button>);
         }
 
         return (
@@ -206,10 +206,10 @@ class NavMenu extends React.Component {
                             Waarta
                         </a>
                         <ul className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-                            <li><a className="nav-link px-2 text-white" href="/faq">FAQ</a></li>
-                            <li><a className="nav-link px-2 text-white" href="/privacy">Privacy</a></li>
-                            <li><a className="nav-link px-2 text-white" href="/Chat">Conversations</a></li>
-                            <li><a className="nav-link px-2 text-white" href="/Meetings">Meetings</a></li>
+                            <li><a className="nav-link px-2 text-white" href="/faq" title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a></li>
+                            <li><a className="nav-link px-2 text-white" href="/privacy" title="Privacy"><i className="bi bi-eye-slash-fill"></i></a></li>
+                            <li><a className="nav-link px-2 text-white" href="/Chat" title="Chat"><i className="bi bi-chat-dots"></i></a></li>
+                            <li><a className="nav-link px-2 text-white" href="/Meetings" title="Discussion"><i className="bi bi-people-fill"></i></a></li>
                         </ul>
                         <div className="col-md-3 text-end">
                             {linkitems}

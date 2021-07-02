@@ -894,17 +894,17 @@
         localStorage.setItem("contacts", JSON.stringify(Array.from(clist)));
     }
 
-    //componentDidUpdate(prevProps, prevState) {
-    //    if (prevState.person.id !== this.state.person.id) {
-    //        this.messages = (localStorage.getItem(this.state.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.state.person.id))) : new Map();
-    //        this.updateReceivedMessageStatusAll();
-    //        this.setState({ dummy: Date.now() });
-    //        //each time compoment updates scroll to bottom
-    //        //this can be improved by identifying if new messages added
-    //        this.scrollToBottom();
-    //    }
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.person.id !== this.props.person.id) {
+            this.messages = (localStorage.getItem(this.state.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.state.person.id))) : new Map();
+            this.updateReceivedMessageStatusAll();
+            this.setState({ dummy: Date.now(), person : this.props.person });
+            //each time compoment updates scroll to bottom
+            //this can be improved by identifying if new messages added
+            this.scrollToBottom();
+        }
 
-    //}
+    }
 
     componentWillUnmount() {
 
@@ -1194,14 +1194,11 @@
                     <table className="chatpersoninfocont sticky-top">
                         <tbody>
                             <tr>
-                                <td width="40px" align="right">
-                                    <button type="button" className="btn btn-light" onClick={() => this.props.handleShowSearch(true)}>❮</button>
-                                </td>
-                                <td width="40px" className="noPadding">
+                                <td width="40px" className="p-1">
                                     {pic}
                                 </td>
                                 <td className="noPadding">
-                                    <h5 className="ml-1" style={{ maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={this.state.person.name}>{online} {this.state.person.name}</h5>
+                                    <h5 className="ml-1" style={{ maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={this.state.person.name}>{online} {this.state.person.name}</h5>
                                 </td>
                                 <td width="50px" style={{ paddingRight: "10px" }}>
                                     <BlockContact myself={this.state.myself} person={this.state.person} onRelationshipChange={this.handleContactRelationshipChange} />
@@ -1243,7 +1240,7 @@
                         </div>
                     </div>
                     <form onSubmit={this.handleSend}>
-                        <div className="border-top chatinputcontainer" style={{ position: "relative", height: "40px" }}>
+                        <div className="chatinputcontainer">
                             <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accessKey="t" title="Keyboard Shortcut ALT + t"
                                 className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
                                 style={{ height: "40px", overflow: "hidden", resize: "none", position: "absolute", bottom: "0px", left: "0px", maxHeight: "200px" }}></textarea>

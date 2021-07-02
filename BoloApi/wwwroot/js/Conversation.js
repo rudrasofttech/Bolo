@@ -269,6 +269,7 @@
 
     //handle search result item click
     handleResultItemClick(e) {
+        this.setState({ selectedperson: null });
         if (this.state.loggedin) {
             //should only move forward if there is memberid and there is some profileselect action provided
             if (e !== null && this.contactlist.get(e) !== undefined) {
@@ -348,7 +349,7 @@
                 let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" />
                     : null;
 
-                items.push(<div className="col-12 col-sm-6 col-md-3 col-lg-3" key={key} >
+                items.push(<div className="col-12" key={key} >
                     <div className="card mb-1" style={{ maxWidth: "400px", cursor: "pointer" }}>
 
                         <div className="card-body" style={{ position: "relative" }}>
@@ -394,9 +395,8 @@
             <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
         </div> : null;
         let personchatorprofile = null;
-        if (this.state.selectedperson !== null && !this.state.showsearch) {
-            personchatorprofile = <div className="col-12 p-0">
-                <PersonChat person={this.state.selectedperson} myself={this.state.myself} receivedMessage={this.handleReceivedMessage} handleShowSearch={this.handleShowSearch} /></div>
+        if (this.state.selectedperson !== null /*&& !this.state.showsearch*/) {
+            personchatorprofile = <PersonChat person={this.state.selectedperson} myself={this.state.myself} receivedMessage={this.handleReceivedMessage} handleShowSearch={this.handleShowSearch} />
         }
         else if (this.state.profiletoshow !== null && this.state.showprofilemodal) {
             personchatorprofile = <div className="modal d-block" tabIndex="-1" role="dialog">
@@ -418,8 +418,8 @@
         }
 
         let searchhtml = null;
-        if (this.state.showsearch) {
-            searchhtml = <div className="col-12 searchcont">
+        if (true || this.state.showsearch) {
+            searchhtml = <div className="col-3 searchcont">
                 <form onSubmit={this.handleSearchSubmit} className="searchform1 form-inline mt-1 mb-1">
                     <div className="input-group mb-1">
                         <input type="search" className="form-control" onChange={this.handleChange} title="Find People by Name, Location, Profession etc." name="searchtext" id="search-input" placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
@@ -435,11 +435,13 @@
         return (
             <React.Fragment>
                 <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
-                <div className="container-fluid bg-light">
+                <div className="container-fluid">
                     <div className="row">
                         {searchhtml}
                         {loading}
-                        {personchatorprofile}
+                        <div className="col-9 border p-0">
+                            {personchatorprofile}
+                        </div>
                     </div>
                 </div>
             </React.Fragment>

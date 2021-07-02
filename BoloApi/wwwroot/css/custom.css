@@ -112,8 +112,8 @@ code {
     padding: 0px;
 }
 
-.emojicont span{
-    cursor:pointer;
+.emojicont span {
+    cursor: pointer;
 }
 
 #msginput {
@@ -308,7 +308,7 @@ code {
     border-radius: 0px;
     display: block;
     text-align: center;
-    position:relative;
+    position: relative;
 }
 
 
@@ -524,12 +524,12 @@ code {
         width: 100%;
         margin: 0;
         padding: 0;
-        background-color: #F0F4F8;
+        /*background-color: #F0F4F8;*/
     }
 
         .personalchatcont .chatinputcontainer .chatinputctrlcont {
             width: 155px;
-            min-width:40px;
+            min-width: 40px;
         }
 
     .personalchatcont .chatmsgcont {
@@ -559,13 +559,14 @@ code {
             bottom: 50px;
             left: 10px;
             border: 3px solid #E6E7E8;
-            width:100px;
+            width: 100px;
         }
 
 .searchcont {
-    min-height: calc(100vh - 60px);
-    /*background-color: #F0F4F8;
-    padding: 0px;
+    height: calc(100vh - 50px);
+    overflow-y: auto;
+    background-color: #F0F4F8;
+    /*padding: 0px;
     padding-top: 40px;
     position: relative;*/
 }
@@ -673,9 +674,10 @@ code {
 
 @media only screen and (max-width: 768px) {
 
-    .personalchatcont .chatmsgcont{
-        height:50vh;
+    .personalchatcont .chatmsgcont {
+        height: 50vh;
     }
+
     .meetingalert {
         top: auto;
         bottom: 65px;
