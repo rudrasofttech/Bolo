@@ -6,21 +6,35 @@
             loggedin = false;
         }
         this.state = {
-            redirectto: '', textinput: '',  filestoupload: [], myself : null,
-            showinvite: false, videoplaying: false, audioplaying: false,
-            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            redirectto: '', textinput: '', filestoupload: [], myself: null,
+            showadd: false, videoplaying: false, audioplaying: false,
+            loading: false, loggedin: loggedin, bsstyle: '', message: '', members: [],
             discussion: this.props.discussion === null ? { id: '', name: '', purpose: '', pic: '' } : this.props.discussion,
             messages: this.props.discussion === null ? [] : localStorage.getItem(this.props.discussion.id) === null ? [] : JSON.parse(localStorage.getItem(this.props.discussion.id)),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            dummydate: new Date(), idvalid: true, showemojimodal: false, screensplit : false
+            dummydate: new Date(), idvalid: true, showemojimodal: false, screensplit: false, showmembers: false
         };
 
-        
+
         this.hasVideoAudioCapability = this.hasVideoAudioCapability.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleBackButton = this.handleBackButton.bind(this);
         this.updateTextInputHeight = this.updateTextInputHeight.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
+        this.freader = new FileReader();
+        this.handleEmojiModal = this.handleEmojiModal.bind(this);
+        this.handleEmojiSelect = this.handleEmojiSelect.bind(this);
+        this.handlePhotoClick = this.handlePhotoClick.bind(this);
+        this.handleDocClick = this.handleDocClick.bind(this);
+        this.handleFileInput = this.handleFileInput.bind(this);
+        this.handleFileChunkUpload = this.handleFileChunkUpload.bind(this);
+        this.processFileUpload = this.processFileUpload.bind(this);
+        this.uploadFile = this.uploadFile.bind(this);
+        this.handleMembersButton = this.handleMembersButton.bind(this);
+        this.handleMembersModalClose = this.handleMembersModalClose.bind(this);
+        this.handleAddMember = this.handleAddMember.bind(this);
+        this.handleAdd = this.handleAdd.bind(this);
+        this.handleInviteModalClose = this.handleInviteModalClose.bind(this);
     }
 
     detectEdgeorIE() {
@@ -81,13 +95,16 @@
                                 if (data.purpose !== null && data.purpose !== '') {
                                     var mi = {
                                         sentBy: null,
-                                        message: data.purpose};
+                                        message: data.purpose
+                                    };
                                     mlist.push(mi);
                                 }
 
                             }
 
                             this.setState({ idvalid: true, loading: false, messages: mlist, meetingname: data.name });
+
+                            this.getMembers();
                         });
                     } else {
                         this.setState({ idvalid: false });
@@ -121,7 +138,30 @@
                                 id: data.id, name: data.name, videoCapable: this.hasVideoAudioCapability() && !this.detectEdgeorIE(),
                                 peerCapable: SimplePeer.WEBRTC_SUPPORT && !this.detectEdgeorIE(),
                                 pic: data.pic
-                            } });
+                            }
+                        });
+                    });
+                }
+            });
+    }
+
+    getMembers() {
+        fetch('/api/Meetings/members/' + this.state.discussion.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    //if token is valid vet user information from response and set "myself" object with member id and name.
+                    //set state joinmeeting to true so that it does not ask for name and other info from user. Once the state
+                    //is set then start signalr hub
+                    response.json().then(data => {
+                        console.log(data);
+                        this.setState({
+                            members: data
+                        });
                     });
                 }
             });
@@ -289,9 +329,101 @@
 
         this.validate(this.state.token);
         this.validateDiscussionObject(this.state.discussion);
+
         this.startHub();
         //this.aliveInterval = setInterval(this.collectDeadUsers, 5000);
         this.scrollToBottom();
+    }
+
+    generateVideoThumbnail(filename, id) {
+        fetch('//' + window.location.host + '/api/members/GenerateThumbnail?filename=' + filename + '&id=' + id, {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        })
+    }
+
+    processFileUpload() {
+        let m = null;
+        if (this.state.filestoupload.length > 0) {
+            m = this.state.filestoupload[0];
+        }
+
+        if (m !== null) {
+            this.freader = new FileReader();
+            this.freader.uploadFile = this.uploadFile;
+            this.uploadFile(this.state.discussion.id, m, 0);
+        }
+    }
+
+    uploadFile(meetingid, msg, start) {
+        const slice_size = 1000 * 1024;
+        var next_slice = start + slice_size + 1;
+        var blob = msg.filedata.slice(start, next_slice);
+        var mid = meetingid;
+        this.freader.onloadend = event => {
+            if (event.target.readyState !== FileReader.DONE) {
+                return;
+            }
+            this.handleFileChunkUpload(event.target.result, msg, start, next_slice, slice_size);
+        };
+
+        this.freader.readAsDataURL(blob);
+    }
+
+    handleFileChunkUpload(data, msg, start, next_slice, slice_size) {
+
+        const fd = new FormData();
+        fd.set("f", data);
+        fd.set("meetingid", this.state.discussion.id);
+        fd.set("filename", msg.name /*start === 0 ? msg.name : msg.serverfname*/);
+        fd.set("gfn", false /*start === 0 ? true : false*/);
+        fetch('//' + window.location.host + '/api/meetings/uploadfile', {
+            method: 'post',
+            body: fd,
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 200) {
+
+                response.json().then(data => {
+                    msg.serverfname = data.filename;
+                    let flist = this.state.filestoupload;
+                    for (var i = 0; flist.length > i; i++) {
+                        let cfile = flist[i];
+                        if (cfile.name === msg.name) {
+                            var size_done = start + slice_size;
+                            msg.progresspercent = Math.floor((size_done / msg.filedata.size) * 100);
+                            cfile.progresspercent = msg.progresspercent;
+                            if (next_slice > msg.filedata.size) {
+                                flist.splice(i, 1);
+                                msg.filedata = null;
+                                fetch('api/MeetingMessage', {
+                                    method: 'post',
+                                    body: JSON.stringify({ meetingid: this.state.discussion.id, message: 'https://' + window.location.host + '/api/meetings/media/' + this.state.discussion.id + '?f=' + msg.serverfname }),
+                                    headers: {
+                                        'Authorization': 'Bearer ' + localStorage.getItem("token"),
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+
+                                this.setState({ filestoupload: flist });
+                                this.generateVideoThumbnail(msg.serverfname, this.state.discussion.id);
+
+                                this.processFileUpload();
+                            } else {
+                                this.setState({ filestoupload: flist });
+                                //if there is more to file than call upload file again
+                                this.uploadFile(this.state.discussion.id, msg, next_slice);
+                            }
+                            break;
+                        }
+                    }
+                });
+
+            }
+        });
     }
 
     handleChange(e) {
@@ -307,10 +439,99 @@
         this.props.handleShowDiscussions(true);
     }
 
+    handleAddMember() {
+
+    }
+
+    handleAdd() {
+        this.setState({ showadd: true });
+    }
+    handleInviteModalClose() {
+        this.setState({ showadd: false });
+    }
+
+    handleMembersButton() {
+        this.setState({ showmembers: true });
+    }
+
+    handleMembersModalClose() {
+        this.setState({ showmembers: false });
+    }
+
+    handleEmojiSelect(value) {
+        this.setState({
+            textinput: this.state.textinput + value
+        });
+
+        this.textinput.focus();
+    }
+
+    handleEmojiModal() {
+        this.setState({ showemojimodal: !this.state.showemojimodal });
+    }
+
+    handlePhotoClick(e) {
+        e.preventDefault();
+        if (!this.state.loggedin) {
+            alert("Log in to use this feature. Share files upto 300 MB in size.");
+        } else {
+            this.fileinput.click();
+        }
+    }
+
+    handleDocClick(e) {
+        e.preventDefault();
+        if (!this.state.loggedin) {
+            alert("Log in to use this feature. Share files upto 300 MB in size.");
+        } else {
+            this.fileinput.click();
+        }
+    }
+
+    handleFileUploadCancel(event, fname) {
+        //remove the targeted file
+        let flist = this.state.filestoupload;
+        for (var i = 0; flist.length > i; i++) {
+            let cfile = flist[i];
+            if (cfile.name === fname) {
+                flist.splice(i, 1);
+                //cfile.cancel = true;
+                this.setState({ filestoupload: flist });
+                break;
+            }
+        }
+    }
+
+    handleFileInput(e) {
+
+        //alert("Soon you will be able to share files.");
+        //return;
+        if (this.fileinput.files.length > 10) {
+            alert("Only 10 files at a time.");
+            return;
+        }
+        for (var i = 0; i < this.fileinput.files.length; i++) {
+            if ((this.fileinput.files[i].size / 1048576).toFixed(1) > 300) {
+                alert("File size cannot exceed 300 MB");
+                return;
+            }
+        }
+
+        let flist = this.state.filestoupload;
+        for (var i = 0; i < this.fileinput.files.length; i++) {
+            let f = { name: this.fileinput.files[i].name, filedata: this.fileinput.files[i], progresspercent: 0, serverfname: "", cancel: false };
+            flist.push(f);
+        }
+        this.setState({ filestoupload: flist });
+
+        this.fileinput.value = "";
+        this.processFileUpload();
+    }
+
     sendMessage() {
         fetch('api/MeetingMessage', {
             method: 'post',
-            body: JSON.stringify({ meetingid: this.state.discussion.id,  message: this.state.textinput }),
+            body: JSON.stringify({ meetingid: this.state.discussion.id, message: this.state.textinput }),
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem("token"),
                 'Content-Type': 'application/json'
@@ -329,12 +550,152 @@
             });
     }
 
+    renderFileUploadProcessModal() {
+        let items = [];
+        for (var i = 0; i < this.state.filestoupload.length; i++) {
+            let f = this.state.filestoupload[i];
+            items.push(
+                <div className="row" key={i}>
+                    <div className="col-9 col-sm-10">
+                        <div className="progress">
+                            <div className="progress-bar progress-bar-animated" role="progressbar" aria-valuenow={f.progresspercent} aria-valuemin="0" aria-valuemax="100" style={{ width: f.progresspercent + "%" }}></div>
+                        </div>
+                    </div>
+                    <div className="col-3 col-sm-2"><button type="button" className="btn btn-sm btn-light" onClick={(e) => this.handleFileUploadCancel(e, f.name)}>Cancel</button></div>
+                </div>
+            );
+        }
+        if (this.state.filestoupload.length > 0) {
+            return (
+                <React.Fragment>
+                    <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-body">
+                                    {items}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </React.Fragment>
+            );
+        } else {
+            return null;
+        }
+    }
+
+    renderEmojiModal() {
+        if (this.state.showemojimodal) {
+            return <div style={{ position: "fixed", bottom: "45px", right: "15px", zIndex: '15' }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+        } else {
+            return null;
+        }
+    }
+
+    getUrlParameter(name, filename) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(filename);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    getFileExtensionBasedName(filename) {
+        return this.getUrlParameter("f", filename);
+    }
+
+    renderAddModal() {
+        if (this.state.showadd) {
+            const items = [];
+            const contacts = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+            contacts.forEach((contacts, keys) => {
+                let obj = contacts.person;
+                let blocked = contacts.boloRelation === BoloRelationType.Blocked ? <span className="badge bg-danger">Blocked</span> : null;
+                let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" /> : null;
+
+                items.push(<tr><td>{pic}{obj.name} {blocked}</td><td style={{ width: "40px" }}><button type="button" className="btn btn-sm btn-primary" onClick={this.handleAddMember}>Add</button></td></tr>);
+            });
+            
+
+            return (
+                <div className="modal d-block" id="invitesModal" tabindex="-1" aria-labelledby="invitesModalLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-scrollable">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="invitesModalLabel">Contacts</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleInviteModalClose}></button>
+                            </div>
+                            <div className="modal-body">
+                                <table style={{ width: "100%" }}>
+                                    <tbody>
+                                        {items}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>);
+        } else {
+            return null;
+        }
+    }
+
+    renderMembers() {
+        if (this.state.showmembers) {
+            const items = [];
+            if (this.state.myself != null) {
+                for (var k in this.state.members) {
+                    let obj = this.state.members[k];
+                    let mtype = "";
+                    switch (obj.memberType) {
+                        case 6:
+                            mtype = "Owner";
+                            break;
+                        case 3:
+                            mtype = "Admin";
+                            break;
+                        case 1:
+                            mtype = "";
+                            break;
+                        case 4:
+                            mtype = "Pending";
+                            break;
+                        case 5:
+                            mtype = "Blocked";
+                            break;
+                        default:
+                    }
+                    items.push(<tr><td>{obj.member.name}</td><td style={{ width: "40px" }}>{mtype}</td></tr>);
+                }
+            }
+            return (
+                <div className="modal d-block" id="membersModal" tabindex="-1" aria-labelledby="membersModalLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-scrollable">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="membersModalLabel">Members</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleMembersModalClose}></button>
+                            </div>
+                            <div className="modal-body">
+                                <table style={{ width: "100%" }}>
+                                    <tbody>
+                                        {items}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>);
+        } else {
+            return null;
+        }
+    }
+
     renderLinksInMessage(msg) {
         var tempmid = Date.now();
         if (msg.message.startsWith("https://" + window.location.host + "/api/meetings/media/")) {
-            if (msg.message.toLowerCase().endsWith(".jpg") || msg.message.toLowerCase().endsWith(".jpeg") || msg.message.toLowerCase().endsWith(".png") || msg.text.toLowerCase().endsWith(".gif") || msg.message.toLowerCase().endsWith(".bmp")) {
+            if (msg.message.toLowerCase().endsWith(".jpg") || msg.message.toLowerCase().endsWith(".jpeg") || msg.message.toLowerCase().endsWith(".png") || msg.message.toLowerCase().endsWith(".gif") || msg.message.toLowerCase().endsWith(".bmp")) {
                 return <span id={tempmid}>
-                    <img src={msg.text} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "300px" }} />
+                    <img src={msg.message} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "300px" }} />
                 </span>;
             }
             else if (msg.message.toLowerCase().endsWith(".mp3")) {
@@ -350,8 +711,6 @@
             else {
                 return <span id={tempmid}>
                     <a href={msg.message} target="_blank">
-                        <img src="/icons/download-cloud.svg" className='img-fluid' title="download file" />
-                        <br />
                         {this.getFileExtensionBasedName(msg.message.toLowerCase())}
                     </a>
                 </span>;
@@ -389,15 +748,16 @@
                 }
             }
         }
-        let cn = "col-sm-12";
+        let cn = "col-12";
         //if browser is edge or ie let chat window have full width
         if (this.state.screensplit) {
-            cn = "col-sm-9";
-        } 
-       
-            return (
-                <React.Fragment>
-                    <div id="msgcont" className={cn}>
+            cn = "col-9";
+        }
+
+        return (
+            <React.Fragment>
+                <div className={cn}>
+                    <div id="msgcont">
                         <ul id="msglist" className="pt-1" style={{ marginBottom: "45px" }}>
                             {items}
                             <li style={{ float: "left", clear: "both" }}
@@ -405,22 +765,30 @@
                             </li>
                         </ul>
                     </div>
-                </React.Fragment>
-            );
-        
+                </div>
+            </React.Fragment>
+        );
+
     }
 
     render() {
+        let leave = null;
+        if (this.state.discussion.memberRelation === 6) {
+            leave = <button className="btn btn-dark me-2 float-end" type="button">Leave</button>
+        }
         return (
             <React.Fragment>
                 <div className="fixed-top bg-light container-fluid p-2">
                     <button className="btn  btn-light me-2" type="button" onClick={this.handleBackButton}>❮</button>
                     <h4 style={{ "display": "inline-block" }}>{this.state.discussion.name}</h4>
-                    <button className="btn btn-outline-dark me-2 float-end" type="button">Info</button>
+                    <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleAdd}>Add</button>
+                    <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleMembersButton}>Members</button>
                 </div>
                 <div className="container-fluid p-2">
                     <div className="row-fluid">
                         {this.renderMessageList()}
+                        {this.renderMembers()}
+                        {this.renderAddModal()}
                     </div>
                 </div>
                 <div className="fixed-bottom bg-light container-fluid p-2">

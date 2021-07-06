@@ -82,9 +82,10 @@ class NavMenu extends React.Component {
 
     handleLogout(e) {
         e.preventDefault();
-        localStorage.removeItem("token");
-        localStorage.removeItem("membername");
-        localStorage.removeItem("memberpic");
+        //localStorage.removeItem("token");
+        //localStorage.removeItem("membername");
+        //localStorage.removeItem("memberpic");
+        localStorage.clear();
         location.reload();
     }
 
@@ -139,7 +140,7 @@ class NavMenu extends React.Component {
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-body">
-                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close" onClick={this.closeRegisterModal}></button>
+                                <button type="button" className="btn-close float-end" data-bs-dismiss="modal" aria-label="Close" onClick={this.closeRegisterModal}></button>
                                 <RegisterForm onLogin={this.loginHandler} beginWithRegister={this.state.registerFormBeginWith} />
                             </div>
                         </div>

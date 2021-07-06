@@ -114,6 +114,7 @@ code {
 
 .emojicont span {
     cursor: pointer;
+    font-size:2rem;
 }
 
 #msginput {
@@ -602,8 +603,8 @@ code {
 @media only screen and (min-width: 1200px) {
     #msgcont {
         /*padding-bottom: 50px;
-        margin-top: 60px;*/
-        border-left: 1px solid #DEE2E6;
+        margin-top: 60px;
+        border-left: 1px solid #DEE2E6;*/
     }
 
         #msgcont > p {

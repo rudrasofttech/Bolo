@@ -23,6 +23,7 @@
 
     loginHandler() {
         if (localStorage.getItem("token") != null) {
+            this.getMeetings();
             this.setState({ loggedin: true });
         }
     }

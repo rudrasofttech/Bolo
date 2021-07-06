@@ -925,7 +925,7 @@
 
     renderEmojiModal() {
         if (this.state.showemojimodal) {
-            return <div style={{ position: "fixed", bottom: "42px", right: "0px" }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+            return <div style={{ position: "fixed", bottom: "42px", right: "0", left : "auto" }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
         } else {
             return null;
         }
@@ -996,10 +996,10 @@
             if (contactlist.get(this.state.person.id).boloRelation === BoloRelationType.Temporary) {
                 html = <li style={style} >
                     <div className="card bg-light mb-3">
-                        <div class="card-header">New Contact</div>
-                        <div class="card-body">
+                        <div className="card-header">New Contact</div>
+                        <div className="card-body">
                             <h5 className="card-title">Take Action Here</h5>
-                            <p class="card-text">This person is not your contact list.</p>
+                            <p className="card-text">This person is not your contact list.</p>
                             <button className="btn btn-success me-2" onClick={this.handleAddToContacts}>Add to Contacts</button>
                             <button className="btn btn-outline-dark" onClick={this.handleBlockandRemove}>Block and Remove</button>
                         </div>

@@ -350,15 +350,13 @@
                     : null;
 
                 items.push(<div className="col-12" key={key} >
-                    <div className="card mb-1" style={{ maxWidth: "400px", cursor: "pointer" }}>
+                    <div className="card mb-1" style={{ maxWidth: "400px", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
 
                         <div className="card-body" style={{ position: "relative" }}>
                             <span style={{ maxWidth: "30px", display: "inline-block", float: "right" }} >{pic}</span>
                             <h5 className="card-title">{online} {obj.name} {unseenmsgcount} {blocked}</h5>
                             <h6 className="card-subtitle mb-2 text-muted">{obj.city} {obj.state} {obj.country}</h6>
                             {thought}
-                            <a className="card-link" href="#" onClick={() => this.handleProfileItemClick(obj.id)}>Profile</a>
-                            <a className="card-link" href="#" onClick={() => this.handleResultItemClick(obj.id)}>Chat</a>
                         </div>
                     </div>
                 </div>);
