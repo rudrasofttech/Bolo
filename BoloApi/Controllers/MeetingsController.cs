@@ -89,9 +89,11 @@ namespace Bolo.Controllers
             }
             else
             {
-                MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID, 
-                    CreateDate = meeting.CreateDate, 
-                    Name = meeting.Name, 
+                MeetingDTO result = new MeetingDTO()
+                {
+                    ID = meeting.PublicID,
+                    CreateDate = meeting.CreateDate,
+                    Name = meeting.Name,
                     Purpose = meeting.Purpose,
                     Pic = meeting.Pic
                 };
@@ -334,14 +336,15 @@ namespace Bolo.Controllers
             {
                 return NotFound();
             }
-            //can logged in member add member to a meeting
             bool cangetlist = false;
+            //can logged in member get member list
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-            if (meeting.Owner.ID == member.ID)
-            {
-                cangetlist = true;
-                result.Add(new MeetingMemberDTO(new MemberDTO(member)) { MemberSince = meeting.CreateDate, MemberType = MeetingMemberType.Owner });
-            }
+            
+            if (member.ID == meeting.Owner.ID) {
+                cangetlist = true;            }
+
+            //add owner
+            result.Add(new MeetingMemberDTO(new MemberDTO(meeting.Owner)) { MemberSince = meeting.CreateDate, MemberType = MeetingMemberType.Owner });
 
             var mm = await _context.MeetingMembers.Include(t => t.Meeting).Include(t => t.Member)
                 .FirstOrDefaultAsync(t => t.Meeting.ID == meeting.ID && t.Member.ID == member.ID);
@@ -352,6 +355,7 @@ namespace Bolo.Controllers
                     cangetlist = true;
                 }
             }
+            
 
             if (cangetlist)
             {
@@ -364,7 +368,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("addto/{id}")]
-        public ActionResult AddToMeeting(string id, [FromQuery] string mid)
+        public ActionResult AddToMeeting(string id, [FromQuery] Guid memberid)
         {
             var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == id.ToLower());
 
@@ -392,16 +396,26 @@ namespace Bolo.Controllers
             }
             if (canadd)
             {
-                mm = new MeetingMember() { CreateDate = DateTime.UtcNow, Meeting = meeting, Member = member, MemberType = MeetingMemberType.General };
-                _context.MeetingMembers.Add(mm);
-                _context.SaveChanges();
+                //get the target member object
+                var targetmember = _context.Members.FirstOrDefault(t => t.PublicID == memberid);
+                if (targetmember != null)
+                {
+                    //check if member is already part of meeting or not the owner if not add the member
+                    var tmm = _context.MeetingMembers.FirstOrDefault(t => t.Meeting.ID == meeting.ID && t.Member.ID == targetmember.ID);
+                    if (tmm == null && meeting.Owner.ID != targetmember.ID)
+                    {
+                        mm = new MeetingMember() { CreateDate = DateTime.UtcNow, Meeting = meeting, Member = targetmember, MemberType = MeetingMemberType.General };
+                        _context.MeetingMembers.Add(mm);
+                        _context.SaveChanges();
+                    }
+                }
             }
             return Ok();
         }
 
         [HttpGet]
         [Route("remove/{id}")]
-        public ActionResult RemoveFromMeeting(string id, [FromQuery] string mid)
+        public ActionResult RemoveFromMeeting(string id, [FromQuery] Guid mid)
         {
             var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == id.ToLower());
 
@@ -429,7 +443,7 @@ namespace Bolo.Controllers
             }
             if (canremove)
             {
-                var mmember = _context.MeetingMembers.SingleOrDefault(t => t.Meeting.ID == meeting.ID && t.Member.PublicID == new Guid(mid));
+                var mmember = _context.MeetingMembers.SingleOrDefault(t => t.Meeting.ID == meeting.ID && t.Member.PublicID == mid);
                 if (mmember != null)
                 {
                     _context.MeetingMembers.Remove(mmember);
@@ -458,7 +472,7 @@ namespace Bolo.Controllers
                 _context.MeetingMembers.Remove(mm);
                 _context.SaveChanges();
             }
-            
+
             return Ok();
         }
 
@@ -516,8 +530,14 @@ namespace Bolo.Controllers
             meeting.PublicID = id;
             await _context.SaveChangesAsync();
 
-            MeetingDTO result = new MeetingDTO() { ID = meeting.PublicID,
-                CreateDate = meeting.CreateDate, Name = meeting.Name, Purpose = meeting.Purpose, Pic = meeting.Pic };
+            MeetingDTO result = new MeetingDTO()
+            {
+                ID = meeting.PublicID,
+                CreateDate = meeting.CreateDate,
+                Name = meeting.Name,
+                Purpose = meeting.Purpose,
+                Pic = meeting.Pic
+            };
             if (meeting.Owner != null)
             {
                 result.Owner = new MemberDTO(meeting.Owner);

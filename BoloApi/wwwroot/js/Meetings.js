@@ -56,8 +56,12 @@
 
     }
 
-    handleShowDiscussions() {
+    handleShowDiscussions(refresh) {
         this.setState({ meetingid: '' });
+        if (refresh) {
+            this.getMeetings();
+        }
+        
     }
 
     handleGotoMeeting(id, e) {

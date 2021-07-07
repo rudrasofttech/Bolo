@@ -32,9 +32,9 @@
         this.uploadFile = this.uploadFile.bind(this);
         this.handleMembersButton = this.handleMembersButton.bind(this);
         this.handleMembersModalClose = this.handleMembersModalClose.bind(this);
-        this.handleAddMember = this.handleAddMember.bind(this);
         this.handleAdd = this.handleAdd.bind(this);
         this.handleInviteModalClose = this.handleInviteModalClose.bind(this);
+        this.handleLeave = this.handleLeave.bind(this);
     }
 
     detectEdgeorIE() {
@@ -439,15 +439,41 @@
         this.props.handleShowDiscussions(true);
     }
 
-    handleAddMember() {
-
-    }
-
     handleAdd() {
         this.setState({ showadd: true });
     }
     handleInviteModalClose() {
         this.setState({ showadd: false });
+    }
+
+    handleLeave() {
+        if (confirm("You are about leave this discussion, are you sure?")) {
+            fetch('/api/Meetings/leave/' + this.state.discussion.id, {
+                method: 'get',
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            }).then(response => {
+                    if (response.status === 200) {
+                        this.props.handleShowDiscussions(true);
+                    }
+                });
+        }
+    }
+
+    handleAddMemberButton(mid) {
+        fetch('/api/Meetings/addto/' + this.state.discussion.id + '?memberid=' + mid, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    alert("Member Added");
+                    this.getMembers();
+                }
+            });
     }
 
     handleMembersButton() {
@@ -610,9 +636,9 @@
             contacts.forEach((contacts, keys) => {
                 let obj = contacts.person;
                 let blocked = contacts.boloRelation === BoloRelationType.Blocked ? <span className="badge bg-danger">Blocked</span> : null;
-                let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" /> : null;
+                let pic = obj.pic !== "" ? <img src={obj.pic} className="img-fluid" style={{ width: "30px" }} alt="" /> : null;
 
-                items.push(<tr><td>{pic}{obj.name} {blocked}</td><td style={{ width: "40px" }}><button type="button" className="btn btn-sm btn-primary" onClick={this.handleAddMember}>Add</button></td></tr>);
+                items.push(<tr><td>{pic}{obj.name} {blocked}</td><td style={{ width: "40px" }}><button type="button" className="btn btn-sm btn-link" onClick={() => { this.handleAddMemberButton(obj.id); }}>Add</button></td></tr>);
             });
             
 
@@ -625,7 +651,7 @@
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleInviteModalClose}></button>
                             </div>
                             <div className="modal-body">
-                                <table style={{ width: "100%" }}>
+                                <table className="table table-hover" style={{ width: "100%" }}>
                                     <tbody>
                                         {items}
                                     </tbody>
@@ -645,26 +671,31 @@
             if (this.state.myself != null) {
                 for (var k in this.state.members) {
                     let obj = this.state.members[k];
+                    let pic = obj.member.pic !== "" ? <img src={obj.member.pic} className="img-fluid" style={{ width : "30px"}} alt="" /> : null;
                     let mtype = "";
+                    let you = null;
+                    if (this.state.myself.id === obj.member.id) {
+                        you = <span className="badge bg-primary">You</span>;
+                    }
                     switch (obj.memberType) {
                         case 6:
-                            mtype = "Owner";
+                            mtype = <span className="badge bg-success">Owner</span>;
                             break;
                         case 3:
-                            mtype = "Admin";
+                            mtype = <span className="badge bg-primary">Admin</span>;
                             break;
                         case 1:
-                            mtype = "";
+                            mtype = <span className="badge bg-light text-dark">General</span>;
                             break;
                         case 4:
-                            mtype = "Pending";
+                            mtype = <span className="badge bg-warning text-dark">Pending</span>;
                             break;
                         case 5:
-                            mtype = "Blocked";
+                            mtype = <span className="badge bg-danger">Blocked</span>;
                             break;
                         default:
                     }
-                    items.push(<tr><td>{obj.member.name}</td><td style={{ width: "40px" }}>{mtype}</td></tr>);
+                    items.push(<tr><td>{pic} {obj.member.name} {you}</td><td style={{ width: "40px" }}>{mtype}</td></tr>);
                 }
             }
             return (
@@ -676,7 +707,7 @@
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleMembersModalClose}></button>
                             </div>
                             <div className="modal-body">
-                                <table style={{ width: "100%" }}>
+                                <table className="table table-hover" style={{ width: "100%" }}>
                                     <tbody>
                                         {items}
                                     </tbody>
@@ -772,17 +803,35 @@
     }
 
     render() {
-        let leave = null;
-        if (this.state.discussion.memberRelation === 6) {
-            leave = <button className="btn btn-dark me-2 float-end" type="button">Leave</button>
+        let leavebutton = null;
+        let addbutton = null;
+        let memberbutton = <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleMembersButton}>Members</button>;
+        switch (this.state.discussion.memberRelation) {
+            case 6:
+                addbutton = <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleAdd}>Add</button>;
+                break;
+            case 3:
+                addbutton = <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleAdd}>Add</button>;
+                leavebutton = <button className="btn btn-dark me-2 float-end" type="button">Leave</button>;
+                break;
+            case 1:
+                leavebutton = <button className="btn btn-dark me-2 float-end" type="button" onClick={this.handleLeave}>Leave</button>;
+                break;
+            case 5:
+                memberbutton = null;
+                break;
+            default:
+                break;
         }
+        
+        
         return (
             <React.Fragment>
                 <div className="fixed-top bg-light container-fluid p-2">
                     <button className="btn  btn-light me-2" type="button" onClick={this.handleBackButton}>❮</button>
                     <h4 style={{ "display": "inline-block" }}>{this.state.discussion.name}</h4>
-                    <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleAdd}>Add</button>
-                    <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleMembersButton}>Members</button>
+                    {leavebutton} {addbutton} {memberbutton}
+                    
                 </div>
                 <div className="container-fluid p-2">
                     <div className="row-fluid">
