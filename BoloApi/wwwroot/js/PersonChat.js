@@ -877,7 +877,7 @@
     }
 
     componentDidMount() {
-        console.log("componentDidMount");
+        //console.log("componentDidMount");
         this.startHub();
         this.scrollToBottom();
         this.updateReceivedMessageStatusAll();
@@ -892,7 +892,7 @@
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log("componentDidUpdate");
+        //console.log("componentDidUpdate");
         if (prevProps.person.id !== this.props.person.id) {
             this.messages = (localStorage.getItem(this.props.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.props.person.id))) : new Map();
             this.setState({ dummy: Date.now(), person: this.props.person }, () => { this.updateReceivedMessageStatusAll() });
@@ -1035,14 +1035,14 @@
                 items.push(<li style={sentlistyle} key={key}>
                     <div style={sentmessagestyle} className="border-bottom border-secondary pe-3 py-2">
                         {this.renderLinksInMessage(obj)}
-                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small> <small style={{ fontSize: "0.75rem" }}>{this.showMessageStatus(obj.status)}</small></span>
+                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment.utc(obj.timestamp).local().fromNow(true)}</small> <small style={{ fontSize: "0.75rem" }}>{this.showMessageStatus(obj.status)}</small></span>
                     </div>
                 </li>);
             } else {
                 items.push(<li style={reclistyle} key={key}>
                     <div style={recmessagestyle} className="border-bottom border-secondary ps-3 py-2">
                         {this.renderLinksInMessage(obj)}
-                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
+                        <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment.utc(obj.timestamp).local().fromNow(true)}</small></span>
                     </div>
                 </li>);
             }

@@ -206,9 +206,9 @@
                 + parseInt(computed.getPropertyValue('padding-bottom'), 10)
                 + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
 
-            this.textinput.style.height = `${height}px`;
+            //this.textinput.style.height = `${height}px`;
 
-            this.textinput.style.minHeight = `${this.textinput.scrollHeight}px`;
+            this.textinput.style.height = `${this.textinput.scrollHeight}px`;
         } else {
             this.textinput.style.height = "40px";
             this.textinput.style.minHeight = "40px";
@@ -793,13 +793,13 @@
                     items.push(<li className="notify" key={k}>{obj.message}</li>);
                 } else if (obj.sentBy.id === this.state.myself.id) {
                     items.push(<li className="sent p-2 border-bottom border-dark border-1" key={k}>
-                        <small className="d-block"><strong>You</strong> sent {moment(obj.sentDate, "YYYYMMDD").fromNow()}</small>
+                        <small className="d-block"><strong>You</strong> sent {moment.utc(obj.sentDate).local().fromNow()}</small>
                         {this.renderLinksInMessage(obj)}
                     </li>);
                 } else {
                     let userpic = obj.sentBy.pic !== "" ? <img src={obj.sentBy.pic} width="15" height="15" className="rounded img-fluid" /> : null;
                     items.push(<li className="receive p-2 border-bottom border-primary border-1" key={k}>
-                        <small className="d-block" style={{ fontSize: "0.75rem" }}>{userpic} <strong>{obj.sentBy.name}</strong> sent {moment(obj.sentDate, "YYYYMMDD").fromNow()}</small>
+                        <small className="d-block" style={{ fontSize: "0.75rem" }}>{userpic} <strong>{obj.sentBy.name}</strong> sent {moment.utc(obj.sentDate).local().fromNow()}</small>
                         {this.renderLinksInMessage(obj)}
                     </li>);
                 }
