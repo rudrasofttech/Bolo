@@ -4,6 +4,7 @@ using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -32,10 +33,10 @@ namespace BoloWeb.Controllers
 
         // GET: api/<MeetingMessageController>
         [HttpGet]
-        public IList<MeetingMessage> Get([FromQuery] string mid)
+        public IList<MeetingMessageDTO> Get([FromQuery] string mid)
         {
             var cmember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            var meeting = _context.Meetings.FirstOrDefault(t => t.PublicID == mid);
+            var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID == mid);
             if (cmember == null || meeting == null)
             {
                 return null;
@@ -43,13 +44,19 @@ namespace BoloWeb.Controllers
             else
             {
                 var mm = _context.MeetingMembers.FirstOrDefault(t => t.Meeting.PublicID == mid && t.Member.ID == cmember.ID);
-                if (mm == null)
+                if (mm == null && meeting.Owner.ID != cmember.ID)
                 {
                     return null;
                 }
                 else
                 {
-                    return _context.MeetingMessages.OrderBy(t => t.SentDate).ToList<MeetingMessage>();
+                    var query = _context.MeetingMessages.Include(t => t.SentBy).Where(t => t.Meeting.ID == meeting.ID).OrderBy(t => t.SentDate);
+                    List<MeetingMessageDTO> result = new List<MeetingMessageDTO>();
+                    foreach(var temp in query)
+                    {
+                        result.Add(new MeetingMessageDTO() { ID = temp.ID, Message = temp.Message, SentBy = new MemberDTO(temp.SentBy), SentDate = temp.SentDate });
+                    }
+                    return result;
                 }
             }
         }
@@ -94,7 +101,7 @@ namespace BoloWeb.Controllers
             var sender = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
             if (sender != null)
             {
-                var meeting = _context.Meetings.FirstOrDefault(t => t.PublicID == mid);
+                var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID == mid);
                 var meetingmember = _context.MeetingMembers.FirstOrDefault(t => t.Meeting.PublicID == mid && t.Member.ID == sender.ID && !(t.MemberType == MeetingMemberType.Blocked || t.MemberType == MeetingMemberType.Pending));
                 //TODO: you can also check for blocked user here before saving the message
                 if (meeting != null && (meetingmember != null || meeting.Owner.ID == sender.ID))
@@ -111,7 +118,10 @@ namespace BoloWeb.Controllers
                     _context.SaveChanges();
                     MeetingMessageDTO mmdto = new MeetingMessageDTO() { ID = mm.ID, Message = mm.Message, SentBy = new MemberDTO(mm.SentBy), SentDate = mm.SentDate };
                     _ = _hubContext.Clients.User(meeting.Owner.PublicID.ToString().ToLower()).SendAsync("ReceiveDiscussionMessage", meeting.PublicID, mmdto);
-                    foreach (MeetingMember mmem in _context.MeetingMembers.Where(t => t.Meeting.PublicID == mid && t.Member.ID != sender.ID && (t.MemberType != MeetingMemberType.Blocked && t.MemberType != MeetingMemberType.Pending)))
+                    
+                    var mmquery = _context.MeetingMembers.Include(t => t.Member).Where(t => t.Meeting.PublicID == mid && 
+                    (t.MemberType != MeetingMemberType.Blocked && t.MemberType != MeetingMemberType.Pending));
+                    foreach (MeetingMember mmem in mmquery)
                     {
                         _ = _hubContext.Clients.User(mmem.Member.PublicID.ToString().ToLower()).SendAsync("ReceiveDiscussionMessage", meeting.PublicID, mmdto);
                     }

@@ -13,7 +13,7 @@ namespace BoloApi.Controllers
             return View();
         }
 
-        public IActionResult Meetings()
+        public IActionResult Discussions()
         {
             return View();
         }

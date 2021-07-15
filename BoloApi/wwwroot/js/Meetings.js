@@ -35,7 +35,7 @@
         if (token === null) {
             token = "";
         }
-        fetch('//' + window.location.host + '/api/Meetings', {
+        fetch('//' + window.location.host + '/api/Discussions', {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + token
@@ -61,7 +61,7 @@
         if (refresh) {
             this.getMeetings();
         }
-        
+
     }
 
     handleGotoMeeting(id, e) {
@@ -78,7 +78,7 @@
 
     handleStartMeeting(e) {
         e.preventDefault();
-        fetch('api/Meetings', {
+        fetch('api/Discussions', {
             method: 'post',
             body: JSON.stringify({ Name: this.state.name, Purpose: this.state.purpose }),
             headers: {
@@ -90,16 +90,15 @@
                 this.setState({ loading: false });
                 if (response.status === 200) {
                     response.json().then(data => {
-                        console.log(data);
                         //window.location.href = "/m/" + data.id;
-                        this.setState({ meetingid: data.id });
+                        this.getMeetings();
+                        this.setState({ showcreateform: false });
                     });
                 } else {
                     this.setState({ bsstyle: 'danger', message: 'Unable to create a meeting. Please try again.' });
                 }
             });
     }
-
 
     handleChange(e) {
         switch (e.target.name) {
@@ -120,27 +119,25 @@
 
     renderCreateDiscussionForm() {
         if (this.state.showcreateform) {
-            return <div>
-                <div className="modal d-block" tabindex="-1">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">New Discussion</h5>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleCloseCreateDiscussionButton}></button>
+            return <div className="modal d-block" tabIndex="-1">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">New Discussion</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleCloseCreateDiscussionButton}></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label htmlFor="meetingnametxt">Name</label>
+                                <input type="text" className="form-control" id="meetingnametxt" placeholder="Friendly name" name="name" maxLength="50" onChange={this.handleChange} />
                             </div>
-                            <div className="modal-body">
-                                <div className="form-group">
-                                    <label htmlFor="meetingnametxt">Name</label>
-                                    <input type="text" className="form-control" id="meetingnametxt" placeholder="Friendly name" name="name" maxLength="50" onChange={this.handleChange} />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="purposetxt">Purpose</label>
-                                    <input type="text" className="form-control" id="purposetxt" placeholder="Ellaborate on the purpose of discussion" maxLength="250" name="purpose" onChange={this.handleChange} />
-                                </div>
+                            <div className="form-group">
+                                <label htmlFor="purposetxt">Purpose</label>
+                                <input type="text" className="form-control" id="purposetxt" placeholder="Ellaborate on the purpose of discussion" maxLength="250" name="purpose" onChange={this.handleChange} />
                             </div>
-                            <div className="modal-footer">
-                                <button type="submit" className="btn btn-primary my-2 me-2 startmeeting" onClick={this.handleStartMeeting}>Create</button>
-                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="submit" className="btn btn-primary my-2 me-2 startmeeting" onClick={this.handleStartMeeting}>Create</button>
                         </div>
                     </div>
                 </div>
@@ -173,7 +170,7 @@
                         <span style={{ "float": "right" }}>{moment(obj.createDate.replace(" UTC", "")).fromNow(true)}</span>
                     </div>
                     <div className="card-body text-dark">
-                        <p className="card-text" style={{ "textOverflow": "ellipsis", "overflow" : "hidden", "whiteSpace" : "nowrap" }}>{obj.purpose}</p>
+                        <p className="card-text" style={{ "textOverflow": "ellipsis", "overflow": "hidden", "whiteSpace": "nowrap" }}>{obj.purpose}</p>
                     </div>
                     <div className="card-footer bg-transparent border-success">
                         <a className="btn btn-sm btn-primary" onClick={this.handleGotoMeeting.bind(this, obj.id)}>Go To</a></div>
@@ -222,7 +219,7 @@
             return (
                 <React.Fragment>
                     <div className="container-fluid">
-                        <Discussion discussion={d} handleShowDiscussions={this.handleShowDiscussions } /></div></React.Fragment>);
+                        <Discussion discussion={d} handleShowDiscussions={this.handleShowDiscussions} /></div></React.Fragment>);
         }
         else {
             let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">

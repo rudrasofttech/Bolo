@@ -210,7 +210,7 @@ class NavMenu extends React.Component {
                             <li><a className="nav-link px-2 text-white" href="/faq" title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a></li>
                             <li><a className="nav-link px-2 text-white" href="/privacy" title="Privacy"><i className="bi bi-eye-slash-fill"></i></a></li>
                             <li><a className="nav-link px-2 text-white" href="/Chat" title="Chat"><i className="bi bi-chat-dots"></i></a></li>
-                            <li><a className="nav-link px-2 text-white" href="/Meetings" title="Discussion"><i className="bi bi-people-fill"></i></a></li>
+                            <li><a className="nav-link px-2 text-white" href="/Discussions" title="Discussion"><i className="bi bi-people-fill"></i></a></li>
                         </ul>
                         <div className="col-md-3 text-end">
                             {linkitems}

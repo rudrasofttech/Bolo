@@ -22,20 +22,20 @@ namespace Bolo.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class MeetingsController : ControllerBase
+    public class DiscussionsController : ControllerBase
     {
         private readonly BoloContext _context;
         private readonly IHubContext<PersonChatHub> _hubContext;
-        public MeetingsController(BoloContext context, IHubContext<PersonChatHub> hubContext)
+        public DiscussionsController(BoloContext context, IHubContext<PersonChatHub> hubContext)
         {
             _context = context;
             _hubContext = hubContext;
         }
 
-        // GET: api/Meetings
+        // GET: api/Discussions
         [HttpGet]
 
-        public async Task<ActionResult<List<MeetingDTO>>> GetMeetings()
+        public async Task<ActionResult<List<MeetingDTO>>> GetDiscussions()
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -79,7 +79,7 @@ namespace Bolo.Controllers
         // GET: api/Meetings/5
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<MeetingDTO>> GetMeeting(string id)
+        public async Task<ActionResult<MeetingDTO>> GetDiscussion(string id)
         {
             var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());
 
@@ -237,11 +237,11 @@ namespace Bolo.Controllers
             return Ok();
         }
 
-        // PUT: api/Meetings/5
+        // PUT: api/Discussions/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMeeting(int id, Meeting meeting)
+        public async Task<IActionResult> PutDiscussion(int id, Meeting meeting)
         {
             if (id != meeting.ID)
             {
@@ -256,7 +256,7 @@ namespace Bolo.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!MeetingExists(id))
+                if (!DiscussionExists(id))
                 {
                     return NotFound();
                 }
@@ -271,7 +271,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("join/{id}")]
-        public async Task<ActionResult<string>> JoinMeeting(string id)
+        public async Task<ActionResult<string>> JoinDiscussion(string id)
         {
             var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());
 
@@ -327,7 +327,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("members/{id}")]
-        public async Task<ActionResult<List<MeetingMemberDTO>>> GetMeetingMembers(string id)
+        public async Task<ActionResult<List<MeetingMemberDTO>>> GetDiscussionMembers(string id)
         {
             List<MeetingMemberDTO> result = new List<MeetingMemberDTO>();
             var meeting = await _context.Meetings.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID.ToLower() == id.ToLower());
@@ -368,7 +368,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("addto/{id}")]
-        public ActionResult AddToMeeting(string id, [FromQuery] Guid memberid)
+        public ActionResult AddToDiscussion(string id, [FromQuery] Guid memberid)
         {
             var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == id.ToLower());
 
@@ -415,7 +415,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("remove/{id}")]
-        public ActionResult RemoveFromMeeting(string id, [FromQuery] Guid mid)
+        public ActionResult RemoveFromDiscussion(string id, [FromQuery] Guid mid)
         {
             var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == id.ToLower());
 
@@ -455,7 +455,7 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("leave/{id}")]
-        public ActionResult LeaveMeeting(string id)
+        public ActionResult LeaveDiscussion(string id)
         {
             var meeting = _context.Meetings.Include(t => t.Owner).FirstOrDefault(t => t.PublicID.ToLower() == id.ToLower());
 
@@ -483,7 +483,7 @@ namespace Bolo.Controllers
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
         [AllowAnonymous]
-        public async Task<ActionResult<MeetingDTO>> PostMeeting(CreateMeetingDTO m)
+        public async Task<ActionResult<MeetingDTO>> PostDiscussion(CreateMeetingDTO m)
         {
             //remove unnamed meeting which are older than 48 hours
             var meetings = _context.Meetings.Where(t => t.Name == string.Empty && t.CreateDate < DateTime.Now.AddHours(-48));
@@ -726,8 +726,8 @@ namespace Bolo.Controllers
 
         // DELETE: api/Meetings/5
         [HttpGet]
-        [Route("Remove/{id}")]
-        public async Task<ActionResult<MeetingDTO>> DeleteMeeting(string id)
+        [Route("purge/{id}")]
+        public async Task<ActionResult<MeetingDTO>> DeleteDiscussion(string id)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
 
@@ -746,6 +746,9 @@ namespace Bolo.Controllers
             }
             var meetingmembers = _context.MeetingMembers.Where(t => t.Meeting.ID == meeting.ID);
             _context.MeetingMembers.RemoveRange(meetingmembers);
+
+            var meetingmessages = _context.MeetingMessages.Where(t => t.Meeting.ID == meeting.ID);
+            _context.MeetingMessages.RemoveRange(meetingmessages);
             _context.Meetings.Remove(meeting);
 
             await _context.SaveChangesAsync();
@@ -760,7 +763,7 @@ namespace Bolo.Controllers
             };
         }
 
-        private bool MeetingExists(int id)
+        private bool DiscussionExists(int id)
         {
             return _context.Meetings.Any(e => e.ID == id);
         }

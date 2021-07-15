@@ -10,7 +10,7 @@
             showadd: false, videoplaying: false, audioplaying: false,
             loading: false, loggedin: loggedin, bsstyle: '', message: '', members: [],
             discussion: this.props.discussion === null ? { id: '', name: '', purpose: '', pic: '' } : this.props.discussion,
-            messages: this.props.discussion === null ? [] : localStorage.getItem(this.props.discussion.id) === null ? [] : JSON.parse(localStorage.getItem(this.props.discussion.id)),
+            messages: new Map(),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             dummydate: new Date(), idvalid: true, showemojimodal: false, screensplit: false, showmembers: false
         };
@@ -35,6 +35,7 @@
         this.handleAdd = this.handleAdd.bind(this);
         this.handleInviteModalClose = this.handleInviteModalClose.bind(this);
         this.handleLeave = this.handleLeave.bind(this);
+        this.handlePurgeDiscussion = this.handlePurgeDiscussion.bind(this);
     }
 
     detectEdgeorIE() {
@@ -70,7 +71,7 @@
         if (this.state.discussion === undefined || this.state.discussion.id === '') {
             this.setState({ idvalid: false });
         } else {
-            fetch('/api/Meetings/' + this.state.discussion.id, {
+            fetch('/api/Discussions/' + this.state.discussion.id, {
                 method: 'get',
                 headers: {
                     'Authorization': 'Bearer ' + t
@@ -80,31 +81,33 @@
                     if (response.status === 200) {
                         response.json().then(data => {
 
-                            //now that we have validated meeting id then set messages from local storage if there are any 
-                            let mlist = localStorage.getItem(this.state.discussion.id) === null ? [] : JSON.parse(localStorage.getItem(this.state.discussion.id));
-                            //if there aren't any messages in localstorage then set name and purpose of the meeing
-                            if (mlist.length === 0) {
-                                if (data.name !== null && data.name !== '') {
-                                    document.title = data.name;
-                                    var mi = {
-                                        sentBy: null,
-                                        message: data.name
-                                    };
-                                    mlist.push(mi);
-                                }
-                                if (data.purpose !== null && data.purpose !== '') {
-                                    var mi = {
-                                        sentBy: null,
-                                        message: data.purpose
-                                    };
-                                    mlist.push(mi);
-                                }
+                            ////now that we have validated meeting id then set messages from local storage if there are any 
+                            //let mlist = this.state.messages;
+                            ////if there aren't any messages in localstorage then set name and purpose of the meeing
+                            //if (mlist.length === 0) {
+                            //    if (data.name !== null && data.name !== '') {
+                            //        document.title = data.name;
+                            //        var mi = {
+                            //            sentBy: null,
+                            //            message: data.name
+                            //        };
+                            //        mlist.push(mi);
+                            //    }
+                            //    if (data.purpose !== null && data.purpose !== '') {
+                            //        var mi = {
+                            //            sentBy: null,
+                            //            message: data.purpose
+                            //        };
+                            //        mlist.push(mi);
+                            //    }
+                            //    }
 
-                            }
+                            //}
 
-                            this.setState({ idvalid: true, loading: false, messages: mlist, meetingname: data.name });
-
+                            this.setState({ idvalid: true, loading: false, meetingname: data.name });
+                            this.getMessages();
                             this.getMembers();
+                            this.startHub();
                         });
                     } else {
                         this.setState({ idvalid: false });
@@ -145,8 +148,29 @@
             });
     }
 
+    getMessages() {
+        fetch('/api/MeetingMessage?mid=' + this.state.discussion.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    response.json().then(data => {
+                        console.log(data);
+                        var mlist = new Map();
+                        for (var k in data) {
+                            mlist.set(data[k].id, data[k]);
+                        }
+                        this.setState({ messages: mlist });
+                    });
+                }
+            });
+    }
+
     getMembers() {
-        fetch('/api/Meetings/members/' + this.state.discussion.id, {
+        fetch('/api/Discussions/members/' + this.state.discussion.id, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + this.state.token
@@ -170,7 +194,7 @@
     updateTextInputHeight() {
         if (this.state.textinput !== "") {
             // Reset field height
-            this.textinput.style.height = 'inherit';
+            //this.textinput.style.height = 'inherit';
 
             // Get the computed styles for the element
             const computed = window.getComputedStyle(this.textinput);
@@ -182,7 +206,7 @@
                 + parseInt(computed.getPropertyValue('padding-bottom'), 10)
                 + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
 
-            //this.textinput.style.height = `${height}px`;
+            this.textinput.style.height = `${height}px`;
 
             this.textinput.style.minHeight = `${this.textinput.scrollHeight}px`;
         } else {
@@ -264,10 +288,11 @@
     }
 
     receiveTextMessage(mid, mmdto) {
+        console.log("receive message");
         let mlist = this.state.messages;
-        var temp = mmdto;
-        temp.sentBy = { id: mmdto.sentBy.id, name: mmdto.sentBy.name };
-        mlist.push(temp);
+        //var temp = mmdto;
+        //temp.sentBy = { id: mmdto.sentBy.id, name: mmdto.sentBy.name };
+        mlist.set(mmdto.id, mmdto);
         this.setState({ messages: mlist, showalert: !this.state.showchatlist }, () => {
             //if there is name for meeting than save meeting data to local storage
             if (this.state.discussion !== null) {
@@ -330,7 +355,7 @@
         this.validate(this.state.token);
         this.validateDiscussionObject(this.state.discussion);
 
-        this.startHub();
+
         //this.aliveInterval = setInterval(this.collectDeadUsers, 5000);
         this.scrollToBottom();
     }
@@ -378,7 +403,7 @@
         fd.set("meetingid", this.state.discussion.id);
         fd.set("filename", msg.name /*start === 0 ? msg.name : msg.serverfname*/);
         fd.set("gfn", false /*start === 0 ? true : false*/);
-        fetch('//' + window.location.host + '/api/meetings/uploadfile', {
+        fetch('//' + window.location.host + '/api/Discussions/uploadfile', {
             method: 'post',
             body: fd,
             headers: {
@@ -401,7 +426,7 @@
                                 msg.filedata = null;
                                 fetch('api/MeetingMessage', {
                                     method: 'post',
-                                    body: JSON.stringify({ meetingid: this.state.discussion.id, message: 'https://' + window.location.host + '/api/meetings/media/' + this.state.discussion.id + '?f=' + msg.serverfname }),
+                                    body: JSON.stringify({ meetingid: this.state.discussion.id, message: 'https://' + window.location.host + '/api/Discussions/media/' + this.state.discussion.id + '?f=' + msg.serverfname }),
                                     headers: {
                                         'Authorization': 'Bearer ' + localStorage.getItem("token"),
                                         'Content-Type': 'application/json'
@@ -439,6 +464,21 @@
         this.props.handleShowDiscussions(true);
     }
 
+    handlePurgeDiscussion() {
+        if (confirm("You are about purge this discussion, are you sure?")) {
+            fetch('/api/Discussions/purge/' + this.state.discussion.id, {
+                method: 'get',
+                headers: {
+                    'Authorization': 'Bearer ' + this.state.token
+                }
+            }).then(response => {
+                if (response.status === 200) {
+                    this.props.handleShowDiscussions(true);
+                }
+            });
+        }
+    }
+
     handleAdd() {
         this.setState({ showadd: true });
     }
@@ -448,21 +488,21 @@
 
     handleLeave() {
         if (confirm("You are about leave this discussion, are you sure?")) {
-            fetch('/api/Meetings/leave/' + this.state.discussion.id, {
+            fetch('/api/Discussions/leave/' + this.state.discussion.id, {
                 method: 'get',
                 headers: {
                     'Authorization': 'Bearer ' + this.state.token
                 }
             }).then(response => {
-                    if (response.status === 200) {
-                        this.props.handleShowDiscussions(true);
-                    }
-                });
+                if (response.status === 200) {
+                    this.props.handleShowDiscussions(true);
+                }
+            });
         }
     }
 
     handleAddMemberButton(mid) {
-        fetch('/api/Meetings/addto/' + this.state.discussion.id + '?memberid=' + mid, {
+        fetch('/api/Discussions/addto/' + this.state.discussion.id + '?memberid=' + mid, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + this.state.token
@@ -612,7 +652,7 @@
 
     renderEmojiModal() {
         if (this.state.showemojimodal) {
-            return <div style={{ position: "fixed", bottom: "45px", right: "15px", zIndex: '15' }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+            return <tr><td colSpan="3"><Emoji onSelect={this.handleEmojiSelect} /></td></tr>;
         } else {
             return null;
         }
@@ -640,10 +680,10 @@
 
                 items.push(<tr><td>{pic}{obj.name} {blocked}</td><td style={{ width: "40px" }}><button type="button" className="btn btn-sm btn-link" onClick={() => { this.handleAddMemberButton(obj.id); }}>Add</button></td></tr>);
             });
-            
+
 
             return (
-                <div className="modal d-block" id="invitesModal" tabindex="-1" aria-labelledby="invitesModalLabel" aria-hidden="true">
+                <div className="modal d-block" id="invitesModal" tabIndex="-1" aria-labelledby="invitesModalLabel" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-scrollable">
                         <div className="modal-content">
                             <div className="modal-header">
@@ -671,7 +711,7 @@
             if (this.state.myself != null) {
                 for (var k in this.state.members) {
                     let obj = this.state.members[k];
-                    let pic = obj.member.pic !== "" ? <img src={obj.member.pic} className="img-fluid" style={{ width : "30px"}} alt="" /> : null;
+                    let pic = obj.member.pic !== "" ? <img src={obj.member.pic} className="img-fluid" style={{ width: "30px" }} alt="" /> : null;
                     let mtype = "";
                     let you = null;
                     if (this.state.myself.id === obj.member.id) {
@@ -699,7 +739,7 @@
                 }
             }
             return (
-                <div className="modal d-block" id="membersModal" tabindex="-1" aria-labelledby="membersModalLabel" aria-hidden="true">
+                <div className="modal d-block" id="membersModal" tabIndex="-1" aria-labelledby="membersModalLabel" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-scrollable">
                         <div className="modal-content">
                             <div className="modal-header">
@@ -722,29 +762,21 @@
     }
 
     renderLinksInMessage(msg) {
-        var tempmid = Date.now();
-        if (msg.message.startsWith("https://" + window.location.host + "/api/meetings/media/")) {
+        var tempmid = msg.id;
+        if (msg.message.startsWith("https://" + window.location.host + "/api/Discussions/media/")) {
             if (msg.message.toLowerCase().endsWith(".jpg") || msg.message.toLowerCase().endsWith(".jpeg") || msg.message.toLowerCase().endsWith(".png") || msg.message.toLowerCase().endsWith(".gif") || msg.message.toLowerCase().endsWith(".bmp")) {
-                return <span id={tempmid}>
-                    <img src={msg.message} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "300px" }} />
-                </span>;
+                return <img src={msg.message} className='img-fluid mt-2 mb-2' style={{ maxWidth: "300px" }} title="" alt="" />;
             }
             else if (msg.message.toLowerCase().endsWith(".mp3")) {
-                return <span id={tempmid}>
-                    <audio src={msg.message} controls playsInline style={{ maxWidth: "300px" }} />
-                </span>;
+                return <audio src={msg.message} controls playsInline style={{ maxWidth: "300px" }} className="mt-2 mb-2" />;
             }
             else if (msg.message.toLowerCase().endsWith(".ogg") || msg.message.toLowerCase().endsWith(".mp4") || msg.message.toLowerCase().endsWith(".webm") || msg.message.toLowerCase().endsWith(".mov")) {
-                return <span id={tempmid}>
-                    <video src={msg.message.toLowerCase()} controls playsInline style={{ maxWidth: "300px" }} />
-                </span>;
+                return <video src={msg.message.toLowerCase()} controls playsInline style={{ maxWidth: "300px" }} className="mt-2 mb-2" />;
             }
             else {
-                return <span id={tempmid}>
-                    <a href={msg.message} target="_blank">
-                        {this.getFileExtensionBasedName(msg.message.toLowerCase())}
-                    </a>
-                </span>;
+                return <a href={msg.message} target="_blank">
+                    {this.getFileExtensionBasedName(msg.message.toLowerCase())}
+                </a>;
             }
         } else {
             return <span id={tempmid}>{msg.message.split('\n').map((item, key) => {
@@ -756,25 +788,19 @@
     renderMessageList() {
         const items = [];
         if (this.state.myself != null) {
-            for (var k in this.state.messages) {
-                let obj = this.state.messages[k];
+            for (const [k, obj] of this.state.messages.entries()) {
                 if (obj.sentBy === null) {
-                    items.push(<li className="notify" key={k}><span>{obj.message}</span></li>);
+                    items.push(<li className="notify" key={k}>{obj.message}</li>);
                 } else if (obj.sentBy.id === this.state.myself.id) {
-                    items.push(<li className="sent" key={k}>
-                        <span>
-                            {this.renderLinksInMessage(obj)}
-                            <small className="time">{moment(obj.sentDate, "YYYYMMDD").fromNow()}</small>
-                        </span>
+                    items.push(<li className="sent p-2 border-bottom border-dark border-1" key={k}>
+                        <small className="d-block"><strong>You</strong> sent {moment(obj.sentDate, "YYYYMMDD").fromNow()}</small>
+                        {this.renderLinksInMessage(obj)}
                     </li>);
                 } else {
-                    let userpic = obj.sentBy.pic !== "" ? <img src={obj.sentBy.pic} width="20" height="20" className="rounded img-fluid" /> : null;
-                    items.push(<li className="receive" key={k}>
-                        <span>
-                            <small className="name">{userpic} {obj.sentBy.name} -</small>
-                            {this.renderLinksInMessage(obj)}
-                            <small className="time">{moment(obj.sentDate, "YYYYMMDD").fromNow()}</small>
-                        </span>
+                    let userpic = obj.sentBy.pic !== "" ? <img src={obj.sentBy.pic} width="15" height="15" className="rounded img-fluid" /> : null;
+                    items.push(<li className="receive p-2 border-bottom border-primary border-1" key={k}>
+                        <small className="d-block" style={{ fontSize: "0.75rem" }}>{userpic} <strong>{obj.sentBy.name}</strong> sent {moment(obj.sentDate, "YYYYMMDD").fromNow()}</small>
+                        {this.renderLinksInMessage(obj)}
                     </li>);
                 }
             }
@@ -789,7 +815,7 @@
             <React.Fragment>
                 <div className={cn}>
                     <div id="msgcont">
-                        <ul id="msglist" className="pt-1" style={{ marginBottom: "45px" }}>
+                        <ul id="msglist" style={{ margin: "45px 0px" }}>
                             {items}
                             <li style={{ float: "left", clear: "both" }}
                                 ref={(el) => { this.messagesEnd = el; }}>
@@ -805,17 +831,19 @@
     render() {
         let leavebutton = null;
         let addbutton = null;
-        let memberbutton = <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleMembersButton}>Members</button>;
+        let memberbutton = <li><a className="dropdown-item" onClick={this.handleMembersButton}><i className="bi bi-people-fill"></i> Members</a></li>;
+        let purgebutton = null;
         switch (this.state.discussion.memberRelation) {
             case 6:
-                addbutton = <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleAdd}>Add</button>;
+                addbutton = <li><a className="dropdown-item" onClick={this.handleAdd}><i className="bi bi-person-plus"></i> Add</a></li>;
+                purgebutton = <li><a className="dropdown-item" onClick={this.handlePurgeDiscussion} title="Delete this discussion"><i className="bi bi-trash-fill"></i> Purge</a></li>;
                 break;
             case 3:
-                addbutton = <button className="btn btn-outline-dark me-2 float-end" type="button" onClick={this.handleAdd}>Add</button>;
-                leavebutton = <button className="btn btn-dark me-2 float-end" type="button">Leave</button>;
+                addbutton = <li><a className="dropdown-item" onClick={this.handleAdd}><i className="bi bi-person-plus"></i> Add</a></li>;
+                leavebutton = <button className="btn btn-dark me-2 float-end" type="button"><i className="bi bi-box-arrow-left"></i> Leave</button>;
                 break;
             case 1:
-                leavebutton = <button className="btn btn-dark me-2 float-end" type="button" onClick={this.handleLeave}>Leave</button>;
+                leavebutton = <li><a className="dropdown-item" onClick={this.handleLeave}><i className="bi bi-box-arrow-left"></i> Leave</a></li>;
                 break;
             case 5:
                 memberbutton = null;
@@ -823,23 +851,30 @@
             default:
                 break;
         }
-        
-        
+
+
         return (
             <React.Fragment>
                 <div className="fixed-top bg-light container-fluid p-2">
                     <button className="btn  btn-light me-2" type="button" onClick={this.handleBackButton}>❮</button>
                     <h4 style={{ "display": "inline-block" }}>{this.state.discussion.name}</h4>
-                    {leavebutton} {addbutton} {memberbutton}
-                    
-                </div>
-                <div className="container-fluid p-2">
-                    <div className="row-fluid">
-                        {this.renderMessageList()}
-                        {this.renderMembers()}
-                        {this.renderAddModal()}
+                    <div className="dropdown float-end">
+                        <button className="btn btn-secondary dropdown-toggle" type="button" id="actionDropDownButton" data-bs-toggle="dropdown" aria-expanded="false"><i className="bi bi-tools"></i> Actions</button>
+                        <ul className="dropdown-menu" aria-labelledby="actionDropDownButton">
+                            {leavebutton}
+                            {addbutton}
+                            {memberbutton}
+                            {purgebutton}
+                        </ul>
                     </div>
                 </div>
+
+                <div className="row-fluid">
+                    {this.renderMessageList()}
+                    {this.renderMembers()}
+                    {this.renderAddModal()}
+                </div>
+
                 <div className="fixed-bottom bg-light container-fluid p-2">
                     <table style={{ "width": "100%" }}>
                         <tbody>
@@ -862,11 +897,12 @@
                                         style={{ height: "40px", overflow: "hidden", resize: "none", maxHeight: "200px" }}></textarea>
                                 </td>
                                 <td style={{ "width": "100px" }}>
-                                    <button className={this.state.showemojimodal ? "btn  btn-warning" : "btn  btn-light"} type="button"><img src="/icons/smile.svg" alt="" width="15" height="15" title="Send Message" /></button>
+                                    <button className={this.state.showemojimodal ? "btn  btn-warning" : "btn  btn-light"} type="button" onClick={this.handleEmojiModal}><img src="/icons/smile.svg" alt="" width="15" height="15" title="Send Message" /></button>
                                     <button className="btn  btn-dark me-2" type="button" onClick={this.sendMessage}><img src="/icons/send.svg" alt="" width="15" height="15" title="Send Message" /></button>
 
                                 </td>
                             </tr>
+                            {this.renderEmojiModal()}
                         </tbody>
                     </table>
                 </div>

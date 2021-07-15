@@ -343,7 +343,7 @@ code {
 
 
         #msgcont > #msglist > li > span {
-            background-color: rgba(255, 255, 255, 0.5);
+            /*background-color: rgba(255, 255, 255, 0.5);*/
             display: inline-block;
             padding: 4px;
             margin: 4px 0px;
@@ -372,15 +372,15 @@ code {
         }
 
         #msgcont > #msglist > li.receive > span {
-            background-color: #F2F6F9; /*rgba(142, 191, 67, 0.6)*/
+            /*background-color: #F2F6F9; 
             color: black;
-            padding: 4px 10px;
+            padding: 4px 10px;*/
         }
 
         #msgcont > #msglist > li.sent > span {
-            background-color: #DBF4FD;
+            /*background-color: #DBF4FD;
             color: black;
-            padding: 4px 10px;
+            padding: 4px 10px;*/
         }
 
 
@@ -612,8 +612,8 @@ code {
         }
 
         #msgcont > #msglist {
-            height: calc(100vh - 160px);
-            overflow-y: auto;
+           /* max-height: 100vh;
+            overflow-y: auto;*/
         }
 
     .meetingvideocol {

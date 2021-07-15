@@ -21,6 +21,7 @@
         this.handleChange = this.handleChange.bind(this);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
         this.handleReceivedMessage = this.handleReceivedMessage.bind(this);
+        this.handleUpdateParent = this.handleUpdateParent.bind(this);
         this.fetchContacts = this.fetchContacts.bind(this);
         this.handleShowSearch = this.handleShowSearch.bind(this);
         this.checkContactPulse = this.checkContactPulse.bind(this);
@@ -244,6 +245,18 @@
         });
     }
 
+    handleUpdateParent(action, data) {
+        switch (action) {
+            case "updatemessageseen":
+                if (this.contactlist.get(data.id.toLowerCase()) !== undefined) {
+                    this.contactlist.get(data.id.toLowerCase()).unseenMessageCount = 0;
+                    localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
+                    this.setState({ dummy: Date.now() });
+                }
+                break;
+        }
+    }
+
     handleShowSearch(show) {
         if (show) {
             this.contactlist = (localStorage.getItem("contacts") !== null && this.state.loggedin) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
@@ -296,16 +309,13 @@
             usermsgmap = new Map();
 
         usermsgmap.set(mi.id, mi);
-        console.log(mi);
         localStorage.setItem(mi.sender.toLowerCase(), JSON.stringify(Array.from(usermsgmap.entries())));
 
         //this.hubConnection.invoke("MessageStatus", mi.id, mi.sender, this.state.myself.id, this.messageStatusEnum.Received)
         //    .catch(err => { console.log("Unable to send message received status."); console.error(err); });
         this.setMessageStatus(mi.id, "SetReceived");
-
         if (this.contactlist.get(mi.sender.toLowerCase()) !== undefined) {
-            //this.contactlist.get(mi.sender.toLowerCase()).recentMessage = mi.text;
-            this.contactlist.get(mi.sender.toLowerCase()).recentMessageDate = mi.timestamp;
+
             if (this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount !== undefined) {
                 this.contactlist.get(mi.sender.toLowerCase()).unseenMessageCount += 1;
             } else {
@@ -314,6 +324,7 @@
             localStorage.setItem("contacts", JSON.stringify(Array.from(this.contactlist)));
             this.setState({ dummy: Date.now() });
         }
+
     }
 
     //the usual BS required for form fields to work in react
@@ -394,7 +405,7 @@
         </div> : null;
         let personchatorprofile = null;
         if (this.state.selectedperson !== null /*&& !this.state.showsearch*/) {
-            personchatorprofile = <PersonChat person={this.state.selectedperson} myself={this.state.myself} receivedMessage={this.handleReceivedMessage} handleShowSearch={this.handleShowSearch} />
+            personchatorprofile = <PersonChat person={this.state.selectedperson} myself={this.state.myself} updateParent={this.handleUpdateParent} handleShowSearch={this.handleShowSearch} />
         }
         else if (this.state.profiletoshow !== null && this.state.showprofilemodal) {
             personchatorprofile = <div className="modal d-block" tabIndex="-1" role="dialog">
@@ -437,7 +448,7 @@
                     <div className="row">
                         {searchhtml}
                         {loading}
-                        <div className="col-9 border p-0">
+                        <div className="col-9 p-0">
                             {personchatorprofile}
                         </div>
                     </div>

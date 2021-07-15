@@ -255,6 +255,25 @@
         });
     }
 
+    receiveTextMessage(sender, text, timestamp, id) {
+        var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: this.messageStatusEnum.Seen };
+        //if received message is from current person then show in ui else save in localstorage
+        if (sender.toLowerCase() === this.state.person.id.toLowerCase()) {
+            this.messages.set(id, mi);
+            this.setState({ dummy: Date.now() }, () => {
+
+                localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+            });
+
+            this.scrollToBottom();
+            this.props.updateParent("updatemessageseen", { id: sender });
+            this.playmsgbeep();
+
+            this.setMessageStatus(mi.id, "SetSeen");
+
+        }
+    }
+
     //say hello when hub connection is established, this will begin a handshake which will
     //eventually lead to rtc peer connection
     sayHello() {
@@ -325,28 +344,6 @@
                 this.textinput.focus();
             }
 
-        }
-    }
-
-    receiveTextMessage(sender, text, timestamp, id) {
-        var mi = { id: id, sender: sender, text: text, timestamp: timestamp, status: this.messageStatusEnum.Seen };
-        //if received message is from current person then show in ui else save in localstorage
-        if (sender.toLowerCase() === this.state.person.id.toLowerCase()) {
-            this.messages.set(id, mi);
-            this.setState({ dummy: Date.now() }, () => {
-
-                localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
-            });
-
-            this.scrollToBottom();
-            this.playmsgbeep();
-            //this.hubConnection.invoke("MessageStatus", id, sender, this.state.myself.id, this.messageStatusEnum.Received)
-            //    .catch(err => { console.log("Unable to send message received status."); console.error(err); });
-            this.setMessageStatus(mi.id, "SetSeen");
-        } else {
-            if (this.props.receivedMessage !== undefined) {
-                this.props.receivedMessage(mi);
-            }
         }
     }
 
@@ -600,8 +597,6 @@
             }
         }
         localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
-
-        //remove messages from server
     }
 
     deleteMyMessagesFromServer() {
@@ -649,7 +644,7 @@
     updateTextInputHeight() {
         if (this.state.textinput !== "") {
             // Reset field height
-            this.textinput.style.height = 'inherit';
+            //this.textinput.style.height = 'inherit';
 
             // Get the computed styles for the element
             const computed = window.getComputedStyle(this.textinput);
@@ -663,7 +658,7 @@
 
             //this.textinput.style.height = `${height}px`;
 
-            this.textinput.style.minHeight = `${this.textinput.scrollHeight}px`;
+            this.textinput.style.height = `${this.textinput.scrollHeight}px`;
         } else {
             this.textinput.style.height = "40px";
             this.textinput.style.minHeight = "40px";
@@ -854,6 +849,7 @@
     }
 
     scrollToBottom = () => {
+
         if (this.messagesEnd !== undefined && this.messagesEnd !== null) {
             this.messagesEnd.scrollIntoView();
         }
@@ -881,10 +877,11 @@
     }
 
     componentDidMount() {
+        console.log("componentDidMount");
         this.startHub();
         this.scrollToBottom();
         this.updateReceivedMessageStatusAll();
-        this.deleteMyMessagesFromServer();
+        //this.deleteMyMessagesFromServer();
         this.checkPersonPulseInterval = setInterval(this.checkPersonPulse, 5000);
         //set unseenmessage count of person to zero and save
         let clist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
@@ -895,10 +892,11 @@
     }
 
     componentDidUpdate(prevProps, prevState) {
+        console.log("componentDidUpdate");
         if (prevProps.person.id !== this.props.person.id) {
-            this.messages = (localStorage.getItem(this.state.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.state.person.id))) : new Map();
-            this.updateReceivedMessageStatusAll();
-            this.setState({ dummy: Date.now(), person : this.props.person });
+            this.messages = (localStorage.getItem(this.props.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.props.person.id))) : new Map();
+            this.setState({ dummy: Date.now(), person: this.props.person }, () => { this.updateReceivedMessageStatusAll() });
+            this.props.updateParent("updatemessageseen", { id: this.props.person.id });
             //each time compoment updates scroll to bottom
             //this can be improved by identifying if new messages added
             this.scrollToBottom();
@@ -925,7 +923,7 @@
 
     renderEmojiModal() {
         if (this.state.showemojimodal) {
-            return <div style={{ position: "fixed", bottom: "42px", right: "0", left : "auto" }}><Emoji onSelect={this.handleEmojiSelect} /></div>;
+            return <tr><td colSpan="2"><Emoji onSelect={this.handleEmojiSelect} /></td></tr>;
         } else {
             return null;
         }
@@ -949,7 +947,7 @@
         if (msg.text.startsWith('https://' + window.location.host + '/data/')) {
             if (msg.text.toLowerCase().endsWith(".jpg") || msg.text.toLowerCase().endsWith(".jpeg") || msg.text.toLowerCase().endsWith(".png") || msg.text.toLowerCase().endsWith(".gif") || msg.text.toLowerCase().endsWith(".bmp")) {
                 return <span id={tempmid}>
-                    <img src={msg.text} className='img-fluid d-block mt-1 mb-1 img-thumbnail' style={{ maxWidth: "260px" }} />
+                    <img src={msg.text} className='img-fluid' style={{ maxWidth: "260px" }} />
                 </span>;
             }
             else if (msg.text.toLowerCase().endsWith(".mp3")) {
@@ -965,8 +963,6 @@
             else {
                 return <span id={tempmid}>
                     <a href={msg.text} target="_blank">
-                        <img src="/icons/download-cloud.svg" className='img-fluid' title="download file" />
-                        <br />
                         {this.getFileExtensionBasedName(msg.text.toLowerCase())}
                     </a>
                 </span>;
@@ -1015,39 +1011,36 @@
         let sentlistyle = { display: "block", textAlign: 'right' };
         let reclistyle = { display: "block", textAlign: 'left' };
         let sentmessagestyle = {
-            margin: "4px", maxWidth: "80%", position: "relative",
-            padding: ".2rem",
-            fontSize: "1rem",
-            border: "none",
-            borderRadius: ".25rem",
-            display: "inline-block",
-            color: "#000",
-            backgroundColor: "#DBF4FD",
+            marginBottom: "1px", maxWidth: "100%", position: "relative",
+            
+            fontSize: "1.2rem",
+            //border: "none",
+            borderRadius: "0rem",
+            //color: "#000",
+            //backgroundColor: "#DBF4FD",
             wordWrap: "break-word"
         };
         let recmessagestyle = {
-            margin: "4px", maxWidth: "80%", position: "relative",
-            padding: ".2rem",
-            border: "none",
-            borderRadius: ".25rem",
-            fontSize: "1rem",
-            display: "inline-block",
-            color: "#000",
-            backgroundColor: "#F2F6F9",
+            marginBottom: "1px", maxWidth: "100%", position: "relative",
+            //border: "none",
+            borderRadius: "0rem",
+            fontSize: "1.2rem",
+            //color: "#000",
+            //backgroundColor: "#F2F6F9",
             wordWrap: "break-word"
         };
         const items = [];
         for (const [key, obj] of this.messages.entries()) {
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
-                    <div style={sentmessagestyle} >
+                    <div style={sentmessagestyle} className="border-bottom border-secondary pe-3 py-2">
                         {this.renderLinksInMessage(obj)}
                         <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small> <small style={{ fontSize: "0.75rem" }}>{this.showMessageStatus(obj.status)}</small></span>
                     </div>
                 </li>);
             } else {
                 items.push(<li style={reclistyle} key={key}>
-                    <div style={recmessagestyle} className="alert alert-info">
+                    <div style={recmessagestyle} className="border-bottom border-secondary ps-3 py-2">
                         {this.renderLinksInMessage(obj)}
                         <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment(obj.timestamp.replace(" UTC", "")).fromNow(true)}</small></span>
                     </div>
@@ -1151,10 +1144,11 @@
             personprofile = <div className="modal d-block" tabIndex="-1" role="dialog">
                 <div className="modal-dialog modal-dialog-scrollable">
                     <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Profile</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.handleProfileModalClose}></button>
+                        </div>
                         <div className="modal-body">
-                            <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.handleProfileModalClose}>
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                             <ViewProfile profile={this.state.person} />
                         </div>
                     </div>
@@ -1186,7 +1180,7 @@
         let videohtml = this.renderVideo();
         let chatmsgcontstyle = {};
         if (videohtml === null && this.detectXtralargeScreen()) {
-            chatmsgcontstyle = { padding: "0px 10px" };
+            chatmsgcontstyle = { padding: "0px" };
         }
         return (
             <React.Fragment>
@@ -1204,23 +1198,6 @@
                                     <BlockContact myself={this.state.myself} person={this.state.person} onRelationshipChange={this.handleContactRelationshipChange} />
                                 </td>
                                 <td width="37px">
-                                    <li className="list-inline-item">
-                                        <div className="dropdown">
-                                            <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <img src="/icons/file-plus.svg" alt="" width="24" height="24" title="Share Files" />
-                                            </a>
-                                            <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                <li>
-                                                    <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
-                                                </li>
-                                                <li><a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
-                                                    <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,.xls,.xlsx,.docx,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-                                </td>
-                                <td width="37px">
                                     {videotoggleele}
                                 </td><td width="37px">
                                     {audiotoggleele}
@@ -1229,26 +1206,50 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div className="videochatcont container-fluid">
-                        <div className="row">
-                            {videohtml}
-                            <div className="col-sm border-left" style={{ padding: "0px 5px" }}>
-                                <div className="chatmsgcont" style={chatmsgcontstyle}>
-                                    <ul className="list-unstyled">{this.renderMessages()}</ul>
-                                </div>
-                            </div>
+                    <div className="videochatcont ">
+
+                        {videohtml}
+                        <div className="chatmsgcont" style={chatmsgcontstyle}>
+                            <ul className="list-unstyled">{this.renderMessages()}</ul>
                         </div>
+
                     </div>
-                    <form onSubmit={this.handleSend}>
-                        <div className="chatinputcontainer">
-                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accessKey="t" title="Keyboard Shortcut ALT + t"
-                                className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
-                                style={{ height: "40px", overflow: "hidden", resize: "none", position: "absolute", bottom: "0px", left: "0px", maxHeight: "200px" }}></textarea>
-                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-warning d-none d-sm-block" : "btn btn-sm btn-light d-none d-sm-block"} onClick={this.handleEmojiModal} style={{ position: "absolute", right: "50px", bottom: "3px" }} accessKey="o" title="Keyboard Shortcut ALT + o" ><img src="/icons/smile.svg" alt="" width="24" height="24" /></button>
-                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-dark " title="Send Message" style={{ position: "absolute", right: "5px", bottom: "3px" }} title="Keyboard Shortcut ALT + s" accessKey="s"><img src="/icons/send.svg" alt="" width="24" height="24" /></button>
-                        </div>
-                    </form>
-                    {this.renderEmojiModal()}
+                    <div style={{ position: "absolute", bottom: "0px", width: "100%" }}>
+                        <form onSubmit={this.handleSend}>
+                            <table style={{ "width": "100%", backgroundColor: "#fff" }}>
+                                <tbody>
+                                    <tr>
+                                        <td style={{
+                                            width: "37px", paddingLeft:"5px"
+                                        }}>
+                                            <div className="dropdown">
+                                                <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <img src="/icons/file-plus.svg" alt="" width="24" height="24" title="Share Files" />
+                                                </a>
+                                                <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                    <li>
+                                                        <a className="dropdown-item" href="#" onClick={this.handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</a>
+                                                    </li>
+                                                    <li><a className="dropdown-item" href="#" onClick={this.handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</a>
+                                                        <input type="file" style={{ display: "none" }} ref={(el) => { this.fileinput = el; }} accept=".html,.htm,.doc,.pdf,.xls,.xlsx,.docx,audio/*,video/*,image/*" onChange={this.handleFileInput} multiple="multiple" />
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td >
+                                            <textarea ref={(input) => { this.textinput = input; }} name="textinput" autoComplete="off" accessKey="t" title="Keyboard Shortcut ALT + t"
+                                                className="form-control" value={this.state.textinput} onChange={this.handleChange} width="100%"
+                                                style={{ height: "40px", overflow: "hidden", resize: "none", maxHeight: "200px" }}></textarea>
+                                        </td><td style={{ "width": "100px" }}>
+                                            <button type="button" className={this.state.showemojimodal ? "btn btn-sm btn-warning ms-1" : "btn btn-sm btn-light ms-1"} onClick={this.handleEmojiModal} accessKey="o" title="Keyboard Shortcut ALT + o" ><img src="/icons/smile.svg" alt="" width="24" height="24" /></button>
+                                            <button type="submit" id="msgsubmit" className="btn btn-sm btn-dark ms-1" title="Send Message" title="Keyboard Shortcut ALT + s" accessKey="s"><img src="/icons/send.svg" alt="" width="24" height="24" /></button>
+                                        </td>
+                                    </tr>
+                                    {this.renderEmojiModal()}
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
                 </div>
                 {personprofile}
                 {this.renderFileUploadProcessModal()}

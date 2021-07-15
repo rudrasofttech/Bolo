@@ -144,12 +144,12 @@ namespace BoloApi
                         action = "Meeting"
                     });
                 endpoints.MapControllerRoute(
-                    name: "meetings",
-                    pattern: "meetings",
+                    name: "discussions",
+                    pattern: "discussions",
                     new
                     {
                         controller = "Home",
-                        action = "Meetings"
+                        action = "Discussions"
                     });
                 endpoints.MapControllerRoute(
                     name: "default",

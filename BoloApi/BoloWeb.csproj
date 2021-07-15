@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\DiscussionsController.cs" />
     <Compile Remove="Migrations\20200626125049_MemberNotificationTable.cs" />
     <Compile Remove="Migrations\20200626125049_MemberNotificationTable.Designer.cs" />
   </ItemGroup>
