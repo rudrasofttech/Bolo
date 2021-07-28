@@ -188,21 +188,9 @@
         if (!this.state.loggedin) {
             return <div>
                 <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
-                <main role="main" className="inner cover meetingsmain mr-5 ml-5">
-                    <h1 className="cover-heading">Online Meetings</h1>
-                    <p className="lead">Online meetings are the need of the hour. Connect with people for quick status updates,
-                    important discussions, future planning or interviews. Salient Features-</p>
-                    <ul>
-                        <li>Text, Audio and Video Chat Enabled</li>
-                        <li>No need to install any special software, works on chrome, mozilla, safari and edge.</li>
-                        <li>Peer to Peer technlogy</li>
-                        <li>Secured with SSL</li>
-                        <li>Free to use</li>
-                    </ul>
-
-                    <p className="lead">
-                        <button type="button" className="btn btn-lg btn-secondary">Login to start a Meeting</button>
-                    </p>
+                <main role="main" className="inner cover meetingsmain m-5">
+                    <h1 className="cover-heading">Discussions</h1>
+                    <p className="lead">Connect with people for quick status updates, important discussions, future planning or interviews. <strong>Login to start a discussion.</strong></p>
                 </main>
                 <HeartBeat activity="1" interval="20000" />
             </div>;
@@ -217,9 +205,7 @@
                 }
             }
             return (
-                <React.Fragment>
-                    <div className="container-fluid">
-                        <Discussion discussion={d} handleShowDiscussions={this.handleShowDiscussions} /></div></React.Fragment>);
+                <React.Fragment><Discussion discussion={d} handleShowDiscussions={this.handleShowDiscussions} /></React.Fragment>);
         }
         else {
             let messagecontent = this.state.message !== "" ? <div className="fixedBottom ">
@@ -234,9 +220,7 @@
                             {this.renderCreateDiscussionForm()}
                         </main>
                         <HeartBeat activity="1" interval="3000" />
-
                         {messagecontent}
-
                     </div>
                 </React.Fragment>);
         }

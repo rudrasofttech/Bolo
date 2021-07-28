@@ -302,14 +302,14 @@ code {
             }
 
 #msgcont {
-    background-color: rgba(255, 255, 255, 0.8);
+    /*background-color: rgba(255, 255, 255, 0.8);
     padding-bottom: 5px;
-    /*z-index: 10;*/
+    z-index: 10;
     overflow: auto;
     border-radius: 0px;
     display: block;
     text-align: center;
-    position: relative;
+    position: relative;*/
 }
 
 
@@ -641,17 +641,17 @@ code {
         overflow: auto;
     }
 
-    #msgcont {
+    /*#msgcont {
         width: 25%;
         height: auto;
-        /*top: 70px;
+        top: 70px;
         right: 5px;
         position: fixed;
         background-color: white;
         -webkit-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
         -moz-box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
         box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.42);
-        background-clip: padding-box;*/
+        background-clip: padding-box;
         border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 0px;
         outline: 0;
@@ -661,7 +661,7 @@ code {
         #msgcont > #msglist {
             max-height: calc(100vh - 150px);
             overflow-y: auto;
-        }
+        }*/
 
     #videocont > div.full > video#myvideo {
         height: calc(100vh - 130px);

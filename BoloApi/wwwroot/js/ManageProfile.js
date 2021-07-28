@@ -407,7 +407,7 @@
                                 <div className="col-12">
                                     <div className="form-group">
                                         <label htmlFor="genderselect">Gender</label>
-                                        <select className="custom-select" id="genderselect" name="gender" value={this.state.myself.gender} onChange={this.handleChange} onBlur={this.saveData} >
+                                        <select className="custom-select m-2" id="genderselect" name="gender" value={this.state.myself.gender} onChange={this.handleChange} onBlur={this.saveData} >
                                             <option value="0"></option>
                                             <option value="1">Male</option>
                                             <option value="2">Female</option>
@@ -451,12 +451,12 @@
                             <div className="form-row">
                                 <div className="col-md-12">
                                     <label htmlFor="visibilityselect">Profile Visibility</label>
-                                    <select className="custom-select" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange} onBlur={this.saveData}>
+                                    <select className="custom-select m-2" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange} onBlur={this.saveData}>
                                         <option value="0"></option>
                                         <option value="2">Public</option>
                                         <option value="1">Private</option>
                                     </select>
-                                    <small className="form-text text-muted">Optional, but recommended. Public visibility means your profile will be visible in searches. Private visibility means your profile will not be shown in searches.</small>
+                                    <small className="form-text text-muted d-block">Optional, but recommended. Public visibility means your profile will be visible in searches. Private visibility means your profile will not be shown in searches.</small>
                                 </div>
                             </div>
 
@@ -464,7 +464,7 @@
                                 <div className="col-md-4">
                                     <div className="form-group">
                                         <label htmlFor="countryselect">Country</label>
-                                        <select className="custom-select" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={this.saveData} >
+                                        <select className="custom-select m-2" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={this.saveData} >
                                             <option value=""></option>
                                             <option value="Afganistan">Afghanistan</option>
                                             <option value="Albania">Albania</option>
