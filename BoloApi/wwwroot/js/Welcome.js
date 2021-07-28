@@ -8,7 +8,7 @@
 
         this.state = {
             loading: false, loggedin: loggedin,
-            myself: null, bsstyle: '', message: '', 
+            myself: null, bsstyle: '', message: '',
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"),
             registermodal: false, showprofilemodal: false, memberpic: ''
         };
@@ -74,7 +74,7 @@
         if (this.state.registermodal) {
             return (
                 <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div className="modal-dialog modal-lg" style={{ color: '#000', textShadow : 'none', textAlign : 'left', borderRadius : '5px'}}>
+                    <div className="modal-dialog modal-lg" style={{ color: '#000', textShadow: 'none', textAlign: 'left', borderRadius: '5px' }}>
                         <div className="modal-content">
                             <div className="modal-body">
                                 <button type="button" className="close pull-right" data-dismiss="modal" aria-label="Close" onClick={this.closeRegisterModal}>
@@ -96,14 +96,13 @@
         if (this.state.showprofilemodal) {
             return (
                 <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div className="modal-dialog modal-dialog-scrollable modal-xl" style={{ color: '#000', textShadow : 'none', textAlign : 'left', borderRadius : '5px'}}>
+                    <div className="modal-dialog modal-dialog-scrollable modal-xl" style={{ color: '#000', textShadow: 'none', textAlign: 'left', borderRadius: '5px' }}>
                         <div className="modal-content">
-                            <div className="modal-body">
-                                <button type="button" className="close float-right" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}>
-                                    <span aria-hidden="true">X</span>
-                                </button>
-                                <ManageProfile onProfileChange={this.handleProfileChange} />
+                            <div className="modal-header">
+                                <h5 className="modal-title">Profile Information</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}></button>
                             </div>
+                            <ManageProfile onProfileChange={this.handleProfileChange} />
                         </div>
                     </div>
                 </div>
@@ -120,18 +119,18 @@
         </div> : null;
         let profileinfo = null;
         if (this.state.myself === null) {
-            profileinfo = <button className="btn btn-lg btn-link m-2" style={{ color : '#fff'}} onClick={this.handleLogin}>Sign In / Register</button> 
+            profileinfo = <button className="btn btn-lg btn-link m-2" style={{ color: '#fff' }} onClick={this.handleLogin}>Sign In / Register</button>
         } else {
             if (this.state.loggedin && this.state.memberpic !== "") {
-                profilepic = <img src={this.state.memberpic} style={{ border : '2px solid #fff', marginRight : '10px'}} width="40" height="40" className="rounded-circle" />
+                profilepic = <img src={this.state.memberpic} style={{ border: '2px solid #fff', marginRight: '10px' }} width="40" height="40" className="rounded-circle" />
             }
             profileinfo = <button className="btn btn-lg btn-link m-2" style={{ color: '#fff' }} onClick={this.toggleProfileModal}>{profilepic}Welcome, {this.state.myself.name}</button>
 
         }
         let welcomehtml = <p className="lead">
             {profileinfo}<br />
-            <a href="/meetings" className="btn btn-lg btn-secondary m-2">Start a Meeting</a>
-            <a href="/chat" className="btn btn-lg btn-secondary m-2">Start a Conversation</a>
+            <a href="/discussions" className="btn btn-lg btn-secondary m-2">Discussions</a>
+            <a href="/chat" className="btn btn-lg btn-secondary m-2">Conversations</a>
         </p>;
         return (
             <React.Fragment>
