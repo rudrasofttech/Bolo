@@ -188,6 +188,7 @@ namespace Bolo.Controllers
                         if (recedto.Activity == ActivityStatus.Offline || recedto.Activity == ActivityStatus.Meeting)
                         {
                             string email = System.IO.File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
+                            email = email.Replace("{sender}", sender.Name).Replace("{message}", cm.Message);
                             EmailUtility eu = new EmailUtility(_config);
                             eu.SendEmail(receiver.Email, receiver.Name, sender.Email, sender.Name, String.Format("{0} sent a message on Waarta.", sender.Name), email);
                         }
