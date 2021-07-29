@@ -100,7 +100,7 @@
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Profile Information</h5>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}></button>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}><span aria-hidden="true">&times;</span></button>
                             </div>
                             <ManageProfile onProfileChange={this.handleProfileChange} />
                         </div>
