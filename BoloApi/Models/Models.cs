@@ -462,4 +462,11 @@ namespace Bolo.Models
         public string UserName { get; set; }
         public string Password { get; set; }
     }
+
+    public class SearchResultPost
+    {
+        public string URL { get; set; }
+        public string Text { get; set; }
+        public string Description { get; set; }
+    }
 }

@@ -20,9 +20,7 @@ class NavMenu extends React.Component {
             registerFormBeginWith: this.props.registerFormBeginWith === undefined ? true : this.props.registerFormBeginWith,
             membername: (localStorage.getItem("membername") !== null) ? localStorage.getItem("membername") : '',
             memberpic: (localStorage.getItem("memberpic") !== null) ? localStorage.getItem("memberpic") : '',
-            memberid: '',
-            fixed: this.props.fixed === undefined ? true : this.props.fixed,
-            showprofilemodal: false
+            memberid: '', fixed: this.props.fixed === undefined ? true : this.props.fixed, searchtext: '', showwebsearchresult: false, websearchresult: [], showprofilemodal: false
         };
 
         if (token !== null) {
@@ -31,11 +29,12 @@ class NavMenu extends React.Component {
         this.loginHandler = this.loginHandler.bind(this);
         this.handleRegister = this.handleRegister.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
-        //this.handleOnInvite = this.handleOnInvite.bind(this);
         this.closeRegisterModal = this.closeRegisterModal.bind(this);
-        //this.handleLeaveMeeting = this.handleLeaveMeeting.bind(this);
+        this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
         this.toggleProfileModal = this.toggleProfileModal.bind(this);
         this.handleProfileChange = this.handleProfileChange.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.closeSearchResult = this.closeSearchResult.bind(this);
     }
 
     loginHandler() {
@@ -48,6 +47,45 @@ class NavMenu extends React.Component {
         }
     }
 
+    handleChange(e) {
+        switch (e.target.name) {
+            case 'searchtext':
+                this.setState({
+                    searchtext: e.target.value
+                });
+
+                break;
+            default:
+        }
+    }
+
+    handleSearchSubmit(e) {
+        e.preventDefault();
+        if (this.state.searchtext !== "") {
+            let t = "";
+            if (localStorage.getItem("token") != null) {
+                t = localStorage.getItem("token");
+            }
+            fetch('//' + window.location.host + '/api/search/?q=' + this.state.searchtext, {
+                method: 'get',
+                headers: {
+                    'Authorization': 'Bearer ' + t
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        response.json().then(data => {
+                            this.setState({ showwebsearchresult: true, websearchresult: data });
+                        });
+                    }
+                });
+        }
+    }
+
+    closeSearchResult() {
+        this.setState({ showwebsearchresult: false, searchtext : "", websearchresult : [] });
+    }
+
     handleProfileChange() {
         if (this.state.onProfileChange !== null) {
             this.state.onProfileChange();
@@ -57,18 +95,6 @@ class NavMenu extends React.Component {
         }
 
     }
-
-    //handleOnInvite(e) {
-    //    if (this.props.onInvite !== undefined) {
-    //        this.props.onInvite();
-    //    }
-    //}
-
-    //handleLeaveMeeting(e) {
-    //    if (this.props.onLeaveMeeting !== undefined) {
-    //        this.props.onLeaveMeeting();
-    //    }
-    //}
 
     handleRegister(e) {
         e.preventDefault();
@@ -82,9 +108,6 @@ class NavMenu extends React.Component {
 
     handleLogout(e) {
         e.preventDefault();
-        //localStorage.removeItem("token");
-        //localStorage.removeItem("membername");
-        //localStorage.removeItem("memberpic");
         localStorage.clear();
         location.reload();
     }
@@ -172,25 +195,46 @@ class NavMenu extends React.Component {
         }
     }
 
+    renderSearchResult() {
+        if (this.state.showwebsearchresult) {
+            let items = [];
+            for (var i = 0; i < this.state.websearchresult.length; i++) {
+                let f = this.state.websearchresult[i];
+                if (f.text === "") {
+                    f.text = f.url;
+                }
+                items.push(
+                    <li className="list-group-item">
+                        <a href={f.url} target="_blank">{f.text}</a>
+                        <p className="d-block">{f.url}</p>
+                    </li>
+                );
+            }
+            return <div className="p-2 bg-light" style={{ width: "100%", position : "absolute", zIndex:100000}}>
+                <ul class="list-group">
+                    {items}
+                </ul>
+                <button className="btn btn-sm m-1 btn-primary float-end" onClick={this.closeSearchResult}>Clear</button>
+            </div>;
+        }
+        else {
+            return null;
+        }
+    }
+
     render() {
         const token = localStorage.getItem("token");
         let linkitems = [];
         let loggedin = true;
-        let navclassnames = "navbar navbar-expand-lg navbar-dark bg-dark " + (this.state.fixed ? "fixed-top" : "");
         if (token === null) {
             loggedin = false;
         }
-        //if (this.state.showinvite) {
-        //    linkitems.push(<li className="nav-item" key={"showinviteli"}><button type="button" className="btn btn-link text-light bg-info mr-2 ml-2 nav-link" onClick={this.handleOnInvite}>Invite <img src="/icons/plus-circle.svg" alt="" width="24" height="24" title="Invite" /></button></li>);
-        //}
-        //if (this.state.showleavemeeting) {
-        //    linkitems.push(<li className="nav-item" key={"showleavemeetingli"}><button type="button" className="btn btn-link text-light bg-danger mr-2 ml-2 nav-link" onClick={this.handleLeaveMeeting}>Leave <img src="/icons/user-minus.svg" alt="" width="24" height="24" title="Leave Meeting" /></button></li>);
-        //}
+
         let profilepic = null;
         if (loggedin && this.state.memberpic !== "") {
             profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded-circle" />
         }
-        
+
         if (loggedin) {
             linkitems.push(<button key={"memberlinkli"} type="button" className="btn btn-dark me-2 membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button>);
             linkitems.push(<button key={"logoutlinkli"} type="button" className="btn btn-dark" title="Sign out" onClick={this.handleLogout}><i className="bi bi-power"></i></button>);
@@ -207,16 +251,23 @@ class NavMenu extends React.Component {
                             Waarta
                         </a>
                         <ul className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-                            <li><a className="nav-link px-2 text-white" href="/faq" title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a></li>
-                            <li><a className="nav-link px-2 text-white" href="/privacy" title="Privacy"><i className="bi bi-eye-slash-fill"></i></a></li>
-                            <li><a className="nav-link px-2 text-white" href="/Chat" title="Chat"><i className="bi bi-chat-dots"></i></a></li>
-                            <li><a className="nav-link px-2 text-white" href="/Discussions" title="Discussion"><i className="bi bi-people-fill"></i></a></li>
+                            <li><a className="nav-link px-2 text-white" href="/Chat" title="Chat"><i className="bi bi-chat-dots"></i> Chat</a></li>
+                            <li><a className="nav-link px-2 text-white" href="/Discussions" title="Discussion"><i className="bi bi-people-fill"></i> Discussion</a></li>
+                            <li>
+                                <form className="d-flex ps-2" onSubmit={this.handleSearchSubmit}>
+                                    <input className="form-control" style={{ width: "500px", borderRadius : "20px" }} type="search" placeholder="Search the web..." aria-label="Search" name="searchtext" onChange={this.handleChange} value={this.state.searchtext} />
+                                    <button className="btn text-white" type="submit"><i className="bi bi-search"></i></button>
+                                </form>
+                            </li>
                         </ul>
                         <div className="col-md-3 text-end">
                             {linkitems}
+                            <a className="px-2 text-white" href="/faq" title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a>
+                            <a className="px-2 text-white" href="/privacy" title="Privacy"><i className="bi bi-eye-slash-fill"></i></a>
                         </div>
                     </header>
                 </div>
+                {this.renderSearchResult()}
                 {this.renderProfileModal()}
                 {this.renderRegisterModal()}
 
