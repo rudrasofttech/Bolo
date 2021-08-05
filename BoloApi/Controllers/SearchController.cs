@@ -16,7 +16,7 @@ namespace BoloWeb.Controllers
     {
         // GET: api/<SearchController>
         [HttpGet]
-        public async Task<IEnumerable<SearchResultPost>> GetAsync([FromQuery]string q)
+        public async Task<IEnumerable<SearchResultPost>> GetAsync([FromQuery] string q)
         {
             List<SearchResultPost> result = new List<SearchResultPost>();
             SearchHelper sh = new SearchHelper() { query = q };
@@ -27,6 +27,7 @@ namespace BoloWeb.Controllers
                 result.Add(item.Value);
             }
             return result;
+
         }
     }
 }

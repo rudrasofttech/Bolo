@@ -469,4 +469,24 @@ namespace Bolo.Models
         public string Text { get; set; }
         public string Description { get; set; }
     }
+    
+
+    public class WebPage
+    {
+        public int ID { get; set; }
+
+        [DataType(DataType.Url)]
+        public string URL { get; set; }
+        public DateTime EntryDate { get; set; }
+        public DateTime LastCrawled { get; set; }
+        [MaxLength(100)]
+        public string Title { get; set; }
+        [MaxLength(200)]
+        public string Description { get; set; }
+        [MaxLength(300)]
+        public string MetaDescription { get; set; }
+        public string PageData { get; set; }
+        [MaxLength(300)]
+        public string Domain { get; set; }
+    }
 }

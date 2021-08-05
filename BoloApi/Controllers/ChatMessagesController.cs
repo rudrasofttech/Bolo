@@ -38,11 +38,18 @@ namespace Bolo.Controllers
         {
             List<ChatMessageDTO> result = new List<ChatMessageDTO>();
             var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            var query = _context.ChatMessages.Where(t => (t.SentBy.PublicID == sender && t.SentTo.PublicID == member.PublicID) || 
-            (t.SentTo.PublicID == member.PublicID && t.SentBy.PublicID == sender)).Include(t => t.SentBy).Include(t => t.SentTo).OrderBy(t => t.SentDate);
+            var query = _context.ChatMessages.Where(t => 
+            (t.SentBy.PublicID == sender && t.SentTo.PublicID == member.PublicID) || 
+            (t.SentBy.PublicID == member.PublicID && t.SentTo.PublicID == sender))
+                .Include(t => t.SentBy).Include(t => t.SentTo).OrderBy(t => t.SentDate);
             foreach(ChatMessage cm in query)
             {
-                result.Add(new ChatMessageDTO(cm));
+                ChatMessageDTO cmdto = new ChatMessageDTO(cm);
+                cmdto.SentBy.Bio = "";
+                cmdto.SentBy.Pic = "";
+                cmdto.SentBy.ThoughtStatus = "";
+
+                result.Add(cmdto);
             }
 
             return result;

@@ -253,7 +253,7 @@ class NavMenu extends React.Component {
                         <ul className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
                             <li><a className="nav-link px-2 text-white" href="/Chat" title="Chat"><i className="bi bi-chat-dots"></i> Chat</a></li>
                             <li><a className="nav-link px-2 text-white" href="/Discussions" title="Discussion"><i className="bi bi-people-fill"></i> Discussion</a></li>
-                            <li>
+                            <li style={{display: "none"}}>
                                 <form className="d-flex ps-2" onSubmit={this.handleSearchSubmit}>
                                     <input className="form-control" style={{ width: "500px", borderRadius : "20px" }} type="search" placeholder="Search the web..." aria-label="Search" name="searchtext" onChange={this.handleChange} value={this.state.searchtext} />
                                     <button className="btn text-white" type="submit"><i className="bi bi-search"></i></button>

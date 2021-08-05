@@ -23,7 +23,7 @@ namespace BoloWeb.Helper
         }
         public async Task SearchAsync()
         {
-            
+
             await SearchGoogleAsync();
             await SearchBingAsync();
         }
@@ -33,52 +33,46 @@ namespace BoloWeb.Helper
             using (HttpClient client = new HttpClient())
             {
                 // Call asynchronous network methods in a try/catch block to handle exceptions
-                try
-                {
-                    client.DefaultRequestHeaders.Add("user-agent", "Mozilla/4.0");
-                    HttpResponseMessage response = await client.GetAsync("https://google.com/search?q=" + query);
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    // Above three lines can be replaced with new helper method below
-                    // string responseBody = await client.GetStringAsync(uri);
 
-                    Console.WriteLine(responseBody);
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(responseBody);
-                    
-                    foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[starts-with(@href,'/url?q=')]"))
+                client.DefaultRequestHeaders.Add("user-agent", "Mozilla/4.0");
+                HttpResponseMessage response = await client.GetAsync("https://google.com/search?q=" + query);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                // Above three lines can be replaced with new helper method below
+                // string responseBody = await client.GetStringAsync(uri);
+
+                Console.WriteLine(responseBody);
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(responseBody);
+
+                foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[starts-with(@href,'/url?q=')]"))
+                {
+                    // Get the value of the HREF attribute
+                    string hrefValue = link.GetAttributeValue("href", string.Empty);
+                    Uri u = new Uri("http://www.test.com" + hrefValue);
+
+                    SearchResultPost srp = new SearchResultPost()
                     {
-                        // Get the value of the HREF attribute
-                        string hrefValue = link.GetAttributeValue("href", string.Empty);
-                        Uri u = new Uri("http://www.test.com" + hrefValue);
-                        
-                        SearchResultPost srp = new SearchResultPost()
-                        {
-                            Description = "",
-                            Text = HttpUtility.HtmlDecode(link.InnerText),
-                            URL = hrefValue.ToString()
+                        Description = "",
+                        Text = HttpUtility.HtmlDecode(link.InnerText),
+                        URL = hrefValue.ToString()
 
-                        };
-                        if (!string.IsNullOrEmpty(u.Query))
-                        {
-                            var querycol = HttpUtility.ParseQueryString(u.Query);
-                            srp.URL = querycol.Get("q");
-                        }
-                        if (!results.ContainsKey(srp.URL))
-                        {
-                            if (results.Count < 5 && !srp.URL.ToLower().Contains("google.com"))
-                            {
-                                results.Add(srp.URL, srp);
-                            }
-                        }
-                       
+                    };
+                    if (!string.IsNullOrEmpty(u.Query))
+                    {
+                        var querycol = HttpUtility.ParseQueryString(u.Query);
+                        srp.URL = querycol.Get("q");
                     }
+                    if (!results.ContainsKey(srp.URL))
+                    {
+                        if (results.Count < 5 && !srp.URL.ToLower().Contains("google.com"))
+                        {
+                            results.Add(srp.URL, srp);
+                        }
+                    }
+
                 }
-                catch (HttpRequestException e)
-                {
-                    Console.WriteLine("\nException Caught!");
-                    Console.WriteLine("Message :{0} ", e.Message);
-                }
+
 
             }
         }
@@ -88,52 +82,45 @@ namespace BoloWeb.Helper
             using (HttpClient client = new HttpClient())
             {
                 // Call asynchronous network methods in a try/catch block to handle exceptions
-                try
-                {
-                    client.DefaultRequestHeaders.Add("user-agent", "Mozilla/4.0");
-                    HttpResponseMessage response = await client.GetAsync("https://bing.com/search?q=" + query);
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    // Above three lines can be replaced with new helper method below
-                    // string responseBody = await client.GetStringAsync(uri);
 
-                    Console.WriteLine(responseBody);
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(responseBody);
-                    HtmlNode hn = doc.QuerySelector("#b_results");
-                    
-                    foreach (HtmlNode li in hn.QuerySelectorAll("#b_results > li.b_algo"))
+                client.DefaultRequestHeaders.Add("user-agent", "Mozilla/4.0");
+                HttpResponseMessage response = await client.GetAsync("https://bing.com/search?q=" + query);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                // Above three lines can be replaced with new helper method below
+                // string responseBody = await client.GetStringAsync(uri);
+
+                Console.WriteLine(responseBody);
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(responseBody);
+                HtmlNode hn = doc.QuerySelector("#b_results");
+
+                foreach (HtmlNode li in hn.QuerySelectorAll("#b_results > li.b_algo"))
+                {
+                    HtmlNode anchor = li.QuerySelector("h2 > a");
+                    HtmlNode p = li.QuerySelector("p");
+                    if (anchor != null)
                     {
-                        HtmlNode anchor = li.QuerySelector("h2 > a");
-                        HtmlNode p = li.QuerySelector("p");
-                        if (anchor != null)
+                        // Get the value of the HREF attribute
+                        string hrefValue = anchor.GetAttributeValue("href", string.Empty);
+
+                        SearchResultPost srp = new SearchResultPost()
                         {
-                            // Get the value of the HREF attribute
-                            string hrefValue = anchor.GetAttributeValue("href", string.Empty);
+                            Description = p != null ? HttpUtility.HtmlDecode(p.InnerText) : "",
+                            Text = HttpUtility.HtmlDecode(anchor.InnerText),
+                            URL = hrefValue.ToString()
 
-                            SearchResultPost srp = new SearchResultPost()
+                        };
+
+                        if (!results.ContainsKey(srp.URL))
+                        {
+                            if (results.Count < 5 && !srp.URL.ToLower().Contains("bing.com"))
                             {
-                                Description = p != null ? HttpUtility.HtmlDecode(p.InnerText) : "",
-                                Text = HttpUtility.HtmlDecode(anchor.InnerText),
-                                URL = hrefValue.ToString()
-
-                            };
-
-                            if (!results.ContainsKey(srp.URL) )
-                            {
-                                if (results.Count < 5 && !srp.URL.ToLower().Contains("bing.com"))
-                                {
-                                    results.Add(srp.URL, srp);
-                                }
+                                results.Add(srp.URL, srp);
                             }
-                            
                         }
+
                     }
-                }
-                catch (HttpRequestException e)
-                {
-                    Console.WriteLine("\nException Caught!");
-                    Console.WriteLine("Message :{0} ", e.Message);
                 }
 
             }

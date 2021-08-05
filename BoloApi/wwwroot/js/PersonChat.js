@@ -155,6 +155,36 @@
         });
     }
 
+    fetchMessages() {
+        fetch('//' + window.location.host + '/api/ChatMessages?sender=' + this.state.person.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        }).then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    console.log(data);
+                    this.messages = new Map();
+                    for (var k in data) {
+                        var temp = data[k];
+                        var mi = { id: temp.id, sender: temp.sentBy.id, text: temp.message, timestamp: temp.sentDate, status: this.messageStatusEnum.Received };
+                        this.messages.set(mi.id, mi);
+                        if (temp.status != this.messageStatusEnum.Received) {
+                            this.setMessageStatus(mi.id, "SetReceived");
+                        }
+                    }
+                    this.setState({ dummy: Date.now() }, () => {
+                        localStorage.setItem(this.state.person.id.toLowerCase(), JSON.stringify(Array.from(this.messages.entries())));
+                        this.scrollToBottom();
+
+                    });
+                    this.updateReceivedMessageStatusAll();
+                });
+            }
+        });
+    }
+
     setMessageStatus(mid, action) {
         fetch('//' + window.location.host + '/api/ChatMessages/' + action + '?mid=' + mid, {
             method: 'get',
@@ -877,10 +907,12 @@
     }
 
     componentDidMount() {
-        //console.log("componentDidMount");
+        //
+
+        this.fetchMessages();
+
         this.startHub();
-        this.scrollToBottom();
-        this.updateReceivedMessageStatusAll();
+
         //this.deleteMyMessagesFromServer();
         this.checkPersonPulseInterval = setInterval(this.checkPersonPulse, 5000);
         //set unseenmessage count of person to zero and save
@@ -895,7 +927,12 @@
         //console.log("componentDidUpdate");
         if (prevProps.person.id !== this.props.person.id) {
             this.messages = (localStorage.getItem(this.props.person.id) !== null) ? new Map(JSON.parse(localStorage.getItem(this.props.person.id))) : new Map();
-            this.setState({ dummy: Date.now(), person: this.props.person }, () => { this.updateReceivedMessageStatusAll() });
+            this.setState({ dummy: Date.now(), person: this.props.person }, () => {
+
+                this.fetchMessages();
+
+                this.updateReceivedMessageStatusAll()
+            });
             this.props.updateParent("updatemessageseen", { id: this.props.person.id });
             //each time compoment updates scroll to bottom
             //this can be improved by identifying if new messages added
@@ -1012,7 +1049,7 @@
         let reclistyle = { display: "block", textAlign: 'left' };
         let sentmessagestyle = {
             marginBottom: "1px", maxWidth: "100%", position: "relative",
-            
+
             fontSize: "1.2rem",
             //border: "none",
             borderRadius: "0rem",
@@ -1220,7 +1257,7 @@
                                 <tbody>
                                     <tr>
                                         <td style={{
-                                            width: "37px", paddingLeft:"5px"
+                                            width: "37px", paddingLeft: "5px"
                                         }}>
                                             <div className="dropdown">
                                                 <a className="btn btn-light btn-sm dropdown-toggle" href="#" role="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
