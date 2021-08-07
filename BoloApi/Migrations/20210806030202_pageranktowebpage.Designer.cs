@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20210806030202_pageranktowebpage")]
+    partial class pageranktowebpage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -272,15 +274,16 @@ namespace Bolo.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
                     b.Property<string>("Domain")
                         .HasColumnType("nvarchar(300)")
                         .HasMaxLength(300);
 
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("HTML")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastCrawled")
                         .HasColumnType("datetime2");
@@ -296,12 +299,11 @@ namespace Bolo.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
 
                     b.Property<string>("URL")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 

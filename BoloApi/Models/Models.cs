@@ -476,9 +476,26 @@ namespace Bolo.Models
         public int ID { get; set; }
 
         [DataType(DataType.Url)]
+        [MaxLength(2000)]
         public string URL { get; set; }
         public DateTime EntryDate { get; set; }
         public DateTime LastCrawled { get; set; }
+        [MaxLength(200)]
+        public string Title { get; set; }
+        
+        [MaxLength(300)]
+        public string MetaDescription { get; set; }
+        public string HTML { get; set; }
+        public string PageData { get; set; }
+        [MaxLength(300)]
+        public string Domain { get; set; }
+        public int PageRank { get; set; }
+    }
+
+    public class WebPageDTO
+    {
+        [DataType(DataType.Url)]
+        public string URL { get; set; }
         [MaxLength(100)]
         public string Title { get; set; }
         [MaxLength(200)]
@@ -488,5 +505,6 @@ namespace Bolo.Models
         public string PageData { get; set; }
         [MaxLength(300)]
         public string Domain { get; set; }
+        public string HTML { get; set; }
     }
 }

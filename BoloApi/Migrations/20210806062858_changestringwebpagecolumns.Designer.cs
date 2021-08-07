@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20210806062858_changestringwebpagecolumns")]
+    partial class changestringwebpagecolumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -278,9 +280,6 @@ namespace Bolo.Migrations
 
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("HTML")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastCrawled")
                         .HasColumnType("datetime2");
