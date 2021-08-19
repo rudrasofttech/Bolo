@@ -212,28 +212,30 @@
 
     //search for members
     search() {
-        this.setState({ loading: true });
-        fetch('//' + window.location.host + '/api/Members/search?s=' + this.state.searchtext, {
-            method: 'get',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem("token")
-            }
-        })
-            .then(response => {
-                if (response.status === 200) {
-                    response.json().then(data => {
-                        //console.log(data);
-                        this.contactlist = new Map();
-                        for (var k in data) {
-                            this.contactlist.set(data[k].id, { id: 0, person: data[k], createDate: null, boloRelation: 3, recentMessage: '', recentMessageDate: '' });
-                        }
-
-                        this.setState({ loading: false, dummy: new Date() });
-                    });
-                } else {
-                    this.setState({ loading: false, message: 'Unable to search.', bsstyle: 'danger' });
+        if (this.state.searchtext !== "") {
+            this.setState({ loading: true });
+            fetch('//' + window.location.host + '/api/Members/search?s=' + this.state.searchtext, {
+                method: 'get',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem("token")
                 }
-            });
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        response.json().then(data => {
+                            //console.log(data);
+                            this.contactlist = new Map();
+                            for (var k in data) {
+                                this.contactlist.set(data[k].id, { id: 0, person: data[k], createDate: null, boloRelation: 3, recentMessage: '', recentMessageDate: '' });
+                            }
+
+                            this.setState({ loading: false, dummy: new Date() });
+                        });
+                    } else {
+                        this.setState({ loading: false, message: 'Unable to search.', bsstyle: 'danger' });
+                    }
+                });
+        }
     }
 
     setMessageStatus(mid, action) {

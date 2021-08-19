@@ -42,34 +42,50 @@ namespace BoloWeb.Controllers
         [Route("savewebpage")]
         public IActionResult SaveWebpage(WebPageDTO page)
         {
-            var wp = _context.WebPages.FirstOrDefault(t => t.URL == page.URL.ToLower());
-            if (wp == null)
+            try
             {
-                wp = new WebPage()
+                Uri u = new Uri(page.URL);
+                if (!(u.Host.ToLower().Contains("facebook.com") || u.Host.ToLower().Contains("twitter.com")))
                 {
-                    Domain = page.Domain,
-                    EntryDate = DateTime.UtcNow,
-                    MetaDescription = page.MetaDescription,
-                    PageData = page.PageData,
-                    LastCrawled = DateTime.UtcNow,
-                    Title = page.Title,
-                    URL = page.URL.Trim().ToLower(),
-                    HTML = page.HTML
-                };
-                _context.WebPages.Add(wp);
-                _context.SaveChanges();
-            }
-            else
+                    var wp = _context.WebPages.FirstOrDefault(t => t.URL == page.URL.ToLower());
+                    if (wp == null)
+                    {
+                        wp = new WebPage()
+                        {
+                            Domain = page.Domain,
+                            EntryDate = DateTime.UtcNow,
+                            MetaDescription = page.MetaDescription,
+                            PageData = page.PageData,
+                            LastCrawled = DateTime.UtcNow,
+                            Title = page.Title,
+                            URL = page.URL.Trim().ToLower(),
+                            HTML = page.HTML,
+                            IntLinks = page.IntLinks,
+                            ExtLinks = page.ExtLinks,
+                            StatusCode = page.StatusCode
+                        };
+                        _context.WebPages.Add(wp);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        wp.Domain = page.Domain;
+                        wp.LastCrawled = DateTime.UtcNow;
+                        wp.MetaDescription = page.MetaDescription;
+                        wp.PageData = page.PageData;
+                        wp.Title = page.Title;
+                        wp.HTML = page.HTML;
+                        wp.IntLinks = page.IntLinks;
+                        wp.ExtLinks = page.ExtLinks;
+                        wp.StatusCode = page.StatusCode;
+                        _context.SaveChanges();
+                    }
+                }
+                return Ok();
+            }catch(Exception ex)
             {
-                wp.Domain = page.Domain;
-                wp.LastCrawled = DateTime.UtcNow;
-                wp.MetaDescription = page.MetaDescription;
-                wp.PageData = page.PageData;
-                wp.Title = page.Title;
-                wp.HTML = page.HTML;
-                _context.SaveChanges();
+                return BadRequest(ex.Message.ToString());
             }
-            return Ok();
         }
 
         [HttpGet]

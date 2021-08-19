@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20210811040525_altercolumnwebpage1")]
+    partial class altercolumnwebpage1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,9 +305,6 @@ namespace Bolo.Migrations
 
                     b.Property<decimal>("PageRank")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("StatusCode")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(200)")

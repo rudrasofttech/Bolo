@@ -159,7 +159,7 @@
         fetch('//' + window.location.host + '/api/ChatMessages?sender=' + this.state.person.id, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + this.state.token
+                'Authorization': 'Bearer ' + this.state.token 
             }
         }).then(response => {
             if (response.status === 200) {
@@ -1070,14 +1070,14 @@
         for (const [key, obj] of this.messages.entries()) {
             if (obj.sender === this.state.myself.id) {
                 items.push(<li style={sentlistyle} key={key}>
-                    <div style={sentmessagestyle} className="border-bottom border-secondary pe-3 py-2">
+                    <div style={sentmessagestyle} className="border-end border-5 border-primary m-1 pe-3 py-2">
                         {this.renderLinksInMessage(obj)}
                         <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment.utc(obj.timestamp).local().fromNow(true)}</small> <small style={{ fontSize: "0.75rem" }}>{this.showMessageStatus(obj.status)}</small></span>
                     </div>
                 </li>);
             } else {
                 items.push(<li style={reclistyle} key={key}>
-                    <div style={recmessagestyle} className="border-bottom border-secondary ps-3 py-2">
+                    <div style={recmessagestyle} className="border-start border-5 border-success m-1 ps-3 py-2">
                         {this.renderLinksInMessage(obj)}
                         <span className="d-block"><small style={{ fontSize: "0.75rem" }}>{moment.utc(obj.timestamp).local().fromNow(true)}</small></span>
                     </div>

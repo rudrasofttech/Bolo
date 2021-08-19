@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20210810140034_newcolumnswebpage")]
+    partial class newcolumnswebpage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,10 +290,7 @@ namespace Bolo.Migrations
                     b.Property<string>("IntLinks")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("LastCrawled")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastPageRankCalc")
+                    b.Property<DateTime>("LastCrawled")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("MetaDescription")
@@ -301,10 +300,7 @@ namespace Bolo.Migrations
                     b.Property<string>("PageData")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("PageRank")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("StatusCode")
+                    b.Property<int>("PageRank")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
