@@ -22,8 +22,6 @@ namespace Bolo.Data
         public DbSet<MeetingMember> MeetingMembers { get; set; }
         public DbSet<MeetingMessage> MeetingMessages { get; set; }
 
-        public DbSet<WebPage> WebPages { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
@@ -33,7 +31,6 @@ namespace Bolo.Data
             modelBuilder.Entity<Contact>().ToTable("Contact");
             modelBuilder.Entity<MeetingMember>().ToTable("MeetingMember");
             modelBuilder.Entity<MeetingMessage>().ToTable("MeetingMessage");
-            modelBuilder.Entity<WebPage>().ToTable("WebPage");
         }
     }
 }
