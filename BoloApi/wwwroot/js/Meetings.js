@@ -173,7 +173,9 @@
                         <p className="card-text" style={{ "textOverflow": "ellipsis", "overflow": "hidden", "whiteSpace": "nowrap" }}>{obj.purpose}</p>
                     </div>
                     <div className="card-footer bg-transparent border-success">
-                        <a className="btn btn-sm btn-primary" onClick={this.handleGotoMeeting.bind(this, obj.id)}>Go To</a></div>
+                        <a className="btn btn-sm btn-primary" onClick={this.handleGotoMeeting.bind(this, obj.id)}>Go To</a>
+                        <span style={{ "float": "right" }} className="badge bg-secondary">{obj.numberOfMessages} Messages</span>
+                    </div>
                 </div>
                 </div>);
             }

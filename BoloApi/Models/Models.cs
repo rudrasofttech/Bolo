@@ -418,7 +418,12 @@ namespace Bolo.Models
         public string Purpose { get; set; }
         public MeetingMemberType MemberRelation { get; set; }
         
+        public int NumberOfMessages { get; set; }
 
+        public MeetingDTO()
+        {
+            NumberOfMessages = -1;
+        }
     }
     public class MeetingSendMessageDTO
     {

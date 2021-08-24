@@ -73,6 +73,10 @@ namespace Bolo.Controllers
             List<MeetingDTO> meetings = new List<MeetingDTO>();
             meetings.AddRange(ownedm);
             meetings.AddRange(partof);
+            foreach(MeetingDTO mdto in meetings)
+            {
+                mdto.NumberOfMessages = _context.MeetingMessages.Count(t => t.Meeting.PublicID == mdto.ID);
+            }
             return meetings;
         }
 
