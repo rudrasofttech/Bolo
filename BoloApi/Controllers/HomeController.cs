@@ -8,6 +8,11 @@ namespace BoloApi.Controllers
 {
     public class HomeController : Controller
     {
+
+        public IActionResult Demo()
+        {
+            return View();
+        }
         public IActionResult Index()
         {
             return View();

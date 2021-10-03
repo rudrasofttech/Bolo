@@ -1,6 +1,5 @@
 ﻿class RegisterForm extends React.Component {
 
-
     constructor(props) {
         super(props);
         let loggedin = true;
@@ -38,6 +37,7 @@
 
     handleLogin(e) {
         e.preventDefault();
+        
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/Members/Login', {
             method: 'post',
@@ -50,9 +50,10 @@
                 //console.log(response);
                 if (response.status === 200) {
                     response.json().then(data => {
-                        //console.log(data);
+                        console.log(data);
                         if (data.token !== undefined) {
                             localStorage.setItem("token", data.token);
+                            localStorage.setItem("user", data.member);
                             this.setState({ bsstyle: '', message: '', loggedin: true });
                             if (this.props.onLogin !== undefined) {
                                 this.props.onLogin();

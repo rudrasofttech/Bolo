@@ -18,14 +18,13 @@ class NavMenu extends React.Component {
             showleavemeeting: this.props.onLeaveMeeting === undefined ? false : true,
             onProfileChange: this.props.onProfileChange === undefined ? null : this.props.onProfileChange,
             registerFormBeginWith: this.props.registerFormBeginWith === undefined ? true : this.props.registerFormBeginWith,
-            membername: (localStorage.getItem("membername") !== null) ? localStorage.getItem("membername") : '',
-            memberpic: (localStorage.getItem("memberpic") !== null) ? localStorage.getItem("memberpic") : '',
+            user: (localStorage.getItem("user") !== null) ? JSON.parse(localStorage.getItem("membername")) : { },
             memberid: '', fixed: this.props.fixed === undefined ? true : this.props.fixed, searchtext: '', showwebsearchresult: false, websearchresult: [], showprofilemodal: false
         };
 
-        if (token !== null) {
-            this.fetchData(token);
-        }
+        //if (token !== null) {
+        //    this.fetchData(token);
+        //}
         this.loginHandler = this.loginHandler.bind(this);
         this.handleRegister = this.handleRegister.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
@@ -39,7 +38,10 @@ class NavMenu extends React.Component {
 
     loginHandler() {
         if (localStorage.getItem("token") != null) {
-            this.fetchData(localStorage.getItem("token"));
+            const { setToken, setData } = this.context;
+            setData(JSON.parse(localStorage.getItem("user")));
+            setToken(localStorage.getItem("token"));
+            //this.fetchData(localStorage.getItem("token"));
             this.setState({ loggedin: true, registermodal: false, registerFormBeginWith: false });
             if (this.props.onLogin !== undefined) {
                 this.props.onLogin();
@@ -90,9 +92,9 @@ class NavMenu extends React.Component {
         if (this.state.onProfileChange !== null) {
             this.state.onProfileChange();
         }
-        if (localStorage.getItem("token") !== null) {
-            this.fetchData(localStorage.getItem("token"));
-        }
+        //if (localStorage.getItem("token") !== null) {
+        //    this.fetchData(localStorage.getItem("token"));
+        //}
 
     }
 
@@ -120,28 +122,28 @@ class NavMenu extends React.Component {
         this.setState({ registermodal: false });
     }
 
-    fetchData(t) {
-        fetch('//' + window.location.host + '/api/Members/Validate', {
-            method: 'get',
-            headers: {
-                'Authorization': 'Bearer ' + t
-            }
-        })
-            .then(response => {
-                if (response.status === 401) {
-                    localStorage.removeItem("token");
-                    localStorage.setItem("membername", "");
-                    localStorage.setItem("memberpic", "");
-                    this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false, membername: '' });
-                } else if (response.status === 200) {
-                    response.json().then(data => {
-                        localStorage.setItem("membername", data.name);
-                        localStorage.setItem("memberpic", data.pic);
-                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, membername: data.name, memberid: data.id, memberpic: data.pic });
-                    });
-                }
-            });
-    }
+    //fetchData(t) {
+    //    fetch('//' + window.location.host + '/api/Members/Validate', {
+    //        method: 'get',
+    //        headers: {
+    //            'Authorization': 'Bearer ' + t
+    //        }
+    //    })
+    //        .then(response => {
+    //            if (response.status === 401) {
+    //                localStorage.removeItem("token");
+    //                localStorage.setItem("membername", "");
+    //                localStorage.setItem("memberpic", "");
+    //                this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false, membername: '' });
+    //            } else if (response.status === 200) {
+    //                response.json().then(data => {
+    //                    localStorage.setItem("membername", data.name);
+    //                    localStorage.setItem("memberpic", data.pic);
+    //                    this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, membername: data.name, memberid: data.id, memberpic: data.pic });
+    //                });
+    //            }
+    //        });
+    //}
 
     toggleNavbar() {
         this.setState({
@@ -232,11 +234,11 @@ class NavMenu extends React.Component {
 
         let profilepic = null;
         if (loggedin && this.state.memberpic !== "") {
-            profilepic = <img src={this.state.memberpic} width="20" height="20" className="rounded-circle" />
+            profilepic = <img src={this.state.user.pic} width="20" height="20" className="rounded-circle" />
         }
 
         if (loggedin) {
-            linkitems.push(<button key={"memberlinkli"} type="button" className="btn btn-dark me-2 membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.membername}</button>);
+            linkitems.push(<button key={"memberlinkli"} type="button" className="btn btn-dark me-2 membernavlink" onClick={this.toggleProfileModal}>{profilepic} {this.state.user.name}</button>);
             linkitems.push(<button key={"logoutlinkli"} type="button" className="btn btn-dark" title="Sign out" onClick={this.handleLogout}><i className="bi bi-power"></i></button>);
         } else {
             linkitems.push(<button key={"loginlinkli"} type="button" className="btn btn-dark me-2" onClick={this.handleLogin}>Login</button>);
@@ -270,7 +272,6 @@ class NavMenu extends React.Component {
                 {this.renderSearchResult()}
                 {this.renderProfileModal()}
                 {this.renderRegisterModal()}
-
             </React.Fragment>
         );
     }

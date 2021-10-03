@@ -445,7 +445,6 @@
 
         return (
             <React.Fragment>
-                <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
                 <div className="container-fluid">
                     <div className="row">
                         {searchhtml}

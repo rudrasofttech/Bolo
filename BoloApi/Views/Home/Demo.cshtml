@@ -1,9 +1,7 @@
-﻿
-@{
-    ViewData["Title"] = "Index";
+﻿@{
+    ViewData["Title"] = "Demo";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <div id="root"></div>
 @section scripts{
     <script src="~/libs/moment.min.js"></script>
@@ -30,24 +28,16 @@
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
-        <script src="~/js/compiled/ManageProfile.js"></script>
-        <script src="~/js/compiled/RegisterForm.js"></script>
-        <script src="~/js/compiled/Welcome.js"></script>
-        <script src="~/js/compiled/AuthContext.js"></script>
-        <script src="~/js/compiled/Layout.js"></script>
-        <script src="~/js/compiled/TranformMessage.js"></script>
-        <script src="~/js/compiled/Models.js"></script>
-        <script src="~/js/compiled/Emoji.js"></script>
-        <script src="~/js/compiled/ViewProfile.js"></script>
-        <script src="~/js/compiled/BlockContact.js"></script>
-        <script src="~/js/compiled/PersonChat.js"></script>
-        <script src="~/js/compiled/Conversation.js"></script>
-        <script src="~/js/compiled/App.js"></script>
-
+        <script src="~/js/compiled/ManageProfile.js">
+        </script>
+        <script src="~/js/compiled/RegisterForm.js">
+        </script>
+        <script src="~/js/compiled/Welcome.js">
+        </script>
         <script>
             "use strict";
 
-            ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('root'));
+            ReactDOM.render( /*#__PURE__*/React.createElement(Welcome, null), document.getElementById('Welcomediv'));
         </script>
     </environment>
 }

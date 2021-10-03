@@ -10,7 +10,7 @@
             loading: false, loggedin: loggedin,
             myself: null, bsstyle: '', message: '',
             token: localStorage.getItem("token") === null ? '' : localStorage.getItem("token"),
-            registermodal: false, showprofilemodal: false, memberpic: ''
+            registermodal: false, showprofilemodal: false
         };
         this.loginHandler = this.loginHandler.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
@@ -51,7 +51,7 @@
                     //is set then start signalr hub
                     response.json().then(data => {
                         //console.log(data);
-                        this.setState({ loggedin: true, loading: false, myself: data, memberpic: data.pic });
+                        this.setState({ loggedin: true, loading: false, myself: data });
                     });
                 }
             });
@@ -121,8 +121,8 @@
         if (this.state.myself === null) {
             profileinfo = <button className="btn btn-lg btn-link m-2" style={{ color: '#fff' }} onClick={this.handleLogin}>Sign In / Register</button>
         } else {
-            if (this.state.loggedin && this.state.memberpic !== "") {
-                profilepic = <img src={this.state.memberpic} style={{ border: '2px solid #fff', marginRight: '10px' }} width="40" height="40" className="rounded-circle" />
+            if (this.state.loggedin && this.state.myself.pic !== "") {
+                profilepic = <img src={this.state.myself.pic} style={{ border: '2px solid #fff', marginRight: '10px' }} width="40" height="40" className="rounded-circle" />
             }
             profileinfo = <button className="btn btn-lg btn-link m-2" style={{ color: '#fff' }} onClick={this.toggleProfileModal}>{profilepic}Welcome, {this.state.myself.name}</button>
 

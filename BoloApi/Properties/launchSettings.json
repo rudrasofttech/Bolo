@@ -12,7 +12,6 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "chat",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -30,9 +29,9 @@
       "launchBrowser": true,
       "launchUrl": "chat",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Staging",
+        "ASPNETCORE_SHUTDOWNTIMEOUTSECONDS": "3",
         "ASPNETCORE_DETAILEDERRORS": "1",
-        "ASPNETCORE_SHUTDOWNTIMEOUTSECONDS": "3"
+        "ASPNETCORE_ENVIRONMENT": "Staging"
       }
     },
     "BoloApi": {

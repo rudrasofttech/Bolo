@@ -4,10 +4,10 @@
     render() {
         return (
             <div>
-                <NavMenu />
-                <Container>
+                
+                <div>
                     {this.props.children}
-                </Container>
+                </div>
             </div>
         );
     }
