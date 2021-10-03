@@ -1,0 +1,1 @@
+﻿"use strict"; const AuthContext = React.createContext({ token: null, setToken: t => { }, data: null, setData: t => { } }); function useAuthContext() { return useContext(AuthContext) }
