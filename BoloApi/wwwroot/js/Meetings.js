@@ -187,18 +187,7 @@
         let loading = this.state.loading ? <div className="progress">
             <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%' }}></div>
         </div> : null;
-        if (!this.state.loggedin) {
-            return <div>
-                <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
-                <main role="main" className="inner cover meetingsmain m-5">
-                    <h1 className="cover-heading">Discussions</h1>
-                    <p className="lead">Connect with people for quick status updates, important discussions, future planning or interviews. <strong>Login to start a discussion.</strong></p>
-                </main>
-                <HeartBeat activity="1" interval="20000" />
-            </div>;
-
-        }
-        else if (this.state.meetingid != '') {
+        if (this.state.meetingid != '') {
             var d = null;
             for (var k in this.state.meetinglist) {
                 if (this.state.meetinglist[k].id === this.state.meetingid) {
@@ -215,7 +204,6 @@
             </div> : null;
             return (
                 <React.Fragment>
-                    <NavMenu onLogin={this.loginHandler} registerFormBeginWith={false} fixed={false} />
                     <div className="container-fluid">
                         <main role="main" className="inner cover meetingsmain mr-5 ml-5">
                             {this.renderMeetingList()}

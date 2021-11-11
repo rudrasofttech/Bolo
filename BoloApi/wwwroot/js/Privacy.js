@@ -1,33 +1,10 @@
-﻿<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-
-    <title>Waarta</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-    <meta name="theme-color" content="#563d7c" />
-    <link href="~/css/home.css" rel="stylesheet" />
-</head>
-<body class="text-center">
-    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-        <header class="masthead mb-auto">
-            <div class="inner">
-                <h3 class="masthead-brand">Waarta</h3>
-                <nav class="nav nav-masthead justify-content-center">
-                    <a class="nav-link" href="/">Home</a>
-                    <a class="nav-link" href="/faq">FAQ</a>
-                    <a class="nav-link active" href="/privacy">Privacy</a>
-                    <a class="nav-link" href="https://www.rudrasofttech.com/contact" target="_blank">Contact</a>
-                </nav>
-            </div>
-        </header>
-
-        <main role="main" class="inner cover" style="max-height:80%; overflow-y:auto;text-align:left;">
+﻿class Privacy extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return <React.Fragment ><main role="main" className="inner cover" style={{ padding : "20px"}}>
             <h1>Privacy Policy for <br /> Rudra Softtech LLP</h1>
-
             <p>
                 At Waarta, accessible from https://waarta.com, one of our main priorities is the privacy of our visitors.
                 This Privacy Policy document contains types of information that is collected and recorded by Waarta and
@@ -112,7 +89,7 @@
 
             <h2>Advertising Partners Privacy Policies</h2>
 
-            <P>You may consult this list to find the Privacy Policy for each of the advertising partners of Waarta.</P>
+            <p>You may consult this list to find the Privacy Policy for each of the advertising partners of Waarta.</p>
 
             <p>
                 Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are
@@ -198,13 +175,6 @@
                 If you think that your child provided this kind of information on our website, we strongly encourage you to
                 contact us immediately and we will do our best efforts to promptly remove such information from our records.
             </p>
-        </main>
-
-        <footer class="mastfoot mt-auto">
-            <div class="inner">
-                <p>Waarta, owned by <a href="https://rudrasofttech.com" target="_blank">Rudra Softtech LLP</a></p>
-            </div>
-        </footer>
-    </div>
-</body>
-</html>
+        </main></React.Fragment>;
+    }
+}

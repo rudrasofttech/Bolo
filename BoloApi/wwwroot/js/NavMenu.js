@@ -177,25 +177,25 @@ class NavMenu extends React.Component {
         }
     }
 
-    renderProfileModal() {
-        if (this.state.showprofilemodal) {
-            return (
-                <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div className="modal-dialog modal-fullscreen">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Profile Information</h5>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}></button>
-                            </div>
-                            <ManageProfile onProfileChange={this.handleProfileChange} />
-                        </div>
-                    </div>
-                </div>
-            );
-        } else {
-            return null;
-        }
-    }
+    //renderProfileModal() {
+    //    if (this.state.showprofilemodal) {
+    //        return (
+    //            <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    //                <div className="modal-dialog modal-fullscreen">
+    //                    <div className="modal-content">
+    //                        <div className="modal-header">
+    //                            <h5 className="modal-title">Profile Information</h5>
+    //                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={this.toggleProfileModal}></button>
+    //                        </div>
+    //                        <ManageProfile onProfileChange={this.handleProfileChange} />
+    //                    </div>
+    //                </div>
+    //            </div>
+    //        );
+    //    } else {
+    //        return null;
+    //    }
+    //}
 
     renderSearchResult() {
         if (this.state.showwebsearchresult) {

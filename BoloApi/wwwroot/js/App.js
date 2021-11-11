@@ -48,7 +48,7 @@
                     this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false, user: null, token:'' });
                 } else if (response.status === 200) {
                     response.json().then(data => {
-                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, user: data, mainview : "conversation"});
+                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, user: data, mainview : this.state.mainview !== "profile" ?  "conversation" : "profile"});
                     });
                 }
             });
@@ -162,8 +162,8 @@
                     </ul>
                     <div className="col-md-3 text-end">
                         {linkitems}
-                        <a className="px-2 text-white" href="/faq" title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a>
-                        <a className="px-2 text-white" href="/privacy" title="Privacy"><i className="bi bi-eye-slash-fill"></i></a>
+                        <a className="px-2 text-white" onClick={() => { this.setState({ mainview: "faq" }) }} title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a>
+                        <a className="px-2 text-white" onClick={() => { this.setState({ mainview: "privacy" }) }} title="Privacy"><i className="bi bi-eye-slash-fill"></i></a>
                     </div>
                 </header>
             </div>;
@@ -203,7 +203,7 @@
 
     renderProfile() {
         if (this.state.mainview === "profile") {
-            return <div className="container"><ManageProfile onProfileChange={() => { this.fetchData() }} /></div>
+            return <div className="container-fluid"><ManageProfile onProfileChange={() => { this.fetchData() }} /></div>;
         } else {
             return null;
         }
@@ -212,6 +212,61 @@
     renderConversation() {
         if (this.state.mainview === "conversation") {
             return <Conversation />;
+        } else {
+            return null;
+        }
+    }
+
+    renderDiscussion() {
+        if (this.state.mainview === "discussion") {
+            return <Meetings />;
+        } else {
+            return null;
+        }
+    }
+
+    renderPrivacy() {
+        if (this.state.mainview === "privacy") {
+            return <Privacy />;
+        } else {
+            return null;
+        }
+    }
+
+    renderFAQ() {
+        if (this.state.mainview === "faq") {
+            return <main role="main" className="inner cover" style={{ padding: "20px" }}>
+                <h1>Frequently Asked Questions</h1>
+
+                <h4>What is Waarta?</h4>
+                <p>
+                    Waarta is a hindi word which literally means communication.
+
+            </p>
+                <h4>Purpose of Waarta</h4>
+                <p>
+                    Sole purpose of waarta is to help facilitate communication between people. Waarta
+                    achieves this by providing a set of powerful features like people search, conversations and meetings.
+            </p>
+
+                <h4>People Search?</h4>
+                <p>
+                    "People Search" as the name suggest is a search feature through which you can search member profiles on waarta. For example
+                    if you are looking for a software engineer with ASP.net skill and 10 years of experience in New Delhi. You can can search
+                the same on waarta and find elligible profiles. <br />
+                You have to visit conversations page to do a people search.
+            </p>
+
+                <h4>Conversations</h4>
+                <p>
+                    "Conversation" is a powerful one to one online text, audio and video chat feature, through which you can communicate
+                    with your contacts on waarta and with the people you searched on waarta.
+            </p>
+                <h4>Discussions</h4>
+                <p>
+                    A place where like minded people can share ideas on topics of their choice. There is no restrictions on number of members a dicussion can have.
+            </p>
+            </main>;
         } else {
             return null;
         }
@@ -236,6 +291,9 @@
                 {this.renderProfile()}
                 {this.renderRegister(messagecontent, loading)}
                 {this.renderConversation()}
+                {this.renderDiscussion()}
+                {this.renderFAQ()}
+                {this.renderPrivacy()}
             </AuthContext.Provider>
         );
     }
