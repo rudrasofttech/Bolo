@@ -362,22 +362,18 @@
                 let pic = obj.pic !== "" ? <img src={obj.pic} className="card-img" alt="" />
                     : null;
 
-                items.push(<div className="col-12" key={key} >
-                    <div className="card mb-1" style={{ maxWidth: "400px", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
-
-                        <div className="card-body" style={{ position: "relative" }}>
+                items.push(<div className="card mb-1" style={{ maxWidth: "400px", cursor: "pointer" }} onClick={() => this.handleResultItemClick(obj.id)}>
+                        <div className="card-body p-1" style={{ position: "relative" }}>
                             <span style={{ maxWidth: "30px", display: "inline-block", float: "right" }} >{pic}</span>
                             <h5 className="card-title">{online} {obj.name} {unseenmsgcount} {blocked}</h5>
-                            <h6 className="card-subtitle mb-2 text-muted">{obj.city} {obj.state} {obj.country}</h6>
                             {thought}
                         </div>
-                    </div>
-                </div>);
+                    </div>);
             }
         }
 
         if (items.length > 0) {
-            return <div className="row searchresult">{items}</div>;
+            return <div className="row searchresult p-1">{items}</div>;
         } else {
             return <div className="row justify-content-center">
                 <div className="col-12">
@@ -430,7 +426,7 @@
 
         let searchhtml = null;
         if (true || this.state.showsearch) {
-            searchhtml = <div className="col-3 searchcont">
+            searchhtml = <div className="col-sm-4 col-md-3 searchcont bg-light">
                 <form onSubmit={this.handleSearchSubmit} className="searchform1 form-inline mt-1 mb-1">
                     <div className="input-group mb-1">
                         <input type="search" className="form-control" onChange={this.handleChange} title="Find People by Name, Location, Profession etc." name="searchtext" id="search-input" placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
@@ -445,11 +441,11 @@
 
         return (
             <React.Fragment>
-                <div className="container-fluid">
+                <div className="container">
                     <div className="row">
                         {searchhtml}
                         {loading}
-                        <div className="col-9 p-0">
+                        <div className="col-sm-8 col-md-9 p-0">
                             {personchatorprofile}
                         </div>
                     </div>

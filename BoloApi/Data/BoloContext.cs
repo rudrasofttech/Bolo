@@ -15,22 +15,25 @@ namespace Bolo.Data
         }
 
         public DbSet<Member> Members { get; set; }
-        public DbSet<Meeting> Meetings { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Contact> Contacts { get; set; }
-
-        public DbSet<MeetingMember> MeetingMembers { get; set; }
-        public DbSet<MeetingMessage> MeetingMessages { get; set; }
+        public DbSet<MemberPost> Posts { get; set; }
+        public DbSet<PostPhoto> PostPhotos { get; set; }
+        public DbSet<MemberFollower> Followers { get; set; }
+        public DbSet<MemberReaction> Reactions { get; set; }
+        public DbSet<MemberComment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
             modelBuilder.Entity<Member>().ToTable("Member");
-            modelBuilder.Entity<Meeting>().ToTable("Meeting");
             modelBuilder.Entity<ChatMessage>().ToTable("ChatMessage");
             modelBuilder.Entity<Contact>().ToTable("Contact");
-            modelBuilder.Entity<MeetingMember>().ToTable("MeetingMember");
-            modelBuilder.Entity<MeetingMessage>().ToTable("MeetingMessage");
+            modelBuilder.Entity<MemberPost>().ToTable("MemberPost");
+            modelBuilder.Entity<PostPhoto>().ToTable("PostPhoto");
+            modelBuilder.Entity<MemberFollower>().ToTable("MemberFollower");
+            modelBuilder.Entity<MemberReaction>().ToTable("MemberReaction");
+            modelBuilder.Entity<MemberComment>().ToTable("MemberComment");
         }
     }
 }

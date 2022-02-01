@@ -3,7 +3,7 @@
         super(props);
     }
     render() {
-        return <React.Fragment ><main role="main" className="inner cover" style={{ padding : "20px"}}>
+        return <React.Fragment ><main role="main" className="inner cover container py-5">
             <h1>Privacy Policy for <br /> Rudra Softtech LLP</h1>
             <p>
                 At Waarta, accessible from https://waarta.com, one of our main priorities is the privacy of our visitors.

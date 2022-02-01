@@ -108,8 +108,6 @@ namespace BoloApi
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<MeetingHub>("/meetinghub");
-                endpoints.MapHub<BroadcastHub>("/broadcasthub");
                 endpoints.MapHub<PersonChatHub>("/personchathub");
                 endpoints.MapControllerRoute(
                     name: "default",

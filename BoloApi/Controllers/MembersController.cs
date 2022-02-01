@@ -262,10 +262,9 @@ namespace Bolo.Controllers
         }
 
 
-
         [HttpGet]
-        [Route("SaveChannel")]
-        public async Task<IActionResult> SaveChannelName([FromQuery] string channel)
+        [Route("SaveChannelName")]
+        public async Task<IActionResult> SaveChannelName([FromQuery] string d)
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
@@ -274,14 +273,14 @@ namespace Bolo.Controllers
             }
             else
             {
-                int count = await _context.Members.CountAsync(t => t.Channelname == channel);
+                int count = await _context.Members.CountAsync(t => t.Channelname == d && t.ID != member.ID);
                 if (count > 0)
                 {
                     return BadRequest(new { message = "Channel name is taken." });
                 }
                 else
                 {
-                    member.Channelname = channel;
+                    member.Channelname = d;
                     member.ModifyDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                 }

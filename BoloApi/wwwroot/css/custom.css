@@ -16,6 +16,10 @@ code {
 .nopadding {
     padding: 0px !important;
 }
+.btn{
+    border-radius:0px;
+    padding:0.2rem;
+}
 
 .btn-primary {
     color: #fff;
@@ -89,6 +93,12 @@ code {
 
 .fullheight {
     min-height: 100vh;
+}
+
+.form-control, .form-select {
+    border-radius: 0px;
+    padding: 0.3rem;
+    line-height: 1.3;
 }
 
 .meetingvideocol {
@@ -562,14 +572,11 @@ code {
             border: 3px solid #E6E7E8;
             width: 100px;
         }
-
-.searchcont {
-    height: calc(100vh - 50px);
-    overflow-y: auto;
-    background-color: #F0F4F8;
-    /*padding: 0px;
-    padding-top: 40px;
-    position: relative;*/
+@media only screen and (min-width: 700px) {
+    .searchcont {
+        height: calc(100vh - 50px);
+        overflow-y: auto;
+    }
 }
 
 .searchresult > li.list-inline-item {
