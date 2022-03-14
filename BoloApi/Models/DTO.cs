@@ -86,6 +86,9 @@ namespace Bolo.Models
         public string State { get; set; }
         public string City { get; set; }
         public string ThoughtStatus { get; set; }
+        public int PostCount { get; set; }
+        public int FollowerCount { get; set; }
+        public int FollowingCount { get; set; }
 
         public string Phone { get; set; }
         public string Email { get; set; }
@@ -130,12 +133,15 @@ namespace Bolo.Models
         [MaxLength(200)]
         [Required(ErrorMessage = "Name is missing.")]
         public string Name { get; set; }
-        [EmailAddress(ErrorMessage = "Incorrect Email")]
-        public string Email { get; set; }
+        
         [MaxLength(15, ErrorMessage = "Phone too long")]
         public string Phone { get; set; }
         [MaxLength(4, ErrorMessage = "Incorrect Country Code")]
-        public string CountryCode { get; set; }
+        public string CountryCode { get; set; } = "91";
+        [MinLength(8, ErrorMessage = "Should have 8 letters or more")]
+        public string Password { get; set; } = string.Empty;
+        [Compare("Password", ErrorMessage ="Should match Password")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 
     public class LoginDTO
@@ -165,6 +171,16 @@ namespace Bolo.Models
         public string Caption { get; set; } = string.Empty;
     }
 
+    public class PostListItem
+    {
+        public int ID { get; set; }
+        public string Photo { get; set; } = string.Empty;
+    }
+
+    public class DiscoverPaged : PagingModel
+    {
+        public List<PostListItem> Posts { get; set; } = new List<PostListItem>();
+    }
 
     public class MyPostListItem
     {

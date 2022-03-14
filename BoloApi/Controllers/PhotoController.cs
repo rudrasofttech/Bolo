@@ -35,7 +35,29 @@ namespace BoloWeb.Controllers
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             var query =  _context.Posts.Include(t => t.Photos).Where(t => t.Owner.ID == member.ID)
                 .Select(t => new MyPostListItem() { ID = t.ID, Photo = t.Photos[0].Photo });
-            MyPostsPaged model = new MyPostsPaged() { Current = p, PageSize = ps, Posts = query.Skip(p * ps).Take(ps).ToList(), Total = query.Count() };
+            var list = query.Skip(p * ps).Take(ps).ToList();
+            MyPostsPaged model = new MyPostsPaged() { Current = p, PageSize = ps, Posts = list, Total = query.Count() };
+            return model;
+        }
+
+        [HttpGet]
+        [Route("discover")]
+        public async Task<DiscoverPaged> DiscoverAsync([FromQuery] int ps = 20, [FromQuery] int p = 0)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            string text = "SELECT TOP 1000 * FROM [dbo].[DiscoverPostView] ORDER BY PostDate desc, Reactions desc ";
+            var query2 = _context.DiscoverPostViews.FromSqlRaw(text);
+            List<int> ids = new List<int>();
+            foreach(var i in query2.Where(t => t.OwnerID != member.ID))
+            {
+                ids.Add(i.ID);
+            }
+            var query = _context.Posts.Include(t => t.Photos).Where(t => ids.Contains(t.ID)).Select(t => new PostListItem() { ID = t.ID, Photo = t.Photos[0].Photo });
+            DiscoverPaged model = new DiscoverPaged();
+            model.Current = p;
+            model.PageSize = ps;
+            model.Total = query.Count();
+            model.Posts = query.Skip(p * ps).Take(ps).ToList();
             return model;
         }
 

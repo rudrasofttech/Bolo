@@ -215,6 +215,9 @@ namespace Bolo.Controllers
                 MemberDTO result = new MemberDTO(member);
                 result.Phone = member.Phone;
                 result.Email = member.Email;
+                result.PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID);
+                result.FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID);
+                result.FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID);
                 return result;
             }
         }
@@ -673,9 +676,9 @@ namespace Bolo.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (_context.Members.Count(t => t.Email == model.Email || (t.Phone == model.Phone && t.CountryCode == model.CountryCode && model.Phone != "")) > 0)
+            if (_context.Members.Count(t => t.Phone == model.Phone && t.CountryCode == model.CountryCode && model.Phone != "") > 0)
             {
-                ModelState.AddModelError("Error", "The email / phone already exist, please try to log in.");
+                ModelState.AddModelError("Error", "The phone already exist, please try to log in.");
                 return BadRequest(ModelState);
             }
             string OTP = Helper.Utility.GenerateOTP();
@@ -684,7 +687,7 @@ namespace Bolo.Controllers
                 CountryCode = model.CountryCode,
                 Status = RecordStatus.Unverified,
                 CreateDate = DateTime.UtcNow,
-                Email = model.Email,
+                Email = string.Empty,
                 Name = model.Name,
                 Phone = model.Phone,
                 OTP = EncryptionHelper.Encrypt(OTP),
@@ -694,7 +697,7 @@ namespace Bolo.Controllers
                 Bio = "",
                 Channelname = "",
                 City = "",
-                Country = "",
+                Country = "IN",
                 LastPulse = DateTime.UtcNow,
                 Pic = "",
                 ThoughtStatus = "",
@@ -703,11 +706,11 @@ namespace Bolo.Controllers
             };
             _context.Members.Add(m);
             await _context.SaveChangesAsync();
-            if (!string.IsNullOrEmpty(model.Email))
-            {
-                EmailUtility eu = new EmailUtility(_config);
-                eu.SendEmail(model.Email, "", "contact@bolo.com", "", "Bolo OTP", string.Format("You passcode is: {0}", OTP));
-            }
+            //if (!string.IsNullOrEmpty(model.Email))
+            //{
+            //    EmailUtility eu = new EmailUtility(_config);
+            //    eu.SendEmail(model.Email, "", "contact@bolo.com", "", "Bolo OTP", string.Format("You passcode is: {0}", OTP));
+            //}
             if (!string.IsNullOrEmpty(model.Phone))
             {
                 Helper.Utility.SendSMS(model.Phone, string.Format("Your Bolo passcode is: {0}", OTP));
@@ -762,7 +765,14 @@ namespace Bolo.Controllers
             {
                 query = query.Where(t => t.PublicID != new Guid(User.Identity.Name));
             }
-            return query.Select(t => new MemberDTO(t)).Take(5).ToList();
+            var members = query.Select(t => new MemberDTO(t)).Take(10).ToList();
+            foreach(var item in members)
+            {
+                item.FollowerCount = _context.Followers.Count(t => t.Following.PublicID == item.ID);
+                item.FollowingCount = _context.Followers.Count(t => t.Follower.PublicID == item.ID);
+                item.PostCount = _context.Posts.Count(t => t.Owner.PublicID == item.ID);
+            }
+            return query.Select(t => new MemberDTO(t)).Take(10).ToList();
         }
 
         [HttpGet]

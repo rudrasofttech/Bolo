@@ -80,7 +80,7 @@
     <None Include="wwwroot\js\MessageStrip.js" />
     <None Include="wwwroot\js\Models.js" />
     <None Include="wwwroot\js\PersonChat.js" />
-    <None Include="wwwroot\js\RegisterForm.js" />
+    <None Include="wwwroot\js\RegisterForm2.js" />
     <None Include="wwwroot\js\ViewProfile.js" />
     <None Include="wwwroot\media\get-outta-here.m4r" />
     <None Include="wwwroot\media\get-outta-here.mp3" />

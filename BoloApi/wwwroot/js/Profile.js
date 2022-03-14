@@ -74,7 +74,7 @@
         var items = [];
         for (var i = 0; i < this.state.posts.length; i++) {
             var p = this.state.posts[i];
-            items.push(<div className="col"><div className="card rounded-0 h-100" style={{ backgroundRepeat : "no-repeat", backgroundSize : "cover", backgroundPosition:"center", backgroundImage : "url(" + p.photo + ")" }}><img className="card-img-top" src={p.photo} style={{ opacity : 0}} /></div></div>);
+            items.push(<div className="col"><div className="card rounded-0 h-100" style={{ backgroundRepeat: "no-repeat", backgroundSize: "cover", backgroundPosition: "center", backgroundImage: "url(" + p.photo + ")" }}><img className="card-img-top" src={p.photo} style={{ opacity: 0 }} /></div></div>);
         }
         return <div className='row row-cols-3 row-cols-md-5 g-1 border-top'>{items}</div>;
     }
@@ -92,8 +92,17 @@
                 <div className="col-md-3 text-center">
                     {pic}</div>
                 <div className="col-md-9 text-center text-md-start">
-                    <h1>{this.state.myself.channelName} <button type="button" className="btn btn-link text-dark btn-lg" onClick={() => { this.props.onSettingClick() } }><i class="bi bi-gear"></i></button></h1>
+                    <h1>{this.state.myself.channelName} <button type="button" className="btn btn-link text-dark btn-lg" onClick={() => { this.props.onSettingClick() }}><i class="bi bi-gear"></i></button></h1>
                     {name}
+                    <table className="border-0 w-100 my-2" cellPadding="0" cellSpacing="0">
+                        <tbody>
+                            <tr>
+                                <td><strong>{this.state.myself.postCount} Posts</strong></td>
+                                <td><strong>{this.state.myself.followingCount} Following</strong></td>
+                                <td><strong>{this.state.myself.followerCount} Followers</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <p>{this.state.myself.bio}</p>
                 </div>
             </div>;

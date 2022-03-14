@@ -240,4 +240,17 @@ namespace Bolo.Models
         public Member CommentedBy { get; set; }
         public MemberPost Post { get; set; }
     }
+
+    public class DiscoverPostView
+    {
+        public int ID { get; set; }
+        public Guid PublicID { get; set; }
+        public int Reactions { get; set; }
+        public DateTime PostDate { get; set; }
+        public int OwnerID { get; set; }
+
+        public string PhotoURL { get; set; }
+        public string VideoURL { get; set; }
+        public MemberPostType PostType { get; set; }
+    }
 }

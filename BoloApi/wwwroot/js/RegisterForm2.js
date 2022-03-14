@@ -1,4 +1,4 @@
-﻿class RegisterForm extends React.Component {
+﻿class RegisterForm2 extends React.Component {
 
     constructor(props) {
         super(props);

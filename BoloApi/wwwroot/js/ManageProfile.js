@@ -718,6 +718,11 @@
                             </div>
                         </div>
                     </div>
+                    <div className="mb-2 mt-5 text-center">
+                        <button className="btn btn-dark " onClick={() => {
+                            localStorage.clear();
+                            location.reload(); } }>Logout</button>
+                    </div>
                 </div>
             </React.Fragment>;
         } else {

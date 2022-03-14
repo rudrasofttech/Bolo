@@ -142,27 +142,35 @@
                 profilepic = <i className="bi bi-person-square"></i>
             }
             if (loggedin) {
-                linkitems.push(<a key={"memberlinkli"} className="text-white mx-2" onClick={() => { this.setState({ mainview: "profile" }); }}>{profilepic}</a>);
-                linkitems.push(<a key={"logoutlinkli"} className="text-white mx-2" title="Sign out" onClick={(e) => {
-                    e.preventDefault();
-                    localStorage.clear();
-                    location.reload();
-                }}><i className="bi bi-power"></i></a>);
+                linkitems.push(<a key={"memberlinkli"} className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "profile" }); }}>{profilepic}</a>);
             } else {
-                linkitems.push(<a key={"loginlinkli"} className="text-white mx-2 " onClick={() => { this.setState({ mainview: "login" }); }} ><i class="bi bi-door-open"></i></a>);
-                //linkitems.push(<a key={"registerlinkli"} className="text-white mx-2" onClick={() => { this.setState({ mainview: "register" }); }}>Register</a>);
+                //linkitems.push(<a key={"loginlinkli"} className="text-white mx-lg-4 mx-3 " onClick={() => { this.setState({ mainview: "login" }); }} ><i class="bi bi-door-open"></i></a>);
             }
 
-            return <nav className="navbar navbar-expand-lg navbar-light bg-dark">
+            return <nav className="navbar navbar-expand-lg navbar-light bg-dark ">
                 <div className="container">
                     <a className="navbar-brand text-white" href="/">Waarta</a>
                     <div className="justify-content-md-end">
-                        <a className="text-white mx-2" onClick={() => { this.setState({ mainview: "" }, () => { this.setState({mainview : "createpost"}) });  }} title="Create"><i className="bi bi-plus-circle"></i></a>
-                        <a className="text-white mx-2" onClick={() => { this.setState({ mainview: "feed" }) }} title="Feed"><i className="bi bi-images"></i></a>
-                        <a className="text-white mx-2" onClick={() => { this.setState({ mainview: "conversation" }) }} title="Chat"><i className="bi bi-chat-dots"></i></a>
+                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "feed" }) }} title="Feed"><i class="bi bi-house-door"></i></a>
+                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "discover" }) }} title="Discover"><i class="bi bi-search"></i></a>
+                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "createpost" });  }} title="Create"><i className="bi bi-plus-circle"></i></a>
+                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "conversation" }) }} title="Chat"><i className="bi bi-chat-dots"></i></a>
                         {linkitems}
-                        <a className="text-white mx-2" onClick={() => { this.setState({ mainview: "faq" }) }} title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a>
-                        <a className="text-white mx-2" onClick={() => { this.setState({ mainview: "privacy" }) }} title="Privacy"><i className="bi bi-eye-slash-fill"></i></a>
+                    </div>
+                </div>
+            </nav>;
+        } else {
+            return null;
+        }
+    }
+
+    renderFooter() {
+        if (this.state.mainview !== "login" && this.state.mainview !== "register") {
+            return <nav className="navbar navbar-expand-lg navbar-light border-top">
+                <div className="container">
+                    <div className="justify-content-md-end">
+                        <a className="text-dark mx-2" onClick={() => { this.setState({ mainview: "faq" }) }} title="Frequently Asked Questions"><i className="bi bi-patch-question"></i></a>
+                        <a className="text-dark mx-2" onClick={() => { this.setState({ mainview: "privacy" }) }} title="Privacy"><i className="bi bi-eye-slash-fill"></i></a>
                     </div>
                 </div>
             </nav>;
@@ -219,6 +227,14 @@
     renderPost() {
         if (this.state.mainview === "viewpost") {
             return <ViewPost postid={this.state.postid} />;
+        } else {
+            return null;
+        }
+    }
+
+    renderDiscover() {
+        if (this.state.mainview === "discover") {
+            return <Discover />;
         } else {
             return null;
         }
@@ -314,6 +330,7 @@
                 {this.renderHeader()}
                 {this.renderLogin()}
                 {this.renderProfile()}
+                {this.renderDiscover()}
                 {this.renderManageProfile()}
                 {this.renderRegister(messagecontent, loading)}
                 {this.renderConversation()}
@@ -321,6 +338,7 @@
                 {this.renderFAQ()}
                 {this.renderPrivacy()}
                 {this.renderCreatePost()}
+                {this.renderFooter()}
             </AuthContext.Provider>
         );
     }
