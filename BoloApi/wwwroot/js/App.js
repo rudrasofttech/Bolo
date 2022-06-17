@@ -8,7 +8,7 @@
             mainview: localStorage.getItem("token") === null ? "login" : "conversation",
             loginform: { email: "", password: "" },
             registerform: { name: "", email: "" },
-            postid:0
+            postid: 0
         }
         this.fetchData = this.fetchData.bind(this);
         //this.handleLogin = this.handleLogin.bind(this);
@@ -49,7 +49,7 @@
                     this.setState({ bsstyle: 'danger', message: "Authorization has been denied for this request.", loggedin: false, loading: false, user: null, token: '' });
                 } else if (response.status === 200) {
                     response.json().then(data => {
-                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, user: data, mainview: this.state.mainview !== "profile" ? "conversation" : "profile" });
+                        this.setState({ bsstyle: '', message: "", loggedin: true, loading: false, user: data });
                     });
                 }
             });
@@ -126,6 +126,25 @@
     //    return false;
     //}
 
+    renderProfileCompleteness() {
+        //completed items
+        if (localStorage.getItem("token") != null) {
+            var showprofilecompleteribbon = false;
+            if (this.state.user.emptyFields && this.state.user.emptyFields.indexOf("recoveryquestion") > -1) {
+                showprofilecompleteribbon = true;
+            }
+            if (this.state.user.emptyFields && this.state.user.emptyFields.indexOf("recoveryanswer") > -1) {
+                showprofilecompleteribbon = true;
+            }
+            if (showprofilecompleteribbon) {
+                return <div className="alert alert-light text-center" role="alert">
+                    Password recovery question and answer is missing from you profile.&nbsp; <a className="text-danger fs-bold" onClick={() => { this.setState({ mainview: "manageprofile" }); }}>Update Profile Now</a>
+                </div>;
+            }
+        }
+        return null;
+    }
+
     renderHeader() {
         if (this.state.mainview !== "login" && this.state.mainview !== "register") {
             const token = localStorage.getItem("token");
@@ -136,7 +155,7 @@
             }
 
             let profilepic = null;
-            if (loggedin && this.state.user !== null) {
+            if (loggedin && this.state.user !== null && this.state.user.pic !== "") {
                 profilepic = <img src={this.state.user.pic} width="20" height="20" className="rounded" />
             } else {
                 profilepic = <i className="bi bi-person-square"></i>
@@ -151,10 +170,7 @@
                 <div className="container">
                     <a className="navbar-brand text-white" href="/">Waarta</a>
                     <div className="justify-content-md-end">
-                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "feed" }) }} title="Feed"><i class="bi bi-house-door"></i></a>
-                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "discover" }) }} title="Discover"><i class="bi bi-search"></i></a>
-                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "createpost" });  }} title="Create"><i className="bi bi-plus-circle"></i></a>
-                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "conversation" }) }} title="Chat"><i className="bi bi-chat-dots"></i></a>
+                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "conversation" }) }} title="Past Conversations"><i className="bi bi-chat-dots"></i></a>
                         {linkitems}
                     </div>
                 </div>
@@ -208,38 +224,13 @@
         }
     }
 
-    renderCreatePost() {
-        if (this.state.mainview === "createpost") {
-            return <CreatePost onPostSuccess={() => { this.setState({mainview : 'profile'})} } />
-        } else {
-            return null;
-        }
-    }
-
     renderManageProfile() {
         if (this.state.mainview === "manageprofile") {
-            return <ManageProfile onProfileChange={() => { this.fetchData() }} />;
+            return <ManageProfile onProfileChange={() => { this.fetchData(); }} onBack={() => { this.setState({ mainview: "profile" }); }} />;
         } else {
             return null;
         }
     }
-
-    renderPost() {
-        if (this.state.mainview === "viewpost") {
-            return <ViewPost postid={this.state.postid} />;
-        } else {
-            return null;
-        }
-    }
-
-    renderDiscover() {
-        if (this.state.mainview === "discover") {
-            return <Discover />;
-        } else {
-            return null;
-        }
-    }
-
 
     renderProfile() {
         if (this.state.mainview === "profile") {
@@ -328,17 +319,17 @@
                 setData: this.setData
             }}>
                 {this.renderHeader()}
+                {this.renderProfileCompleteness()}
                 {this.renderLogin()}
                 {this.renderProfile()}
-                {this.renderDiscover()}
                 {this.renderManageProfile()}
                 {this.renderRegister(messagecontent, loading)}
                 {this.renderConversation()}
                 {this.renderDiscussion()}
                 {this.renderFAQ()}
                 {this.renderPrivacy()}
-                {this.renderCreatePost()}
                 {this.renderFooter()}
+
             </AuthContext.Provider>
         );
     }

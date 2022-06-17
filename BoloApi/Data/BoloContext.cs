@@ -25,6 +25,7 @@ namespace Bolo.Data
 
         public DbSet<DiscoverPostView> DiscoverPostViews { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");

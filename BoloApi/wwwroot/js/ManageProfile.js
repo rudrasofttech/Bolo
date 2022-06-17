@@ -11,7 +11,7 @@
             myself: null, bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             onProfileChange: this.props.onProfileChange === undefined ? null : this.props.onProfileChange,
-            showProfilePicModal: false, src: null,
+            showProfilePicModal: false, src: null, recoveryPassword: '',
             crop: {
                 unit: "px",
                 x: 20,
@@ -38,8 +38,11 @@
     handleChange(e) {
         let m = this.state.myself;
         switch (e.target.name) {
-            case 'channelName':
-                m.channelName = e.target.value.replace(" ", "").replace("\\", "").replace("/", "").replace(";", "").replace("\"", "").replace("'", "").replace("#", "");
+            case 'userName':
+                m.userName = e.target.value.replace(" ", "").replace("\\", "").replace("/", "").replace(";", "").replace("\"", "").replace("'", "").replace("#", "");
+                break;
+            case 'recoveryQuestion':
+                m.recoveryQuestion = e.target.value;
                 break;
             case 'phone':
                 m.phone = e.target.value;
@@ -76,7 +79,7 @@
             case 'city':
                 m.city = e.target.value;
                 break;
-            case 'thoughtstatus':
+            case 'thoughtStatus':
                 m.thoughtStatus = e.target.value;
                 break;
             default:
@@ -176,17 +179,24 @@
                         this.setState({ loggedin: false, loading: false });
                     } else if (response.status === 200) {
                         this.setState({ loading: false, message: '', bsstyle: '' });
-                        //if (localStorage.getItem("token") !== null) {
-                        //    this.validate(localStorage.getItem("token"));
-                        //}
                         if (this.state.onProfileChange !== null) {
                             this.state.onProfileChange();
                         }
+                    } else if (response.status === 400) {
+                        try {
+                            response.json().then(data => {
+                                //console.log(data);
+                                this.setState({ loading: false, message: data.error, bsstyle: 'danger' }, () => { this.props.onProfileChange(); });
+                            });
+                        } catch (err) {
+                            this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
+                        }
+
                     } else {
                         try {
                             response.json().then(data => {
                                 //console.log(data);
-                                this.setState({ loading: false, message: data.message, bsstyle: 'danger' });
+                                this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
                             });
                         } catch (err) {
                             this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
@@ -239,7 +249,7 @@
                     //set state joinmeeting to true so that it does not ask for name and other info from user. Once the state
                     //is set then start signalr hub
                     response.json().then(data => {
-                        //console.log(data);
+                        console.log(data);
                         this.setState({ loggedin: true, loading: false, myself: data });
                     });
                 }
@@ -380,6 +390,10 @@
     }
 
     render() {
+        var yearitems = []
+        for (var i = 1947; i <= 2004; i++) {
+            yearitems.push(<option value={i}>{i}</option>);
+        }
         let loading = this.state.loading ? <div className="progress fixed-top" style={{ height: "10px" }}>
             <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%' }}></div>
         </div> : null;
@@ -402,35 +416,37 @@
                         </div>
                         <div className="col-md-6">
                             <div className="mb-1">
-                                <label htmlFor="channelnametxt" className="form-label">Channel Name</label>
+                                <label htmlFor="channelnametxt" className="form-label">Username (Required)</label>
                                 <div className="input-group">
-                                    <input type="text" id="channelnametxt" name="channelName" placeholder="Unique Channel Name" className="form-control" value={this.state.myself.channelName} onChange={this.handleChange} />
-                                    <button className="btn btn-secondary" onClick={() => { this.saveData("channelName", this.state.myself.channelName) }}>Save</button>
+                                    <input type="text" id="channelnametxt" readOnly name="userName" placeholder="Unique Channel Name" className="form-control" value={this.state.myself.userName} onChange={this.handleChange} />
+                                    <button className="btn btn-secondary d-none" onClick={() => { this.saveData("userName", this.state.myself.channelName) }}>Save</button>
                                 </div>
                             </div>
                             <div className="mb-1">
-                                <label htmlFor="nametxt" className="form-label">Name</label>
+                                <label htmlFor="nametxt" className="form-label">Name (Required)</label>
                                 <div className="input-group">
                                     <input type="text" id="nametxt" name="name" placeholder="Your Name" className="form-control" value={this.state.myself.name} onChange={this.handleChange} />
                                     <button className="btn btn-secondary" onClick={() => { this.saveData("name", this.state.myself.name) }}>Save</button>
                                 </div>
                             </div>
                             <div className="mb-1">
-                                <label htmlFor="birthyeartxt" className="form-label">Year of Birth</label>
+                                <label htmlFor="birthyeartxt" className="form-label">Year of Birth (optional)</label>
                                 <div className="input-group">
-                                    <input type="number" id="birthyeartxt" name="birthYear" className="form-control" value={this.state.myself.birthYear} onChange={this.handleChange} />
+                                    <select id="birthyeartxt" name="birthYear" className="form-select" value={this.state.myself.birthYear} onChange={this.handleChange}>
+                                        {yearitems}
+                                    </select>
                                     <button className="btn btn-secondary" onClick={() => { this.saveData("birthYear", this.state.myself.birthYear) }}>Save</button>
                                 </div>
                             </div>
                             <div className="mb-1">
-                                <label className="form-label">Mobile</label>
+                                <label className="form-label">Mobile (Required)</label>
                                 <div className="input-group">
                                     <input type="text" name="phone" className="form-control" maxLength="15" value={this.state.myself.phone} onChange={this.handleChange} />
                                     <button className="btn btn-secondary" onClick={() => { this.saveData("phone", this.state.myself.phone) }}>Save</button>
                                 </div>
                             </div>
                             <div className="mb-1">
-                                <label className="form-label">Email</label>
+                                <label className="form-label">Email (Required)</label>
                                 <div className="input-group">
                                     <input type="email" name="email" className="form-control" maxLength="250" value={this.state.myself.email} onChange={this.handleChange} />
                                     <button className="btn btn-secondary" onClick={() => { this.saveData("email", this.state.myself.email) }}>Save</button>
@@ -439,20 +455,20 @@
                         </div>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="thoughtStatus" className="form-label">One line Introduction</label>
+                        <label htmlFor="thoughtStatus" className="form-label">One line Introduction (Optional)</label>
                         <div className="input-group">
-                            <input type="text" name="thoughtstatus" className="form-control" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange} />
-                            <button className="btn btn-secondary" onClick={() => { this.saveData("thoughtstatus", this.state.myself.thoughtstatus) }}>Save</button>
+                            <input type="text" name="thoughtStatus" className="form-control" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange} />
+                            <button className="btn btn-secondary" onClick={() => { this.saveData("thoughtstatus", this.state.myself.thoughtStatus) }}>Save</button>
                         </div>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="biotxt" className="form-label">About Me</label>
+                        <label htmlFor="biotxt" className="form-label">About Me (Optional)</label>
                         <textarea className="form-control" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} rows="4" placeholder="Write something about yourself."></textarea>
                         <button className="btn btn-secondary mt-1" onClick={() => { this.saveData("bio", this.state.myself.bio) }}>Save</button>
                     </div>
                     <div className="row">
                         <div className="col-md-6">
-                            <label htmlFor="visibilityselect" className="form-label">Profile Visibility</label>
+                            <label htmlFor="visibilityselect" className="form-label">Profile Visibility (Optional)</label>
                             <div className="input-group">
                                 <select className="form-select" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange} >
                                     <option value="0"></option>
@@ -463,7 +479,7 @@
                             </div>
                         </div>
                         <div className="col-md-6">
-                            <label htmlFor="countryselect" className="form-label">Country</label>
+                            <label htmlFor="countryselect" className="form-label">Country (Optional)</label>
                             <div className="input-group">
                                 <select className="form-select" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} >
                                     <option value=""></option>
@@ -718,10 +734,29 @@
                             </div>
                         </div>
                     </div>
-                    <div className="mb-2 mt-5 text-center">
-                        <button className="btn btn-dark " onClick={() => {
+                    <div className="row">
+                        <div className="col-md-6">
+                            <label htmlFor="recoveryQuestion" className="form-label">Password Recovery Question (Required)</label>
+                            <div className="input-group">
+                                <input type="text" name="recoveryQuestion" placeholder="e.g. Year I passed class 10th?" className="form-control" maxLength="2000" value={this.state.myself.recoveryQuestion} onChange={this.handleChange} />
+                                <button className="btn btn-secondary" onClick={() => { this.saveData("recoveryquestion", this.state.myself.recoveryQuestion) }}>Save</button>
+                            </div>
+                        </div>
+
+                        <div className="col-md-6">
+                            <label htmlFor="recoveryPassword" className="form-label">Password Recovery Answer (Required)</label>
+                            <div className="input-group">
+                                <input type="password" name="recoveryPassword" className="form-control" maxLength="200" value={this.state.recoveryPassword} onChange={(e) => { this.setState({ recoveryPassword: e.target.value }); }} />
+                                <button className="btn btn-secondary" onClick={() => { this.saveData("recoverypassword", this.state.recoveryPassword) }}>Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mb-2 mt-5 text-end">
+                        <button className="btn btn-light me-3" onClick={() => { this.props.onBack(); }}>Back to Profile</button>
+                        <button className="btn btn-dark ms-3" onClick={() => {
                             localStorage.clear();
-                            location.reload(); } }>Logout</button>
+                            location.reload();
+                        }}>Logout</button>
                     </div>
                 </div>
             </React.Fragment>;

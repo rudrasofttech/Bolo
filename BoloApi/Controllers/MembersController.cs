@@ -37,104 +37,104 @@ namespace Bolo.Controllers
             _hubContext = hubContext;
         }
 
-        [HttpGet()]
-        [AllowAnonymous]
-        [Route("OTPMobile")]
-        public async Task<ActionResult> GetOTPMobile([FromQuery] string phone, [FromQuery] string code)
-        {
-            try
-            {
-                var member = await _context.Members.FirstOrDefaultAsync(t => (t.Phone == phone && t.CountryCode == code));
-                if (member == null)
-                {
-                    member = new Member()
-                    {
-                        CountryCode = code,
-                        Status = RecordStatus.Unverified,
-                        CreateDate = DateTime.UtcNow,
-                        Email = string.Empty,
-                        Name = string.Empty,
-                        Phone = phone,
-                        OTP = EncryptionHelper.Encrypt(Helper.Utility.GenerateOTP()),
-                        OTPExpiry = Helper.Utility.OTPExpiry,
-                        PublicID = Guid.NewGuid(),
-                        Activity = ActivityStatus.Online,
-                        Bio = "",
-                        Channelname = "",
-                        City = "",
-                        Country = "",
-                        LastPulse = DateTime.UtcNow,
-                        Pic = "",
-                        ThoughtStatus = "",
-                        Visibility = MemberProfileVisibility.Public,
-                        State = ""
-                    };
-                    _context.Members.Add(member);
-                    await _context.SaveChangesAsync();
-                }
-                string OTP = EncryptionHelper.Decrypt(member.OTP);
-                if (DateTime.Compare(member.OTPExpiry, DateTime.UtcNow) < 0)
-                {
-                    OTP = Helper.Utility.GenerateOTP();
-                    member.OTP = EncryptionHelper.Encrypt(OTP);
-                    member.OTPExpiry = Helper.Utility.OTPExpiry;
-                    await _context.SaveChangesAsync();
-                }
-                if (!string.IsNullOrEmpty(member.Email))
-                {
-                    EmailUtility eu = new EmailUtility(_config);
-                    eu.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
-                }
-                if (!string.IsNullOrEmpty(member.Phone))
-                {
-                    Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta OTP is: {0}", OTP));
-                }
+        //[HttpGet()]
+        //[AllowAnonymous]
+        //[Route("OTPMobile")]
+        //public async Task<ActionResult> GetOTPMobile([FromQuery] string phone, [FromQuery] string code)
+        //{
+        //    try
+        //    {
+        //        var member = await _context.Members.FirstOrDefaultAsync(t => (t.Phone == phone && t.CountryCode == code));
+        //        if (member == null)
+        //        {
+        //            member = new Member()
+        //            {
+        //                CountryCode = code,
+        //                Status = RecordStatus.Unverified,
+        //                CreateDate = DateTime.UtcNow,
+        //                Email = string.Empty,
+        //                Name = string.Empty,
+        //                Phone = phone,
+        //                OTP = EncryptionHelper.Encrypt(Helper.Utility.GenerateOTP()),
+        //                OTPExpiry = Helper.Utility.OTPExpiry,
+        //                PublicID = Guid.NewGuid(),
+        //                Activity = ActivityStatus.Online,
+        //                Bio = "",
+        //                Channelname = "",
+        //                City = "",
+        //                Country = "",
+        //                LastPulse = DateTime.UtcNow,
+        //                Pic = "",
+        //                ThoughtStatus = "",
+        //                Visibility = MemberProfileVisibility.Public,
+        //                State = ""
+        //            };
+        //            _context.Members.Add(member);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        string OTP = EncryptionHelper.Decrypt(member.OTP);
+        //        if (DateTime.Compare(member.OTPExpiry, DateTime.UtcNow) < 0)
+        //        {
+        //            OTP = Helper.Utility.GenerateOTP();
+        //            member.OTP = EncryptionHelper.Encrypt(OTP);
+        //            member.OTPExpiry = Helper.Utility.OTPExpiry;
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        if (!string.IsNullOrEmpty(member.Email))
+        //        {
+        //            EmailUtility eu = new EmailUtility(_config);
+        //            eu.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
+        //        }
+        //        if (!string.IsNullOrEmpty(member.Phone))
+        //        {
+        //            Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta OTP is: {0}", OTP));
+        //        }
 
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //        return Ok();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
-        [HttpGet()]
-        [AllowAnonymous]
-        [Route("OTP")]
-        public async Task<ActionResult> GetOTP([FromQuery] string id)
-        {
-            try
-            {
-                var member = await _context.Members.FirstOrDefaultAsync(t => (t.Email.ToLower() == id.ToLower() || (t.Phone == id && id.Length == 10)));
-                if (member == null)
-                {
-                    return NotFound();
-                }
-                string OTP = EncryptionHelper.Decrypt(member.OTP);
-                if (DateTime.Compare(member.OTPExpiry, DateTime.UtcNow) < 0)
-                {
-                    OTP = Helper.Utility.GenerateOTP();
-                    member.OTP = EncryptionHelper.Encrypt(OTP);
-                    member.OTPExpiry = Helper.Utility.OTPExpiry;
-                    await _context.SaveChangesAsync();
-                }
-                if (!string.IsNullOrEmpty(member.Email))
-                {
-                    EmailUtility eu = new EmailUtility(_config);
-                    eu.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
-                }
-                if (!string.IsNullOrEmpty(member.Phone))
-                {
-                    Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta OTP is: {0}", OTP));
-                }
+        //[HttpGet()]
+        //[AllowAnonymous]
+        //[Route("OTP")]
+        //public async Task<ActionResult> GetOTP([FromQuery] string id)
+        //{
+        //    try
+        //    {
+        //        var member = await _context.Members.FirstOrDefaultAsync(t => (t.Email.ToLower() == id.ToLower() || (t.Phone == id && id.Length == 10)));
+        //        if (member == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        string OTP = EncryptionHelper.Decrypt(member.OTP);
+        //        if (DateTime.Compare(member.OTPExpiry, DateTime.UtcNow) < 0)
+        //        {
+        //            OTP = Helper.Utility.GenerateOTP();
+        //            member.OTP = EncryptionHelper.Encrypt(OTP);
+        //            member.OTPExpiry = Helper.Utility.OTPExpiry;
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        if (!string.IsNullOrEmpty(member.Email))
+        //        {
+        //            EmailUtility eu = new EmailUtility(_config);
+        //            eu.SendEmail(member.Email, "", "waarta@rudrasofttech.com", "", "Waarta OTP", string.Format("Your waarta one time password is: {0}", OTP));
+        //        }
+        //        if (!string.IsNullOrEmpty(member.Phone))
+        //        {
+        //            Helper.Utility.SendSMS(member.Phone, string.Format("Your Waarta OTP is: {0}", OTP));
+        //        }
 
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //        return Ok();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         [HttpPost]
         [AllowAnonymous]
@@ -146,29 +146,17 @@ namespace Bolo.Controllers
                 return BadRequest();
             }
 
-            var member = await _context.Members.FirstOrDefaultAsync(t => (t.Email.ToLower() == model.ID.ToLower() || t.Phone == model.ID) && t.OTP == EncryptionHelper.Encrypt(model.Passcode));
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.UserName == model.UserName && t.Password == EncryptionHelper.CalculateSHA256(model.Password));
             if (member == null)
             {
                 return NotFound(new { error = "Invalid Credentials" });
             }
             else
             {
-                if (member.OTPExpiry < DateTime.UtcNow)
-                {
-                    return NotFound(new { error = "OTP Expired" });
-                }
-                else
-                {
-                    member.Status = RecordStatus.Active;
-                    await _context.SaveChangesAsync();
-                    ////this data is changed just to avoid sending confidetial information to client.
-                    ////it is not saved in db
-                    //member.ID = 0;
-                    //member.OTP = "";
-                    //member.OTPExpiry = DateTime.UtcNow.AddDays(-365);
-                    LoginReturnDTO result = new LoginReturnDTO() { Member = new MemberDTO(member), Token = GenerateJSONWebToken(member) };
-                    return result;
-                }
+                member.Status = RecordStatus.Active;
+                await _context.SaveChangesAsync();
+                LoginReturnDTO result = new LoginReturnDTO() { Member = new MemberDTO(member), Token = GenerateJSONWebToken(member) };
+                return result;
             }
         }
 
@@ -207,17 +195,29 @@ namespace Bolo.Controllers
         {
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
-            {
                 return NotFound();
-            }
             else
             {
-                MemberDTO result = new MemberDTO(member);
-                result.Phone = member.Phone;
-                result.Email = member.Email;
-                result.PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID);
-                result.FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID);
-                result.FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID);
+
+                MemberDTO result = new MemberDTO(member)
+                {
+                    RecoveryQuestion = member.RecoveryQuestion,
+                    Phone = member.Phone,
+                    Email = member.Email,
+                    FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID),
+                    FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID)
+                };
+                if (string.IsNullOrEmpty(member.RecoveryQuestion))
+                {
+                    result.EmptyFields += "recoveryquestion,";
+                }
+                if (member.RecoveryAnswer == null)
+                {
+                    result.EmptyFields += "recoveryanswer,";
+                }else if(member.RecoveryAnswer.Length == 0)
+                {
+                    result.EmptyFields += "recoveryanswer,";
+                }
                 return result;
             }
         }
@@ -253,7 +253,7 @@ namespace Bolo.Controllers
             }
             else
             {
-                member = await _context.Members.FirstOrDefaultAsync(t => t.Channelname.ToLower() == id.ToLower());
+                member = await _context.Members.FirstOrDefaultAsync(t => t.UserName == id);
             }
 
             if (member == null)
@@ -262,33 +262,6 @@ namespace Bolo.Controllers
             }
             MemberDTO result = new MemberDTO(member);
             return result;
-        }
-
-
-        [HttpGet]
-        [Route("SaveChannelName")]
-        public async Task<IActionResult> SaveChannelName([FromQuery] string d)
-        {
-            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-            if (member == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                int count = await _context.Members.CountAsync(t => t.Channelname == d && t.ID != member.ID);
-                if (count > 0)
-                {
-                    return BadRequest(new { message = "Channel name is taken." });
-                }
-                else
-                {
-                    member.Channelname = d;
-                    member.ModifyDate = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
-                }
-                return Ok();
-            }
         }
 
         [HttpPost]
@@ -357,7 +330,7 @@ namespace Bolo.Controllers
                 int c = await _context.Members.CountAsync(t => t.ID != member.ID && t.Email == d);
                 if (c > 0)
                 {
-                    return BadRequest("duplicatedata");
+                    return BadRequest(new { error = "Email address is associated with another account. Provide a different email." });
                 }
                 member.Email = d;
                 member.ModifyDate = DateTime.UtcNow;
@@ -380,7 +353,7 @@ namespace Bolo.Controllers
                 int c = await _context.Members.CountAsync(t => t.ID != member.ID && t.Phone == d);
                 if (c > 0)
                 {
-                    return BadRequest("duplicatedata");
+                    return BadRequest(new { error = "Mobile number is associated with another account. Provide a different email." });
                 }
                 member.Phone = d;
                 member.ModifyDate = DateTime.UtcNow;
@@ -427,7 +400,6 @@ namespace Bolo.Controllers
             }
             else
             {
-
                 member.Visibility = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
@@ -579,18 +551,61 @@ namespace Bolo.Controllers
         [Route("savethoughtstatus")]
         public async Task<IActionResult> SaveThoughtStatus([FromQuery] string d)
         {
-
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
-            {
                 return NotFound();
-            }
             else
             {
                 try
                 {
 
                     member.ThoughtStatus = d;
+                    member.ModifyDate = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("saverecoveryquestion")]
+        public async Task<IActionResult> SaveRecoveryQuestion([FromQuery] string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+                return NotFound();
+            else
+            {
+                try
+                {
+                    member.RecoveryQuestion = d;
+                    member.ModifyDate = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("saverecoverypassword")]
+        public async Task<IActionResult> SaveRecoveryPassword([FromQuery] string d)
+        {
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+                return NotFound();
+            else
+            {
+                try
+                {
+                    member.RecoveryAnswer = EncryptionHelper.CalculateSHA256(d);
                     member.ModifyDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                     return Ok();
@@ -665,37 +680,47 @@ namespace Bolo.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
         [AllowAnonymous]
-        public async Task<ActionResult<Member>> PostMember(RegisterDTO model)
+        [Route("register")]
+        public async Task<ActionResult<Member>> Register(RegisterDTO model)
         {
-            if (String.IsNullOrEmpty(model.Name))
+            if (String.IsNullOrEmpty(model.UserName))
             {
-                ModelState.AddModelError("Error", "Name Required");
+                return BadRequest(new { error = "Username is missing." });
+            }else if (!Helper.Utility.RegexMatch(model.UserName, "^[a-zA-Z0-9_.]*$"))
+            {
+                return BadRequest(new { error = "Only alphabets, numbers _ and . allowed in Username." });
+            }
+            if (string.IsNullOrEmpty(model.Password))
+            {
+                return BadRequest(new { error = "Password is missing." });
+            }else if(model.Password.Length < 8)
+            {
+                return BadRequest(new { error = "Password should be 8 characters long." });
+            }
+            if(model.Password != model.VerifyPassword)
+            {
+                return BadRequest(new { error = "Password and Verify Password should match." });
+            }
+            
+            if (_context.Members.Count(t => t.UserName == model.UserName) > 0)
+            {
+                ModelState.AddModelError("Error", "Username already exist, please try to log in.");
                 return BadRequest(ModelState);
             }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            if (_context.Members.Count(t => t.Phone == model.Phone && t.CountryCode == model.CountryCode && model.Phone != "") > 0)
-            {
-                ModelState.AddModelError("Error", "The phone already exist, please try to log in.");
-                return BadRequest(ModelState);
-            }
-            string OTP = Helper.Utility.GenerateOTP();
+
             Member m = new Member()
             {
-                CountryCode = model.CountryCode,
+                CountryCode = string.Empty,
                 Status = RecordStatus.Unverified,
                 CreateDate = DateTime.UtcNow,
                 Email = string.Empty,
-                Name = model.Name,
-                Phone = model.Phone,
-                OTP = EncryptionHelper.Encrypt(OTP),
-                OTPExpiry = Helper.Utility.OTPExpiry,
+                Name = string.Empty,
+                Phone = string.Empty,
+                Password = EncryptionHelper.CalculateSHA256(model.Password),
                 PublicID = Guid.NewGuid(),
                 Activity = ActivityStatus.Online,
                 Bio = "",
-                Channelname = "",
+                UserName = model.UserName,
                 City = "",
                 Country = "IN",
                 LastPulse = DateTime.UtcNow,
@@ -711,10 +736,10 @@ namespace Bolo.Controllers
             //    EmailUtility eu = new EmailUtility(_config);
             //    eu.SendEmail(model.Email, "", "contact@bolo.com", "", "Bolo OTP", string.Format("You passcode is: {0}", OTP));
             //}
-            if (!string.IsNullOrEmpty(model.Phone))
-            {
-                Helper.Utility.SendSMS(model.Phone, string.Format("Your Bolo passcode is: {0}", OTP));
-            }
+            //if (!string.IsNullOrEmpty(model.Phone))
+            //{
+            //    Helper.Utility.SendSMS(model.Phone, string.Format("Your Bolo passcode is: {0}", OTP));
+            //}
             return Ok(); //CreatedAtAction("GetMember", new { id = m.ID }, m);
         }
 
@@ -723,7 +748,7 @@ namespace Bolo.Controllers
         [AllowAnonymous]
         public ActionResult<IEnumerable<MemberDTO>> Search(string s)
         {
-            
+
             if (string.IsNullOrEmpty(s))
             {
                 return new List<MemberDTO>();
@@ -766,11 +791,10 @@ namespace Bolo.Controllers
                 query = query.Where(t => t.PublicID != new Guid(User.Identity.Name));
             }
             var members = query.Select(t => new MemberDTO(t)).Take(10).ToList();
-            foreach(var item in members)
+            foreach (var item in members)
             {
                 item.FollowerCount = _context.Followers.Count(t => t.Following.PublicID == item.ID);
                 item.FollowingCount = _context.Followers.Count(t => t.Follower.PublicID == item.ID);
-                item.PostCount = _context.Posts.Count(t => t.Owner.PublicID == item.ID);
             }
             return query.Select(t => new MemberDTO(t)).Take(10).ToList();
         }

@@ -97,24 +97,25 @@ namespace Bolo.Models
     {
         public int ID { get; set; }
         [MaxLength(200)]
-        public string Name { get; set; }
-        [EmailAddress]
-        public string Email { get; set; }
-        [MaxLength(15)]
-        public string Phone { get; set; }
-        [MaxLength(4)]
-        public string CountryCode { get; set; }
+        public string Name { get; set; } = string.Empty;
         [MaxLength(250)]
-        public string OTP { get; set; }
-        public DateTime OTPExpiry { get; set; }
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        [MaxLength(15)]
+        public string Phone { get; set; } = string.Empty;
+        [MaxLength(4)]
+        public string CountryCode { get; set; } = string.Empty;
+        [Required]
+        public byte[] Password { get; set; }
+
         public DateTime CreateDate { get; set; }
         public DateTime? ModifyDate { get; set; }
         public RecordStatus Status { get; set; }
 
         public Guid PublicID { get; set; }
-        [MaxLength(100)]
-        [RegularExpression("^[a-zA-Z][a-zA-Z0-9]*$", ErrorMessage = "Channel should only have english alphabets and numbers.")]
-        public string Channelname { get; set; }
+        [MaxLength(50)]
+        [RegularExpression("^[a-zA-Z0-9_]*$", ErrorMessage = "Only alphabets, numbers and _ allowed.")]
+        public string UserName { get; set; } = string.Empty;
 
         /// <summary>
         /// This will tell if the member is online, in a meeting or broadcasting or offline
@@ -130,21 +131,25 @@ namespace Bolo.Models
         public Gender Gender { get; set; }
 
         [MaxLength(1000)]
-        public string Bio { get; set; }
+        public string Bio { get; set; } = string.Empty;
 
-        public string Pic { get; set; }
+        public string Pic { get; set; } = string.Empty;
 
         public int BirthYear { get; set; }
 
         [MaxLength(100)]
-        public string Country { get; set; }
+        public string Country { get; set; } = string.Empty;
         [MaxLength(100)]
-        public string State { get; set; }
+        public string State { get; set; } = string.Empty;
 
         [MaxLength(100)]
-        public string City { get; set; }
+        public string City { get; set; } = string.Empty;
         [MaxLength(200)]
-        public string ThoughtStatus { get; set; }
+        public string ThoughtStatus { get; set; } = string.Empty;
+        [MaxLength(2000)]
+        public string RecoveryQuestion { get; set; } = string.Empty;
+        public byte[] RecoveryAnswer { get; set; }
+        
     }
 
     public class ChatMessage
@@ -164,28 +169,6 @@ namespace Bolo.Models
             Message = String.Empty;
             MessageType = ChatMessageType.Text;
         }
-    }
-
-    public class MemberPost
-    {
-        public int ID { get; set; }
-        public Guid PublicID { get; set; } = Guid.NewGuid();
-        public Member Owner { get; set; }
-        public DateTime PostDate { get; set; }
-        public Member Modifier { get; set; }
-        public DateTime ModifyDate { get; set; }
-        public MemberPostType PostType { get; set; }
-        public string Describe { get; set; } = string.Empty;
-        public RecordStatus Status { get; set; } = RecordStatus.Active;
-        public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
-        [MaxLength(1000)]
-        public string VideoURL { get; set; }
-    }
-
-    public class PostPhoto
-    {
-        public int ID { get; set; }
-        public string Photo { get; set; }
     }
 
     public class Contact
@@ -220,6 +203,28 @@ namespace Bolo.Models
         public Member Follower { get; set; }
         public Member Following { get; set; }
         public RecordStatus Status { get; set; }
+    }
+
+    public class MemberPost
+    {
+        public int ID { get; set; }
+        public Member Owner { get; set; }
+        public DateTime PostDate { get; set; }
+        public Member Modifier { get; set; }
+        public DateTime ModifyDate { get; set; }
+        public MemberPostType PostType { get; set; }
+        [MaxLength(2000)]
+        public string Describe { get; set; } = string.Empty;
+        public RecordStatus Status { get; set; } = RecordStatus.Active;
+        public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
+        [MaxLength(1000)]
+        public string VideoURL { get; set; }
+    }
+
+    public class PostPhoto
+    {
+        public int ID { get; set; }
+        public string Photo { get; set; }
     }
 
     public class MemberReaction

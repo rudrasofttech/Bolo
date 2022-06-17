@@ -7,41 +7,26 @@
             loggedin = false;
         }
 
-        this.state = { showregisterform: props.beginWithRegister, GenerateOTPButton: true, loginemail: '', OTP: '', registername: '', registeremail: '', loading: false, message: '', bsstyle: '', loggedin: loggedin };
-        this.handleChange = this.handleChange.bind(this);
-        this.handleGenerateOTP = this.handleGenerateOTP.bind(this);
+        this.state = {
+            showregisterform: props.beginWithRegister,
+            registerdto: { userName: '', password: '', verifyPassword : '' },
+            logindto: { userName: '', password: '' },
+            loading: false, message: '', bsstyle: '', loggedin: loggedin
+        };
+
         this.handleRegisterSubmit = this.handleRegisterSubmit.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
         this.handleRegisterClickHere = this.handleRegisterClickHere.bind(this);
         this.handleLoginClickHere = this.handleLoginClickHere.bind(this);
     }
 
-    handleChange(e) {
-        switch (e.target.name) {
-            case 'loginemail':
-                this.setState({ loginemail: e.target.value });
-                break;
-            case 'OTP':
-                this.setState({ OTP: e.target.value });
-                break;
-            case 'registeremail':
-                this.setState({ registeremail: e.target.value });
-                break;
-            case 'registername':
-                this.setState({ registername: e.target.value });
-                break;
-            default:
-                break;
-        }
-    }
-
     handleLogin(e) {
         e.preventDefault();
-        
+
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/Members/Login', {
             method: 'post',
-            body: JSON.stringify({ ID: this.state.loginemail, Passcode: this.state.OTP }),
+            body: JSON.stringify({ UserName: this.state.logindto.userName, Password: this.state.logindto.password }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -73,38 +58,12 @@
             });
     }
 
-    handleGenerateOTP(e) {
-        e.preventDefault();
-        this.setState({ loading: true });
-        fetch('//' + window.location.host + '/api/Members/OTP?id=' + this.state.loginemail, {
-            method: 'get',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                //console.log(response);
-                if (response.status === 200) {
-                    this.setState({
-                        GenerateOTPButton: false,
-                        loading: false,
-                        bsstyle: 'success',
-                        message: 'An OTP has been sent to your email address from waarta@rudrasofttech.com. Please verify and login. Please do check SPAM folder of your email.'
-                    });
-
-                }
-                else {
-                    this.setState({ bsstyle: 'danger', message: 'Email is not registered with us.', loading: false });
-                }
-            });
-    }
-
     handleRegisterSubmit(e) {
         e.preventDefault();
         this.setState({ loading: true });
-        fetch('//' + window.location.host + '/api/Members', {
+        fetch('//' + window.location.host + '/api/members/register', {
             method: 'post',
-            body: JSON.stringify({ Name: this.state.registername, Email: this.state.registeremail, Phone: '', CountryCode: '' }),
+            body: JSON.stringify({ UserName: this.state.registerdto.userName, Password: this.state.registerdto.password, VerifyPassword : this.state.registerdto.verifyPassword}),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -115,17 +74,19 @@
                     this.setState({
                         loading: false,
                         bsstyle: 'success',
-                        message: 'Your registration is complete, an OTP has been sent to your email address from waarta@rudrasofttech.com. Please verify and login. Please do check SPAM folder of your email.',
+                        message: 'Your registration is complete.',
                         loggedin: false,
-                        loginemail: this.state.registeremail,
+                        logindto: { userName : this.state.registerdto.userName, password : this.state.logindto.password },
                         showregisterform: false
                     });
                 } else if (response.status === 400) {
+                    
                     response.json().then(data => {
+                        
                         this.setState({
                             loading: false,
                             bsstyle: 'danger',
-                            message: data.Error[0]
+                            message: data.error
                         });
                     });
                 }
@@ -146,30 +107,20 @@
     }
 
     handleLoginClickHere() {
-        this.setState({ showregisterform: false, message : "" });
-    }
-
-    renderOTPForm() {
-        return <form autoComplete="off" onSubmit={this.handleGenerateOTP}>
-            <div className="mb-3">
-                <label>Mobile or Email</label>
-                <input type="text" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Mobile or Email" />
-            </div>
-            <button className="btn btn-dark" type="submit">Generate OTP</button>
-        </form>;
+        this.setState({ showregisterform: false, message: "" });
     }
 
     renderLoginForm() {
         return <form onSubmit={this.handleLogin}>
             <div className="mb-3">
-                <label>Mobile or Email</label>
-                <input type="text" className="form-control" required name="loginemail" value={this.state.loginemail} onChange={this.handleChange} placeholder="Mobile or Email" />
+                <label>Username</label>
+                <input type="text" className="form-control" required name="userName" value={this.state.logindto.userName} onChange={(e) => { this.setState({ logindto: { userName : e.target.value, password : this.state.logindto.password}}) }}  />
             </div>
             <div className="mb-3">
-                <label>OTP</label>
-                <input className="form-control" required name="OTP" type="password" onChange={this.handleChange} />
+                <label>Password</label>
+                <input className="form-control" required name="password" type="password" onChange={(e) => { this.setState({ logindto: { userName: this.state.logindto.userName, password: e.target.value } }) }} />
             </div>
-            <button className="btn btn-dark" type="submit">Verify</button>
+            <button className="btn btn-dark" type="submit">Login</button>
         </form>;
     }
 
@@ -181,7 +132,7 @@
     }
 
     render() {
-        let loading = this.state.loading ? <div className="progress" style={{ height: "5px"}}>
+        let loading = this.state.loading ? <div className="progress" style={{ height: "5px" }}>
             <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
         </div> : null;
         let messagecontent = this.state.message !== "" ? <div className={"mt-1 alert alert-" + this.state.bsstyle}>
@@ -198,16 +149,18 @@
                 <div >
                     <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
                         <div className="mb-3">
-                            <label>Your Name</label>
-                            <input type="text" className="form-control" required name="registername" value={this.state.registername} onChange={this.handleChange} />
+                            <label>Username</label>
+                            <input type="text" className="form-control" required name="username" value={this.state.registerdto.userName} onChange={(e) => { this.setState({ registerdto: {userName : e.target.value, password : this.state.registerdto.password, verifyPassword : this.state.registerdto.verifyPassword } }) }} />
                         </div>
                         <div className="mb-3">
-                            <label>Your Email</label>
-                            <input type="email" className="form-control" required name="registeremail" value={this.state.registeremail} onChange={this.handleChange} placeholder="me@bolo.com" />
-                            <small className="form-text text-muted">We'll never share your email with anyone else.</small>
+                            <label>Password</label>
+                            <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: e.target.value, verifyPassword: this.state.registerdto.verifyPassword } }) }} />
                         </div>
-
-                        <button className="btn btn-dark" type="submit">Submit</button>
+                        <div className="mb-3">
+                            <label>Verify Password</label>
+                            <input className="form-control" minLength="8" required name="verifypassword" type="password" onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: this.state.registerdto.password, verifyPassword: e.target.value } }) }} />
+                        </div>
+                        <button className="btn btn-dark" type="submit">Register</button>
                     </form>
 
                     <p className="text-center mt-2">

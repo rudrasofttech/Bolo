@@ -74,31 +74,34 @@ namespace Bolo.Models
     public class MemberDTO
     {
         public Guid ID { get; set; }
-        public string Name { get; set; }
-        public string ChannelName { get; set; }
-        public string Bio { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Bio { get; set; } = string.Empty;
         public int BirthYear { get; set; }
         public Gender Gender { get; set; }
         public ActivityStatus Activity { get; set; }
         public MemberProfileVisibility Visibility { get; set; }
-        public string Pic { get; set; }
-        public string Country { get; set; }
-        public string State { get; set; }
-        public string City { get; set; }
+        public string Pic { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
         public string ThoughtStatus { get; set; }
-        public int PostCount { get; set; }
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
 
-        public string Phone { get; set; }
-        public string Email { get; set; }
+        public string Phone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string RecoveryQuestion { get; set; } = string.Empty;
+
+        public int ProfileCompletePercent { get; set; }
+        public string EmptyFields { get; set; } = string.Empty;
 
         public DateTime LastPulse { get; set; }
         public MemberDTO()
         {
             ID = Guid.Empty;
             Name = string.Empty;
-            ChannelName = string.Empty;
+            UserName = string.Empty;
             Bio = "";
             Pic = "";
             Country = "";
@@ -111,7 +114,7 @@ namespace Bolo.Models
         {
             ID = m.PublicID;
             Name = m.Name;
-            ChannelName = string.IsNullOrEmpty(m.Channelname) ? "" : m.Channelname.ToLower();
+            UserName = string.IsNullOrEmpty(m.UserName) ? "" : m.UserName;
             Bio = string.IsNullOrEmpty(m.Bio) ? "" : m.Bio;
             BirthYear = m.BirthYear;
             Gender = m.Gender;
@@ -130,28 +133,20 @@ namespace Bolo.Models
 
     public class RegisterDTO
     {
-        [MaxLength(200)]
-        [Required(ErrorMessage = "Name is missing.")]
-        public string Name { get; set; }
-        
-        [MaxLength(15, ErrorMessage = "Phone too long")]
-        public string Phone { get; set; }
-        [MaxLength(4, ErrorMessage = "Incorrect Country Code")]
-        public string CountryCode { get; set; } = "91";
-        [MinLength(8, ErrorMessage = "Should have 8 letters or more")]
-        public string Password { get; set; } = string.Empty;
-        [Compare("Password", ErrorMessage ="Should match Password")]
-        public string ConfirmPassword { get; set; } = string.Empty;
+        [MaxLength(50)]
+        public string UserName { get; set; }
+        public string Password { get; set; }
+        public string VerifyPassword { get; set; }
     }
 
     public class LoginDTO
     {
-        [MaxLength(250)]
+        [MaxLength(50)]
         [Required]
-        public string ID { get; set; }
+        public string UserName { get; set; }
 
         [Required]
-        public string Passcode { get; set; }
+        public string Password { get; set; }
     }
 
     public class LoginReturnDTO

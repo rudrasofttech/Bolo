@@ -7,6 +7,15 @@ namespace Bolo.Helper
 {
     public class EncryptionHelper
     {
+        public static byte[] CalculateSHA256(string str)
+        {
+            SHA256 sha256 = SHA256Managed.Create();
+            byte[] hashValue;
+            UTF8Encoding objUtf8 = new UTF8Encoding();
+            hashValue = sha256.ComputeHash(objUtf8.GetBytes(str));
+            return hashValue;
+        }
+
         static string ekey = "mnhbg876dd54";
         public static string Encrypt(string clearText)
         {

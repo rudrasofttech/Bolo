@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20220412070218_UpdateMember")]
+    partial class UpdateMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,13 +150,6 @@ namespace Bolo.Migrations
                     b.Property<Guid>("PublicID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("RecoveryAnswer")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("RecoveryQuestion")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
-
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -239,8 +234,7 @@ namespace Bolo.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Describe")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ModifierID")
                         .HasColumnType("int");
@@ -256,6 +250,9 @@ namespace Bolo.Migrations
 
                     b.Property<int>("PostType")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("PublicID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

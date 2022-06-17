@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20220413153136_PasswordRecoveryColumns")]
+    partial class PasswordRecoveryColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,31 +180,6 @@ namespace Bolo.Migrations
                     b.ToTable("Member");
                 });
 
-            modelBuilder.Entity("Bolo.Models.MemberComment", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CommentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CommentedByID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PostID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("CommentedByID");
-
-                    b.HasIndex("PostID");
-
-                    b.ToTable("MemberComment");
-                });
-
             modelBuilder.Entity("Bolo.Models.MemberFollower", b =>
                 {
                     b.Property<int>("ID")
@@ -231,101 +208,6 @@ namespace Bolo.Migrations
                     b.ToTable("MemberFollower");
                 });
 
-            modelBuilder.Entity("Bolo.Models.MemberPost", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Describe")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
-
-                    b.Property<int?>("ModifierID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ModifyDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("OwnerID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PostDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PostType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VideoURL")
-                        .HasColumnType("nvarchar(1000)")
-                        .HasMaxLength(1000);
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("ModifierID");
-
-                    b.HasIndex("OwnerID");
-
-                    b.ToTable("MemberPost");
-                });
-
-            modelBuilder.Entity("Bolo.Models.MemberReaction", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("CommentID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PostID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ReactedByID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Reaction")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ReactionDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("CommentID");
-
-                    b.HasIndex("PostID");
-
-                    b.HasIndex("ReactedByID");
-
-                    b.ToTable("MemberReaction");
-                });
-
-            modelBuilder.Entity("Bolo.Models.PostPhoto", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("MemberPostID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Photo")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("MemberPostID");
-
-                    b.ToTable("PostPhoto");
-                });
-
             modelBuilder.Entity("Bolo.Models.ChatMessage", b =>
                 {
                     b.HasOne("Bolo.Models.Member", "SentBy")
@@ -348,17 +230,6 @@ namespace Bolo.Migrations
                         .HasForeignKey("PersonID");
                 });
 
-            modelBuilder.Entity("Bolo.Models.MemberComment", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", "CommentedBy")
-                        .WithMany()
-                        .HasForeignKey("CommentedByID");
-
-                    b.HasOne("Bolo.Models.MemberPost", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostID");
-                });
-
             modelBuilder.Entity("Bolo.Models.MemberFollower", b =>
                 {
                     b.HasOne("Bolo.Models.Member", "Follower")
@@ -368,39 +239,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.Member", "Following")
                         .WithMany()
                         .HasForeignKey("FollowingID");
-                });
-
-            modelBuilder.Entity("Bolo.Models.MemberPost", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", "Modifier")
-                        .WithMany()
-                        .HasForeignKey("ModifierID");
-
-                    b.HasOne("Bolo.Models.Member", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerID");
-                });
-
-            modelBuilder.Entity("Bolo.Models.MemberReaction", b =>
-                {
-                    b.HasOne("Bolo.Models.MemberComment", "Comment")
-                        .WithMany()
-                        .HasForeignKey("CommentID");
-
-                    b.HasOne("Bolo.Models.MemberPost", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostID");
-
-                    b.HasOne("Bolo.Models.Member", "ReactedBy")
-                        .WithMany()
-                        .HasForeignKey("ReactedByID");
-                });
-
-            modelBuilder.Entity("Bolo.Models.PostPhoto", b =>
-                {
-                    b.HasOne("Bolo.Models.MemberPost", null)
-                        .WithMany("Photos")
-                        .HasForeignKey("MemberPostID");
                 });
 #pragma warning restore 612, 618
         }

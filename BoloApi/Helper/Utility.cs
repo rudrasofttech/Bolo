@@ -13,6 +13,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Bolo.Models;
 using Microsoft.Extensions.Options;
+using System.Text.RegularExpressions;
 
 namespace Bolo.Helper
 {
@@ -41,10 +42,16 @@ namespace Bolo.Helper
             }
         }
 
-        public static string GenerateOTP()
+        public static bool RegexMatch(string target, string rgx)
         {
-            Random r = new Random();
-            return string.Format("{0}{1}{2}{3}{4}{5}", r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9));
+            // Step 1: create new Regex.
+            Regex regex = new Regex(rgx);
+
+            // Step 2: call Match on Regex instance.
+            Match match = regex.Match(target);
+
+            // Step 3: test for Success.
+            return match.Success;
         }
 
         public static string SendSMS(string phone, string message)
@@ -118,7 +125,7 @@ namespace Bolo.Helper
             }
             catch (Exception ex)
             {
-                throw ex;
+                
             }
         }
     }

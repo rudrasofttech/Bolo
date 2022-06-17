@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20220412070917_RemoveMemberComment")]
+    partial class RemoveMemberComment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,13 +150,6 @@ namespace Bolo.Migrations
                     b.Property<Guid>("PublicID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("RecoveryAnswer")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("RecoveryQuestion")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
-
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
@@ -176,31 +171,6 @@ namespace Bolo.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Member");
-                });
-
-            modelBuilder.Entity("Bolo.Models.MemberComment", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CommentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CommentedByID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PostID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("CommentedByID");
-
-                    b.HasIndex("PostID");
-
-                    b.ToTable("MemberComment");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberFollower", b =>
@@ -239,8 +209,7 @@ namespace Bolo.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Describe")
-                        .HasColumnType("nvarchar(2000)")
-                        .HasMaxLength(2000);
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ModifierID")
                         .HasColumnType("int");
@@ -256,6 +225,9 @@ namespace Bolo.Migrations
 
                     b.Property<int>("PostType")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("PublicID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -280,9 +252,6 @@ namespace Bolo.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("CommentID")
-                        .HasColumnType("int");
-
                     b.Property<int?>("PostID")
                         .HasColumnType("int");
 
@@ -296,8 +265,6 @@ namespace Bolo.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("CommentID");
 
                     b.HasIndex("PostID");
 
@@ -348,17 +315,6 @@ namespace Bolo.Migrations
                         .HasForeignKey("PersonID");
                 });
 
-            modelBuilder.Entity("Bolo.Models.MemberComment", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", "CommentedBy")
-                        .WithMany()
-                        .HasForeignKey("CommentedByID");
-
-                    b.HasOne("Bolo.Models.MemberPost", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostID");
-                });
-
             modelBuilder.Entity("Bolo.Models.MemberFollower", b =>
                 {
                     b.HasOne("Bolo.Models.Member", "Follower")
@@ -383,10 +339,6 @@ namespace Bolo.Migrations
 
             modelBuilder.Entity("Bolo.Models.MemberReaction", b =>
                 {
-                    b.HasOne("Bolo.Models.MemberComment", "Comment")
-                        .WithMany()
-                        .HasForeignKey("CommentID");
-
                     b.HasOne("Bolo.Models.MemberPost", "Post")
                         .WithMany()
                         .HasForeignKey("PostID");
