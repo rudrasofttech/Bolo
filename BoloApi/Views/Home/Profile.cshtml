@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="root"></div>
+@section scripts{
+    <environment include="Development">
+        <script type="text/babel" src="~/js/MessageStrip.js"></script>
+        <script type="text/babel" src="~/js/Profile.js"></script>
+        <script type="text/babel">
+            ReactDOM.render(
+            <Profile />,
+            document.getElementById('root')
+            );
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script src="~/js/compiled/MessageStrip.js"></script>
+        <script src="~/js/compiled/Profile.js"></script>
+        <script>
+            "use strict";
+            ReactDOM.render( /*#__PURE__*/React.createElement(Profile, null), document.getElementById('root'));
+        </script>
+    </environment>
+}

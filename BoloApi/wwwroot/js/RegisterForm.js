@@ -9,7 +9,7 @@
 
         this.state = {
             showregisterform: props.beginWithRegister,
-            registerdto: { userName: '', password: '', verifyPassword : '' },
+            registerdto: { userName: '', password: '', verifyPassword: '' },
             logindto: { userName: '', password: '' },
             loading: false, message: '', bsstyle: '', loggedin: loggedin
         };
@@ -38,7 +38,7 @@
                         console.log(data);
                         if (data.token !== undefined) {
                             localStorage.setItem("token", data.token);
-                            localStorage.setItem("user", data.member);
+                            localStorage.setItem("myself",JSON.stringify(data.member));
                             this.setState({ bsstyle: '', message: '', loggedin: true });
                             if (this.props.onLogin !== undefined) {
                                 this.props.onLogin();
@@ -63,7 +63,7 @@
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/members/register', {
             method: 'post',
-            body: JSON.stringify({ UserName: this.state.registerdto.userName, Password: this.state.registerdto.password, VerifyPassword : this.state.registerdto.verifyPassword}),
+            body: JSON.stringify({ UserName: this.state.registerdto.userName, Password: this.state.registerdto.password, VerifyPassword: this.state.registerdto.verifyPassword }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -76,13 +76,13 @@
                         bsstyle: 'success',
                         message: 'Your registration is complete.',
                         loggedin: false,
-                        logindto: { userName : this.state.registerdto.userName, password : this.state.logindto.password },
+                        logindto: { userName: this.state.registerdto.userName, password: this.state.logindto.password },
                         showregisterform: false
                     });
                 } else if (response.status === 400) {
-                    
+
                     response.json().then(data => {
-                        
+
                         this.setState({
                             loading: false,
                             bsstyle: 'danger',
@@ -114,13 +114,20 @@
         return <form onSubmit={this.handleLogin}>
             <div className="mb-3">
                 <label>Username</label>
-                <input type="text" className="form-control" required name="userName" value={this.state.logindto.userName} onChange={(e) => { this.setState({ logindto: { userName : e.target.value, password : this.state.logindto.password}}) }}  />
+                <input type="text" className="form-control" required name="userName" value={this.state.logindto.userName} onChange={(e) => { this.setState({ logindto: { userName: e.target.value, password: this.state.logindto.password } }) }} />
             </div>
             <div className="mb-3">
                 <label>Password</label>
                 <input className="form-control" required name="password" type="password" onChange={(e) => { this.setState({ logindto: { userName: this.state.logindto.userName, password: e.target.value } }) }} />
             </div>
-            <button className="btn btn-dark" type="submit">Login</button>
+            <div className="row">
+                <div className="col">
+                    <button className="btn btn-dark" type="submit">Login</button>
+                </div>
+                <div className="col text-end">
+                    <a href="/forgotpassword" className="btn btn-link text-dark">Forgot Password?</a>
+                </div>
+            </div>
         </form>;
     }
 
@@ -150,7 +157,7 @@
                     <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
                         <div className="mb-3">
                             <label>Username</label>
-                            <input type="text" className="form-control" required name="username" value={this.state.registerdto.userName} onChange={(e) => { this.setState({ registerdto: {userName : e.target.value, password : this.state.registerdto.password, verifyPassword : this.state.registerdto.verifyPassword } }) }} />
+                            <input type="text" className="form-control" required name="username" value={this.state.registerdto.userName} onChange={(e) => { this.setState({ registerdto: { userName: e.target.value, password: this.state.registerdto.password, verifyPassword: this.state.registerdto.verifyPassword } }) }} />
                         </div>
                         <div className="mb-3">
                             <label>Password</label>
@@ -173,17 +180,15 @@
                 <h3>Login</h3>
                 <div >
                     {logincontents}
-                    <p className="text-center mt-2">
+                    <p className="text-center mt-3 p-3 border-top">
                         Register for FREE <a onClick={this.handleRegisterClickHere} className="link-success">Click Here</a></p>
                     {messagecontent}
                     {loading}
                 </div>
             </div>;
-        return (
-            <div>
-                {formcontents}
-            </div>
-        );
+        return <div className="row align-items-center justify-content-center" style={{ minHeight: "90vh" }}><div className="col-md-5">
+            {formcontents}
+        </div></div>;
     }
 }
 

@@ -201,23 +201,13 @@ namespace Bolo.Controllers
 
                 MemberDTO result = new MemberDTO(member)
                 {
-                    RecoveryQuestion = member.RecoveryQuestion,
+                    
                     Phone = member.Phone,
                     Email = member.Email,
                     FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID),
-                    FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID)
+                    FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
+                    PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID)
                 };
-                if (string.IsNullOrEmpty(member.RecoveryQuestion))
-                {
-                    result.EmptyFields += "recoveryquestion,";
-                }
-                if (member.RecoveryAnswer == null)
-                {
-                    result.EmptyFields += "recoveryanswer,";
-                }else if(member.RecoveryAnswer.Length == 0)
-                {
-                    result.EmptyFields += "recoveryanswer,";
-                }
                 return result;
             }
         }
@@ -246,7 +236,7 @@ namespace Bolo.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MemberDTO>> GetMember(string id)
         {
-            var member = new Member();
+            Member member = null;
             if (Guid.TryParse(id, out Guid idguid))
             {
                 member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == idguid);
@@ -260,7 +250,15 @@ namespace Bolo.Controllers
             {
                 return NotFound();
             }
-            MemberDTO result = new MemberDTO(member);
+            MemberDTO result = new MemberDTO(member)
+            {
+
+                Phone = member.Phone,
+                Email = member.Email,
+                FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID),
+                FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
+                PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID)
+            }; 
             return result;
         }
 
@@ -572,52 +570,6 @@ namespace Bolo.Controllers
         }
 
         [HttpGet]
-        [Route("saverecoveryquestion")]
-        public async Task<IActionResult> SaveRecoveryQuestion([FromQuery] string d)
-        {
-            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-            if (member == null)
-                return NotFound();
-            else
-            {
-                try
-                {
-                    member.RecoveryQuestion = d;
-                    member.ModifyDate = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
-                    return Ok();
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-        }
-
-        [HttpGet]
-        [Route("saverecoverypassword")]
-        public async Task<IActionResult> SaveRecoveryPassword([FromQuery] string d)
-        {
-            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-            if (member == null)
-                return NotFound();
-            else
-            {
-                try
-                {
-                    member.RecoveryAnswer = EncryptionHelper.CalculateSHA256(d);
-                    member.ModifyDate = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
-                    return Ok();
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-        }
-
-        [HttpGet]
         [Route("savepulse")]
         public async Task<IActionResult> SavePulse([FromQuery] ActivityStatus s)
         {
@@ -681,7 +633,7 @@ namespace Bolo.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("register")]
-        public async Task<ActionResult<Member>> Register(RegisterDTO model)
+        public async Task<ActionResult<MemberDTO>> Register(RegisterDTO model)
         {
             if (String.IsNullOrEmpty(model.UserName))
             {
@@ -697,15 +649,23 @@ namespace Bolo.Controllers
             {
                 return BadRequest(new { error = "Password should be 8 characters long." });
             }
-            if(model.Password != model.VerifyPassword)
-            {
-                return BadRequest(new { error = "Password and Verify Password should match." });
-            }
+            //if(model.Password != model.VerifyPassword)
+            //{
+            //    return BadRequest(new { error = "Password and Verify Password should match." });
+            //}
             
             if (_context.Members.Count(t => t.UserName == model.UserName) > 0)
             {
-                ModelState.AddModelError("Error", "Username already exist, please try to log in.");
-                return BadRequest(ModelState);
+                return BadRequest(new { error = "Username already exist, please try to log in." });
+            }
+
+            if (_context.Members.Count(t => t.Email == model.Email) > 0)
+            {
+                return BadRequest(new { error = "Email already exist, please use another email address." });
+            }
+            if (_context.Members.Count(t => t.Phone == model.Phone) > 0)
+            {
+                return BadRequest(new { error = "Phone already exist, please use another phone." });
             }
 
             Member m = new Member()
@@ -713,7 +673,7 @@ namespace Bolo.Controllers
                 CountryCode = string.Empty,
                 Status = RecordStatus.Unverified,
                 CreateDate = DateTime.UtcNow,
-                Email = string.Empty,
+                Email = model.Email,
                 Name = string.Empty,
                 Phone = string.Empty,
                 Password = EncryptionHelper.CalculateSHA256(model.Password),
@@ -722,7 +682,7 @@ namespace Bolo.Controllers
                 Bio = "",
                 UserName = model.UserName,
                 City = "",
-                Country = "IN",
+                Country = model.Country,
                 LastPulse = DateTime.UtcNow,
                 Pic = "",
                 ThoughtStatus = "",
@@ -740,7 +700,7 @@ namespace Bolo.Controllers
             //{
             //    Helper.Utility.SendSMS(model.Phone, string.Format("Your Bolo passcode is: {0}", OTP));
             //}
-            return Ok(); //CreatedAtAction("GetMember", new { id = m.ID }, m);
+            return Ok(new MemberDTO(m)); //CreatedAtAction("GetMember", new { id = m.ID }, m);
         }
 
         [HttpGet]

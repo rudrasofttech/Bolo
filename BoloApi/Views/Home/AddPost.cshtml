@@ -1,0 +1,153 @@
+﻿@model Bolo.Models.PostPhotoDTO
+@{
+    ViewData["Title"] = "Add Post";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #photocontainer {
+        width: 100%;
+        max-width: 500px;
+        height: 505px;
+        margin: 0 auto;
+        /*overflow-y: hidden;
+        overflow-x: scroll;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;*/
+    }
+
+        #photocontainer .photobox {
+            display: block;
+        }
+
+    .wizard .step {
+        display: none;
+    }
+
+        .wizard .step.active {
+            display: block;
+        }
+</style>
+<form id="photoform" onsubmit="return savePhoto();">
+<div class="wizard" id="wizard" style="min-height:90vh;">
+    <div class="step active" id="step1">
+        <div class="bg-light fixed-bottom text-end py-2 maxwidth">
+            <button type="button" class="float-start btn btn-link text-dark btn-lg px-2 text-decoration-none" onclick="$('#photofiles').click();">Add Photos</button>
+            <button type="button" disabled class="float-start btn btn-link text-dark btn-lg px-2 text-decoration-none hasphotos">Filters</button>
+            <button type="button" disabled class="btn btn-link text-dark btn-lg text-decoration-none hasphotos" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
+        </div>
+        <div id="photocontainer" class="d-none"></div>
+        <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
+    </div>
+    <div class="step" id="step2">
+        <div class="bg-light fixed-bottom text-end py-2 maxwidth">
+            <button type="button" class="btn btn-link text-dark float-start btn-lg text-decoration-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
+            <button type="submit" class="btn btn-primary btn-lg px-2">Save</button>
+        </div>
+        <div class="mb-3">
+            <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000"></textarea>
+        </div>
+        <div class="mb-3 ps-3">
+            <div class="form-check form-switch">
+                <input asp-for="AcceptComment" class="form-check-input" type="checkbox" role="switch" id="acceptcommentchk" value="true" />
+                <label class="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
+            </div>
+        </div>
+        @for (int i = 0; i < Model.Photos.Count; i++)
+        {
+            <input name="Photos[@i]" id="@Html.Raw("photohdn" + i)" value="@Model.Photos[i]" type="hidden" />
+        }
+    </div>
+</div>
+    </form>
+@section scripts{
+    <script src="~/libs/fabric.min.js"></script>
+    <script>
+        var photos = [];
+        class UserPhoto {
+            constructor(_index, _img) {
+                this.index = _index;
+                this.container = "#photocontainer";
+                this.canvas = null;
+                this.img = _img;
+                this.imgInst = null;
+            }
+
+            prepare() {
+                var width = document.documentElement.clientWidth <= 500 ? (document.documentElement.clientWidth - 5) : 500;
+                var height = width;
+                $(this.container).height((height + 5) + "px");
+                $(this.container).append('<div class="photobox border my-1"><canvas id="canvas' + this.index + '"></canvas></div>');
+                this.canvas = new fabric.Canvas('canvas' + this.index);
+
+                this.canvas.setDimensions({ width: width, height: height });
+                this.imgInst = new fabric.Image(this.img, {
+                    angle: 0, padding: 0, cornersize: 0
+                });
+                if (this.img.width >= this.img.height) {
+                    this.imgInst.scaleToHeight(this.canvas.height);
+                } else if (this.img.height > this.img.width) {
+                    this.imgInst.scaleToWidth(this.canvas.width);
+                }
+                this.imgInst.hasControls = false;
+                //this.imgInst.lockMovementX = true;
+                //this.imgInst.lockMovementY = true;
+                this.canvas.centerObject(this.imgInst);
+                this.canvas.add(this.imgInst);
+            }
+
+            extractImage() {
+                $("#photohdn" + this.index).val(this.canvas.toDataURL("image/png"));
+            }
+        }
+
+        function processFiles(e) {
+            //$("#photocontainer").html("");
+            //photos = [];
+            if (photos.length >= parseInt("@Model.Photos.Count", 10))
+                return;
+            if (e.target.files.length > 0) {
+                $("#photocontainer").removeClass("d-none");
+            }
+            for (var k = 0; k < e.target.files.length; k++) {
+                var fileReader = new FileReader();
+                fileReader.onload = function (e) {
+                    $("#photocontainer").append("<img class='targetimg d-none' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event)' />")
+                }
+                fileReader.readAsDataURL(e.target.files[k]);
+            }
+
+            $(".hasphotos").removeAttr("disabled");
+        }
+
+        function loadImage(e) {
+            if (photos.length < parseInt("@Model.Photos.Count", 10)) {
+                var index = $(e.target).attr("data-index");
+                var up = new UserPhoto(index, document.getElementById("image" + index));
+                up.prepare();
+                photos.push(up);
+            }
+        }
+
+        function savePhoto() {
+            if (photos.length <= 0) {
+                return false;
+            }
+            for (var k in photos) {
+                photos[k].extractImage();
+            }
+            var formData = new FormData(document.getElementById("photoform"));
+            $.ajax({
+                type: "POST",
+                url: "@Url.Content("~/api/Post")",
+                data: $("#photoform").serialize(),
+                dataType: "json",
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
+            }).done(function (data) {
+                location.href="@Url.Content("~/")"
+            });
+            return false;
+        }
+    </script>
+}
+

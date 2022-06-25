@@ -161,20 +161,22 @@
                 profilepic = <i className="bi bi-person-square"></i>
             }
             if (loggedin) {
-                linkitems.push(<a key={"memberlinkli"} className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "profile" }); }}>{profilepic}</a>);
+                linkitems.push(<a key={"memberlinkli"} className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "profile" }); }}>{profilepic}</a>);
             } else {
                 //linkitems.push(<a key={"loginlinkli"} className="text-white mx-lg-4 mx-3 " onClick={() => { this.setState({ mainview: "login" }); }} ><i class="bi bi-door-open"></i></a>);
             }
 
-            return <nav className="navbar navbar-expand-lg navbar-light bg-dark ">
-                <div className="container">
-                    <a className="navbar-brand text-white" href="/">Waarta</a>
-                    <div className="justify-content-md-end">
-                        <a className="text-white mx-lg-4 mx-3" onClick={() => { this.setState({ mainview: "conversation" }) }} title="Past Conversations"><i className="bi bi-chat-dots"></i></a>
+            return <div className="container-sm fixed-top bg-white border border-top-0" style={{maxWidth : "900px"}}>
+                <div className="row py-2">
+                    <div className="col-2"><span className="text-dark fs-3"></span></div>
+                    <div className="col text-end">
+                        <a className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "home" }) }} title="Home"><i className="bi bi-house-door"></i></a>
+                        <a className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "addpost" }) }} title="Add Post"><i className="bi bi-journal-plus"></i></a>
+                        <a className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "conversation" }) }} title="Past Conversations"><i className="bi bi-chat-dots"></i></a>
                         {linkitems}
                     </div>
                 </div>
-            </nav>;
+            </div>;
         } else {
             return null;
         }
@@ -311,26 +313,8 @@
         let messagecontent = this.state.message !== "" ? <div className={"mt-1 alert alert-" + this.state.bsstyle}>
             {this.state.message}
         </div> : null;
-        return (
-            <AuthContext.Provider value={{
-                data: this.state.data,
-                token: this.state.token,
-                setToken: this.setToken,
-                setData: this.setData
-            }}>
-                {this.renderHeader()}
-                {this.renderProfileCompleteness()}
-                {this.renderLogin()}
-                {this.renderProfile()}
-                {this.renderManageProfile()}
-                {this.renderRegister(messagecontent, loading)}
-                {this.renderConversation()}
-                {this.renderDiscussion()}
-                {this.renderFAQ()}
-                {this.renderPrivacy()}
-                {this.renderFooter()}
-
-            </AuthContext.Provider>
-        );
+        return <Layout>
+            <React.Route exact path='/' component={Home} />
+        </Layout>;
     }
 }

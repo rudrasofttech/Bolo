@@ -1,0 +1,26 @@
+﻿
+@{
+    ViewData["Title"] = "Update Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="root"></div>
+@section scripts{
+    <environment include="Development">
+        <script type="text/babel" src="~/js/ManageProfile.js"></script>
+        <script type="text/babel">
+            ReactDOM.render(
+            <ManageProfile />,
+            document.getElementById('root')
+            );
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script src="~/js/compiled/ManageProfile.js"></script>
+        <script>
+            "use strict";
+            ReactDOM.render( /*#__PURE__*/React.createElement(ManageProfile, null), document.getElementById('root'));
+        </script>
+    </environment>
+}
+

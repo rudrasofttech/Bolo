@@ -11,7 +11,7 @@
             myself: null, bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             onProfileChange: this.props.onProfileChange === undefined ? null : this.props.onProfileChange,
-            showProfilePicModal: false, src: null, recoveryPassword: '',
+            showProfilePicModal: false, src: null, 
             crop: {
                 unit: "px",
                 x: 20,
@@ -40,9 +40,6 @@
         switch (e.target.name) {
             case 'userName':
                 m.userName = e.target.value.replace(" ", "").replace("\\", "").replace("/", "").replace(";", "").replace("\"", "").replace("'", "").replace("#", "");
-                break;
-            case 'recoveryQuestion':
-                m.recoveryQuestion = e.target.value;
                 break;
             case 'phone':
                 m.phone = e.target.value;
@@ -390,6 +387,15 @@
     }
 
     render() {
+        if (!this.state.loggedin) {
+            return <RegisterForm beginWithRegister={false} onLogin={() => {
+                this.setState({
+                    loggedin: localStorage.getItem("token") === null ? false : true,
+                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                })
+            }} />;
+        }
         var yearitems = []
         for (var i = 1947; i <= 2004; i++) {
             yearitems.push(<option value={i}>{i}</option>);
@@ -734,26 +740,9 @@
                             </div>
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-md-6">
-                            <label htmlFor="recoveryQuestion" className="form-label">Password Recovery Question (Required)</label>
-                            <div className="input-group">
-                                <input type="text" name="recoveryQuestion" placeholder="e.g. Year I passed class 10th?" className="form-control" maxLength="2000" value={this.state.myself.recoveryQuestion} onChange={this.handleChange} />
-                                <button className="btn btn-secondary" onClick={() => { this.saveData("recoveryquestion", this.state.myself.recoveryQuestion) }}>Save</button>
-                            </div>
-                        </div>
-
-                        <div className="col-md-6">
-                            <label htmlFor="recoveryPassword" className="form-label">Password Recovery Answer (Required)</label>
-                            <div className="input-group">
-                                <input type="password" name="recoveryPassword" className="form-control" maxLength="200" value={this.state.recoveryPassword} onChange={(e) => { this.setState({ recoveryPassword: e.target.value }); }} />
-                                <button className="btn btn-secondary" onClick={() => { this.saveData("recoverypassword", this.state.recoveryPassword) }}>Save</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mb-2 mt-5 text-end">
-                        <button className="btn btn-light me-3" onClick={() => { this.props.onBack(); }}>Back to Profile</button>
-                        <button className="btn btn-dark ms-3" onClick={() => {
+                    <div className="p-2 mt-3 border text-end bg-white sticky-bottom">
+                        <a className="btn btn-link mx-2" href="/profile">Back to Profile</a>
+                        <button className="btn btn-link mx-2" onClick={() => {
                             localStorage.clear();
                             location.reload();
                         }}>Logout</button>

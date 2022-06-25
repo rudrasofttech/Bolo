@@ -27,6 +27,9 @@ code {
     border-color: #1861ac;
 }
 
+.profile-thumb{
+    max-height:150px;
+}
 .searchlistitem {
     width: 100%;
     cursor: pointer;

@@ -88,6 +88,7 @@ namespace Bolo.Models
         public string ThoughtStatus { get; set; }
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
+        public int PostCount { get; set; }
 
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -134,14 +135,20 @@ namespace Bolo.Models
     public class RegisterDTO
     {
         [MaxLength(50)]
-        public string UserName { get; set; }
-        public string Password { get; set; }
-        public string VerifyPassword { get; set; }
+        [Required]
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        [MaxLength(250)]
+        public string Email { get; set; } = string.Empty;
+        [MaxLength(4)]
+        public string Country { get; set; } = string.Empty;
+        [MaxLength(15)]
+        public string Phone { get; set; }
     }
 
     public class LoginDTO
     {
-        [MaxLength(50)]
+        [MaxLength(250)]
         [Required]
         public string UserName { get; set; }
 
@@ -157,13 +164,31 @@ namespace Bolo.Models
 
     public class PostPhotoDTO
     {
-        public string Caption { get; set; } = string.Empty;
-        public List<String> Photos { get; set; } = new List<string>();
+        [MaxLength(7000)]
+        public string Describe { get; set; } = string.Empty;
+        public bool AcceptComment { get; set; } = true;
+        public List<String> Photos { get; set; } = new List<string>(10);
+
+        public PostPhotoDTO()
+        {
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+            Photos.Add(string.Empty);
+        }
     }
 
     public class PutPhotoDTO
     {
-        public string Caption { get; set; } = string.Empty;
+        [MaxLength(7000)]
+        public string Describe { get; set; } = string.Empty;
+        public bool AcceptComment { get; set; }
     }
 
     public class PostListItem

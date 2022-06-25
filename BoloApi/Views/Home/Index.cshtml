@@ -10,7 +10,7 @@
     <script src="~/libs/simplepeer.min.js"></script>
     <script src="~/libs/fabric.min.js"></script>
     <environment include="Development">
-        <script type="text/babel" src="~/js/ManageProfile.js"></script>
+        @*<script type="text/babel" src="~/js/ManageProfile.js"></script>
         <script type="text/babel" src="~/js/RegisterForm.js"></script>
         <script type="text/babel" src="~/js/AuthContext.js"></script>
         <script type="text/babel" src="~/js/Layout.js"></script>
@@ -23,17 +23,18 @@
         <script type="text/babel" src="~/js/PersonChat.js"></script>
         <script type="text/babel" src="~/js/Conversation.js"></script>
         <script type="text/babel" src="~/js/Privacy.js"></script>
-        <script type="text/babel" src="~/js/Profile.js"></script>
-        <script type="text/babel" src="~/js/App.js"></script>
+        <script type="text/babel" src="~/js/Profile.js"></script>*@
+        <script type="text/babel" src="~/js/Home.js"></script>
+        @*<script type="text/babel" src="~/js/App.js"></script>*@
         <script type="text/babel">
             ReactDOM.render(
-            <App />,
+            <Home />,
             document.getElementById('root')
             );
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
-        <script src="~/js/compiled/ManageProfile.js"></script>
+        @*<script src="~/js/compiled/ManageProfile.js"></script>
         <script src="~/js/compiled/RegisterForm.js"></script>
         <script src="~/js/compiled/AuthContext.js"></script>
         <script src="~/js/compiled/MessageStrip.js"></script>
@@ -48,13 +49,11 @@
         <script src="~/js/compiled/Discussion.js"></script>
         <script src="~/js/compiled/Meetings.js"></script>
         <script src="~/js/compiled/Privacy.js"></script>
-        
-        <script src="~/js/compiled/App.js"></script>
-
+        <script src="~/js/compiled/App.js"></script>*@
+        <script src="~/js/compiled/Home.js"></script>
         <script>
             "use strict";
-
-            ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('root'));
+            ReactDOM.render( /*#__PURE__*/React.createElement(Home, null), document.getElementById('root'));
         </script>
     </environment>
 }

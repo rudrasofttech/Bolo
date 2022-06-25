@@ -54,7 +54,7 @@ namespace Bolo.Helper
             return match.Success;
         }
 
-        public static string SendSMS(string phone, string message)
+        public static string SendSMS(string phone, string message, string country)
         {
             string url = "http://login.bulksmsgateway.in/sendmessage.php";
             string result = "";

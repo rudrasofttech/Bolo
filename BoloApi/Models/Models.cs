@@ -146,10 +146,6 @@ namespace Bolo.Models
         public string City { get; set; } = string.Empty;
         [MaxLength(200)]
         public string ThoughtStatus { get; set; } = string.Empty;
-        [MaxLength(2000)]
-        public string RecoveryQuestion { get; set; } = string.Empty;
-        public byte[] RecoveryAnswer { get; set; }
-        
     }
 
     public class ChatMessage
@@ -213,10 +209,11 @@ namespace Bolo.Models
         public Member Modifier { get; set; }
         public DateTime ModifyDate { get; set; }
         public MemberPostType PostType { get; set; }
-        [MaxLength(2000)]
+        [MaxLength(7000)]
         public string Describe { get; set; } = string.Empty;
         public RecordStatus Status { get; set; } = RecordStatus.Active;
         public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
+        public bool AcceptComment { get; set; } = true;
         [MaxLength(1000)]
         public string VideoURL { get; set; }
     }
