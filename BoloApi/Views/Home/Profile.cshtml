@@ -1,4 +1,6 @@
-﻿
+﻿@model Bolo.Models.MemberDTO
+
+@using System.Text.Json
 @{
     ViewData["Title"] = "Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -11,7 +13,7 @@
         <script type="text/babel" src="~/js/Profile.js"></script>
         <script type="text/babel">
             ReactDOM.render(
-            <Profile />,
+            <Profile username='@ViewBag.UserName'/>,
             document.getElementById('root')
             );
         </script>
@@ -21,7 +23,9 @@
         <script src="~/js/compiled/Profile.js"></script>
         <script>
             "use strict";
-            ReactDOM.render( /*#__PURE__*/React.createElement(Profile, null), document.getElementById('root'));
+            ReactDOM.render( /*#__PURE__*/React.createElement(Profile, {
+                username: ""
+            }), document.getElementById('root'));
         </script>
     </environment>
 }

@@ -313,8 +313,8 @@
         let messagecontent = this.state.message !== "" ? <div className={"mt-1 alert alert-" + this.state.bsstyle}>
             {this.state.message}
         </div> : null;
-        return <Layout>
-            <React.Route exact path='/' component={Home} />
-        </Layout>;
+        return <div>
+            <React.Link exact path='/' component={Home} />
+        </div>;
     }
 }

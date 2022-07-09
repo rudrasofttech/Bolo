@@ -71,6 +71,62 @@ namespace Bolo.Models
         }
     }
 
+    public class MemberSmallDTO
+    {
+        public Guid ID { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Pic { get; set; } = string.Empty;
+        /// <summary>
+        /// Should be true if the member seeing this member info is a follower or not
+        /// </summary>
+        public MemberSmallDTO()
+        {
+            ID = Guid.Empty;
+            Name = string.Empty;
+            UserName = string.Empty;
+            Pic = string.Empty;
+        }
+
+        public MemberSmallDTO(Member m)
+        {
+            ID = m.PublicID;
+            Name = m.Name;
+            UserName = string.IsNullOrEmpty(m.UserName) ? "" : m.UserName;
+            Pic = string.IsNullOrEmpty(m.Pic) ? "" : m.Pic;
+        }
+    }
+
+    public class ReactionMemberFollowerDTO
+    {
+        public MemberSmallDTO Member { get; set; }
+        public FollowerStatus Status { get; set; }
+
+        public ReactionMemberFollowerDTO()
+        {
+        }
+    }
+
+    public class MemberFollowerDTO
+    {
+        public DateTime FollowedDate { get; set; }
+        [MaxLength(200)]
+        public string Tag { get; set; }
+        public MemberSmallDTO Follower { get; set; }
+        public MemberSmallDTO Following { get; set; }
+        public FollowerStatus Status { get; set; }
+
+        public MemberFollowerDTO() { }
+        public MemberFollowerDTO(MemberFollower mf)
+        {
+            FollowedDate = mf.FollowedDate;
+            Tag = mf.Tag;
+            Follower = new MemberSmallDTO(mf.Follower);
+            Following = new MemberSmallDTO(mf.Following);
+            Status = mf.Status;
+        }
+    }
+
     public class MemberDTO
     {
         public Guid ID { get; set; }
@@ -191,26 +247,75 @@ namespace Bolo.Models
         public bool AcceptComment { get; set; }
     }
 
-    public class PostListItem
+    public class PostDTO
     {
-        public int ID { get; set; }
-        public string Photo { get; set; } = string.Empty;
+        public Guid ID { get; set; }
+        public MemberDTO Owner { get; set; }
+        public DateTime PostDate { get; set; }
+        public MemberPostType PostType { get; set; }
+        public string Describe { get; set; } = string.Empty;
+        public RecordStatus Status { get; set; } = RecordStatus.Active;
+        public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
+        public bool AcceptComment { get; set; } = true;
+        public string VideoURL { get; set; }
+        public int ReactionCount { get; set; }
+        public int CommentCount { get; set; }
+        public bool HasReacted { get; set; }
+
+        public PostDTO(MemberPost mp)
+        {
+            if (mp != null)
+            {
+                ID = mp.PublicID;
+                Owner = new MemberDTO(mp.Owner);
+                PostDate = mp.PostDate;
+                PostType = mp.PostType;
+                Describe = mp.Describe;
+                Status = mp.Status;
+                Photos = new List<PostPhoto>();
+                foreach (PostPhoto pp in mp.Photos)
+                    Photos.Add(pp);
+                AcceptComment = mp.AcceptComment;
+                VideoURL = mp.VideoURL;
+            }
+        }
     }
 
-    public class DiscoverPaged : PagingModel
+    public class HashtagDTO
     {
-        public List<PostListItem> Posts { get; set; } = new List<PostListItem>();
+        private string _tag;
+        public string Tag { get {
+                return _tag.TrimStart("#".ToCharArray());
+            } set {
+                _tag = value;
+            } }
+        public int PostCount { get; set; }
     }
 
-    public class MyPostListItem
+    public class SearchResultItem
     {
-        public int ID { get; set; }
-        public string Photo { get; set; } = string.Empty;
+        public MemberSmallDTO Member { get; set; }
+        public HashtagDTO Hashtag { get; set; }
     }
 
-    public class MyPostsPaged : PagingModel
+    public class FollowerListPaged : PagingModel
     {
-        public List<MyPostListItem> Posts { get; set; } = new List<MyPostListItem>();
+        public List<MemberFollowerDTO> FollowList { get; set; } = new List<MemberFollowerDTO>();
+    }
+
+    public class PostsPaged : PagingModel
+    {
+        public List<PostDTO> Posts { get; set; } = new List<PostDTO>();
+    }
+
+    public class MemberListPaged : PagingModel
+    {
+        public List<MemberSmallDTO> Members { get; set; } = new List<MemberSmallDTO>();
+    }
+
+    public class ReactionListPaged : PagingModel
+    {
+        public List<ReactionMemberFollowerDTO> Reactions { get; set; } = new List<ReactionMemberFollowerDTO>();
     }
 
     public abstract class PagingModel

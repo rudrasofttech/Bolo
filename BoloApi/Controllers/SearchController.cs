@@ -7,6 +7,7 @@ using Bolo.Models;
 using BoloWeb.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,6 +15,7 @@ namespace BoloWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SearchController : ControllerBase
     {
         private readonly BoloContext _context;
@@ -24,18 +26,43 @@ namespace BoloWeb.Controllers
         }
 
         // GET: api/<SearchController>
+        //[HttpGet]
+        //public async Task<IEnumerable<SearchResultPost>> GetAsync([FromQuery] string q)
+        //{
+        //    List<SearchResultPost> result = new List<SearchResultPost>();
+        //    SearchHelper sh = new SearchHelper() { query = q };
+        //    await sh.SearchAsync();
+        //    Dictionary<string, SearchResultPost> results = sh.SearchResult;
+        //    foreach (var item in results)
+        //    {
+        //        result.Add(item.Value);
+        //    }
+        //    return result;
+        //}
+
         [HttpGet]
-        public async Task<IEnumerable<SearchResultPost>> GetAsync([FromQuery] string q)
+        public List<SearchResultItem> Get([FromQuery]string q = "")
         {
-            List<SearchResultPost> result = new List<SearchResultPost>();
-            SearchHelper sh = new SearchHelper() { query = q };
-            await sh.SearchAsync();
-            Dictionary<string, SearchResultPost> results = sh.SearchResult;
-            foreach (var item in results)
+            List<SearchResultItem> result = new List<SearchResultItem>();
+            if (!string.IsNullOrEmpty(q) && q.Length > 1)
             {
-                result.Add(item.Value);
+               var tags = _context.HashTags.Where(t => t.Tag.StartsWith("#" + q))
+                    .GroupBy(t => t.Tag)
+                    .Select(t => new HashtagDTO() { Tag = t.Key, PostCount = t.Count() })
+                    .OrderByDescending(t => t.PostCount).Take(50);
+
+                foreach(var ht in tags)
+                    result.Add(new SearchResultItem() { Hashtag = ht });
+
+                var members = _context.Members.Where(t => t.UserName.StartsWith(q) || t.Name.StartsWith(q))
+                    .Select(t => new MemberSmallDTO(t)).Take(50);
+                foreach (var m in members)
+                    result.Add(new SearchResultItem() { Member = m });
+
             }
             return result;
         }
+
+        
     }
 }

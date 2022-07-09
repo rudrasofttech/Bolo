@@ -1,28 +1,26 @@
 ﻿
 @{
-    ViewData["Title"] = "Update Profile";
+    ViewData["Title"] = "Search";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div id="root"></div>
+
 @section scripts{
-    <script src="~/libs/fabric.min.js"></script>
-    <script src="~/libs/hammer.min.js"></script>
     <environment include="Development">
-        <script type="text/babel" src="~/js/ManageProfile.js"></script>
+        <script type="text/babel" src="~/js/Search.js"></script>
         <script type="text/babel">
             ReactDOM.render(
-            <ManageProfile />,
+            <Search/>,
             document.getElementById('root')
             );
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
-        <script src="~/js/compiled/ManageProfile.js"></script>
+        <script src="~/js/compiled/Search.js"></script>
         <script>
             "use strict";
-            ReactDOM.render( /*#__PURE__*/React.createElement(ManageProfile, null), document.getElementById('root'));
+            ReactDOM.render(React.createElement(Search, { }), document.getElementById('root'));
         </script>
     </environment>
 }
-

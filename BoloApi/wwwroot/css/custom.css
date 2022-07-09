@@ -1,3 +1,16 @@
+.maxwidth {
+    max-width: 800px !important;
+    margin: 0 auto !important;
+}
+body {
+    padding-top: 90px;
+}
+@media (max-width : 450px) {
+
+    body {
+        padding-top: 82px;
+    }
+}
 
 /* Provide sufficient contrast against white background */
 a {
@@ -13,12 +26,21 @@ code {
     background-color: rgba(0, 0,0,0.6);
 }
 
+.canvas-container {
+    margin: 0 auto;
+    background-color: rgb(248, 249, 250);
+}
+
+.upper-canvas {
+    border: 1px solid #000;
+}
+
 .nopadding {
     padding: 0px !important;
 }
-.btn{
-    border-radius:0px;
-    padding:0.2rem;
+
+.btn {
+   
 }
 
 .btn-primary {
@@ -27,9 +49,23 @@ code {
     border-color: #1861ac;
 }
 
-.profile-thumb{
-    max-height:150px;
+.profile-icon {
+    max-height: 30px;
+    max-width: 30px;
 }
+.profile-thumb {
+    max-height: 150px;
+}
+
+.owner-thumb-small {
+    max-height: 50px;
+    max-width: 50px;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
 .searchlistitem {
     width: 100%;
     cursor: pointer;
@@ -127,7 +163,7 @@ code {
 
 .emojicont span {
     cursor: pointer;
-    font-size:2rem;
+    font-size: 2rem;
 }
 
 #msginput {
@@ -575,6 +611,7 @@ code {
             border: 3px solid #E6E7E8;
             width: 100px;
         }
+
 @media only screen and (min-width: 700px) {
     .searchcont {
         height: calc(100vh - 50px);
@@ -622,7 +659,7 @@ code {
         }
 
         #msgcont > #msglist {
-           /* max-height: 100vh;
+            /* max-height: 100vh;
             overflow-y: auto;*/
         }
 

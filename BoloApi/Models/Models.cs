@@ -66,10 +66,15 @@ namespace Bolo.Models
         Deleted = 4
     }
 
+    public enum FollowerStatus
+    {
+        Active = 1,
+        Requested = 2
+    }
+
     public enum PostReactionType
     {
-        Like = 1,
-        Dislike = 2
+        Like = 1
     }
     public enum MemberProfileVisibility
     {
@@ -196,26 +201,37 @@ namespace Bolo.Models
     {
         public int ID { get; set; }
         public DateTime FollowedDate { get; set; }
+        [MaxLength(200)]
+        public string Tag { get; set; }
         public Member Follower { get; set; }
         public Member Following { get; set; }
-        public RecordStatus Status { get; set; }
+        public FollowerStatus Status { get; set; }
     }
 
     public class MemberPost
     {
         public int ID { get; set; }
+        public Guid PublicID { get; set; }
         public Member Owner { get; set; }
         public DateTime PostDate { get; set; }
         public Member Modifier { get; set; }
         public DateTime ModifyDate { get; set; }
         public MemberPostType PostType { get; set; }
-        [MaxLength(7000)]
         public string Describe { get; set; } = string.Empty;
         public RecordStatus Status { get; set; } = RecordStatus.Active;
         public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
         public bool AcceptComment { get; set; } = true;
         [MaxLength(1000)]
         public string VideoURL { get; set; }
+    }
+
+    public class HashTag
+    {
+        public int ID { get; set; }
+        public MemberPost Post { get; set; }
+        [MaxLength(200)]
+        [Required]
+        public string Tag { get; set; } = string.Empty;
     }
 
     public class PostPhoto
@@ -241,18 +257,5 @@ namespace Bolo.Models
         public DateTime CommentDate { get; set; }
         public Member CommentedBy { get; set; }
         public MemberPost Post { get; set; }
-    }
-
-    public class DiscoverPostView
-    {
-        public int ID { get; set; }
-        public Guid PublicID { get; set; }
-        public int Reactions { get; set; }
-        public DateTime PostDate { get; set; }
-        public int OwnerID { get; set; }
-
-        public string PhotoURL { get; set; }
-        public string VideoURL { get; set; }
-        public MemberPostType PostType { get; set; }
     }
 }

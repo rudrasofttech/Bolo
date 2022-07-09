@@ -186,7 +186,8 @@
                     {loading}
                 </div>
             </div>;
-        return <div className="row align-items-center justify-content-center" style={{ minHeight: "90vh" }}><div className="col-md-5">
+        return <div className="row align-items-center justify-content-center mx-0" style={{ minHeight: "90vh" }}>
+            <div className="col-md-5 px-0">
             {formcontents}
         </div></div>;
     }

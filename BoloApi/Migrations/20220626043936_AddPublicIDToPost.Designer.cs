@@ -4,20 +4,22 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20220626043936_AddPublicIDToPost")]
+    partial class AddPublicIDToPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("dbo")
+                .HasAnnotation("ProductVersion", "3.1.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Bolo.Models.ChatMessage", b =>
@@ -85,28 +87,6 @@ namespace Bolo.Migrations
                     b.ToTable("Contact");
                 });
 
-            modelBuilder.Entity("Bolo.Models.HashTag", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("PostID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Tag")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("PostID");
-
-                    b.ToTable("HashTag");
-                });
-
             modelBuilder.Entity("Bolo.Models.Member", b =>
                 {
                     b.Property<int>("ID")
@@ -118,30 +98,30 @@ namespace Bolo.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Bio")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(1000)")
+                        .HasMaxLength(1000);
 
                     b.Property<int>("BirthYear")
                         .HasColumnType("int");
 
                     b.Property<string>("City")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
 
                     b.Property<string>("Country")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
 
                     b.Property<string>("CountryCode")
-                        .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("nvarchar(4)")
+                        .HasMaxLength(4);
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("nvarchar(250)")
+                        .HasMaxLength(250);
 
                     b.Property<int>("Gender")
                         .HasColumnType("int");
@@ -153,16 +133,16 @@ namespace Bolo.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.Property<byte[]>("Password")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("nvarchar(15)")
+                        .HasMaxLength(15);
 
                     b.Property<string>("Pic")
                         .HasColumnType("nvarchar(max)");
@@ -171,19 +151,19 @@ namespace Bolo.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("State")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("ThoughtStatus")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.Property<string>("UserName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
 
                     b.Property<int>("Visibility")
                         .HasColumnType("int");
@@ -237,10 +217,6 @@ namespace Bolo.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<string>("Tag")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.HasKey("ID");
 
                     b.HasIndex("FollowerID");
@@ -261,7 +237,8 @@ namespace Bolo.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Describe")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(7000);
 
                     b.Property<int?>("ModifierID")
                         .HasColumnType("int");
@@ -285,8 +262,8 @@ namespace Bolo.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VideoURL")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(1000)")
+                        .HasMaxLength(1000);
 
                     b.HasKey("ID");
 
@@ -359,10 +336,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.Member", "SentTo")
                         .WithMany()
                         .HasForeignKey("SentToID");
-
-                    b.Navigation("SentBy");
-
-                    b.Navigation("SentTo");
                 });
 
             modelBuilder.Entity("Bolo.Models.Contact", b =>
@@ -374,19 +347,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.Member", "Person")
                         .WithMany()
                         .HasForeignKey("PersonID");
-
-                    b.Navigation("Owner");
-
-                    b.Navigation("Person");
-                });
-
-            modelBuilder.Entity("Bolo.Models.HashTag", b =>
-                {
-                    b.HasOne("Bolo.Models.MemberPost", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostID");
-
-                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberComment", b =>
@@ -398,10 +358,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.MemberPost", "Post")
                         .WithMany()
                         .HasForeignKey("PostID");
-
-                    b.Navigation("CommentedBy");
-
-                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberFollower", b =>
@@ -413,10 +369,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.Member", "Following")
                         .WithMany()
                         .HasForeignKey("FollowingID");
-
-                    b.Navigation("Follower");
-
-                    b.Navigation("Following");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberPost", b =>
@@ -428,10 +380,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.Member", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerID");
-
-                    b.Navigation("Modifier");
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberReaction", b =>
@@ -447,12 +395,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.Member", "ReactedBy")
                         .WithMany()
                         .HasForeignKey("ReactedByID");
-
-                    b.Navigation("Comment");
-
-                    b.Navigation("Post");
-
-                    b.Navigation("ReactedBy");
                 });
 
             modelBuilder.Entity("Bolo.Models.PostPhoto", b =>
@@ -460,11 +402,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.MemberPost", null)
                         .WithMany("Photos")
                         .HasForeignKey("MemberPostID");
-                });
-
-            modelBuilder.Entity("Bolo.Models.MemberPost", b =>
-                {
-                    b.Navigation("Photos");
                 });
 #pragma warning restore 612, 618
         }

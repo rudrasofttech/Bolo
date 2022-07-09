@@ -29,6 +29,12 @@ namespace BoloApi.Controllers
             return View();
         }
 
+        [Route("search")]
+        public IActionResult Search()
+        {
+            return View();
+        }
+
         [Route("addpost")]
         public IActionResult AddPost()
         {
@@ -36,8 +42,9 @@ namespace BoloApi.Controllers
         }
 
         [Route("profile")]
-        public IActionResult Profile()
+        public IActionResult Profile([FromQuery]string un = "")
         {
+            ViewBag.UserName = un;
             return View();
         }
 

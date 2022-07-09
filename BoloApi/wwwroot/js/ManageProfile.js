@@ -1,4 +1,5 @@
-﻿class ManageProfile extends React.Component {
+﻿
+class ManageProfile extends React.Component {
     constructor(props) {
         super(props);
         let loggedin = true;
@@ -11,22 +12,29 @@
             myself: null, bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             onProfileChange: this.props.onProfileChange === undefined ? null : this.props.onProfileChange,
-            showProfilePicModal: false, src: null, 
+            showProfilePicModal: false, src: null,
             crop: {
                 unit: "px",
-                x: 20,
-                y: 20,
-                width: 350,
-                height: 350
+                x: 0,
+                y: 0,
+                width: 300,
+                height: 300,
+                locked: true
             },
-            croppedImageUrl: null
+            croppedImageUrl: null, profilepiczoom: 1
         };
 
+        this.hammer = null;
+        this.pinch = null;
+        this.profilePicCanvas = null;
+        this.profilePicImgInst = null;
         this.handleChange = this.handleChange.bind(this);
         this.saveData = this.saveData.bind(this);
         this.toggleProfilePicModal = this.toggleProfilePicModal.bind(this);
         this.saveProfilePic = this.saveProfilePic.bind(this);
         this.removeProfilePicture = this.removeProfilePicture.bind(this);
+        this.handleProfileImageLoaded = this.handleProfileImageLoaded.bind(this);
+        this.handleProfileZoom = this.handleProfileZoom.bind(this);
     }
 
     componentDidMount() {
@@ -86,12 +94,53 @@
         this.setState({ myself: m });
     }
 
+    handleProfileImageLoaded(e) {
+        this.profilePicCanvas.remove(this.profilePicImgInst);
+        this.profilePicImgInst = new fabric.Image(e.target, { angle: 0, padding: 0, cornersize: 0 });
+        if (e.target.width >= e.target.height) {
+            this.profilePicImgInst.scaleToHeight(this.profilePicCanvas.height);
+        } else if (e.target.height > e.target.width) {
+            this.profilePicImgInst.scaleToWidth(this.profilePicCanvas.width);
+        }
+        this.profilePicImgInst.hasControls = false;
+        //this.profilePicImgInst.lockMovementX = true;
+        //this.profilePicImgInst.lockMovementY = true;
+        this.profilePicCanvas.centerObject(this.profilePicImgInst);
+        this.profilePicCanvas.add(this.profilePicImgInst);
+    }
+
+    handleProfileZoom() {
+        this.profilePicCanvas.setZoom(this.state.profilepiczoom * 0.1);
+    }
+
     handleFile = e => {
         const fileReader = new FileReader()
         fileReader.onloadend = () => {
-            this.setState({ src: fileReader.result })
+            this.setState({ src: fileReader.result }, () => {
+                if (this.profilePicCanvas === null) {
+
+                    this.profilePicCanvas = new fabric.Canvas('profilePicCanvas');
+                    this.profilePicCanvas.setDimensions({ width: 300, height: 300 });
+                    this.profilePicCanvas.setZoom(1);
+                    this.hammer = new Hammer.Manager(this.profilePicCanvas.upperCanvasEl); // Initialize hammer
+                    this.pinch = new Hammer.Pinch();
+                    this.hammer.add([this.pinch]);
+
+                    this.hammer.on('pinch', (ev) => {
+                        //console.log(ev);
+                        //let point = new fabric.Point(ev.center.x, ev.center.y);
+                        //let delta = this.profilepiczoom * ev.scale;
+
+                        this.profilePicCanvas.setZoom(this.state.profilepiczoom * ev.scale);
+                    });
+                }
+
+                var img = new Image();
+                img.onload = this.handleProfileImageLoaded;
+                img.src = this.state.src;
+            });
         }
-        fileReader.readAsDataURL(e.target.files[0])
+        fileReader.readAsDataURL(e.target.files[0]);
     }
 
     toggleProfilePicModal() {
@@ -129,7 +178,13 @@
     }
 
     saveProfilePic() {
-        if (this.state.croppedImageUrl !== null) {
+        this.setState({
+            croppedImageUrl: this.profilePicCanvas.toDataURL("image/png")
+        }, () => {
+            this.hammer = null;
+            this.pinch = null;
+            this.profilePicCanvas = null;
+            this.profilePicImgInst = null;
             this.setState({ loading: true });
             const fd = new FormData();
             fd.set("pic", this.state.croppedImageUrl);
@@ -146,7 +201,7 @@
                         localStorage.removeItem("token");
                         this.setState({ loggedin: false, loading: false });
                     } else if (response.status === 200) {
-                        this.setState({ loading: false, showProfilePicModal: false });
+                        this.setState({ loading: false, showProfilePicModal: false, profilepiczoom: 1 });
                         if (localStorage.getItem("token") !== null) {
                             this.validate(localStorage.getItem("token"));
                         }
@@ -157,7 +212,8 @@
                         this.setState({ loading: false, message: 'Unable to save profile pic', bsstyle: 'danger' });
                     }
                 });
-        }
+        });
+
     }
 
     saveData(name, value) {
@@ -176,7 +232,7 @@
                         this.setState({ loggedin: false, loading: false });
                     } else if (response.status === 200) {
                         this.setState({ loading: false, message: '', bsstyle: '' });
-                        if (this.state.onProfileChange !== null) {
+                        if (this.state.onProfileChange) {
                             this.state.onProfileChange();
                         }
                     } else if (response.status === 400) {
@@ -246,50 +302,50 @@
                     //set state joinmeeting to true so that it does not ask for name and other info from user. Once the state
                     //is set then start signalr hub
                     response.json().then(data => {
-                        console.log(data);
+                        //console.log(data);
                         this.setState({ loggedin: true, loading: false, myself: data });
                     });
                 }
             });
     }
 
-    onImageLoaded = image => {
-        this.imageRef = image
-    }
+    //onImageLoaded = image => {
+    //    this.imageRef = image
+    //}
 
-    onCropChange = (crop) => {
-        this.setState({ crop });
-    }
+    //onCropChange = (crop) => {
+    //    this.setState({ crop });
+    //}
 
-    onCropComplete = crop => {
-        if (this.imageRef && crop.width && crop.height) {
-            const croppedImageUrl = this.getCroppedImg(this.imageRef, crop)
-            this.setState({ croppedImageUrl })
-        }
-    }
+    //onCropComplete = crop => {
+    //    if (this.imageRef && crop.width && crop.height) {
+    //        const croppedImageUrl = this.getCroppedImg(this.imageRef, crop)
+    //        this.setState({ croppedImageUrl })
+    //    }
+    //}
 
-    getCroppedImg(image, crop) {
-        const canvas = document.createElement("canvas");
-        const scaleX = image.naturalWidth / image.width;
-        const scaleY = image.naturalHeight / image.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-        const ctx = canvas.getContext("2d");
+    //getCroppedImg(image, crop) {
+    //    const canvas = document.createElement("canvas");
+    //    const scaleX = image.naturalWidth / image.width;
+    //    const scaleY = image.naturalHeight / image.height;
+    //    canvas.width = crop.width;
+    //    canvas.height = crop.height;
+    //    const ctx = canvas.getContext("2d");
 
-        ctx.drawImage(
-            image,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
-            0,
-            0,
-            crop.width,
-            crop.height
-        )
+    //    ctx.drawImage(
+    //        image,
+    //        crop.x * scaleX,
+    //        crop.y * scaleY,
+    //        crop.width * scaleX,
+    //        crop.height * scaleY,
+    //        0,
+    //        0,
+    //        crop.width,
+    //        crop.height
+    //    )
 
-        return canvas.toDataURL();
-    }
+    //    return canvas.toDataURL();
+    //}
 
     renderUSStates() {
         return <select name="state" id="state" className="form-control" value={this.state.myself.state} onChange={this.handleChange} onBlur={this.saveData}><option value=""></option><option value="Alabama">Alabama</option><option value="Alaska">Alaska</option><option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option><option value="California">California</option><option value="Colorado">Colorado</option><option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option><option value="District of Columbia">District of Columbia</option><option value="Florida">Florida</option><option value="Georgia">Georgia</option><option value="Guam">Guam</option><option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option><option value="Illinois">Illinois</option><option value="Indiana">Indiana</option><option value="Iowa">Iowa</option><option value="Kansas">Kansas</option><option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option><option value="Maine">Maine</option><option value="Maryland">Maryland</option><option value="Massachusetts">Massachusetts</option><option value="Michigan">Michigan</option><option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option><option value="Missouri">Missouri</option><option value="Montana">Montana</option><option value="Nebraska">Nebraska</option><option value="Nevada">Nevada</option><option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option><option value="New Mexico">New Mexico</option><option value="New York">New York</option><option value="North Carolina">North Carolina</option><option value="North Dakota">North Dakota</option><option value="Northern Marianas Islands">Northern Marianas Islands</option><option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option><option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option><option value="Puerto Rico">Puerto Rico</option><option value="Rhode Island">Rhode Island</option><option value="South Carolina">South Carolina</option><option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option><option value="Texas">Texas</option><option value="Utah">Utah</option><option value="Vermont">Vermont</option><option value="Virginia">Virginia</option><option value="Virgin Islands">Virgin Islands</option><option value="Washington">Washington</option><option value="West Virginia">West Virginia</option><option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option></select>;
@@ -350,30 +406,24 @@
             const { crop, profile_pic, src } = this.state;
             return (
                 <div className="modal  d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div className="modal-dialog  modal-dialog-scrollable modal-lg">
+                    <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">Profile Picture</h5>
-                                <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfilePicModal}>
-                                    <span aria-hidden="true">&times;</span>
+                                <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfilePicModal}>
                                 </button>
                             </div>
                             <div className="modal-body">
-                                <div className="custom-file">
-                                    <input type="file" className="custom-file-input" id="profile_pic" value={profile_pic}
+                                <div className="mb-3">
+                                    <button className="btn btn-primary" type="button" onClick={() => { document.getElementById("profile_pic").click(); }}>Choose Picture</button>
+                                    <input type="file" className="d-none" id="profile_pic" value={profile_pic}
                                         onChange={this.handleFile} />
-                                    <label className="custom-file-label" htmlFor="profile_pic">Choose Picture</label>
                                 </div>
-                                {src && (
-                                    <ReactCrop.Component
-                                        src={src}
-                                        crop={crop}
-                                        locked="true"
-                                        onImageLoaded={this.onImageLoaded}
-                                        onComplete={this.onCropComplete}
-                                        onChange={this.onCropChange}
-                                    />
-                                )}
+                                <div className="row justify-content-center">
+                                    <div className="col">
+                                        <canvas id="profilePicCanvas" style={{ width: "300px", height: "300px" }}></canvas>
+                                    </div>
+                                </div>
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" onClick={this.saveProfilePic}>Save</button>

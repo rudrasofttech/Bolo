@@ -29,9 +29,9 @@
         }
 </style>
 <form id="photoform" onsubmit="return savePhoto();">
-<div class="wizard" id="wizard" style="min-height:90vh;">
+<div class="wizard" id="wizard">
     <div class="step active" id="step1">
-        <div class="bg-light fixed-bottom text-end py-2 maxwidth">
+        <div class="bg-light fixed-bottom text-end py-2 maxwidth" style="padding-bottom:60px;">
             <button type="button" class="float-start btn btn-link text-dark btn-lg px-2 text-decoration-none" onclick="$('#photofiles').click();">Add Photos</button>
             <button type="button" disabled class="float-start btn btn-link text-dark btn-lg px-2 text-decoration-none hasphotos">Filters</button>
             <button type="button" disabled class="btn btn-link text-dark btn-lg text-decoration-none hasphotos" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
@@ -42,7 +42,7 @@
     <div class="step" id="step2">
         <div class="bg-light fixed-bottom text-end py-2 maxwidth">
             <button type="button" class="btn btn-link text-dark float-start btn-lg text-decoration-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
-            <button type="submit" class="btn btn-primary btn-lg px-2">Save</button>
+            <button type="submit" class="btn btn-primary btn-lg me-2">Save</button>
         </div>
         <div class="mb-3">
             <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000"></textarea>

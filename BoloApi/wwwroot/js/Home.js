@@ -14,6 +14,7 @@
         };
     }
 
+    
     render() {
         if (!this.state.loggedin) {
             return <RegisterForm beginWithRegister={false} onLogin={() => {
@@ -24,6 +25,9 @@
                 })
             }} />;
         }
-        return <div>index</div>;
+        
+        return <React.Fragment>
+            <MemberPostList search="userfeed" viewMode={2} viewModeAllowed="false"/>
+        </React.Fragment>;
     }
 }
