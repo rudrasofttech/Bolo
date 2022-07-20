@@ -69,7 +69,9 @@ namespace Bolo.Models
     public enum FollowerStatus
     {
         Active = 1,
-        Requested = 2
+        Requested = 2,
+
+        NotFollowing = 10
     }
 
     public enum PostReactionType

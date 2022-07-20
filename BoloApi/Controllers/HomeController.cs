@@ -54,6 +54,11 @@ namespace BoloApi.Controllers
             return View();
         }
 
+        public IActionResult Test()
+        {
+            return View();
+        }
+
         [Route("forgotpassword")]
         public async Task<IActionResult> ForgotPasswordAsync([FromQuery]string username = "")
         {

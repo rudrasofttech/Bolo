@@ -77,7 +77,7 @@
                 <MemberPicSmall member={p.owner}/>
                 {ownerlink}
             </div>
-            <div className="col-md-1 col-1 text-end">
+            <div className="col-md-1 col-2 text-end">
                 <button className="btn btn-link text-dark"><i className="bi bi-three-dots"></i></button>
             </div>
         </div>;
@@ -102,9 +102,9 @@
         }
         var reactionCountHtml = (p.reactionCount > 0) ? <button className="btn btn-link text-dark text-decoration-none fw-bold" type="button" onClick={() => { this.setState({ showreactionlist: true }) }}>{p.reactionCount} Likes</button> : null;
 
-        var reactionhtml = <button type="button" className="btn btn-light fs-4 text-dark me-2" onClick={() => { this.addReaction(); }}><i className="bi bi-heart"></i></button>;
+        var reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-dark me-2" onClick={() => { this.addReaction(); }}><i className="bi bi-heart"></i></button>;
         if (p.hasReacted) {
-            reactionhtml = <button type="button" className="btn btn-light fs-4 text-danger me-2" onClick={() => { this.addReaction(); }}><i className="bi bi-heart-fill"></i></button>;
+            reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-danger me-2" onClick={() => { this.addReaction(); }}><i className="bi bi-heart-fill"></i></button>;
         }
         var commentBtn = null, commentCountHtml = null;
         if (p.acceptComment) {
@@ -127,16 +127,20 @@
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="border-bottom py-2">
+        return <div id={this.state.post.id} className="border p-1 my-2">
             {owner}
-            {postshtml}
-            <div className="row mt-1">
-                <div className="col">{reactionhtml}</div>
-                <div className="col">
-                    <div className="text-end">{reactionCountHtml}{commentCountHtml}</div>
+            <div class="row">
+                <div className="col-md-7">{postshtml}</div>
+                <div className="col-md-5"><div className="row mt-1">
+                    <div className="col">{reactionhtml}</div>
+                    <div className="col">
+                        <div className="text-end">{reactionCountHtml}{commentCountHtml}</div>
+                    </div>
                 </div>
+                    <ExpandableTextLabel text={this.state.post.describe === null ? '' : this.state.post.describe} maxlength="50" /></div>
             </div>
-            <div className="p-2" style={{ whiteSpace: "pre-wrap" }}>{this.state.post.describe}</div>
+            
+            
             {likemodal}
         </div>;
     }

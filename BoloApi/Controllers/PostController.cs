@@ -62,10 +62,6 @@ namespace BoloWeb.Controllers
                     query = query.Where(t => t.Owner.ID == member.ID);
                 }
             }
-            else if (!string.IsNullOrEmpty(q) && q.StartsWith("#"))
-            {
-                query = query.Where(t => t.Describe.Contains(q));
-            }
             else
             {
                 List<Member> MemberList = new List<Member>();
@@ -77,6 +73,36 @@ namespace BoloWeb.Controllers
             List<PostDTO> posts = new List<PostDTO>();
             var qresults = query.Skip(p * ps).Take(ps);
             foreach (MemberPost pd in qresults)
+            {
+                PostDTO pdto = new PostDTO(pd)
+                {
+                    ReactionCount = _context.Reactions.Count(t => t.Post.ID == pd.ID),
+                    CommentCount = _context.Comments.Count(t => t.Post.ID == pd.ID)
+                };
+                if (currentMember != null)
+                    pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID) > 0;
+
+                posts.Add(pdto);
+            }
+            PostsPaged model = new PostsPaged
+            {
+                Current = p,
+                PageSize = ps,
+                Total = query.Count(),
+                Posts = posts
+            };
+            return model;
+        }
+
+        [HttpGet]
+        [Route("hashtag")]
+        public async Task<PostsPaged> HashTag([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
+        {
+            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            var query = _context.HashTags.Include(t => t.Post).Include(t => t.Post.Photos).Include(t => t.Post.Owner)
+                .Where(t => t.Tag == q).Select(t => t.Post).OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps);
+            List<PostDTO> posts = new List<PostDTO>();
+            foreach (MemberPost pd in query)
             {
                 PostDTO pdto = new PostDTO(pd)
                 {
@@ -127,15 +153,21 @@ namespace BoloWeb.Controllers
         {
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             var query = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => true);
-
-            List<Member> MemberList = new List<Member>();
-            MemberList.Add(currentMember);
-            MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active).Select(t => t.Following).ToList());
-            query = query.Where(t => MemberList.Contains(t.Owner)).OrderByDescending(t => t.PostDate);
-
+            List<string> tags = new List<string>();
+            List<Member> MemberList = new List<Member>
+            {
+                currentMember
+            };
+            MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active && string.IsNullOrEmpty(t.Tag)).Select(t => t.Following).ToList());
+            tags.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && !string.IsNullOrEmpty(t.Tag) && t.Following == null).Select(t => t.Tag).ToList());
+            query = query.Where(t => MemberList.Contains(t.Owner));
+            foreach(string tag in tags)
+            {
+                query = query.Where(t => t.Describe.Contains(tag));
+            }
+            query = query.OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps);
             List<PostDTO> posts = new List<PostDTO>();
-            var qresults = query.Skip(p * ps).Take(ps);
-            foreach (MemberPost pd in qresults)
+            foreach (MemberPost pd in query)
             {
                 PostDTO pdto = new PostDTO(pd)
                 {

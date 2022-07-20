@@ -114,12 +114,20 @@
     }
 
     renderPosts() {
+        var empty = <div key={0}>
+            <p className="text-center fs-3 mt-5"><i className="bi bi-emoji-dizzy me-2"></i>Nothing to see here</p>
+            <p className="text-center px-4 mb-0">Explore and search your favourite topics and people.</p>
+            <p className="text-center"><a href="/search" className="btn btn-light btn-lg"><i className="bi bi-search"></i> Search</a></p>
+        </div>;
         if (this.state.viewMode === 2) {
             var items = []
             if (this.state.model !== null) {
                 for (var k in this.state.posts) {
                     items.push(<MemberPost key={this.state.posts[k].id} post={this.state.posts[k]} />);
                 }
+            }
+            if (items.length == 0) {
+                items.push(empty);
             }
             return items;
         } else if (this.state.viewMode === 1) {
@@ -131,6 +139,10 @@
                         <img src={p.photos[0].photo} data-postid={p.id} onClick={(e) => { this.selectPost(e.target.getAttribute("data-postid")) } } className="card-img border-0 rounded-0" style={{ padding: "1px" }} />
                     </div></div>);
                 }
+            }
+            if (items.length == 0) {
+                items.push(empty);
+                return items;
             }
             return <div className="row row-cols-3 row-cols-md-4 g-0">{items}</div>;
         }

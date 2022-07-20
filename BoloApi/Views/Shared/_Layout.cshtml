@@ -33,10 +33,9 @@
                     <a class="p-2 text-dark me-2 fs-3" href="@Url.Content("~/notification")" title="Notifications"><i class="bi bi-bell"></i></a>
                 </div>
             </div>
-
             <div class="row mb-1">
-                <div class="col text-center">
-                    <a class="px-2 text-dark fs-3" href="@Url.Content("~/")" title="Home"><i class="bi bi-house"></i></a>
+                <div class="col">
+                    <a class="px-2 ms-2 text-dark fs-3" href="@Url.Content("~/")" title="Home"><i class="bi bi-house"></i></a>
                 </div>
                 <div class="col text-center">
                     <a class="px-2 text-dark fs-3" href="@Url.Content("~/search")" title="Search"><i class="bi bi-search"></i></a>
@@ -44,16 +43,18 @@
                 <div class="col text-center">
                     <a class="px-2 text-dark fs-3" href="@Url.Content("~/conversation")" title="Conversations"><i class="bi bi-chat-dots"></i></a>
                 </div>
-                <div class="col text-center">
-                    <a class="px-2 text-dark fs-3" href="@Url.Content("~/profile/")" title="Profile" id="profilemenuanchor">
+                <div class="col text-end">
+                    <a class="px-2 text-dark me-2 fs-3" href="@Url.Content("~/profile/")" title="Profile" id="profilemenuanchor">
                         <script>
-                            if (localStorage.getItem("myself")) {
+                            try {
                                 var member = JSON.parse(localStorage.getItem("myself"));
                                 if (member.pic !== "") {
                                     document.write("<img src='" + member.pic + "' class='profile-icon rounded' />");
                                 } else {
                                     document.write('<i class="bi bi-person-square"></i>');
                                 }
+                            } catch (err) {
+                                document.write('<i class="bi bi-person-square"></i>');
                             }
                         </script>
                     </a>

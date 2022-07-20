@@ -9,7 +9,7 @@
 
         this.state = {
             showregisterform: props.beginWithRegister,
-            registerdto: { userName: '', password: '', verifyPassword: '' },
+            registerdto: { userName: '', password: '', userEmail: '' },
             logindto: { userName: '', password: '' },
             loading: false, message: '', bsstyle: '', loggedin: loggedin
         };
@@ -63,7 +63,7 @@
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/members/register', {
             method: 'post',
-            body: JSON.stringify({ UserName: this.state.registerdto.userName, Password: this.state.registerdto.password, VerifyPassword: this.state.registerdto.verifyPassword }),
+            body: JSON.stringify({ UserName: this.state.registerdto.userName, Password: this.state.registerdto.password, Email: this.state.registerdto.userEmail }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -76,7 +76,7 @@
                         bsstyle: 'success',
                         message: 'Your registration is complete.',
                         loggedin: false,
-                        logindto: { userName: this.state.registerdto.userName, password: this.state.logindto.password },
+                        logindto: { userName: this.state.registerdto.userName, password: '' },
                         showregisterform: false
                     });
                 } else if (response.status === 400) {
@@ -156,17 +156,21 @@
                 <div >
                     <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
                         <div className="mb-3">
+                            <label>Email</label>
+                            <input className="form-control" maxLength="250" required name="userEmail" type="email"
+                                value={this.state.registerdto.userEmail}
+                                onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: this.state.registerdto.password, userEmail: e.target.value } }) }} />
+                        </div>
+                        <div className="mb-3">
                             <label>Username</label>
-                            <input type="text" className="form-control" required name="username" value={this.state.registerdto.userName} onChange={(e) => { this.setState({ registerdto: { userName: e.target.value, password: this.state.registerdto.password, verifyPassword: this.state.registerdto.verifyPassword } }) }} />
+                            <input type="text" className="form-control" required name="username" value={this.state.registerdto.userName}
+                                onChange={(e) => { this.setState({ registerdto: { userName: e.target.value, password: this.state.registerdto.password, userEmail: this.state.registerdto.userEmail } }) }} />
                         </div>
                         <div className="mb-3">
                             <label>Password</label>
-                            <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: e.target.value, verifyPassword: this.state.registerdto.verifyPassword } }) }} />
+                            <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: e.target.value, userEmail: this.state.registerdto.userEmail } }) }} />
                         </div>
-                        <div className="mb-3">
-                            <label>Verify Password</label>
-                            <input className="form-control" minLength="8" required name="verifypassword" type="password" onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: this.state.registerdto.password, verifyPassword: e.target.value } }) }} />
-                        </div>
+                        
                         <button className="btn btn-dark" type="submit">Register</button>
                     </form>
 

@@ -663,10 +663,10 @@ namespace Bolo.Controllers
             {
                 return BadRequest(new { error = "Email already exist, please use another email address." });
             }
-            if (_context.Members.Count(t => t.Phone == model.Phone) > 0)
-            {
-                return BadRequest(new { error = "Phone already exist, please use another phone." });
-            }
+            //if (_context.Members.Count(t => t.Phone == model.Phone) > 0)
+            //{
+            //    return BadRequest(new { error = "Phone already exist, please use another phone." });
+            //}
 
             Member m = new Member()
             {
@@ -682,7 +682,7 @@ namespace Bolo.Controllers
                 Bio = "",
                 UserName = model.UserName,
                 City = "",
-                Country = model.Country,
+                Country = "",
                 LastPulse = DateTime.UtcNow,
                 Pic = "",
                 ThoughtStatus = "",
@@ -700,7 +700,7 @@ namespace Bolo.Controllers
             //{
             //    Helper.Utility.SendSMS(model.Phone, string.Format("Your Bolo passcode is: {0}", OTP));
             //}
-            return Ok(new MemberDTO(m)); //CreatedAtAction("GetMember", new { id = m.ID }, m);
+            return Ok(new MemberDTO(m) { Email = m.Email, Phone = m.Phone });
         }
 
         [HttpGet]

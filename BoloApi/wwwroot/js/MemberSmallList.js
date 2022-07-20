@@ -105,7 +105,8 @@
             var items = [];
             for (var k in this.state.followList) {
                 var p = this.state.followList[k];
-                items.push(<MemberSmallRow key={p.follower.id} member={p.follower} status={p.status} showRemove={true}
+                items.push(<MemberSmallRow key={p.follower.id} member={p.follower} status={p.status}
+                    showRemove={this.state.myself.id === this.props.memberid ? true : false}
                     removed={(id) => { this.followerRemoved(id);  } }
                 />);
             }
@@ -239,11 +240,36 @@ class FollowButton extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            member: this.props.member, status: this.props.status, notify: this.props.notify
+            member: this.props.member, status: null, notify: this.props.notify
         };
 
         this.askToFollow = this.askToFollow.bind(this);
         this.unFollow = this.unFollow.bind(this);
+        this.loadStatus = this.loadStatus.bind(this);
+    }
+
+    componentDidMount() {
+        this.loadStatus();
+    }
+
+    loadStatus() {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/follow/Status/' + this.state.member.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        this.setState({ status: data.status, loading: false })
+                    });
+                }
+            });
     }
 
     askToFollow() {
@@ -294,7 +320,6 @@ class FollowButton extends React.Component {
             });
     }
 
-
     render() {
         var followbtn = null;
         if (this.state.status === 0) {
@@ -334,5 +359,45 @@ class ConfirmBox extends React.Component {
                 </div>
             </div>
         </div>
+    }
+}
+
+class ExpandableTextLabel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            text: this.props.text, expand: false, showexpand: false,
+            maxlength: parseInt(this.props.maxlength, 10),
+            cssclass: this.props.cssclass !== undefined ? this.props.cssclass : ""
+        };
+    }
+    componentDidMount() {
+        if (this.state.text.length > this.state.maxlength || (this.state.text.match(/\n/g) || []).length > 3) {
+            this.setState({ showexpand: true });
+        }
+
+    }
+
+    render() {
+        var length = (this.state.text.length < this.state.maxlength) ? this.state.text.length : this.state.maxlength;
+        var text = null, expandbtn = null;
+        if (this.state.expand) {
+            text = <React.Fragment>
+                {this.state.text.split('\n').map((item, key) => {
+                    return <React.Fragment key={key}>{item}<br /></React.Fragment>
+                })}
+            </React.Fragment>;
+        } else {
+            text = <div style={{ maxHeight: "28px", overflowY: "hidden", display: "inline-flex" }}>
+                {this.state.text.substring(0, length).split('\n').map((item, key) => {
+                    return <React.Fragment key={key}>{item}<br /></React.Fragment>
+                })}</div>;
+        }
+
+        if (this.state.showexpand) {
+            expandbtn = <button type="button" onClick={() => { this.setState({ expand: !this.state.expand }) }} className="btn btn-link d-inline-block py-0" >{(!this.state.expand) ? "More" : "Less"}</button>
+        }
+
+        return <div className={this.state.cssclass}>{text}{expandbtn}</div>;
     }
 }

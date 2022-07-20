@@ -76,6 +76,8 @@ namespace BoloWeb.Controllers
                 query = query.Where(t => t.Follower.UserName.Contains(q) || t.Follower.Name.Contains(q));
             if (!allowList)
                 query = query.Where(t => false);
+            var list = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList();
+            
             FollowerListPaged result = new FollowerListPaged()
             {
                 Current = p,
@@ -96,10 +98,13 @@ namespace BoloWeb.Controllers
             Member target = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == id);
 
             if (target.ID != currentMember.ID)
-                allowList = _context.Followers.Count(t => t.Follower.ID == target.ID && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Active) > 0;
+                allowList = _context.Followers.Count(t => (t.Follower.ID == target.ID && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Active) ||
+                (t.Follower.ID == currentMember.ID && t.Following.ID == target.ID && t.Status == FollowerStatus.Active)) > 0;
             else if (target.ID == currentMember.ID)
                 allowList = true;
 
+            //if (target.Visibility == MemberProfileVisibility.Public)
+            //    allowList = true;
 
             var query = _context.Followers.Include(t => t.Follower).Include(t => t.Following).Where(t => t.Follower.ID == target.ID);
             if (!string.IsNullOrEmpty(q))

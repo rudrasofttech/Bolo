@@ -196,10 +196,10 @@ namespace Bolo.Models
         public string Password { get; set; } = string.Empty;
         [MaxLength(250)]
         public string Email { get; set; } = string.Empty;
-        [MaxLength(4)]
-        public string Country { get; set; } = string.Empty;
-        [MaxLength(15)]
-        public string Phone { get; set; }
+        //[MaxLength(4)]
+        //public string Country { get; set; } = string.Empty;
+        //[MaxLength(15)]
+        //public string Phone { get; set; }
     }
 
     public class LoginDTO

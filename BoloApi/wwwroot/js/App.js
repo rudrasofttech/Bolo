@@ -166,7 +166,7 @@
                 //linkitems.push(<a key={"loginlinkli"} className="text-white mx-lg-4 mx-3 " onClick={() => { this.setState({ mainview: "login" }); }} ><i class="bi bi-door-open"></i></a>);
             }
 
-            return <div className="container-sm fixed-top bg-white border border-top-0" style={{maxWidth : "900px"}}>
+            return <div className="container maxwidth" style={{maxWidth : "900px"}}>
                 <div className="row py-2">
                     <div className="col-2"><span className="text-dark fs-3"></span></div>
                     <div className="col text-end">
@@ -313,8 +313,18 @@
         let messagecontent = this.state.message !== "" ? <div className={"mt-1 alert alert-" + this.state.bsstyle}>
             {this.state.message}
         </div> : null;
-        return <div>
-            <React.Link exact path='/' component={Home} />
-        </div>;
+        return <React.Fragment>
+            {this.renderHeader()}
+            {/*{this.renderProfileCompleteness()}*/}
+            {/*{this.renderLogin()}*/}
+            {/*{this.renderProfile()}*/}
+            {/*{this.renderManageProfile()}*/}
+            {/*{this.renderRegister(messagecontent, loading)}*/}
+            {/*{this.renderConversation()}*/}
+            {/*{this.renderDiscussion()}*/}
+            {/*{this.renderFAQ()}*/}
+            {/*{this.renderPrivacy()}*/}
+            {/*{this.renderFooter()}*/}
+        </React.Fragment>;
     }
 }
