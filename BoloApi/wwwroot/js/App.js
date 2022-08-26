@@ -161,18 +161,18 @@
                 profilepic = <i className="bi bi-person-square"></i>
             }
             if (loggedin) {
-                linkitems.push(<td align="center" valign="middle" width="55px">
+                linkitems.push(<td key={1} align="center" valign="middle" width="55px">
                     <a className="text-dark fs-3" onClick={() => { this.setState({ mainview: "profile" }) }} title="Profile"><i className="bi bi-person-badge"></i>
                     </a>
                 </td>);
             } else {
-                linkitems.push(<td align="center" valign="middle" width="55px">
+                linkitems.push(<td key={2} align="center" valign="middle" width="55px">
                     <a className="text-dark fs-3" onClick={() => { this.setState({ mainview: "login" }) }} title="Login"><i className="bi bi-person-badge"></i>
                     </a>
                 </td>);
             }
 
-            return <div className="container-lg px-0 fixed-top bg-white maxwidth border border-top-0">
+            return <div className="container-xl px-0 fixed-top bg-light maxwidth border border-top-0">
                 <table cellPadding="5" cellSpacing="0" width="100%" className="my-1">
                     <tbody>
                         <tr>
@@ -343,7 +343,7 @@
         </div> : null;
         return <React.Fragment>
             {this.renderHeader()}
-            <div style={{ minHeight : "calc(100vh - 143px)" }}>
+            <div className="container-xl maxwidth g-0" style={{ minHeight : "calc(100vh - 143px)" }}>
                 {this.renderProfileCompleteness()}
                 {this.renderLogin()}
                 {this.renderHome()}

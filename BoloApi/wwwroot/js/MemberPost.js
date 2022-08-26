@@ -109,7 +109,7 @@
         }
         var commentBtn = null, commentCountHtml = null;
         if (p.acceptComment) {
-            commentCountHtml = <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" onClick={() => { this.setState({ showCommentBox: true }) }}>{p.commentCount > 0 ? p.commentCount + " Comments" : "None" }</button>;
+            commentCountHtml = <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" onClick={() => { this.setState({ showCommentBox: true }) }}>{p.commentCount > 0 ? p.commentCount + " Comments" : "None"}</button>;
             commentBtn = <button type="button" className="btn btn-link fs-4 fw-bold text-dark pe-1" onClick={() => { this.setState({ showCommentBox: true }) }}><i className="bi bi-chat-square-text"></i></button>;
         }
         var likemodal = null;
@@ -164,7 +164,7 @@ class MemberComment extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, comments: { current: 0, pageSize: 20, total: 0, commentList: [] },
-            commenttext: '', commentiddel : 0
+            commenttext: '', commentiddel: 0
         };
 
         this.fetchComments = this.fetchComments.bind(this);
@@ -192,9 +192,24 @@ class MemberComment extends React.Component {
                 localStorage.removeItem("token");
                 this.setState({ loggedin: false, loading: false });
             } else if (response.status === 200) {
+                response.json().then(data => {
+                    console.log(data);
+                    var temp = this.state.comments.commentList;
+                    temp.unshift(data);
+                    let comments = {
+                        current: data.current,
+                        pageSize: data.pageSize,
+                        total: data.total,
+                        totalPages: data.totalPages,
+                        commentList: temp
+                    };
+                    this.setState({
+                        loading: false, comments
+                    });
+                });
                 this.setState({ loading: false, commenttext: "" });
             } else {
-                this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                this.setState({ loading: false, message: 'Unable to save comment', bsstyle: 'danger' });
             }
         });
     }
@@ -212,9 +227,17 @@ class MemberComment extends React.Component {
                     localStorage.removeItem("token");
                     this.setState({ loggedin: false, loading: false });
                 } else if (response.status === 200) {
+                    var temp = this.state.comments.commentList.filter(t => t.id !== this.state.commentiddel);
+                    let comments = {
+                        current: this.state.comments.current,
+                        pageSize: this.state.comments.pageSize,
+                        total: this.state.comments.total,
+                        totalPages: this.state.comments.totalPages,
+                        commentList: temp
+                    };
                     this.setState({
-                        loading: false, commentiddel : 0
-                    }, () => { this.fetchComments(); });
+                        loading: false, commentiddel: 0, comments
+                    });
                 }
             });
     }
@@ -236,7 +259,8 @@ class MemberComment extends React.Component {
                         console.log(data);
                         var temp = this.state.comments.commentList;
                         for (var k in data.commentList) {
-                            temp.push(data.commentList[k]);
+                            if (temp.filter(t => t.id == data.commentList[k].id).length === 0)
+                                temp.push(data.commentList[k]);
                         }
                         let comments = {
                             current: data.current,
@@ -256,23 +280,23 @@ class MemberComment extends React.Component {
     render() {
         var items = [];
         if (this.state.comments.commentList.length === 0) {
-            items.push(<p className="text-center">No Comments Found.</p>)
+            items.push(<p key={0} className="px-2">No Comments Found.</p>)
         }
         for (var k in this.state.comments.commentList) {
             var p = this.state.comments.commentList[k];
             var ownedCommentMenu = null;
             if (this.state.myself.id === p.postedBy.id) {
                 ownedCommentMenu = <React.Fragment>
-                    <button data-id={p.id} onClick={(e) => { this.setState({commentiddel : parseInt(e.target.getAttribute("data-id"), 10)}) } } className="btn btn-link text-secondary text-decoration-none px-0" style={{ fontSize: "12px" }} type="button">Remove</button>
+                    <button data-id={p.id} onClick={(e) => { this.setState({ commentiddel: parseInt(e.target.getAttribute("data-id"), 10) }) }} className="btn btn-link text-secondary text-decoration-none px-0 fs-12" type="button">Remove</button>
                 </React.Fragment>;
             }
-            items.push(<table cellPadding="0" cellSpacing="0" width="100%" border="0">
+            items.push(<table key={p.id} cellPadding="0" cellSpacing="0" width="100%" border="0">
                 <tbody>
                     <tr>
-                        <td width="40px" valign="middle">
+                        <td width="50px" valign="middle">
                             <MemberPicSmall member={p.postedBy} />
                         </td>
-                        <td valign="middle">
+                        <td valign="middle" className="px-2">
                             <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName} className="fs-6 fw-bold pointer d-inline-block text-dark text-decoration-none">
                                 {p.postedBy.userName}
                             </a>
@@ -281,8 +305,8 @@ class MemberComment extends React.Component {
                     </tr>
                     <tr>
                         <td></td>
-                        <td colSpan="2">
-                            <DateLabel value={p.postDate} /> {ownedCommentMenu}
+                        <td className="px-2">
+                            <span className="fs-12 text-secondary"><DateLabel value={p.postDate} /></span> {ownedCommentMenu}
                         </td>
                     </tr>
                 </tbody>

@@ -454,7 +454,7 @@ class ManageProfile extends React.Component {
         for (var i = 1947; i <= 2004; i++) {
             yearitems.push(<option value={i}>{i}</option>);
         }
-        let loading = this.state.loading ? <div className="progress fixed-top" style={{ height: "10px" }}>
+        let loading = this.state.loading ? <div className="progress fixed-bottom rounded-0" style={{ height: "5px" }}>
             <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%' }}></div>
         </div> : null;
         if (this.state.loggedin && this.state.myself !== null) {

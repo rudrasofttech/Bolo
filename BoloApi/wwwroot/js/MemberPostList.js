@@ -7,7 +7,7 @@
         }
 
         this.state = {
-            loading: null, loggedin: loggedin,
+            loading: false, loggedin: loggedin,
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
@@ -114,6 +114,7 @@
     }
 
     renderPosts() {
+        
         var empty = <div key={0}>
             <p className="text-center fs-3 mt-5"><i className="bi bi-emoji-dizzy me-2"></i>Nothing to see here</p>
         </div>;
@@ -147,6 +148,7 @@
     }
 
     render() {
+
         var html = (this.state.loading === false) ? this.renderPosts() : null;
         var loadmore = null;
         if (!this.state.loggedin) {
@@ -158,7 +160,12 @@
                 })
             }} />;
         }
-        
+        let loading = null;
+        if (this.state.loading) {
+            loading = <div className="progress fixed-bottom" style={{ height: "5px" }}>
+                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
+            </div>;
+        }
         if (this.state.model !== null) {
             if ((this.state.model.current + 1) < this.state.model.totalPages) {
                 loadmore = <div className="text-center bg-white p-3">
@@ -179,6 +186,7 @@
             {viewmodetabhtml}
             {html}
             {loadmore}
+            {loading}
         </React.Fragment>;
     }
 }

@@ -274,7 +274,7 @@ namespace BoloWeb.Controllers
 
         [HttpPost]
         [Route("addcomment")]
-        public async Task<ActionResult> AddComment([FromForm]PostCommentDTO value)
+        public async Task<ActionResult<CommentDTO>> AddComment([FromForm]PostCommentDTO value)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { error = "Invalid Input" });
@@ -292,7 +292,7 @@ namespace BoloWeb.Controllers
                 };
                 _context.Comments.Add(mc);
                 await _context.SaveChangesAsync();
-                return Ok(new { success = true });
+                return new CommentDTO(mc);
             }
             catch (Exception ex)
             {

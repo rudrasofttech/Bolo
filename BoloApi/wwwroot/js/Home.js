@@ -26,8 +26,6 @@
             }} />;
         }
         
-        return <div className="container-lg maxwidth g-0">
-            <MemberPostList search="userfeed" viewMode={2} viewModeAllowed="false"/>
-        </div>;
+        return <React.Fragment><MemberPostList search="userfeed" viewMode={2} viewModeAllowed="false"/></React.Fragment>;
     }
 }

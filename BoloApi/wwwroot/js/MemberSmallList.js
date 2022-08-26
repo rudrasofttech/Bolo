@@ -361,7 +361,7 @@ class ConfirmBox extends React.Component {
     render() {
         if (this.state.open) {
             return <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
-                <div className="modal-dialog modal-sm modal-dialog-centered">
+                <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">{this.props.title}</h5>
@@ -371,7 +371,7 @@ class ConfirmBox extends React.Component {
                             <p className="text-center">{this.props.message}</p>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={() => { this.props.ok(); }}>Yes</button><button type="button" className="btn btn-secondary" onClick={() => { this.setState({ open: false }, () => { this.props.cancel(); }); }}>No</button>
+                            <button type="button" className="btn btn-primary" style={{ minWidth: "60px" }} onClick={() => { this.props.ok(); }}>Yes</button><button type="button" className="btn btn-secondary" style={{ minWidth: "60px" }} onClick={() => { this.setState({ open: false }, () => { this.props.cancel(); }); }}>No</button>
                         </div>
                     </div>
                 </div>
