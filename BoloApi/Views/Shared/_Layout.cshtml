@@ -12,72 +12,72 @@
     <script src="~/libs/jquery-3.6.0.min.js"></script>
     <script src="~/libs/react.development.js"></script>
     <script src="~/libs/react-dom.development.js"></script>
+    <script src="~/libs/react-dayjs/dist/index.js"></script>
     <environment include="Development">
         <script src="~/libs/babel.min.js" charset="utf-8"></script>
     </environment>
     @RenderSection("head", false)
 </head>
 <body>
-    <div class="container maxwidth">
-        <div class="fixed-top bg-white border-bottom maxwidth">
-            <div class="row">
-                <div class="col">
-                    <a class="p-2 ms-2 text-dark fs-3" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
-                </div>
-                <div class="col">
-                    <div class="text-center p-1">
+    @*<div class="container-lg px-0 sticky-top bg-white maxwidth border border-top-0">
+        <table cellpadding="5" cellspacing="0" style="width:100%" class="my-1">
+            <tbody>
+                <tr>
+                    <td>
                         <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-4">Waarta</a>
-                    </div>
-                </div>
-                <div class="col text-end">
-                    <a class="p-2 text-dark me-2 fs-3" href="@Url.Content("~/notification")" title="Notifications"><i class="bi bi-bell"></i></a>
-                </div>
-            </div>
-            <div class="row mb-1">
-                <div class="col">
-                    <a class="px-2 ms-2 text-dark fs-3" href="@Url.Content("~/")" title="Home"><i class="bi bi-house"></i></a>
-                </div>
-                <div class="col text-center">
-                    <a class="px-2 text-dark fs-3" href="@Url.Content("~/search")" title="Search"><i class="bi bi-search"></i></a>
-                </div>
-                <div class="col text-center">
-                    <a class="px-2 text-dark fs-3" href="@Url.Content("~/conversation")" title="Conversations"><i class="bi bi-chat-dots"></i></a>
-                </div>
-                <div class="col text-end">
-                    <a class="px-2 text-dark me-2 fs-3" href="@Url.Content("~/profile/")" title="Profile" id="profilemenuanchor">
-                        <script>
-                            try {
-                                var member = JSON.parse(localStorage.getItem("myself"));
-                                if (member.pic !== "") {
-                                    document.write("<img src='" + member.pic + "' class='profile-icon rounded' />");
-                                } else {
-                                    document.write('<i class="bi bi-person-square"></i>');
-                                }
-                            } catch (err) {
-                                document.write('<i class="bi bi-person-square"></i>');
-                            }
-                        </script>
-                    </a>
-                </div>
-            </div>
-            @RenderSection("toolbar", false)
-        </div>
-        <div>
-            @RenderBody()
-        </div>
-    </div>
+                    </td>
+                    <td align="center" valign="middle" width="55px">
+                        <a class="text-dark fs-3" href="@Url.Content("~/")" title="Home"><i class="bi bi-house"></i></a>
+                    </td>
+                    <td align="center" valign="middle" width="55px">
+                        <a class="text-dark fs-3" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
+                    </td>
+                    <td align="center" valign="middle" width="55px">
+                        <a class="text-dark fs-3" href="@Url.Content("~/notification")" title="Notifications"><i class="bi bi-bell"></i></a>
+                    </td>
+                    <td align="center" valign="middle" width="55px">
+                        <a class="text-dark fs-3" href="@Url.Content("~/profile/")" title="Profile" id="profilemenuanchor">
+                            <i class="bi bi-person-badge"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="p-2" align="center" valign="middle">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        @RenderSection("toolbar", false)
+    </div>*@
+    @RenderBody()
     <script src="~/libs/signalr.min.js"></script>
     <script src="~/libs/ReactCrop.min.js"></script>
+    <script src="~/libs/moment.min.js"></script>
+    <script src="~/libs/simplepeer.min.js"></script>
+    <script src="~/libs/fabric.min.js"></script>
     <environment include="Development">
-        <script type="text/babel" src="~/js/MessageStrip.js"></script>
+        <script type="text/babel" src="~/js/AuthContext.js"></script>
+        <script type="text/babel" src="~/js/BlockContact.js"></script>
+        <script type="text/babel" src="~/js/Conversation.js"></script>
+        <script type="text/babel" src="~/js/Emoji.js"></script>
         <script type="text/babel" src="~/js/HeartBeat.js"></script>
-        <script type="text/babel" src="~/js/MessageStrip.js"></script>
-        <script type="text/babel" src="~/js/RegisterForm.js"></script>
+        <script type="text/babel" src="~/js/Home.js"></script>
+        <script type="text/babel" src="~/js/Layout.js"></script>
         <script type="text/babel" src="~/js/ManageProfile.js"></script>
-        <script type="text/babel" src="~/js/NavMenu.js"></script>
         <script type="text/babel" src="~/js/MemberPost.js"></script>
         <script type="text/babel" src="~/js/MemberPostList.js"></script>
         <script type="text/babel" src="~/js/MemberSmallList.js"></script>
+        <script type="text/babel" src="~/js/MessageStrip.js"></script>
+        <script type="text/babel" src="~/js/Models.js"></script>
+        <script type="text/babel" src="~/js/PersonChat.js"></script>
+        <script type="text/babel" src="~/js/Privacy.js"></script>
+        <script type="text/babel" src="~/js/Profile.js"></script>
+        <script type="text/babel" src="~/js/Search.js"></script>
+        <script type="text/babel" src="~/js/TranformMessage.js"></script>
+        <script type="text/babel" src="~/js/ViewProfile.js"></script>
+        <script type="text/babel" src="~/js/RegisterForm.js"></script>
+        <script type="text/babel" src="~/js/App.js"></script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
         <script src="~/js/compiled/HeartBeat.js"></script>

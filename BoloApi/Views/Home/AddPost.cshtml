@@ -77,7 +77,7 @@
                 var width = document.documentElement.clientWidth <= 500 ? (document.documentElement.clientWidth - 5) : 500;
                 var height = width;
                 $(this.container).height((height + 5) + "px");
-                $(this.container).append('<div class="photobox border my-1"><canvas id="canvas' + this.index + '"></canvas></div>');
+                $(this.container).append('<div class="photobox"><canvas id="canvas' + this.index + '"></canvas></div>');
                 this.canvas = new fabric.Canvas('canvas' + this.index);
 
                 this.canvas.setDimensions({ width: width, height: height });

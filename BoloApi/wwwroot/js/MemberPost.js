@@ -10,7 +10,8 @@
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : ''
+            post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : '',
+            showCommentBox: false
         };
 
         this.addReaction = this.addReaction.bind(this);
@@ -74,7 +75,7 @@
             </a>;
         var owner = <div className="row align-items-center g-1">
             <div className="col">
-                <MemberPicSmall member={p.owner}/>
+                <MemberPicSmall member={p.owner} />
                 {ownerlink}
             </div>
             <div className="col-md-1 col-2 text-end">
@@ -100,16 +101,16 @@
                     </ul></div>;
             }
         }
-        var reactionCountHtml = (p.reactionCount > 0) ? <button className="btn btn-link text-dark text-decoration-none fw-bold" type="button" onClick={() => { this.setState({ showreactionlist: true }) }}>{p.reactionCount} Likes</button> : null;
-
-        var reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-dark me-2" onClick={() => { this.addReaction(); }}><i className="bi bi-heart"></i></button>;
+        var commentbox = !this.state.showCommentBox ? null : <MemberComment post={p} cancel={() => { this.setState({ showCommentBox: false }); }} />;
+        var reactionCountHtml = (p.reactionCount > 0) ? <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" onClick={() => { this.setState({ showreactionlist: true }) }}>{p.reactionCount} Likes</button> : null;
+        var reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-dark pe-2 ps-0" onClick={() => { this.addReaction(); }}><i className="bi bi-heart"></i></button>;
         if (p.hasReacted) {
-            reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-danger me-2" onClick={() => { this.addReaction(); }}><i className="bi bi-heart-fill"></i></button>;
+            reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-danger pe-2 ps-0" onClick={() => { this.addReaction(); }}><i className="bi bi-heart-fill"></i></button>;
         }
         var commentBtn = null, commentCountHtml = null;
         if (p.acceptComment) {
-            commentCountHtml = p.commentCount > 0 ? <span className="fw-bold">{p.commentCount} Comments</span> : null;
-            commentBtn = <button type="button" className="btn btn-light fs-4 text-dark"><i className="bi bi-chat-square-text"></i></button>;
+            commentCountHtml = <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" onClick={() => { this.setState({ showCommentBox: true }) }}>{p.commentCount > 0 ? p.commentCount + " Comments" : "None" }</button>;
+            commentBtn = <button type="button" className="btn btn-link fs-4 fw-bold text-dark pe-1" onClick={() => { this.setState({ showCommentBox: true }) }}><i className="bi bi-chat-square-text"></i></button>;
         }
         var likemodal = null;
         if (this.state.showreactionlist) {
@@ -127,21 +128,199 @@
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="border p-1 my-2">
+        return <div id={this.state.post.id} className="border my-2">
             {owner}
-            <div class="row">
-                <div className="col-md-7">{postshtml}</div>
-                <div className="col-md-5"><div className="row mt-1">
-                    <div className="col">{reactionhtml}</div>
-                    <div className="col">
-                        <div className="text-end">{reactionCountHtml}{commentCountHtml}</div>
+            <div className="row">
+                <div className="col-md-6">
+                    {postshtml}
+                    <div className="text-center my-1"></div>
+                </div>
+                <div className="col-md-6">
+                    <div className="mt-1">
+                        <button type="button" className="btn btn-link text-decoration-none fw-bold text-dark pe-2 ps-0"><DateLabel value={p.postDate} /></button>
+                        {reactionhtml}{reactionCountHtml} {commentBtn}{commentCountHtml}
+                    </div>
+                    <div>
+                        <ExpandableTextLabel text={p.describe === null ? "" : p.describe} maxlength={200} />
                     </div>
                 </div>
-                    <ExpandableTextLabel text={this.state.post.describe === null ? '' : this.state.post.describe} maxlength="50" /></div>
             </div>
-            
-            
             {likemodal}
+            {commentbox}
+        </div>;
+    }
+}
+
+class MemberComment extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            post: this.props.post, comments: { current: 0, pageSize: 20, total: 0, commentList: [] },
+            commenttext: '', commentiddel : 0
+        };
+
+        this.fetchComments = this.fetchComments.bind(this);
+        this.removeComment = this.removeComment.bind(this);
+    }
+
+    componentDidMount() {
+        this.fetchComments();
+    }
+
+    addComment() {
+        this.setState({ loading: true });
+        const fd = new FormData();
+        fd.set("comment", this.state.commenttext);
+        fd.set("postId", this.state.post.id);
+        fetch('//' + window.location.host + '/api/post/addcomment', {
+            method: 'post',
+            body: fd,
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 401) {
+                //if token is not valid than remove token, set myself object with empty values
+                localStorage.removeItem("token");
+                this.setState({ loggedin: false, loading: false });
+            } else if (response.status === 200) {
+                this.setState({ loading: false, commenttext: "" });
+            } else {
+                this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+            }
+        });
+    }
+
+    removeComment() {
+        let url = '//' + window.location.host + '/api/post/removecomment/' + this.state.commentiddel;
+        fetch(url, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    this.setState({
+                        loading: false, commentiddel : 0
+                    }, () => { this.fetchComments(); });
+                }
+            });
+    }
+
+    fetchComments() {
+        let url = '//' + window.location.host + '/api/post/comments/' + this.state.post.id + '?ps=' + this.state.comments.pageSize + '&p=' + this.state.comments.current;
+        fetch(url, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        console.log(data);
+                        var temp = this.state.comments.commentList;
+                        for (var k in data.commentList) {
+                            temp.push(data.commentList[k]);
+                        }
+                        let comments = {
+                            current: data.current,
+                            pageSize: data.pageSize,
+                            total: data.total,
+                            totalPages: data.totalPages,
+                            commentList: temp
+                        };
+                        this.setState({
+                            loggedin: true, loading: false, comments
+                        });
+                    });
+                }
+            });
+    }
+
+    render() {
+        var items = [];
+        if (this.state.comments.commentList.length === 0) {
+            items.push(<p className="text-center">No Comments Found.</p>)
+        }
+        for (var k in this.state.comments.commentList) {
+            var p = this.state.comments.commentList[k];
+            var ownedCommentMenu = null;
+            if (this.state.myself.id === p.postedBy.id) {
+                ownedCommentMenu = <React.Fragment>
+                    <button data-id={p.id} onClick={(e) => { this.setState({commentiddel : parseInt(e.target.getAttribute("data-id"), 10)}) } } className="btn btn-link text-secondary text-decoration-none px-0" style={{ fontSize: "12px" }} type="button">Remove</button>
+                </React.Fragment>;
+            }
+            items.push(<table cellPadding="0" cellSpacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                        <td width="40px" valign="middle">
+                            <MemberPicSmall member={p.postedBy} />
+                        </td>
+                        <td valign="middle">
+                            <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName} className="fs-6 fw-bold pointer d-inline-block text-dark text-decoration-none">
+                                {p.postedBy.userName}
+                            </a>
+                            <ExpandableTextLabel text={p.comment} maxlength={200} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td colSpan="2">
+                            <DateLabel value={p.postDate} /> {ownedCommentMenu}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>);
+        }
+        let confirmdelete = null;
+        if (this.state.commentiddel > 0) {
+            confirmdelete = <ConfirmBox title="Remove Comment" message="Are you sure you want to remove this comment?"
+                ok={() => { this.removeComment(); }} cancel={() => { this.setState({ commentiddel: 0 }); }} />;
+        }
+
+        return <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
+            <div className="modal-dialog modal-xl modal-fullscreen-md-down">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Comments</h5>
+                        <button type="button" className="btn-close" onClick={() => { this.props.cancel(); }}></button>
+                    </div>
+                    <div className="modal-body p-1" style={{ minHeight: "300px" }}>
+                        {items}
+                        {confirmdelete}
+                    </div>
+                    <div className="modal-footer">
+                        <table width="100%" cellPadding="0" cellSpacing="0">
+                            <tbody>
+                                <tr>
+                                    <td valign="middle" align="right">
+                                        <textarea rows="1" className="form-control" value={this.state.commenttext} onChange={(e) => { this.setState({ commenttext: e.target.value }); }}></textarea>
+                                    </td>
+                                    <td valign="middle" width="58px">
+                                        <button type="button" className="btn btn-link" onClick={() => { this.addComment(); }}>Post</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>;
     }
 }

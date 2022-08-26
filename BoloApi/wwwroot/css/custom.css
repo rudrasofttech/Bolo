@@ -1,15 +1,9 @@
-.maxwidth {
-    max-width: 900px !important;
-    margin: 0 auto !important;
+body{
+    padding-top:100px;
 }
-body {
-    padding-top: 90px;
-}
-@media (max-width : 450px) {
-
-    body {
-        padding-top: 82px;
-    }
+.row{
+    margin-left:0px;
+    margin-right:0px;
 }
 
 /* Provide sufficient contrast against white background */
@@ -29,10 +23,6 @@ code {
 .canvas-container {
     margin: 0 auto;
     background-color: rgb(248, 249, 250);
-}
-
-.upper-canvas {
-    border: 1px solid #000;
 }
 
 .nopadding {

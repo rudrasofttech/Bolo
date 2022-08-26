@@ -252,6 +252,13 @@ namespace Bolo.Models
         public Guid ID { get; set; }
         public MemberDTO Owner { get; set; }
         public DateTime PostDate { get; set; }
+        public string PostDateDisplay
+        {
+            get
+            {
+                return PostDate.ToString("Y");
+            }
+        }
         public MemberPostType PostType { get; set; }
         public string Describe { get; set; } = string.Empty;
         public RecordStatus Status { get; set; } = RecordStatus.Active;
@@ -281,14 +288,46 @@ namespace Bolo.Models
         }
     }
 
+    public class PostCommentDTO
+    {
+        public Guid PostId { get; set; }
+        [Required]
+        [MaxLength(7999)]
+        public string Comment { get; set; }
+    }
+
+    public class CommentDTO
+    {
+        public int ID { get; set; }
+        public string Comment { get; set; } = string.Empty;
+        public DateTime PostDate { get; set; }
+        public MemberSmallDTO PostedBy { get; set; }
+
+        public CommentDTO() { }
+
+        public CommentDTO(MemberComment mc)
+        {
+            ID = mc.ID;
+            Comment = mc.Comment;
+            PostDate = mc.CommentDate;
+            PostedBy = new MemberSmallDTO(mc.CommentedBy);
+        }
+    }
+
     public class HashtagDTO
     {
         private string _tag;
-        public string Tag { get {
+        public string Tag
+        {
+            get
+            {
                 return _tag.TrimStart("#".ToCharArray());
-            } set {
+            }
+            set
+            {
                 _tag = value;
-            } }
+            }
+        }
         public int PostCount { get; set; }
     }
 
@@ -296,6 +335,11 @@ namespace Bolo.Models
     {
         public MemberSmallDTO Member { get; set; }
         public HashtagDTO Hashtag { get; set; }
+    }
+
+    public class CommentListPaged : PagingModel
+    {
+        public List<CommentDTO> CommentList { get; set; } = new List<CommentDTO>();
     }
 
     public class FollowerListPaged : PagingModel

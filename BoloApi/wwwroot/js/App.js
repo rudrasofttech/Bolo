@@ -4,8 +4,8 @@
         super(props);
         this.state = {
             token: localStorage.getItem("token"),
-            user: localStorage.getItem("user"),
-            mainview: localStorage.getItem("token") === null ? "login" : "conversation",
+            user: localStorage.getItem("myself"),
+            mainview: localStorage.getItem("token") === null ? "login" : "home",
             loginform: { email: "", password: "" },
             registerform: { name: "", email: "" },
             postid: 0
@@ -161,21 +161,42 @@
                 profilepic = <i className="bi bi-person-square"></i>
             }
             if (loggedin) {
-                linkitems.push(<a key={"memberlinkli"} className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "profile" }); }}>{profilepic}</a>);
+                linkitems.push(<td align="center" valign="middle" width="55px">
+                    <a className="text-dark fs-3" onClick={() => { this.setState({ mainview: "profile" }) }} title="Profile"><i className="bi bi-person-badge"></i>
+                    </a>
+                </td>);
             } else {
-                //linkitems.push(<a key={"loginlinkli"} className="text-white mx-lg-4 mx-3 " onClick={() => { this.setState({ mainview: "login" }); }} ><i class="bi bi-door-open"></i></a>);
+                linkitems.push(<td align="center" valign="middle" width="55px">
+                    <a className="text-dark fs-3" onClick={() => { this.setState({ mainview: "login" }) }} title="Login"><i className="bi bi-person-badge"></i>
+                    </a>
+                </td>);
             }
 
-            return <div className="container maxwidth" style={{maxWidth : "900px"}}>
-                <div className="row py-2">
-                    <div className="col-2"><span className="text-dark fs-3"></span></div>
-                    <div className="col text-end">
-                        <a className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "home" }) }} title="Home"><i className="bi bi-house-door"></i></a>
-                        <a className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "addpost" }) }} title="Add Post"><i className="bi bi-journal-plus"></i></a>
-                        <a className="px-3 text-dark fs-3" onClick={() => { this.setState({ mainview: "conversation" }) }} title="Past Conversations"><i className="bi bi-chat-dots"></i></a>
-                        {linkitems}
-                    </div>
-                </div>
+            return <div className="container-lg px-0 fixed-top bg-white maxwidth border border-top-0">
+                <table cellPadding="5" cellSpacing="0" width="100%" className="my-1">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a onClick={() => { this.setState({ mainview: "home" }) }} className="text-dark text-decoration-none fs-4">Waarta</a>
+                            </td>
+                            <td align="center" valign="middle" width="55px">
+                                <a className="text-dark fs-3" onClick={() => { this.setState({ mainview: "home" }) }} title="Home"><i className="bi bi-house"></i></a>
+                            </td>
+                            <td align="center" valign="middle" width="55px">
+                                <a className="text-dark fs-3" onClick={() => { this.setState({ mainview: "add" }) }} title="Add Post"><i className="bi bi-journal-plus"></i></a>
+                            </td>
+                            <td align="center" valign="middle" width="55px">
+                                <a className="text-dark fs-3" onClick={() => { this.setState({ mainview: "notification" }) }} title="Notifications"><i className="bi bi-bell"></i></a>
+                            </td>
+                            {linkitems}
+                        </tr>
+                        <tr>
+                            <td colSpan="6" align="left">
+                                <Search />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>;
         } else {
             return null;
@@ -236,8 +257,7 @@
 
     renderProfile() {
         if (this.state.mainview === "profile") {
-            return <Profile onSettingClick={() => { this.setState({ mainview: "manageprofile" }) }}
-                onPostClick={(postid) => { this.setState({ mainview: 'viewpost', postid: postid }) }} />;
+            return <Profile username={this.state.user.userName} onClickSettings={() => { this.setState({ mainview: "manageprofile" }) }} />;
         } else {
             return null;
         }
@@ -254,6 +274,14 @@
     renderDiscussion() {
         if (this.state.mainview === "discussion") {
             return <Meetings />;
+        } else {
+            return null;
+        }
+    }
+
+    renderHome() {
+        if (this.state.mainview === "home") {
+            return <Home />;
         } else {
             return null;
         }
@@ -276,30 +304,30 @@
                 <p>
                     Waarta is a hindi word which literally means communication.
 
-            </p>
+                </p>
                 <h4>Purpose of Waarta</h4>
                 <p>
                     Sole purpose of waarta is to help facilitate communication between people. Waarta
                     achieves this by providing a set of powerful features like people search, conversations and meetings.
-            </p>
+                </p>
 
                 <h4>People Search?</h4>
                 <p>
                     "People Search" as the name suggest is a search feature through which you can search member profiles on waarta. For example
                     if you are looking for a software engineer with ASP.net skill and 10 years of experience in New Delhi. You can can search
-                the same on waarta and find elligible profiles. <br />
-                You have to visit conversations page to do a people search.
-            </p>
+                    the same on waarta and find elligible profiles. <br />
+                    You have to visit conversations page to do a people search.
+                </p>
 
                 <h4>Conversations</h4>
                 <p>
                     "Conversation" is a powerful one to one online text, audio and video chat feature, through which you can communicate
                     with your contacts on waarta and with the people you searched on waarta.
-            </p>
+                </p>
                 <h4>Discussions</h4>
                 <p>
                     A place where like minded people can share ideas on topics of their choice. There is no restrictions on number of members a dicussion can have.
-            </p>
+                </p>
             </main>;
         } else {
             return null;
@@ -315,16 +343,19 @@
         </div> : null;
         return <React.Fragment>
             {this.renderHeader()}
-            {/*{this.renderProfileCompleteness()}*/}
-            {/*{this.renderLogin()}*/}
-            {/*{this.renderProfile()}*/}
-            {/*{this.renderManageProfile()}*/}
-            {/*{this.renderRegister(messagecontent, loading)}*/}
-            {/*{this.renderConversation()}*/}
-            {/*{this.renderDiscussion()}*/}
-            {/*{this.renderFAQ()}*/}
-            {/*{this.renderPrivacy()}*/}
-            {/*{this.renderFooter()}*/}
+            <div style={{ minHeight : "calc(100vh - 143px)" }}>
+                {this.renderProfileCompleteness()}
+                {this.renderLogin()}
+                {this.renderHome()}
+                {this.renderProfile()}
+                {this.renderManageProfile()}
+                {this.renderRegister(messagecontent, loading)}
+                {this.renderConversation()}
+                {this.renderDiscussion()}
+                {this.renderFAQ()}
+                {this.renderPrivacy()}
+            </div>
+            {this.renderFooter()}
         </React.Fragment>;
     }
 }

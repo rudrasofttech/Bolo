@@ -269,6 +269,8 @@ class FollowButton extends React.Component {
                         this.setState({ status: data.status, loading: false })
                     });
                 }
+            }).catch(error => {
+                this.setState({ bsstyle: 'text-danger', message : 'Unable to contact server', loading: false })
             });
     }
 
@@ -293,6 +295,8 @@ class FollowButton extends React.Component {
                         }
                     });
                 }
+            }).catch(error => {
+                this.setState({ bsstyle: 'text-danger', message: 'Unable to contact server', loading: false })
             });
     }
 
@@ -316,21 +320,29 @@ class FollowButton extends React.Component {
                             this.props.notify(this.state.member.id, this.state.status);
                         }
                     });
+                } else {
+                    this.setState({ bsstyle: 'text-danger', message: 'Unable to process request', loading: false });
                 }
+            }).catch(error => {
+                this.setState({ bsstyle: 'text-danger', message: 'Unable to contact server', loading: false });
             });
     }
 
     render() {
         var followbtn = null;
-        if (this.state.status === 0) {
-            if (this.state.member.id !== this.state.myself.id) {
-                followbtn = <button type="button" className="btn btn-primary fw-bold" onClick={this.askToFollow}>Follow</button>;
+        if (this.state.loading === false) {
+            if (this.state.status === 0) {
+                if (this.state.member.id !== this.state.myself.id) {
+                    followbtn = <button type="button" className="btn btn-primary fw-bold" onClick={this.askToFollow}>Follow</button>;
+                }
+            } else if (this.state.status === 1) {
+                followbtn = <button type="button" className="btn btn-light fw-bold" onClick={this.unFollow}>Unfollow</button>;
             }
-        } else if (this.state.status === 1) {
-            followbtn = <button type="button" className="btn btn-light fw-bold" onClick={this.unFollow}>Unfollow</button>;
-        }
-        else if (this.state.status === 2) {
-            followbtn = <button type="button" className="btn btn-light fw-bold" onClick={this.unFollow}>Requested</button>;
+            else if (this.state.status === 2) {
+                followbtn = <button type="button" className="btn btn-light fw-bold" onClick={this.unFollow}>Requested</button>;
+            }
+        } else if (this.state.loading === true) {
+            followbtn = <button type="button" className="btn btn-light fw-bold" disabled >Working...</button>;
         }
 
         return <React.Fragment>{followbtn}</React.Fragment>;
@@ -340,25 +352,33 @@ class FollowButton extends React.Component {
 class ConfirmBox extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            open : true
+        };
     }
 
     render() {
-        return <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
-            <div className="modal-dialog modal-sm modal-dialog-centered">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="exampleModalLabel">Confirm</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { this.props.cancel(); }}></button>
-                    </div>
-                    <div className="modal-body">
-                        <p className="text-center">{this.props.message}</p>
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" onClick={() => { this.props.ok(); }}>Yes</button>
+        if (this.state.open) {
+            return <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
+                <div className="modal-dialog modal-sm modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">{this.props.title}</h5>
+                            <button type="button" className="btn-close" onClick={() => { this.setState({ open: false }, () => { this.props.cancel(); }); }}></button>
+                        </div>
+                        <div className="modal-body">
+                            <p className="text-center">{this.props.message}</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" onClick={() => { this.props.ok(); }}>Yes</button><button type="button" className="btn btn-secondary" onClick={() => { this.setState({ open: false }, () => { this.props.cancel(); }); }}>No</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div>;
+        } else {
+            return null;
+        }
     }
 }
 
@@ -395,9 +415,28 @@ class ExpandableTextLabel extends React.Component {
         }
 
         if (this.state.showexpand) {
-            expandbtn = <button type="button" onClick={() => { this.setState({ expand: !this.state.expand }) }} className="btn btn-link d-inline-block py-0" >{(!this.state.expand) ? "More" : "Less"}</button>
+            expandbtn = <button type="button" onClick={() => { this.setState({ expand: !this.state.expand }) }} className="btn btn-link d-block p-0 text-secondary text-decoration-none" >{(!this.state.expand) ? "More" : "Less"}</button>
         }
 
         return <div className={this.state.cssclass}>{text}{expandbtn}</div>;
     }
 }
+
+class DateLabel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: this.props.value
+        };
+    }
+
+    transformData() {
+        var d = new Date(this.state.value);
+        return d.getDate() + "." + d.getMonth() + "." + d.getFullYear();
+    }
+
+    render() {
+        return <React.Fragment>{this.transformData()}</React.Fragment>;
+    }
+}
+

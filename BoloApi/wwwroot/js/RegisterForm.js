@@ -39,7 +39,7 @@
                         if (data.token !== undefined) {
                             localStorage.setItem("token", data.token);
                             localStorage.setItem("myself",JSON.stringify(data.member));
-                            this.setState({ bsstyle: '', message: '', loggedin: true });
+                            this.setState({ bsstyle: '', message: '', loggedin: true, loading: false });
                             if (this.props.onLogin !== undefined) {
                                 this.props.onLogin();
                             } else {
@@ -190,8 +190,8 @@
                     {loading}
                 </div>
             </div>;
-        return <div className="row align-items-center justify-content-center mx-0" style={{ minHeight: "90vh" }}>
-            <div className="col-md-5 px-0">
+        return <div className="row align-items-center justify-content-center mx-0">
+            <div className="col px-0">
             {formcontents}
         </div></div>;
     }

@@ -79,7 +79,6 @@
             });
     }
 
-
     renderSearchResult() {
         var items = [];
         var i = 1;
@@ -123,17 +122,17 @@
                 <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
             </div>
         }
-        let clearsearchhtml = <div className="col-md-1 col-2 p-1 text-center">
-            <button type="button" className="btn btn-light" aria-label="Close" onClick={() => { this.setState({ q: '', items: [] }) }}>Clear</button>
+        let clearsearchhtml = <div className="col-md-1 col-2 p-0 text-center">
+            <button type="button" className="btn btn-light" aria-label="Close" onClick={() => { this.setState({ q: '', items: [] }) }}><i className="bi bi-trash"></i></button>
         </div>;
         if (this.state.q === '') {
             clearsearchhtml = null;
         }
         return <React.Fragment>
             {loading}
-            <div className="row mx-0 bg-light">
-                <div className="col p-1">
-                    <input type="text" className="form-control" value={this.state.q} onChange={(e) => { this.setState({ q: e.target.value }); }} placeholder="Search Keywords" maxLength="150" onKeyUp={(e) => {
+            <div className="row mx-0">
+                <div className="col p-0">
+                    <input type="text" className="form-control" value={this.state.q} onChange={(e) => { this.setState({ q: e.target.value }); }} placeholder="Search People, Topics, Hashtags" maxLength="150" onKeyUp={(e) => {
                         if (e.keyCode === 13) {
                             this.search();
                         }

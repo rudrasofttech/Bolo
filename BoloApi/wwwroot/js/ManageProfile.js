@@ -776,7 +776,7 @@ class ManageProfile extends React.Component {
                         </div>
                     </div>
                     <div className="p-2 mt-3 border text-end bg-light sticky-bottom">
-                        <a className="btn btn-link text-dark mx-2" href="/profile">Back to Profile</a>
+                        
                         <button className="btn btn-link text-dark mx-2" onClick={() => {
                             localStorage.clear();
                             location.reload();

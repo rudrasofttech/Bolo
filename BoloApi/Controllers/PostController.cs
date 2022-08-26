@@ -161,7 +161,7 @@ namespace BoloWeb.Controllers
             MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active && string.IsNullOrEmpty(t.Tag)).Select(t => t.Following).ToList());
             tags.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && !string.IsNullOrEmpty(t.Tag) && t.Following == null).Select(t => t.Tag).ToList());
             query = query.Where(t => MemberList.Contains(t.Owner));
-            foreach(string tag in tags)
+            foreach (string tag in tags)
             {
                 query = query.Where(t => t.Describe.Contains(tag));
             }
@@ -232,9 +232,7 @@ namespace BoloWeb.Controllers
         public async Task<ActionResult> PostAsync([FromForm] PostPhotoDTO value)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(new { error = "Invalid Input" });
-            }
 
             try
             {
@@ -272,6 +270,96 @@ namespace BoloWeb.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
             }
+        }
+
+        [HttpPost]
+        [Route("addcomment")]
+        public async Task<ActionResult> AddComment([FromForm]PostCommentDTO value)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { error = "Invalid Input" });
+
+            try
+            {
+                var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                var post = _context.Posts.FirstOrDefault(t => t.PublicID == value.PostId);
+                MemberComment mc = new MemberComment()
+                {
+                    Comment = value.Comment,
+                    CommentDate = DateTime.UtcNow,
+                    CommentedBy = member,
+                    Post = post
+                };
+                _context.Comments.Add(mc);
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("editcomment/{id}")]
+        public async Task<ActionResult> EditComment(int id, PostCommentDTO value)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { error = "Invalid Input" });
+
+            try
+            {
+                var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                var post = _context.Comments.FirstOrDefault(t => t.ID == id && t.CommentedBy.ID == member.ID);
+                if (post != null)
+                {
+                    post.Comment = value.Comment;
+                    await _context.SaveChangesAsync();
+                }
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("removecomment/{id}")]
+        public async Task<ActionResult> RemoveComment(int id)
+        {
+            try
+            {
+                var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                var post = _context.Comments.FirstOrDefault(t => t.ID == id && t.CommentedBy.ID == member.ID);
+                if (post != null)
+                {
+                    _context.Comments.Remove(post);
+                    await _context.SaveChangesAsync();
+                }
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("comments/{id}")]
+        public CommentListPaged GetComments(Guid id, [FromQuery] int ps = 20, [FromQuery] int p = 0)
+        {
+            var query = _context.Comments.Include(t => t.CommentedBy).Include(t => t.Post)
+                .Where(t => t.Post.PublicID == id).OrderByDescending(t => t.ID);
+            CommentListPaged result = new CommentListPaged() {
+                Current = p,
+                PageSize = ps,
+                Total = query.Count(),
+                CommentList = query.Skip(ps * p).Take(ps).Select(t => new CommentDTO(t)).ToList()
+            };
+
+
+            return result;
         }
 
         // PUT api/<PhotoController>/5

@@ -7,7 +7,7 @@
         }
 
         this.state = {
-            loading: false, loggedin: loggedin,
+            loading: null, loggedin: loggedin,
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
@@ -26,8 +26,8 @@
             }} />;
         }
         
-        return <React.Fragment>
+        return <div className="container-lg maxwidth g-0">
             <MemberPostList search="userfeed" viewMode={2} viewModeAllowed="false"/>
-        </React.Fragment>;
+        </div>;
     }
 }

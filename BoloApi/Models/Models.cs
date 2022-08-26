@@ -259,5 +259,7 @@ namespace Bolo.Models
         public DateTime CommentDate { get; set; }
         public Member CommentedBy { get; set; }
         public MemberPost Post { get; set; }
+        [MaxLength(7999)]
+        public string Comment { get; set; }
     }
 }

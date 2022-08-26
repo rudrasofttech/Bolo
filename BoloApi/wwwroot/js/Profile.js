@@ -174,7 +174,7 @@
                 thought = <p>{this.state.member.thoughtStatus}</p>;
             }
             if (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) {
-                settings = <div className="p-1 ms-2"><a className="text-dark text-decoration-none" href="/updateprofile"><i className="bi bi-gear"></i> Settings</a></div>;
+                settings = <div className="p-1 ms-2"><a className="text-dark text-decoration-none" onClick={() => { this.props.onClickSettings(); } }><i className="bi bi-gear"></i> Settings</a></div>;
             } else {
                 followhtml = this.renderFollowHtml();
             }

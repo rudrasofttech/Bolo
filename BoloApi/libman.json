@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library": "react-dayjs@0.3.2",
+      "destination": "wwwroot/libs/react-dayjs/",
+      "files": [
+        "dist/index.js"
+      ]
+    }
+  ]
+}

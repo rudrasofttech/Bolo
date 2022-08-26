@@ -7,7 +7,7 @@
         }
 
         this.state = {
-            loading: false, loggedin: loggedin,
+            loading: null, loggedin: loggedin,
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
@@ -116,8 +116,6 @@
     renderPosts() {
         var empty = <div key={0}>
             <p className="text-center fs-3 mt-5"><i className="bi bi-emoji-dizzy me-2"></i>Nothing to see here</p>
-            <p className="text-center px-4 mb-0">Explore and search your favourite topics and people.</p>
-            <p className="text-center"><a href="/search" className="btn btn-light btn-lg"><i className="bi bi-search"></i> Search</a></p>
         </div>;
         if (this.state.viewMode === 2) {
             var items = []
@@ -149,6 +147,7 @@
     }
 
     render() {
+        var html = (this.state.loading === false) ? this.renderPosts() : null;
         var loadmore = null;
         if (!this.state.loggedin) {
             return <RegisterForm beginWithRegister={false} onLogin={() => {
@@ -178,7 +177,7 @@
         }
         return <React.Fragment>
             {viewmodetabhtml}
-            {this.renderPosts()}
+            {html}
             {loadmore}
         </React.Fragment>;
     }
