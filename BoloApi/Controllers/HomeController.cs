@@ -29,12 +29,6 @@ namespace BoloApi.Controllers
             return View();
         }
 
-        [Route("search")]
-        public IActionResult Search()
-        {
-            return View();
-        }
-
         [Route("addpost")]
         public IActionResult AddPost()
         {
@@ -50,11 +44,6 @@ namespace BoloApi.Controllers
 
         [Route("updateprofile")]
         public IActionResult UpdateProfile()
-        {
-            return View();
-        }
-
-        public IActionResult Test()
         {
             return View();
         }

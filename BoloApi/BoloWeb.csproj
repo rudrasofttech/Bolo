@@ -13,25 +13,12 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\images\nopic.jpg" />
-    <Content Remove="wwwroot\js\compiled\HeartBeat.js" />
-    <Content Remove="wwwroot\js\compiled\ManageProfile.js" />
     <Content Remove="wwwroot\js\compiled\Meeting.js" />
-    <Content Remove="wwwroot\js\compiled\MessageStrip.js" />
-    <Content Remove="wwwroot\js\compiled\Models.js" />
     <Content Remove="wwwroot\js\compiled\NavMenu.js" />
-    <Content Remove="wwwroot\js\compiled\PersonChat.js" />
-    <Content Remove="wwwroot\js\compiled\RegisterForm.js" />
-    <Content Remove="wwwroot\js\compiled\ViewProfile.js" />
     <Content Remove="wwwroot\js\compiled\Welcome.js" />
     <Content Remove="wwwroot\js\Conversation.js" />
-    <Content Remove="wwwroot\js\HeartBeat.js" />
-    <Content Remove="wwwroot\js\ManageProfile.js" />
     <Content Remove="wwwroot\js\Meeting.js" />
-    <Content Remove="wwwroot\js\MessageStrip.js" />
-    <Content Remove="wwwroot\js\Models.js" />
     <Content Remove="wwwroot\js\NavMenu.js" />
-    <Content Remove="wwwroot\js\PersonChat.js" />
-    <Content Remove="wwwroot\js\ViewProfile.js" />
     <Content Remove="wwwroot\js\Welcome.js" />
     <Content Remove="wwwroot\media\get-outta-here.m4r" />
     <Content Remove="wwwroot\media\get-outta-here.mp3" />
@@ -67,20 +54,7 @@
   <ItemGroup>
     <None Include="wwwroot\css\custom.css" />
     <None Include="wwwroot\images\nopic.jpg" />
-    <None Include="wwwroot\js\compiled\HeartBeat.js" />
-    <None Include="wwwroot\js\compiled\ManageProfile.js" />
-    <None Include="wwwroot\js\compiled\MessageStrip.js" />
-    <None Include="wwwroot\js\compiled\Models.js" />
-    <None Include="wwwroot\js\compiled\PersonChat.js" />
-    <None Include="wwwroot\js\compiled\RegisterForm.js" />
-    <None Include="wwwroot\js\compiled\ViewProfile.js" />
     <None Include="wwwroot\js\Conversation.js" />
-    <None Include="wwwroot\js\HeartBeat.js" />
-    <None Include="wwwroot\js\ManageProfile.js" />
-    <None Include="wwwroot\js\MessageStrip.js" />
-    <None Include="wwwroot\js\Models.js" />
-    <None Include="wwwroot\js\PersonChat.js" />
-    <None Include="wwwroot\js\ViewProfile.js" />
     <None Include="wwwroot\media\get-outta-here.m4r" />
     <None Include="wwwroot\media\get-outta-here.mp3" />
     <None Include="wwwroot\media\get-outta-here.ogg" />

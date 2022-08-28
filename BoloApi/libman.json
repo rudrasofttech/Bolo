@@ -8,6 +8,13 @@
       "files": [
         "dist/index.js"
       ]
+    },
+    {
+      "library": "react-fabricjs@0.1.6",
+      "destination": "wwwroot/lib/react-fabricjs/",
+      "files": [
+        "lib/main.min.js"
+      ]
     }
   ]
 }

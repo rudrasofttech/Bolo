@@ -19,7 +19,7 @@
     @RenderSection("head", false)
 </head>
 <body>
-    @*<div class="container-lg px-0 sticky-top bg-white maxwidth border border-top-0">
+    <div class="container-xl px-0 fixed-top bg-light maxwidth border border-top-0">
         <table cellpadding="5" cellspacing="0" style="width:100%" class="my-1">
             <tbody>
                 <tr>
@@ -42,52 +42,49 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="5" class="p-2" align="center" valign="middle">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+                    <td colspan="5" class="p-2" align="left" valign="middle" id="search">
                     </td>
                 </tr>
             </tbody>
         </table>
         @RenderSection("toolbar", false)
-    </div>*@
-    @RenderBody()
+    </div>
+    <div id="root" class="container-xl maxwidth g-0" style="min-height: calc(100vh - 143px);">
+        @RenderBody()
+    </div>
     <script src="~/libs/signalr.min.js"></script>
     <script src="~/libs/ReactCrop.min.js"></script>
     <script src="~/libs/moment.min.js"></script>
     <script src="~/libs/simplepeer.min.js"></script>
     <script src="~/libs/fabric.min.js"></script>
     <environment include="Development">
-        <script type="text/babel" src="~/js/AuthContext.js"></script>
-        <script type="text/babel" src="~/js/BlockContact.js"></script>
         <script type="text/babel" src="~/js/Conversation.js"></script>
-        <script type="text/babel" src="~/js/Emoji.js"></script>
-        <script type="text/babel" src="~/js/HeartBeat.js"></script>
         <script type="text/babel" src="~/js/Home.js"></script>
-        <script type="text/babel" src="~/js/Layout.js"></script>
-        <script type="text/babel" src="~/js/ManageProfile.js"></script>
         <script type="text/babel" src="~/js/MemberPost.js"></script>
-        <script type="text/babel" src="~/js/MemberPostList.js"></script>
-        <script type="text/babel" src="~/js/MemberSmallList.js"></script>
-        <script type="text/babel" src="~/js/MessageStrip.js"></script>
-        <script type="text/babel" src="~/js/Models.js"></script>
-        <script type="text/babel" src="~/js/PersonChat.js"></script>
-        <script type="text/babel" src="~/js/Privacy.js"></script>
         <script type="text/babel" src="~/js/Profile.js"></script>
-        <script type="text/babel" src="~/js/Search.js"></script>
-        <script type="text/babel" src="~/js/TranformMessage.js"></script>
-        <script type="text/babel" src="~/js/ViewProfile.js"></script>
-        <script type="text/babel" src="~/js/RegisterForm.js"></script>
-        <script type="text/babel" src="~/js/App.js"></script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
-        <script src="~/js/compiled/HeartBeat.js"></script>
-        <script src="~/js/compiled/MessageStrip.js"></script>
-        <script src="~/js/compiled/RegisterForm.js"></script>
-        <script src="~/js/compiled/ManageProfile.js"></script>
-        <script src="~/js/compiled/NavMenu.js"></script>
+        <script src="~/js/compiled/Conversation.js"></script>
+        <script src="~/js/compiled/Home.js"></script>
+        <script src="~/js/compiled/MemberPost.js"></script>
+        <script src="~/js/compiled/Profile.js"></script>
     </environment>
     <script src="~/libs/bootstrap.min.js"></script>
     @RenderSection("scripts", false)
+    <environment include="Development">
+        <script type="text/babel">
+            ReactDOM.render(
+            <Search/>,
+            document.getElementById('search')
+            );
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script>
+            "use strict";
+            ReactDOM.render(React.createElement(Search, {}), document.getElementById('search'));
+        </script>
+    </environment>
     <script>
         // Check that service workers are supported
         if ('serviceWorker' in navigator) {

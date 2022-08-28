@@ -5,12 +5,8 @@
     ViewData["Title"] = "Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<div id="root" class="container-lg maxwidth"></div>
 @section scripts{
     <environment include="Development">
-        <script type="text/babel" src="~/js/MessageStrip.js"></script>
-        <script type="text/babel" src="~/js/Profile.js"></script>
         <script type="text/babel">
             ReactDOM.render(
             <Profile username='@ViewBag.UserName'/>,
@@ -19,10 +15,7 @@
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
-        <script src="~/js/compiled/MessageStrip.js"></script>
-        <script src="~/js/compiled/Profile.js"></script>
         <script>
-            "use strict";
             ReactDOM.render( /*#__PURE__*/React.createElement(Profile, {
                 username: ""
             }), document.getElementById('root'));
