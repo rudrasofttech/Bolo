@@ -4,14 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bolo.Data;
 using Bolo.Models;
-using BoloWeb.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace BoloWeb.Controllers
+namespace Bolo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

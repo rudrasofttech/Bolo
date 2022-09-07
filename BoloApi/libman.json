@@ -10,11 +10,21 @@
       ]
     },
     {
-      "library": "react-fabricjs@0.1.6",
-      "destination": "wwwroot/lib/react-fabricjs/",
+      "provider": "cdnjs",
+      "library": "microsoft-signalr@6.0.8",
+      "destination": "wwwroot/libs/microsoft-signalr/",
       "files": [
-        "lib/main.min.js"
+        "signalr.min.js"
       ]
     }
+  ,
+{
+  "provider": "cdnjs",
+  "library": "hyperHtml@2.34.1",
+  "destination": "wwwroot/libs/hyperHtml/",
+  "files": [
+    "min.min.js"
   ]
+}
+]
 }

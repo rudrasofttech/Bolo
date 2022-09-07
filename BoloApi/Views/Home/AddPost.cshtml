@@ -85,17 +85,18 @@
                     angle: 0, padding: 0, cornersize: 0
                 });
                 if (this.img.width >= this.img.height) {
-                    this.imgInst.scaleToHeight(this.canvas.height);
-                } else if (this.img.height > this.img.width) {
                     this.imgInst.scaleToWidth(this.canvas.width);
+                    
+                } else if (this.img.height > this.img.width) {
+                    this.imgInst.scaleToHeight(this.canvas.height);
                 }
                 this.imgInst.hasControls = false;
-                //this.imgInst.lockMovementX = true;
-                //this.imgInst.lockMovementY = true;
+                this.imgInst.lockMovementX = true;
+                this.imgInst.lockMovementY = true;
                 this.canvas.centerObject(this.imgInst);
                 this.canvas.add(this.imgInst);
             }
-
+           
             extractImage() {
                 $("#photohdn" + this.index).val(this.canvas.toDataURL("image/png"));
             }

@@ -91,14 +91,21 @@
                     <img src={p.photos[0].photo} className="img-fluid" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
-                var imgs = [];
+                var imgs = [], imgs2 = [];
                 for (var i in p.photos) {
-                    imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0"><img src={p.photos[i].photo} style={{ maxHeight: "450px", maxWidth: "450px" }} /></li>);
+                    imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0">
+                        <div className="postdiv" style={{ backgroundImage: "url(" + p.photos[i].photo + ")" }}>
+                            <img src={p.photos[i].photo} style={{ opacity: 0, maxHeight: "450px", maxWidth: "450px" }} />
+                        </div></li>);
+                    imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
                 }
-                postshtml = <div className="table-responsive">
+                postshtml = <div>
+                    <div className="table-responsive">
                     <ul className="list-group list-group-horizontal" onDoubleClick={() => { this.addReaction(); }}>
                         {imgs}
-                    </ul></div>;
+                        </ul></div>
+                </div>;
+                //postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
             }
         }
         var commentbox = !this.state.showCommentBox ? null : <MemberComment post={p} cancel={() => { this.setState({ showCommentBox: false }); }} />;
@@ -485,8 +492,8 @@ class MemberPostList extends React.Component {
             for (var k in this.state.posts) {
                 var p = this.state.posts[k];
                 if (p.videoURL !== "") { } else {
-                    items.push(<div className="col" key={p.id}><div className="card border-0 rounded-0 pointer">
-                        <img src={p.photos[0].photo} data-postid={p.id} onClick={(e) => { this.selectPost(e.target.getAttribute("data-postid")) }} className="card-img border-0 rounded-0" style={{ padding: "1px" }} />
+                    items.push(<div className="col" key={p.id}><div className="card h-100 border-0 rounded-0 pointer imgbg" style={{ backgroundImage: "url(" + p.photos[0].photo + ")"}} data-postid={p.id} onClick={(e) => { this.selectPost(e.target.getAttribute("data-postid")) }}>
+                        <img src={p.photos[0].photo} className="card-img border-0 rounded-0" style={{ opacity:0, padding: "1px" }} />
                     </div></div>);
                 }
             }
@@ -1111,55 +1118,55 @@ class Emoji extends React.Component {
     }
 }
 
-class HeartBeat extends React.Component {
-    constructor(props) {
-        super(props);
-        let loggedin = true;
-        if (localStorage.getItem("token") === null) {
-            loggedin = false;
-        }
+//class HeartBeat extends React.Component {
+//    constructor(props) {
+//        super(props);
+//        let loggedin = true;
+//        if (localStorage.getItem("token") === null) {
+//            loggedin = false;
+//        }
 
-        this.state = {
-            loading: false, loggedin: loggedin,
-            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            activity: this.props.activity === undefined ? 1 : this.props.activity,
-            interval: this.props.interval === undefined ? 3000 : this.props.interval
-        };
+//        this.state = {
+//            loading: false, loggedin: loggedin,
+//            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+//            activity: this.props.activity === undefined ? 1 : this.props.activity,
+//            interval: this.props.interval === undefined ? 3000 : this.props.interval
+//        };
 
-        this.pulseinterval = null;
-        this.sendHeartbeat = this.sendHeartbeat.bind(this);
-    }
+//        this.pulseinterval = null;
+//        this.sendHeartbeat = this.sendHeartbeat.bind(this);
+//    }
 
-    componentDidMount() {
-        this.sendHeartbeat();
-        if (this.pulseinterval === null) {
-            this.pulseinterval = setInterval(this.sendHeartbeat, this.state.interval);
-        }
-    }
+//    componentDidMount() {
+//        this.sendHeartbeat();
+//        if (this.pulseinterval === null) {
+//            this.pulseinterval = setInterval(this.sendHeartbeat, this.state.interval);
+//        }
+//    }
 
-    componentWillUnmount() {
-        if (this.pulseinterval !== null) {
-            clearInterval(this.pulseinterval);
-        }
-    }
+//    componentWillUnmount() {
+//        if (this.pulseinterval !== null) {
+//            clearInterval(this.pulseinterval);
+//        }
+//    }
 
-    sendHeartbeat() {
-        if (this.state.loggedin) {
-            fetch('//' + window.location.host + '/api/Members/savepulse?s=' + this.state.activity, {
-                method: 'get',
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem("token")
-                }
-            })
-                .then(response => {
-                });
-        }
-    }
+//    sendHeartbeat() {
+//        if (this.state.loggedin) {
+//            fetch('//' + window.location.host + '/api/Members/savepulse?s=' + this.state.activity, {
+//                method: 'get',
+//                headers: {
+//                    'Authorization': 'Bearer ' + localStorage.getItem("token")
+//                }
+//            })
+//                .then(response => {
+//                });
+//        }
+//    }
 
-    render() {
-        return null;
-    }
-}
+//    render() {
+//        return null;
+//    }
+//}
 
 class BlockContact extends React.Component {
     constructor(props) {
@@ -1258,6 +1265,50 @@ class BlockContact extends React.Component {
         } else {
             return null;
         }
+    }
+}
+
+class PhotoCarousel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { photos: this.props.photos, id: this.props.postid };
+    }
+    componentDidMount() {
+        var myCarousel = document.querySelector("#postcarousel-" + this.state.id)
+        var carousel = new bootstrap.Carousel(myCarousel, {
+            interval: false
+        });
+    }
+
+    render() {
+        var dots = [], photos = [];
+        var id = "postcarousel-" + this.state.id;
+        var active = "active";
+        for (var k in this.state.photos) {
+            dots.push(<button type="button" data-bs-target={"#" + id} data-bs-slide-to={k} className={active} aria-label={"Slide " + k}></button>);
+            photos.push(<div className={"carousel-item " + active}>
+                <div className="postdiv bg-light" style={{ backgroundImage: "url(" + this.state.photos[k].photo + ")" }}>
+                    <img src={this.state.photos[k].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "450px" }} />
+                </div>
+            </div>);
+            active = "";
+        }
+        return <div id={id} className="carousel slide" data-bs-ride="carousel">
+            <div className="carousel-indicators">
+                {dots}
+            </div>
+            <div className="carousel-inner">
+                {photos}
+            </div>
+            <button className="carousel-control-prev" type="button" data-bs-target={"#" + id} data-bs-slide="prev">
+                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span className="visually-hidden">Previous</span>
+            </button>
+            <button className="carousel-control-next" type="button" data-bs-target={"#" + id} data-bs-slide="next">
+                <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                <span className="visually-hidden">Next</span>
+            </button>
+        </div>;
     }
 }
 

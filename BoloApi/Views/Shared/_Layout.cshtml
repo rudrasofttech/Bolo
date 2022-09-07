@@ -1,4 +1,25 @@
-﻿<!DOCTYPE html>
+﻿@using Bolo.Hubs
+@using Microsoft.Extensions.Configuration
+@using Bolo.Data
+@using Microsoft.AspNetCore.SignalR
+@using Bolo.Models
+@using Bolo.Helper 
+ 
+@inject IConfiguration Configuration
+@inject BoloContext context
+@inject IHubContext<UniversalHub> hubContext
+@{
+    string fbappid = Configuration["FacebookAppID"];
+    ViewBag.applicationServerKey = Configuration["VAPIDpublicKey"];
+    List<NotificationSmallDTO> notifications = new List<NotificationSmallDTO>();
+    NotificationHelper nworker = new NotificationHelper(context, hubContext);
+    if (User.Identity.IsAuthenticated)
+    {
+        nworker.TargetUser = context.Members.FirstOrDefault(t => t.Email == User.Identity.Name);
+        notifications.AddRange(nworker.GetNotifications().Select(t => new NotificationSmallDTO(t)).ToList());
+    }
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -42,7 +63,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="5" class="p-2" align="left" valign="middle" id="search">
+                    <td colspan="5" class="p-2" align="left" valign="middle" id="search" height="49px">
                     </td>
                 </tr>
             </tbody>
@@ -52,11 +73,94 @@
     <div id="root" class="container-xl maxwidth g-0" style="min-height: calc(100vh - 143px);">
         @RenderBody()
     </div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto messageheading">New Message</strong>
+                <small class="messagetime"></small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="NotificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="notificationModalLabel"><i class="bi bi-bell"></i> Notifications</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="msgnotificationscont"></div>
+                    <div id="cmpnotificationscont"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="modal fade" id="askNotificationPermissionModal" tabindex="-1" aria-labelledby="askNotificationPermissionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="askNotificationPermissionModalLabel">Subscribe Notifications</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <button id="PromptForAccessBtn" class="btn btn-danger btn-lg">Yes, Send Me Notification</button>
+                        </div>
+                        <div id="NoSupport" class="d-none alert alert-danger text-center my-2" role="alert">
+                            Your browser does not support Push Notifications or you have blocked notifications
+                        </div>
+                        <form asp-controller="Home" asp-action="SubscribeNotification" id="notificationaccessform" class="d-none">
+                            <input id="endpoint" name="endpoint" hidden />
+                            <input id="p256dh" name="p256dh" hidden />
+                            <input id="auth" name="auth" hidden />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
     <script src="~/libs/signalr.min.js"></script>
+    <script src="~/libs/hyperHtml/min.min.js"></script>
+    <script>const { bind, wire } = hyperHTML;</script>
     <script src="~/libs/ReactCrop.min.js"></script>
     <script src="~/libs/moment.min.js"></script>
     <script src="~/libs/simplepeer.min.js"></script>
     <script src="~/libs/fabric.min.js"></script>
+
+    <script src="~/js/site.js"></script>
+    <script type="text/javascript">
+        var sgrkr = new SiteGeneralWorker("@Url.Content("~/account/pulse")", "@ViewBag.applicationServerKey");
+        sgrkr.registerServiceWorker();
+        setInterval(function () {
+            sgrkr.updateOfflineStatus();
+        },
+            sgrkr.offlineStatusCheckInterval);
+
+        let uhClient = new UniversalHubClient();
+
+    </script>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            $(document).ready(async () => {
+                await uhClient.start();
+                uhClient.joinUniversalGroup();
+            });
+
+            setInterval(function () {
+                sgrkr.sendPulse();
+            }, sgrkr.sendPulseInterval);
+
+            sgrkr.showNotificationPermissionModal();
+            //sgrkr.notifications = JSON.parse('@Html.Raw(Json.Serialize(notifications).ToString().Replace("'", "\'"))');
+            sgrkr.renderNotifications();
+        </script>
+    }
     <environment include="Development">
         <script type="text/babel" src="~/js/Conversation.js"></script>
         <script type="text/babel" src="~/js/Home.js"></script>

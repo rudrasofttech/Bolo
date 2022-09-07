@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20220831062648_NotificationTable")]
+    partial class NotificationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -397,32 +399,6 @@ namespace Bolo.Migrations
                     b.ToTable("PostPhoto");
                 });
 
-            modelBuilder.Entity("Bolo.Models.PushNotificationWebApp", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Auth")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Endpoint")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("P256dh")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("UserID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("PushNotificationWebApp");
-                });
-
             modelBuilder.Entity("Bolo.Models.ChatMessage", b =>
                 {
                     b.HasOne("Bolo.Models.Member", "SentBy")
@@ -542,15 +518,6 @@ namespace Bolo.Migrations
                     b.HasOne("Bolo.Models.MemberPost", null)
                         .WithMany("Photos")
                         .HasForeignKey("MemberPostID");
-                });
-
-            modelBuilder.Entity("Bolo.Models.PushNotificationWebApp", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberPost", b =>

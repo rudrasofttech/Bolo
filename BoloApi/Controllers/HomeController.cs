@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Bolo.Models;
 
-namespace BoloApi.Controllers
+namespace Bolo.Controllers
 {
     public class HomeController : Controller
     {

@@ -36,9 +36,10 @@ namespace Bolo.Models
 
     public enum MemberNotificationType
     {
-        None = 0,
-        Message = 1,
-        System = 2
+        NewPost = 1,
+        PostReaction = 2,
+        PostComment = 3,
+        FollowRequest = 4
     }
 
     public enum ChatMessageSentStatus
@@ -261,5 +262,33 @@ namespace Bolo.Models
         public MemberPost Post { get; set; }
         [MaxLength(7999)]
         public string Comment { get; set; }
+    }
+
+    public class Notification
+    {
+        public Guid ID { get; set; } = Guid.NewGuid();
+        [Required]
+        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+        [Required]
+        public Member Target { get; set; }
+        public string Pic { get; set; } = string.Empty;
+        [MaxLength(250)]
+        public string URL { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string Title { get; set; } = string.Empty;
+        [MaxLength(400)]
+        public string Description { get; set; } = string.Empty;
+        public bool Seen { get; set; } = false;
+        public MemberNotificationType Type { get; set; }
+        public int PostId { get; set; }
+    }
+
+    public class PushNotificationWebApp
+    {
+        public int ID { get; set; }
+        public Member User { get; set; }
+        public string Endpoint { get; set; } = string.Empty;
+        public string P256dh { get; set; } = string.Empty;
+        public string Auth { get; set; } = string.Empty;
     }
 }

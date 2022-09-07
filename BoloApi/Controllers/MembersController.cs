@@ -892,42 +892,39 @@ namespace Bolo.Controllers
             return Ok();
         }
 
-        //TO DO
-        //[HttpGet]
-        //[Route("CompressVideo")]
-        //public ActionResult CompressVideo([FromQuery] string filename)
-        //{
-        //    string filepath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", User.Identity.Name, filename);
-        //    string thumbpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", User.Identity.Name, filename.ToLower().Replace(Path.GetExtension(filename.ToLower()), "-thumb" + Path.GetExtension(filename.ToLower())));
-        //    if (System.IO.File.Exists(filepath))
-        //    {
-        //        if (filename.ToLower().EndsWith(".ogg") || filename.ToLower().EndsWith(".mp4") || filename.ToLower().EndsWith(".webm") || filename.ToLower().EndsWith(".mov"))
-        //        {
-        //            var cmd = '"' + ffmpegpath + '"' + " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 " + '"' + thumbpath + '"';
+        public async Task<ActionResult> SubscribeNotification([FromForm] string endpoint, [FromForm] string p256dh, [FromForm] string auth)
+        {
+            var user = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                PushNotificationWebApp pnwa = _context.PushNotificationWebApps.FirstOrDefault(t => t.User.ID == user.ID && t.Endpoint == endpoint);
+                if (pnwa == null)
+                {
+                    pnwa = new PushNotificationWebApp()
+                    {
+                        Auth = auth,
+                        Endpoint = endpoint,
+                        P256dh = p256dh,
+                        User = user
+                    };
+                    _context.PushNotificationWebApps.Add(pnwa);
+                }
+                else
+                {
+                    pnwa.Endpoint = endpoint;
+                    pnwa.Auth = auth;
+                    pnwa.P256dh = p256dh;
+                    pnwa.User = user;
+                }
 
-        //            ProcessStartInfo startInfo = new ProcessStartInfo();
-        //            startInfo.CreateNoWindow = false;
-        //            startInfo.UseShellExecute = false;
-        //            startInfo.FileName = ffmpegpath;
-        //            startInfo.Arguments = " -itsoffset -1  -i " + '"' + filepath + '"' + " -vcodec mjpeg -vframes 1 -filter:v scale=\"280:-1\" " + '"' + thumbpath + '"';
-        //            startInfo.RedirectStandardOutput = true;
-        //            Console.WriteLine(string.Format("Executing \"{0}\" with arguments \"{1}\".\r\n", startInfo.FileName, startInfo.Arguments));
-        //            try
-        //            {
-        //                using (Process process = Process.Start(startInfo))
-        //                {
-        //                    process.Start();
-        //                    process.WaitForExit(2000);
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                Console.WriteLine(ex.Message);
-        //            }
-        //        }
-        //    }
-        //    return Ok();
-        //}
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
 
         private bool MemberExists(int id)
         {

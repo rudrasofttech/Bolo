@@ -23,6 +23,9 @@ namespace Bolo.Data
         public DbSet<MemberReaction> Reactions { get; set; }
         public DbSet<MemberComment> Comments { get; set; }
         public DbSet<HashTag> HashTags { get; set; }
+
+        public DbSet<PushNotificationWebApp> PushNotificationWebApps { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
@@ -35,6 +38,8 @@ namespace Bolo.Data
             modelBuilder.Entity<MemberReaction>().ToTable("MemberReaction");
             modelBuilder.Entity<MemberComment>().ToTable("MemberComment");
             modelBuilder.Entity<HashTag>().ToTable("HashTag");
+            modelBuilder.Entity<Notification>().ToTable("Notification");
+            modelBuilder.Entity<PushNotificationWebApp>().ToTable("PushNotificationWebApp");
         }
     }
 }

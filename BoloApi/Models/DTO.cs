@@ -375,4 +375,34 @@ namespace Bolo.Models
         }
         public int PageSize { get; set; }
     }
+
+    public class NotificationSmallDTO
+    {
+        public Guid ID { get; set; }
+        public string Pic { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string URL { get; set; } = string.Empty;
+        public DateTime CreateDate { get; set; }
+        public MemberDTO Target { get; set; }
+        public bool Seen { get; set; }
+        public MemberNotificationType Type { get; set; }
+        public int PostId { get; set; }
+
+        public NotificationSmallDTO() { }
+
+        public NotificationSmallDTO(Notification n)
+        {
+            ID = n.ID;
+            Pic = n.Pic;
+            Title = n.Title;
+            Description = n.Description;
+            CreateDate = n.CreateDate;
+            Target = new MemberDTO(n.Target);
+            Seen = n.Seen;
+            Type = n.Type;
+            URL = n.URL;
+            PostId = n.PostId;
+        }
+    }
 }

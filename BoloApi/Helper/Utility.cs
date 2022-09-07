@@ -26,6 +26,7 @@ namespace Bolo.Helper
     }
     public class Utility
     {
+        public const string UniversalGroup = "Universal";
         public static DateTime OTPExpiry
         {
             get
@@ -123,7 +124,7 @@ namespace Bolo.Helper
                 client.Disconnect(true);
                 client.Dispose();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 
             }

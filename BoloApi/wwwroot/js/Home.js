@@ -491,9 +491,9 @@ class Search extends React.Component {
             i++;
         }
         if (items.length > 0) {
-            return <div>
+            return <ul class="list-group list-group-flush">
                 {items}
-            </div>;
+            </ul>;
         }
         else {
             return null;

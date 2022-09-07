@@ -421,7 +421,7 @@
             </div>;
         }
         else {
-            personchatorprofile = <HeartBeat activity="1" interval="3000" />;
+            personchatorprofile = null; //<HeartBeat activity="1" interval="3000" />;
         }
 
         let searchhtml = null;

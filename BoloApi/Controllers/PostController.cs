@@ -1,8 +1,11 @@
 ﻿using Bolo.Data;
+using Bolo.Helper;
+using Bolo.Hubs;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -13,7 +16,7 @@ using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace BoloWeb.Controllers
+namespace Bolo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -22,11 +25,13 @@ namespace BoloWeb.Controllers
     {
         private readonly BoloContext _context;
         private readonly IConfiguration _config;
-
-        public PostController(BoloContext context, IConfiguration config)
+        private readonly NotificationHelper nhelper;
+        
+        public PostController(BoloContext context, IConfiguration config, IHubContext<UniversalHub> uhub)
         {
             _context = context;
             _config = config;
+            nhelper = new NotificationHelper(context, uhub);
         }
 
         /// <summary>
@@ -196,7 +201,7 @@ namespace BoloWeb.Controllers
             try
             {
                 var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-                MemberPost mp = await _context.Posts.FirstOrDefaultAsync(t => t.PublicID == id);
+                MemberPost mp = await _context.Posts.Include(t => t.Owner).FirstOrDefaultAsync(t => t.PublicID == id);
                 if (mp != null && member != null)
                 {
                     var reaction = _context.Reactions.FirstOrDefault(t => t.Post.ID == mp.ID && t.ReactedBy.ID == member.ID);
@@ -216,6 +221,14 @@ namespace BoloWeb.Controllers
                             ReactionDate = DateTime.UtcNow
                         });
                         await _context.SaveChangesAsync();
+                        try
+                        {
+                            nhelper.SaveNotification(mp.Owner, member.Pic, "", string.Format("{0} reacted on your post.", member.Name), "", MemberNotificationType.PostReaction, mp.ID);
+                        }
+                        catch (Exception)
+                        {
+
+                        }
                         return Ok(new { ID = id, HasReacted = true, ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID) });
                     }
                 }
@@ -264,6 +277,19 @@ namespace BoloWeb.Controllers
                     }
                 }
                 await _context.SaveChangesAsync();
+
+                var followers = _context.Followers.Include(t => t.Follower).Where(t => t.Following.ID == member.ID).ToList();
+                foreach(var f in followers)
+                {
+                    try
+                    {
+                        nhelper.SaveNotification(f.Follower, member.Pic, "", string.Format("{0} posted a new photo.", member.Name), "", MemberNotificationType.NewPost, p.ID);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
                 return Ok(new { success = true });
             }
             catch (Exception ex)
@@ -282,7 +308,7 @@ namespace BoloWeb.Controllers
             try
             {
                 var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-                var post = _context.Posts.FirstOrDefault(t => t.PublicID == value.PostId);
+                var post = _context.Posts.Include(t => t.Owner).FirstOrDefault(t => t.PublicID == value.PostId);
                 MemberComment mc = new MemberComment()
                 {
                     Comment = value.Comment,
@@ -292,6 +318,14 @@ namespace BoloWeb.Controllers
                 };
                 _context.Comments.Add(mc);
                 await _context.SaveChangesAsync();
+                try
+                {
+                    nhelper.SaveNotification(post.Owner, member.Pic, "", string.Format("{0} commented on your post.", member.Name), "", MemberNotificationType.PostComment, post.ID);
+                }
+                catch (Exception)
+                {
+
+                }
                 return new CommentDTO(mc);
             }
             catch (Exception ex)

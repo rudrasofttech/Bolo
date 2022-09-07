@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace BoloWeb.Helper
+namespace Bolo.Helper
 {
     public class SearchHelper
     {
