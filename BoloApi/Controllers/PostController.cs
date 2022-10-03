@@ -223,7 +223,7 @@ namespace Bolo.Controllers
                         await _context.SaveChangesAsync();
                         try
                         {
-                            nhelper.SaveNotification(mp.Owner, member.Pic, "", string.Format("{0} reacted on your post.", member.Name), "", MemberNotificationType.PostReaction, mp.ID);
+                            nhelper.SaveNotification(mp.Owner, member.Pic, "", string.Format("{0} reacted on your post.",  member.GetNameOrUsername()), "", MemberNotificationType.PostReaction, mp.ID);
                         }
                         catch (Exception)
                         {
@@ -283,7 +283,7 @@ namespace Bolo.Controllers
                 {
                     try
                     {
-                        nhelper.SaveNotification(f.Follower, member.Pic, "", string.Format("{0} posted a new photo.", member.Name), "", MemberNotificationType.NewPost, p.ID);
+                        nhelper.SaveNotification(f.Follower, member.Pic, "", string.Format("{0} posted a new photo.", member.GetNameOrUsername()), "", MemberNotificationType.NewPost, p.ID);
                     }
                     catch (Exception)
                     {
@@ -320,7 +320,7 @@ namespace Bolo.Controllers
                 await _context.SaveChangesAsync();
                 try
                 {
-                    nhelper.SaveNotification(post.Owner, member.Pic, "", string.Format("{0} commented on your post.", member.Name), "", MemberNotificationType.PostComment, post.ID);
+                    nhelper.SaveNotification(post.Owner, member.Pic, "", string.Format("{0} commented on your post.", member.GetNameOrUsername()), "", MemberNotificationType.PostComment, post.ID);
                 }
                 catch (Exception)
                 {

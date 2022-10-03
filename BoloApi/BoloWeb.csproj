@@ -16,7 +16,6 @@
     <Content Remove="wwwroot\js\compiled\Meeting.js" />
     <Content Remove="wwwroot\js\compiled\NavMenu.js" />
     <Content Remove="wwwroot\js\compiled\Welcome.js" />
-    <Content Remove="wwwroot\js\Conversation.js" />
     <Content Remove="wwwroot\js\Meeting.js" />
     <Content Remove="wwwroot\js\NavMenu.js" />
     <Content Remove="wwwroot\js\Welcome.js" />
@@ -49,12 +48,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="WebPush" Version="1.0.12" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="wwwroot\css\custom.css" />
     <None Include="wwwroot\images\nopic.jpg" />
-    <None Include="wwwroot\js\Conversation.js" />
     <None Include="wwwroot\media\get-outta-here.m4r" />
     <None Include="wwwroot\media\get-outta-here.mp3" />
     <None Include="wwwroot\media\get-outta-here.ogg" />

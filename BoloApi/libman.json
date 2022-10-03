@@ -16,15 +16,23 @@
       "files": [
         "signalr.min.js"
       ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "hyperHtml@2.34.1",
+      "destination": "wwwroot/libs/hyperHtml/",
+      "files": [
+        "min.min.js"
+      ]
+    },
+    {
+      "provider": "cdnjs",
+      "library": "dayjs@1.11.5",
+      "destination": "wwwroot/libs/dayjs/",
+      "files": [
+        "dayjs.min.js",
+        "plugin/utc.min.js"
+      ]
     }
-  ,
-{
-  "provider": "cdnjs",
-  "library": "hyperHtml@2.34.1",
-  "destination": "wwwroot/libs/hyperHtml/",
-  "files": [
-    "min.min.js"
   ]
-}
-]
 }

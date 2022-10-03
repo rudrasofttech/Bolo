@@ -166,7 +166,7 @@ namespace Bolo.Controllers
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[] {
                 new Claim(ClaimTypes.Name, m.PublicID.ToString()),
-        //new Claim(JwtRegisteredClaimNames.Sub, m.PublicID.ToString()),
+        new Claim(ClaimTypes.NameIdentifier,  m.PublicID.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, m.Email),
         new Claim(JwtRegisteredClaimNames.Exp, Helper.Utility.TokenExpiry.ToString("yyyy-MM-dd")),
         new Claim(JwtRegisteredClaimNames.Jti, m.PublicID.ToString())
@@ -591,7 +591,7 @@ namespace Bolo.Controllers
                     _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
                 }
 
-                return Ok();
+                return Ok(new { });
             }
         }
 

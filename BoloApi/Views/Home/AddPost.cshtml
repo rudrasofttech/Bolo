@@ -29,37 +29,49 @@
         }
 </style>
 <form id="photoform" onsubmit="return savePhoto();">
-<div class="wizard" id="wizard">
-    <div class="step active" id="step1">
-        <div class="bg-light fixed-bottom text-end py-2 maxwidth" style="padding-bottom:60px;">
-            <button type="button" class="float-start btn btn-link text-dark btn-lg px-2 text-decoration-none" onclick="$('#photofiles').click();">Add Photos</button>
-            <button type="button" disabled class="float-start btn btn-link text-dark btn-lg px-2 text-decoration-none hasphotos">Filters</button>
-            <button type="button" disabled class="btn btn-link text-dark btn-lg text-decoration-none hasphotos" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
-        </div>
-        <div id="photocontainer" class="d-none"></div>
-        <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
-    </div>
-    <div class="step" id="step2">
-        <div class="bg-light fixed-bottom text-end py-2 maxwidth">
-            <button type="button" class="btn btn-link text-dark float-start btn-lg text-decoration-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
-            <button type="submit" class="btn btn-primary btn-lg me-2">Save</button>
-        </div>
-        <div class="mb-3">
-            <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000"></textarea>
-        </div>
-        <div class="mb-3 ps-3">
-            <div class="form-check form-switch">
-                <input asp-for="AcceptComment" class="form-check-input" type="checkbox" role="switch" id="acceptcommentchk" value="true" />
-                <label class="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
+    <div class="wizard" id="wizard">
+        <div class="step active" id="step1">
+            <div style="height:500px;">
+                <div id="photocontainer" class="d-none"></div>
+                <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
+            </div>
+            <div class="container-xl bg-light py-1 maxwidth">
+                <div class="row align-items-center">
+                    <div class="col-10">
+                        <button type="button" class="btn btn-dark me-1" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
+                        <button id="changesizebtn" type="button" disabled class="btn btn-light hasphotos me-1" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
+                        @*<input type="range" value="0" min="-10" max="10" onchange="changeScale();" id="scalerange" class="form-range hasphotos py-2" style="max-width:150px;" disabled />*@
+                    </div>
+                    <div class="col-2 text-end">
+                        <button type="button" disabled class="btn btn-link text-dark text-decoration-none hasphotos" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
+                    </div>
+                </div>
+
             </div>
         </div>
-        @for (int i = 0; i < Model.Photos.Count; i++)
-        {
-            <input name="Photos[@i]" id="@Html.Raw("photohdn" + i)" value="@Model.Photos[i]" type="hidden" />
-        }
+        <div class="step" id="step2">
+            <div style="height:500px;">
+                <div class="mb-3">
+                    <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000"></textarea>
+                </div>
+                <div class="mb-3 ps-3">
+                    <div class="form-check form-switch">
+                        <input asp-for="AcceptComment" class="form-check-input" type="checkbox" role="switch" id="acceptcommentchk" value="true" />
+                        <label class="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
+                    </div>
+                </div>
+            </div>
+            @for (int i = 0; i < Model.Photos.Count; i++)
+            {
+                <input name="Photos[@i]" id="@Html.Raw("photohdn" + i)" value="@Model.Photos[i]" type="hidden" />
+            }
+            <div class="container-xl bg-light text-end py-1 maxwidth">
+                <button type="button" class="btn btn-link text-dark float-start text-decoration-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
+                <button type="submit" class="btn btn-link me-2">Save</button>
+            </div>
+        </div>
     </div>
-</div>
-    </form>
+</form>
 @section scripts{
     <script src="~/libs/fabric.min.js"></script>
     <script>
@@ -71,6 +83,7 @@
                 this.canvas = null;
                 this.img = _img;
                 this.imgInst = null;
+                this.size = "contain"; //"contain" | "covers"
             }
 
             prepare() {
@@ -84,27 +97,69 @@
                 this.imgInst = new fabric.Image(this.img, {
                     angle: 0, padding: 0, cornersize: 0
                 });
-                if (this.img.width >= this.img.height) {
-                    this.imgInst.scaleToWidth(this.canvas.width);
-                    
-                } else if (this.img.height > this.img.width) {
-                    this.imgInst.scaleToHeight(this.canvas.height);
-                }
+                this.changeImageSize();
+                this.addImage();
+            }
+
+            addImage() {
                 this.imgInst.hasControls = false;
-                this.imgInst.lockMovementX = true;
-                this.imgInst.lockMovementY = true;
+                //this.imgInst.lockMovementX = true;
+                //this.imgInst.lockMovementY = true;
                 this.canvas.centerObject(this.imgInst);
                 this.canvas.add(this.imgInst);
             }
-           
+
+            changeImageSize() {
+                if (this.size === "contain") {
+                    $("#changesizebtn").html('<i class="bi bi-arrows-angle-expand"></i>');
+                    if (this.img.width >= this.img.height) {
+                        this.imgInst.scaleToWidth(this.canvas.width);
+                    } else if (this.img.height > this.img.width) {
+                        this.imgInst.scaleToHeight(this.canvas.height);
+                    }
+                } else if (this.size === "cover") {
+                    $("#changesizebtn").html('<i class="bi bi-arrows-angle-contract"></i>');
+                    if (this.img.width >= this.img.height) {
+                        this.imgInst.scaleToHeight(this.canvas.height);
+                    } else if (this.img.height > this.img.width) {
+                        this.imgInst.scaleToWidth(this.canvas.width);
+                    }
+                }
+
+                this.canvas.remove(this.imgInst);
+                this.addImage();
+            }
+
+            changeScale(s) {
+                console.log(s);
+                this.imgInst.scaleY = s;
+                this.imgInst.scaleX = s;
+                this.canvas.remove(this.imgInst);
+                this.addImage();
+            }
+
             extractImage() {
                 $("#photohdn" + this.index).val(this.canvas.toDataURL("image/png"));
             }
         }
 
+        function changeImageSize() {
+            for (var k in photos) {
+                photos[k].size = photos[k].size === "contain" ? "cover" : "contain";
+                photos[k].changeImageSize();
+            }
+        }
+
+        function changeScale() {
+            for (var k in photos) {
+                photos[k].changeScale(parseInt($("#scalerange").val(), 10));
+            }
+
+        }
+
         function processFiles(e) {
-            //$("#photocontainer").html("");
-            //photos = [];
+            $("#photocontainer").html("");
+            photos = [];
             if (photos.length >= parseInt("@Model.Photos.Count", 10))
                 return;
             if (e.target.files.length > 0) {

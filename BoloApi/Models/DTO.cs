@@ -362,6 +362,11 @@ namespace Bolo.Models
         public List<ReactionMemberFollowerDTO> Reactions { get; set; } = new List<ReactionMemberFollowerDTO>();
     }
 
+    public class NotificationListPaged : PagingModel
+    {
+        public List<NotificationSmallDTO> Notifications { get; set; } = new List<NotificationSmallDTO>();
+    }
+
     public abstract class PagingModel
     {
         public int Total { get; set; }

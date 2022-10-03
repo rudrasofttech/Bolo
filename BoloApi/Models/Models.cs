@@ -154,6 +154,13 @@ namespace Bolo.Models
         public string City { get; set; } = string.Empty;
         [MaxLength(200)]
         public string ThoughtStatus { get; set; } = string.Empty;
+
+        public string GetNameOrUsername() {
+            if (string.IsNullOrEmpty(Name))
+                return UserName;
+            else
+                return Name;
+        }
     }
 
     public class ChatMessage

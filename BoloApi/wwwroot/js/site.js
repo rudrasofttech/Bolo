@@ -1,8 +1,9 @@
-﻿const newNotificationGCEvent = "newNotificationGC";
+﻿const newNotificationGCEvent = "newNotificationBolo";
+const notifyPresenceGCEvent = "notifyPresenceBolo";
 class UniversalHubClient {
     constructor() {
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl("/universalhub")
+            .withUrl("/universalhub", { accessTokenFactory: () => localStorage.getItem('token') })
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
@@ -35,7 +36,7 @@ class UniversalHubClient {
         });
 
         //this.connection.on("ReceiveMessage", (msg) => {
-            
+
         //    const receiveMessageGC = new CustomEvent(receiveMessageGCEvent, {
         //        detail: { msg }, bubbles: true, cancelable: true, composed: false
         //    });
@@ -66,10 +67,10 @@ class UniversalHubClient {
     async start() {
         try {
             await this.connection.start();
-            //console.log(this.connection.state);
+            console.log(this.connection.state);
         } catch (err) {
             console.log(err);
-            setTimeout(start, 5000);
+            setTimeout(this.start, 5000);
         }
     }
 
@@ -90,8 +91,16 @@ class SiteGeneralWorker {
         this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini|Mobile/i.test(navigator.userAgent);
         this.notifications = [];
         this.nPermissionModal = new bootstrap.Modal(document.getElementById('askNotificationPermissionModal'), {});
-        $("#PromptForAccessBtn").click(() => this.requestNotificationAccess());
+        this.nNotificationModal = new bootstrap.Modal(document.getElementById('NotificationModal'), {
+            keyboard: false
+        });
+        
+
+        //$("#PromptForAccessBtn").click(() => this.requestNotificationAccess());
         this.applicationServerKey = _appServerKey;
+        $.ajaxSetup({
+            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+        });
 
         document.querySelector("body").addEventListener(newNotificationGCEvent, (e) => {
             this.notifications.push(e.detail);
@@ -160,6 +169,20 @@ class SiteGeneralWorker {
         });
     }
 
+    getNotifications() {
+        fetch("//" + location.host + "/api/notification", {
+            method: 'get',
+            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+        }).then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    this.notifications = data.notifications;
+                    this.renderNotifications();
+                });
+            }
+        });
+    }
+
     sendSubscriptionData(sub) {
         var frm = new FormData();
         frm.append("endpoint", sub.endpoint);
@@ -217,43 +240,52 @@ class SiteGeneralWorker {
         });
     }
 
-    sendPulse() { $.get(this.pulseurl); }
+    sendPulse() {
+        $.get(this.pulseurl);
+    }
 
-    onNotificationClick(n) {
-        fetch("//" + location.host + "/notification/setread/" + n.id, {
-            method: 'get'
+    setSeenAllNotification() {
+        fetch("//" + location.host + "/api/notification/setseenall", {
+            method: 'get',
+            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
         }).then((data) => {
             if (data.status === 200) {
-                this.notifications = this.notifications.filter(t => t.id !== n.id);
+                for (var k in this.notifications) {
+                    this.notifications[k].seen = true;
+                }
                 this.renderNotifications();
-                location.href = this.getURL(n.campaignURL);
+            }
+        });
+    }
+
+    onNotificationClick(n) {
+        fetch("//" + location.host + "/api/notification/setseen/" + n.id, {
+            method: 'get',
+            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+        }).then((data) => {
+            if (data.status === 200) {
+                for (var k in this.notifications) {
+                    if (this.notifications[k].id == n.id)
+                        this.notifications[k].seen = true;
+                }
+                this.renderNotifications();
+                location.href = this.getURL(n.url);
             }
         });
 
     }
 
     renderNotifications() {
-        let count = this.notifications.filter(t => !t.isRead).length;
+        let count = this.notifications.filter(t => !t.seen).length;
         if (count > 0)
-            bind(document.querySelector(".notificationcountcnt"))`<i class="bi bi-bell"></i><span class=" position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">${count} <span class="visually-hidden">unread messages</span></span>`;
+            bind(document.querySelector(".notificationcountcnt"))`<i class="bi bi-bell"></i><span class="position-absolute start-90 translate-middle badge rounded-pill bg-danger" style="font-size:10px; top:10px;">${count} <span class="visually-hidden">unread messages</span></span>`;
         else
             bind(document.querySelector(".notificationcountcnt"))`<i class="bi bi-bell"></i>`;
-        if (this.notifications.filter(t => t.notificationType === 10).length > 0) {
-            bind(document.querySelector("#msgnotificationscont"))`
-<h5>Messages</h5>
+        if (this.notifications.length > 0) {
+            bind(document.querySelector("#notificationscont"))`
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 <tbody>
-${this.notifications.filter(t => t.notificationType === 10).map(n => this.renderNotificationItem(n))}
-</tbody>
-</table>
-`;
-        }
-        if (this.notifications.filter(t => t.notificationType !== 10).length > 0) {
-            bind(document.querySelector("#cmpnotificationscont"))`
-<h5>Other</h5>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-<tbody>
-${this.notifications.filter(t => t.notificationType !== 10).map(n => this.renderNotificationItem(n))}
+${this.notifications.map(n => this.renderNotificationItem(n))}
 </tbody>
 </table>
 `;
@@ -262,10 +294,10 @@ ${this.notifications.filter(t => t.notificationType !== 10).map(n => this.render
 
     renderNotificationItem(n) {
         return wire(n)`<tr class="pointer" onclick=${(e) => { this.onNotificationClick(n); }}><td width="50px" valign="middle" align="right" class="p-1">
-<img src=${this.getURL(n.photoURL)} class="img-fluid rounded-1" />
+<img src=${this.getURL(n.pic)} class="img-fluid rounded-1" />
 </td><td valign="middle" class="p-1">
-<p class="m-0 p-0">${n.notificationText}</p>
-${n.isRead ? "" : wire()`<span class="badge bg-primary fs-12">New</span>`}
+<p class="m-0 p-0">${n.title}</p>
+${n.seen ? "" : wire()`<span class="badge bg-primary fs-12">New</span>`}
 <span class="fs-12">${dayjs(n.createDate).format("YY-MMM-d")}</span>
 </td></tr>`
     }
