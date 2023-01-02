@@ -278,16 +278,13 @@ namespace Bolo.Models
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
         [Required]
         public Member Target { get; set; }
-        public string Pic { get; set; } = string.Empty;
-        [MaxLength(250)]
-        public string URL { get; set; } = string.Empty;
-        [MaxLength(100)]
-        public string Title { get; set; } = string.Empty;
-        [MaxLength(400)]
-        public string Description { get; set; } = string.Empty;
+        [MaxLength(200)]
+        public string Text { get; set; } = string.Empty;
         public bool Seen { get; set; } = false;
         public MemberNotificationType Type { get; set; }
-        public int PostId { get; set; }
+        public Member Source { get; set; }
+        public MemberPost Post { get; set; }
+        public MemberComment Comment { get; set; }
     }
 
     public class PushNotificationWebApp

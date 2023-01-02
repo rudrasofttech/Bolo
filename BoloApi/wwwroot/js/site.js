@@ -90,13 +90,13 @@ class SiteGeneralWorker {
         this.reg = null;
         this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini|Mobile/i.test(navigator.userAgent);
         this.notifications = [];
-        this.nPermissionModal = new bootstrap.Modal(document.getElementById('askNotificationPermissionModal'), {});
-        this.nNotificationModal = new bootstrap.Modal(document.getElementById('NotificationModal'), {
-            keyboard: false
-        });
+        this.nPermissionModal = document.getElementById('askNotificationPermissionModal');
+        //this.nNotificationModal = new bootstrap.Modal(document.getElementById('NotificationModal'), {
+        //    keyboard: false
+        //});
         
 
-        //$("#PromptForAccessBtn").click(() => this.requestNotificationAccess());
+        $("#PromptForAccessBtn").click(() => this.requestNotificationAccess());
         this.applicationServerKey = _appServerKey;
         $.ajaxSetup({
             headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
@@ -134,7 +134,7 @@ class SiteGeneralWorker {
         if (Notification.permission !== "granted" &&
             Notification.permission !== "blocked" &&
             Notification.permission !== "denied") {
-            this.nPermissionModal.toggle();
+            $(this.nPermissionModal).removeClass("d-none");
         }
     }
 
@@ -188,11 +188,11 @@ class SiteGeneralWorker {
         frm.append("endpoint", sub.endpoint);
         frm.append("p256dh", this.arrayBufferToBase64(sub.getKey("p256dh")));
         frm.append("auth", this.arrayBufferToBase64(sub.getKey("auth")));
-        fetch("//" + location.host + "/account/subscribenotification", {
+        fetch("//" + location.host + "/api/Members/subscribenotification", {
             method: 'post',
             body: frm
         }).then(data => {
-            this.nPermissionModal.hide();
+            $(this.nPermissionModal).addClass("d-none");
         });
     }
 
@@ -269,7 +269,7 @@ class SiteGeneralWorker {
                         this.notifications[k].seen = true;
                 }
                 this.renderNotifications();
-                location.href = this.getURL(n.url);
+                location.href = n.url; // this.getURL(n.url);
             }
         });
 
@@ -278,9 +278,10 @@ class SiteGeneralWorker {
     renderNotifications() {
         let count = this.notifications.filter(t => !t.seen).length;
         if (count > 0)
-            bind(document.querySelector(".notificationcountcnt"))`<i class="bi bi-bell"></i><span class="position-absolute start-90 translate-middle badge rounded-pill bg-danger" style="font-size:10px; top:10px;">${count} <span class="visually-hidden">unread messages</span></span>`;
+            $(".notificationcountcnt").html('<i class="bi bi-bell"></i><span style="top:8px; font-size:13px;" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger">'+ count +' <span class="visually-hidden">unread messages</span></span>');
         else
-            bind(document.querySelector(".notificationcountcnt"))`<i class="bi bi-bell"></i>`;
+            $(".notificationcountcnt").html('<i class="bi bi-bell"></i>');
+
         if (this.notifications.length > 0) {
             bind(document.querySelector("#notificationscont"))`
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
@@ -293,12 +294,14 @@ ${this.notifications.map(n => this.renderNotificationItem(n))}
     }
 
     renderNotificationItem(n) {
+        console.log(n);
         return wire(n)`<tr class="pointer" onclick=${(e) => { this.onNotificationClick(n); }}><td width="50px" valign="middle" align="right" class="p-1">
 <img src=${this.getURL(n.pic)} class="img-fluid rounded-1" />
 </td><td valign="middle" class="p-1">
 <p class="m-0 p-0">${n.title}</p>
 ${n.seen ? "" : wire()`<span class="badge bg-primary fs-12">New</span>`}
-<span class="fs-12">${dayjs(n.createDate).format("YY-MMM-d")}</span>
+${n.type === 4 ? wire()`<span class="text-primary fw-bold fs-12">Follow Request</span>` : "" }
+<span class="fs-12">${dayjs(n.createDate).format("d-MMM-YYYY")}</span>
 </td></tr>`
     }
 

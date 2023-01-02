@@ -223,7 +223,7 @@ namespace Bolo.Controllers
                         await _context.SaveChangesAsync();
                         try
                         {
-                            nhelper.SaveNotification(mp.Owner, member.Pic, "", string.Format("{0} reacted on your post.",  member.GetNameOrUsername()), "", MemberNotificationType.PostReaction, mp.ID);
+                            nhelper.SaveNotification(mp.Owner, string.Empty,false, MemberNotificationType.PostReaction, mp, member, null);
                         }
                         catch (Exception)
                         {
@@ -283,7 +283,7 @@ namespace Bolo.Controllers
                 {
                     try
                     {
-                        nhelper.SaveNotification(f.Follower, member.Pic, "", string.Format("{0} posted a new photo.", member.GetNameOrUsername()), "", MemberNotificationType.NewPost, p.ID);
+                        nhelper.SaveNotification(f.Follower, string.Empty, false, MemberNotificationType.NewPost, p, member, null);
                     }
                     catch (Exception)
                     {
@@ -320,7 +320,7 @@ namespace Bolo.Controllers
                 await _context.SaveChangesAsync();
                 try
                 {
-                    nhelper.SaveNotification(post.Owner, member.Pic, "", string.Format("{0} commented on your post.", member.GetNameOrUsername()), "", MemberNotificationType.PostComment, post.ID);
+                    nhelper.SaveNotification(post.Owner, string.Empty, false, MemberNotificationType.PostComment, post, member, mc);
                 }
                 catch (Exception)
                 {
@@ -433,15 +433,26 @@ namespace Bolo.Controllers
         }
 
         // DELETE api/<PhotoController>/5
-        [HttpPost("{id}")]
-        [Route("Delete/{id}")]
-        public async Task<ActionResult> DeleteAsync(int id)
+        [HttpGet]
+        [Route("delete/{id}")]
+        public async Task<ActionResult> DeleteAsync(Guid id)
         {
             try
-            {
-                var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-                MemberPost p = await _context.Posts.FirstOrDefaultAsync(t => t.ID == id && t.Owner.ID == member.ID);
-                _context.Posts.Remove(p);
+            {   
+                var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                
+                MemberPost p = _context.Posts.Include(t => t.Photos).FirstOrDefault(t => t.PublicID == id && t.Owner.ID == member.ID);
+                if (p != null)
+                {
+                    var comments = _context.Comments.Where(t => t.Post.ID == p.ID);
+                    _context.Comments.RemoveRange(comments);
+                    var hashtags = _context.HashTags.Where(t => t.Post.ID == p.ID);
+                    _context.HashTags.RemoveRange(hashtags);
+                    var reactions = _context.Reactions.Where(t => t.Post.ID == p.ID);
+                    _context.Reactions.RemoveRange(reactions);
+                    _context.PostPhotos.RemoveRange(p.Photos);
+                    _context.Posts.Remove(p);
+                }
                 await _context.SaveChangesAsync();
                 return Ok();
             }

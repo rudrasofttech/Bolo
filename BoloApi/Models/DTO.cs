@@ -145,7 +145,7 @@ namespace Bolo.Models
         public int FollowerCount { get; set; }
         public int FollowingCount { get; set; }
         public int PostCount { get; set; }
-
+        public int FollowRequestCount { get; set; }
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string RecoveryQuestion { get; set; } = string.Empty;
@@ -390,6 +390,9 @@ namespace Bolo.Models
         public string URL { get; set; } = string.Empty;
         public DateTime CreateDate { get; set; }
         public MemberDTO Target { get; set; }
+        public MemberDTO Source { get; set; }
+        public PostDTO Post { get; set; }
+        public CommentDTO Comment { get; set; }
         public bool Seen { get; set; }
         public MemberNotificationType Type { get; set; }
         public int PostId { get; set; }
@@ -399,15 +402,15 @@ namespace Bolo.Models
         public NotificationSmallDTO(Notification n)
         {
             ID = n.ID;
-            Pic = n.Pic;
-            Title = n.Title;
-            Description = n.Description;
+            //Pic = n.Pic;
+            //Title = n.Title;
+            //Description = n.Description;
             CreateDate = n.CreateDate;
             Target = new MemberDTO(n.Target);
             Seen = n.Seen;
             Type = n.Type;
-            URL = n.URL;
-            PostId = n.PostId;
+            //URL = n.URL;
+            //PostId = n.PostId;
         }
     }
 }

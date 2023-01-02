@@ -32,49 +32,54 @@
     </environment>
     @RenderSection("head", false)
 </head>
-<body>
-    <div class="container-xl px-0 fixed-top bg-light maxwidth border border-top-0">
-        <table cellpadding="5" cellspacing="0" style="width:100%" class="my-1">
-            <tbody>
-                <tr>
-                    <td>
-                        <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-4">Waarta</a>
-                    </td>
-                    <td align="center" valign="middle" width="55px">
-                        <a class="text-dark fs-3" href="@Url.Content("~/")" title="Home"><i class="bi bi-house"></i></a>
-                    </td>
-                    <td align="center" valign="middle" width="55px">
-                        <a class="text-dark fs-3" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
-                    </td>
-                    <td align="center" valign="middle" width="60px">
-                        <button type="button" class="btn btn-link text-decoration-none text-dark fs-3 position-relative notificationcountcnt" title="Notifications" onclick="sgrkr.nNotificationModal.show();"></button>
-                    </td>
-                    <td align="center" valign="middle" width="55px">
-                        <a class="text-dark fs-3" href="@Url.Content("~/profile/")" title="Profile" id="profilemenuanchor">
-                            <script>
-                                try {
-                                    var member = JSON.parse(localStorage.getItem("myself"));
-                                    if (member.pic !== "") {
-                                        document.write("<img src='" + member.pic + "' class='profile-icon rounded' />");
-                                    } else {
-                                        document.write('<i class="bi bi-person-square"></i>');
-                                    }
-                                } catch (err) {
-                                    document.write('<i class="bi bi-person-square"></i>');
-                                }
-                            </script>
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="p-2" align="left" valign="middle" id="search" height="49px">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+<body class="bg-light">
+    <div class="container-lg fixed-top">
+        <div class="row">
+            <div class="col rounded-bottom rounded-2 bg-white">
+                <table cellpadding="5" cellspacing="0" style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold">Waarta</a>
+                            </td>
+                            <td align="right" valign="middle" width="100px">
+                                <button type="button" class="btn btn-link text-decoration-none text-dark fs-3 notificationcountcnt position-relative" title="Notifications" data-bs-toggle="modal" data-bs-target="#NotificationModal"></button>
+                            </td>
+                            <td align="center" valign="middle" width="55px">
+                                <a class="text-dark fs-3" href="@Url.Content("~/")" title="Home"><i class="bi bi-house"></i></a>
+                            </td>
+                            <td align="center" valign="middle" width="55px">
+                                <a class="text-dark fs-3" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
+                            </td>
+
+                            <td align="center" valign="middle" width="55px">
+                                <a class="text-dark fs-3" href="@Url.Content("~/profile/")" title="Profile" id="profilemenuanchor">
+                                    <script>
+                                        try {
+                                            var member = JSON.parse(localStorage.getItem("myself"));
+                                            if (member.pic !== "") {
+                                                document.write("<img src='" + member.pic + "' class='profile-icon rounded' />");
+                                            } else {
+                                                document.write('<i class="bi bi-person-square"></i>');
+                                            }
+                                        } catch (err) {
+                                            document.write('<i class="bi bi-person-square"></i>');
+                                        }
+                                    </script>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="p-2" align="left" valign="middle" id="search" height="49px">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         @RenderSection("toolbar", false)
     </div>
-    <div id="root" class="container-xl maxwidth g-0" style="min-height: calc(100vh - 143px);">
+    <div id="root" class="container-lg g-0" style="min-height: 500px;">
         @RenderBody()
     </div>
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
@@ -93,7 +98,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title" id="notificationModalLabel"><i class="bi bi-bell"></i> Notifications</h3>
-                    <button type="button" class="btn-close"  onclick="sgrkr.nNotificationModal.hide();" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="notificationscont"></div>
@@ -102,31 +107,9 @@
         </div>
     </div>
 
-    <div class="modal fade" id="askNotificationPermissionModal" tabindex="-1" aria-labelledby="askNotificationPermissionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="askNotificationPermissionModalLabel">Subscribe Notifications</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <button id="PromptForAccessBtn" class="btn btn-danger btn-lg">Yes, Send Me Notification</button>
-                    </div>
-                    <div id="NoSupport" class="d-none alert alert-danger text-center my-2" role="alert">
-                        Your browser does not support Push Notifications or you have blocked notifications
-                    </div>
-                    <form asp-controller="Home" asp-action="SubscribeNotification" id="notificationaccessform" class="d-none">
-                        <input id="endpoint" name="endpoint" hidden />
-                        <input id="p256dh" name="p256dh" hidden />
-                        <input id="auth" name="auth" hidden />
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    
     <script src="~/libs/dayjs/dayjs.min.js"></script>
-    <script src="~/libs/dayjs/plugin/utc.min.js"></script>>
+    <script src="~/libs/dayjs/plugin/utc.min.js"></script>
     <script src="~/libs/signalr.min.js"></script>
     <script src="~/libs/hyperHtml/min.min.js"></script>
     <script>const { bind, wire } = hyperHTML;</script>
@@ -152,7 +135,10 @@
         setInterval(function () {
             sgrkr.sendPulse();
         }, sgrkr.sendPulseInterval);
-        sgrkr.showNotificationPermissionModal();
+        if (localStorage.getItem("token") !== null) {
+            sgrkr.showNotificationPermissionModal();
+        }
+        
         document.getElementById('NotificationModal').addEventListener('shown.bs.modal', event => {
             console.log("shown.bs.modal");
             sgrkr.setSeenAllNotification();

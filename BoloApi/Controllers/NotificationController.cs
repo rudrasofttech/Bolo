@@ -34,7 +34,7 @@ namespace BoloWeb.Controllers
 
         [HttpGet]
         [Route("setseen/{id}")]
-        public async Task<ActionResult<IActionResult>> SetSeenAsync(Guid id)
+        public async Task<ActionResult> SetSeenAsync(Guid id)
         {
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             nhelper.SetSeen(id, currentMember);

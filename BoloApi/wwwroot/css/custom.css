@@ -1,5 +1,14 @@
-body{
-    padding-top:110px;
+/*@font-face {
+    font-family: 'Forum-Regular';
+    src: url('../font/Forum-Regular.ttf') format('truetype');
+}*/
+
+body {
+    padding-top: 119px;
+    font-family: Candara, Arial;
+}
+button.btn, a{
+    font-family:Arial !important;
 }
 .row{
     margin-left:0px;
@@ -55,8 +64,7 @@ code {
 }
 
 .profile-icon {
-    max-height: 30px;
-    max-width: 30px;
+    max-width: 35px;
 }
 .profile-thumb {
     max-height: 150px;
@@ -813,5 +821,18 @@ code {
         max-width: 100%;
         max-height: calc(100vh - 60px);
         max-height: calc(100% - 60px);
+    }
+}
+
+
+@media (min-width: 1400px) {
+    .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container, .container-lg, .container-md, .container-sm, .container-xl {
+        max-width: 960px;
     }
 }

@@ -255,9 +255,10 @@ namespace Bolo.Controllers
 
                 Phone = member.Phone,
                 Email = member.Email,
-                FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID),
+                FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID && t.Status == FollowerStatus.Active),
                 FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
-                PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID)
+                PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID),
+                FollowRequestCount = _context.Followers.Count(t => t.Following.ID == member.ID && t.Status == FollowerStatus.Requested)
             }; 
             return result;
         }

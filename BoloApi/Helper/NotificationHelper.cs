@@ -44,17 +44,17 @@ namespace Bolo.Helper
             _context.SaveChanges();
         }
 
-        public void SaveNotification(Member target, string pic, string url, string title, string description, MemberNotificationType type, int postId)
+        public void SaveNotification(Member target, string text, bool seen, MemberNotificationType type, MemberPost post = null, Member source = null, MemberComment comment = null)
         {
             Notification n = new Notification()
             {
-                Description = description,
-                Pic = pic,
-                PostId = postId,
+                Comment= comment,
+                Post= post,
+                Seen= seen,
+                Source= source, 
+                Text= text,
                 Target = target,
-                Title = title,
-                Type = type,
-                URL = url
+                Type = type
             };
             _context.Add(n);
             _context.SaveChanges();
@@ -67,7 +67,7 @@ namespace Bolo.Helper
             await _hubContext.Clients.User(n.Target.PublicID.ToString()).SendAsync("NewNotification", new NotificationSmallDTO(n));
             //if (!accWorker.IsUserOnline(n.NotifyTo))
             {
-                bool shouldSave;
+                //bool shouldSave;
                 //get end points saved in database for the target user
                 //var query = _context.PushNotificationWebApps.Where(t => t.User.ID == n.Target.ID).ToList();
                 //foreach (var pnwa in query)

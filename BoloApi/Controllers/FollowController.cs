@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bolo.Data;
+using Bolo.Helper;
+using Bolo.Hubs;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,22 +21,24 @@ namespace Bolo.Controllers
     public class FollowController : ControllerBase
     {
         private readonly BoloContext _context;
+        private readonly NotificationHelper nhelper;
 
-        public FollowController(BoloContext context)
+        public FollowController(BoloContext context, IHubContext<UniversalHub> uhub)
         {
             _context = context;
+            nhelper = new NotificationHelper(context, uhub);
         }
 
         [HttpGet]
         [Route("Status/{id}")]
         public async Task<MemberFollowerDTO> GetStatusAsync(Guid id)
         {
-            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-            Member target = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == id);
+            var currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            var target = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == id);
             if (target != null)
             {
                 var query = await _context.Followers.FirstOrDefaultAsync(t => t.Following.ID == target.ID && t.Follower.ID == currentMember.ID);
-                if( query != null)
+                if (query != null)
                 {
                     return new MemberFollowerDTO(query);
                 }
@@ -41,9 +46,8 @@ namespace Bolo.Controllers
                 {
                     return new MemberFollowerDTO();
                 }
-                
-            }
 
+            }
             return null;
         }
 
@@ -51,9 +55,53 @@ namespace Bolo.Controllers
         [Route("Requests")]
         public async Task<List<MemberSmallDTO>> GetRequestsAsync()
         {
-            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            var currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             var query = _context.Followers.Where(t => t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Requested).Select(t => new MemberSmallDTO(t.Follower)).ToList();
             return query;
+        }
+
+        [HttpGet]
+        [Route("HasRequest/{id}")]
+        public ActionResult HasRequest(Guid id)
+        {
+            bool result = _context.Followers.Any(t => t.Following.PublicID == new Guid(User.Identity.Name) &&
+            t.Follower.PublicID == id && t.Status == FollowerStatus.Requested);
+            if (result)
+                return Ok();
+            else
+                return StatusCode(500,null);
+        }
+
+        [HttpGet]
+        [Route("Allow/{id}")]
+        public ActionResult Allow(Guid id)
+        {
+            var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            var f = _context.Followers.FirstOrDefault(t => t.Follower.PublicID == id && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Requested);
+            if (f != null)
+            {
+                f.Status = FollowerStatus.Active;
+                _context.SaveChanges();
+                return Ok();
+            }
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        [Route("Reject/{id}")]
+        public ActionResult Reject(Guid id)
+        {
+            var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            var f = _context.Followers.FirstOrDefault(t => t.Follower.PublicID == id && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Requested);
+            if (f != null)
+            {
+                _context.Followers.Remove(f);
+                _context.SaveChanges();
+                return Ok();
+            }
+
+            return BadRequest();
         }
 
         [HttpGet]
@@ -76,7 +124,7 @@ namespace Bolo.Controllers
             if (!allowList)
                 query = query.Where(t => false);
             var list = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList();
-            
+
             FollowerListPaged result = new FollowerListPaged()
             {
                 Current = p,
@@ -84,7 +132,7 @@ namespace Bolo.Controllers
                 PageSize = ps,
                 FollowList = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList()
             };
-            
+
             return result;
         }
 
@@ -117,7 +165,7 @@ namespace Bolo.Controllers
                 PageSize = ps,
                 FollowList = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList()
             };
-            
+
 
             return result;
         }
@@ -126,9 +174,9 @@ namespace Bolo.Controllers
         [Route("Ask/{id}")]
         public async Task<MemberFollowerDTO> AskAsync(Guid id)
         {
-            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-            Member target = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == id);
-            MemberFollower mf = _context.Followers.Include(t => t.Follower).Include(t => t.Following).FirstOrDefault(t => t.Following.ID == target.ID && t.Follower.ID == currentMember.ID);
+            var currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            var target = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == id);
+            var mf = _context.Followers.Include(t => t.Follower).Include(t => t.Following).FirstOrDefault(t => t.Following.ID == target.ID && t.Follower.ID == currentMember.ID);
             if (mf == null)
             {
                 mf = new MemberFollower()
@@ -141,7 +189,14 @@ namespace Bolo.Controllers
                 };
                 _context.Followers.Add(mf);
                 await _context.SaveChangesAsync();
+                try
+                {
+                    nhelper.SaveNotification(target, string.Empty, false, MemberNotificationType.FollowRequest,null,currentMember, null);
+                }
+                catch (Exception)
+                {
 
+                }
                 return new MemberFollowerDTO(mf);
             }
             else

@@ -376,7 +376,6 @@ class Home extends React.Component {
         };
     }
 
-    
     render() {
         if (!this.state.loggedin) {
             return <RegisterForm beginWithRegister={false} onLogin={() => {
@@ -387,8 +386,8 @@ class Home extends React.Component {
                 })
             }} />;
         }
-        
-        return <React.Fragment><MemberPostList search="userfeed" viewMode={2} viewModeAllowed="false"/></React.Fragment>;
+
+        return <React.Fragment><MemberPostList search="userfeed" viewMode={2} viewModeAllowed="false" /></React.Fragment>;
     }
 }
 
@@ -502,13 +501,7 @@ class Search extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <RegisterForm beginWithRegister={false} onLogin={() => {
-                this.setState({
-                    loggedin: localStorage.getItem("token") === null ? false : true,
-                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                })
-            }} />;
+            return null;
         }
         let loading = null;
         if (this.state.loading) {
@@ -552,7 +545,7 @@ class MemberPost extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : '',
-            showCommentBox: false
+            showCommentBox: false, showpostoptions: false
         };
 
         this.addReaction = this.addReaction.bind(this);
@@ -601,35 +594,105 @@ class MemberPost extends React.Component {
             });
     }
 
+    deletePost = () => {
+        fetch('//' + window.location.host + '/api/post/delete/' + this.state.post.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 401) {
+                //if token is not valid than remove token, set myself object with empty values
+                localStorage.removeItem("token");
+                this.setState({ loggedin: false, loading: false });
+            } else if (response.status === 200) {
+                this.setState({ loading: false, message: '', bsstyle: '', showpostoptions : false, post : null }, () => { });
+
+            } else if (response.status === 400) {
+                try {
+                    response.json().then(data => {
+                        //console.log(data);
+                        this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                    });
+                } catch (err) {
+                    this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
+                }
+
+            } else {
+                try {
+                    response.json().then(data => {
+                        //console.log(data);
+                        this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                    });
+                } catch (err) {
+                    this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
+                }
+
+            }
+        });
+    }
+
+    renderPostOptions() {
+        if (this.state.showpostoptions) {
+            let btn = null;
+            if (this.state.post.owner.id === this.state.myself.id)
+                btn = <div className="text-center mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.deletePost(); } }>Delete Post</button></div>;
+            return <div className="modal d-block" tabIndex="-1">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-body">
+                            {btn}
+                        </div>
+                        <div className="modal-footer text-center">
+                            <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showpostoptions: false }) }} data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+    }
+
     render() {
-        var p = this.state.post;
-        var ownerlink = this.state.hashtag !== '' ? <div className="d-inline-block">
-            <a href={'//' + window.location.host + '/post/hastag?ht=' + this.state.hashtag} className="fs-6 ms-2 fw-bold  text-dark text-decoration-none">
+        let p = this.state.post;
+        if (p === null) return null;
+
+        let ownerlink = this.state.hashtag !== '' ? <div className="d-inline-block">
+            <a href={'//' + window.location.host + '/post/hastag?ht=' + this.state.hashtag} className="fs-6 fw-bold  text-dark text-decoration-none">
                 {p.owner.userName}
             </a>
-            <a href={'//' + window.location.host + '/profile?un=' + p.owner.userName} className="fs-6 ms-2  text-dark text-decoration-none">
+            <a href={'//' + window.location.host + '/profile?un=' + p.owner.userName} className="fs-6 text-dark text-decoration-none">
                 {p.owner.userName}
             </a>
         </div> :
-            <a href={'//' + window.location.host + '/profile?un=' + p.owner.userName} className="fs-6 ms-2 fw-bold pointer d-inline-block text-dark text-decoration-none">
+            <a href={'//' + window.location.host + '/profile?un=' + p.owner.userName} className="fs-6 fw-bold pointer d-inline-block text-dark text-decoration-none">
                 {p.owner.userName}
             </a>;
-        var owner = <div className="row align-items-center g-1">
-            <div className="col">
-                <MemberPicSmall member={p.owner} />
-                {ownerlink}
-            </div>
-            <div className="col-md-1 col-2 text-end">
-                <button className="btn btn-link text-dark"><i className="bi bi-three-dots"></i></button>
-            </div>
-        </div>;
+        let owner = <table className="w-100" cellPadding="0" cellSpacing="0">
+            <tbody>
+                <tr>
+                    <td width="50px">
+                        <MemberPicSmall member={p.owner} />
+                    </td>
+                    <td className="ps-2">
+                        {ownerlink}
+                        <div>
+                            <span style={{ fontSize: "14px" }}><DateLabel value={p.postDate} /></span>
+                        </div>
+                    </td>
+                    <td width="40px">
+                        <button className="btn btn-link text-dark" onClick={() => { this.setState({ showpostoptions: true }) }}><i className="bi bi-three-dots"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>;
         var postshtml = null;
         if (p.videoURL !== "") {
 
         } else if (p.photos) {
             if (p.photos.length == 1) {
                 postshtml = <div className="text-center">
-                    <img src={p.photos[0].photo} className="img-fluid" onDoubleClick={() => { this.addReaction(); }} />
+                    <img src={p.photos[0].photo} className="img-fluid w-100 py-1" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
                 var imgs = [], imgs2 = [];
@@ -676,25 +739,19 @@ class MemberPost extends React.Component {
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="border my-2">
+        return <div id={this.state.post.id} className="mb-2 p-1 bg-white rounded-3">
             {owner}
-            <div className="row">
-                <div className="col-md-6">
-                    {postshtml}
-                    <div className="text-center my-1"></div>
-                </div>
-                <div className="col-md-6">
-                    <div className="mt-1">
-                        <button type="button" className="btn btn-link text-decoration-none fw-bold text-dark pe-2 ps-0"><DateLabel value={p.postDate} /></button>
-                        {reactionhtml}{reactionCountHtml} {commentBtn}{commentCountHtml}
-                    </div>
-                    <div>
-                        <ExpandableTextLabel text={p.describe === null ? "" : p.describe} maxlength={200} />
-                    </div>
-                </div>
+            {postshtml}
+            <div className="mt-1 text-center">
+                {reactionhtml}{reactionCountHtml} {commentBtn}{commentCountHtml}
+            </div>
+            <div>
+                <ExpandableTextLabel text={p.describe === null ? "" : p.describe} maxlength={200} />
             </div>
             {likemodal}
             {commentbox}
+
+            {this.renderPostOptions()}
         </div>;
     }
 }
@@ -712,7 +769,7 @@ class MemberComment extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, comments: { current: 0, pageSize: 20, total: 0, commentList: [] },
-            commenttext: '', commentiddel: 0
+            commenttext: '', commentiddel: 0, textarearows: 1
         };
 
         this.fetchComments = this.fetchComments.bind(this);
@@ -882,7 +939,11 @@ class MemberComment extends React.Component {
                             <tbody>
                                 <tr>
                                     <td valign="middle" align="right">
-                                        <textarea rows="1" className="form-control" value={this.state.commenttext} onChange={(e) => { this.setState({ commenttext: e.target.value }); }}></textarea>
+                                        <textarea rows={this.state.textarearows} className="form-control" value={this.state.commenttext} onChange={(e) => {
+                                            let rows = this.state.commenttext.split(/\r\n|\r|\n/).length > 1 ? this.state.commenttext.split(/\r\n|\r|\n/).length : 1;
+                                            rows = rows > 7 ? 7 : rows;
+                                            this.setState({ commenttext: e.target.value, textarearows: rows });
+                                        }}></textarea>
                                     </td>
                                     <td valign="middle" width="58px">
                                         <button type="button" className="btn btn-link text-decoration-none" onClick={() => { this.addComment(); }}>Post</button>
@@ -1014,11 +1075,18 @@ class MemberPostList extends React.Component {
 
     renderPosts() {
 
-        var empty = <div key={0}>
-            <p className="text-center fs-3 mt-5"><i className="bi bi-emoji-dizzy me-2"></i>Nothing to see here</p>
+        let empty = <div key={0}>
+            <div className="text-center fs-3 pt-5">
+                <i className="bi bi-emoji-dizzy me-2"></i><h2>Nothing to see here</h2>
+                <p>You can start by -</p>
+                <ul>
+                    <li>Posting Photos</li>
+                    <li>Following People</li>
+                </ul>
+            </div>
         </div>;
         if (this.state.viewMode === 2) {
-            var items = []
+            let items = []
             if (this.state.model !== null) {
                 for (var k in this.state.posts) {
                     items.push(<MemberPost key={this.state.posts[k].id} post={this.state.posts[k]} />);
@@ -1029,12 +1097,14 @@ class MemberPostList extends React.Component {
             }
             return items;
         } else if (this.state.viewMode === 1) {
-            var items = [];
+            let items = [];
             for (var k in this.state.posts) {
                 var p = this.state.posts[k];
                 if (p.videoURL !== "") { } else {
-                    items.push(<div className="col" key={p.id}><div className="card h-100 border-0 rounded-0 pointer imgbg" style={{ backgroundImage: "url(" + p.photos[0].photo + ")" }} data-postid={p.id} onClick={(e) => { this.selectPost(e.target.getAttribute("data-postid")) }}>
-                        <img src={p.photos[0].photo} className="card-img border-0 rounded-0" style={{ opacity: 0, padding: "1px" }} />
+                    items.push(<div className="col" key={p.id}><div className="card h-100 border-0 rounded-0 pointer imgbg" style={{ backgroundImage: "url(" + p.photos[0].photo + ")" }} >
+                        <img src={p.photos[0].photo} className="card-img border-0 rounded-0" style={{ opacity: 0, padding: "1px" }} data-postid={p.id} onClick={(e) => {
+                            this.selectPost(e.target.getAttribute("data-postid"));
+                        }} />
                     </div></div>);
                 }
             }
@@ -1310,9 +1380,9 @@ class MemberPicSmall extends React.Component {
 
     render() {
         var memberpic = this.state.member.pic !== "" ? <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0">
-            <img src={this.state.member.pic} className="d-inline-block p-1 img-fluid pointer rounded-3 owner-thumb-small" alt="" /></a>
-            : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0">
-                <img src="/images/nopic.jpg" className="img-fluid p-1 owner-thumb-small d-inline-block rounded-3" alt="" /></a>;
+            <img src={this.state.member.pic} className="d-inline-block img-fluid pointer rounded-1 owner-thumb-small" alt="" /></a>
+            : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0 text-secondary" style={{ fontSize: "3rem" }}>
+                <i className="bi bi-person"></i></a>;
 
 
         return <React.Fragment>{memberpic}</React.Fragment>;
@@ -1816,9 +1886,10 @@ class Profile extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             member: null, bsstyle: '', message: '', followStatus: null,
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            showfollowers: false, showfollowing: false, showSettings: false
+            showfollowers: false, showfollowing: false, showSettings: false, showrequests: false, hasFollowRequest: false
         };
 
+        this.checkIfHasRequest = this.checkIfHasRequest.bind(this);
     }
 
     componentDidMount() {
@@ -1826,7 +1897,8 @@ class Profile extends React.Component {
             this.validate(localStorage.getItem("token"));
         }
         if (this.props.username == undefined || this.props.username == null || this.props.username == "") {
-            this.setState({ member: JSON.parse(localStorage.getItem("myself")) });
+            //this.setState({ member: JSON.parse(localStorage.getItem("myself")) });
+            this.loadMember(localStorage.getItem("token"), JSON.parse(localStorage.getItem("myself")).id);
         } else {
             this.loadMember(localStorage.getItem("token"), this.props.username);
 
@@ -1849,6 +1921,7 @@ class Profile extends React.Component {
                     response.json().then(data => {
                         this.setState({ loggedin: true, loading: false, member: data }, () => {
                             this.loadFollowStatus(localStorage.getItem("token"), this.state.member.id);
+                            this.checkIfHasRequest(this.state.member.id)
                         });
                     });
                 }
@@ -1869,6 +1942,51 @@ class Profile extends React.Component {
                     response.json().then(data => {
                         this.setState({ loggedin: true, loading: false, followStatus: data.status });
                     });
+                }
+            });
+    }
+
+    checkIfHasRequest(username) {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Follow/HasRequest/' + username, {
+            method: 'get',
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({ loading: false, hasFollowRequest: true });
+                } else {
+                    this.setState({ loading: false, hasFollowRequest: false });
+                }
+            });
+    }
+
+    allowRequest() {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Follow/allow/' + this.state.member.id, {
+            method: 'get',
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({ loading: false, hasFollowRequest: false });
+                } else {
+                    this.setState({ loading: false });
+                }
+            });
+    }
+
+    rejectRequest() {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Follow/Reject/' + this.state.member.id, {
+            method: 'get',
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({ loading: false, hasFollowRequest: false });
+                } else {
+                    this.setState({ loading: false });
                 }
             });
     }
@@ -1907,7 +2025,7 @@ class Profile extends React.Component {
 
     renderFollowers() {
         if (this.state.showfollowers) {
-            return <div className="modal fade show" style={{ display: "block" }} id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
+            return <div className="modal fade show" style={{ display: "block" }} id="followersModal" tabIndex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -1926,7 +2044,7 @@ class Profile extends React.Component {
 
     renderFollowing() {
         if (this.state.showfollowing) {
-            return <div className="modal fade show" style={{ display: "block" }} id="followingModal" tabindex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
+            return <div className="modal fade show" style={{ display: "block" }} id="followingModal" tabIndex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -1941,6 +2059,36 @@ class Profile extends React.Component {
             </div>;
         }
         return null;
+    }
+
+    renderFollowRequest() {
+        if (this.state.showrequests) {
+            return <div className="modal fade show" style={{ display: "block" }} id="followingModal" tabIndex="-1" aria-labelledby="followrequestModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="followingModalLabel">Follow Request</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { this.setState({ showrequests: false }) }}></button>
+                        </div>
+                        <div className="modal-body">
+                            <FollowRequestList />
+                        </div>
+                    </div>
+                </div>
+            </div>;
+        }
+        return null;
+    }
+
+    renderRequestApproval() {
+        if (this.state.hasFollowRequest) {
+            return <div className="row">
+                <div className="col">
+                    <p>You have follow request from this account, take action.</p>
+                    <button type="button" className="btn btn-primary me-2" onClick={() => { this.allowRequest(); }}>Approve</button><button className="btn btn-secondary" type="button" onClick={() => { this.rejectRequest(); }}>Reject</button>
+                </div>
+            </div>
+        }
     }
 
     render() {
@@ -1962,6 +2110,9 @@ class Profile extends React.Component {
         }
         else if (this.state.showfollowers) {
             followlist = <React.Fragment>{this.renderFollowers()}</React.Fragment>;
+        }
+        else if (this.state.showrequests) {
+            followlist = <React.Fragment>{this.renderFollowRequest()}</React.Fragment>
         }
 
         let loading = null;
@@ -1996,6 +2147,8 @@ class Profile extends React.Component {
                         {name}
                         {settings}
                         {followhtml}
+                        {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
+                        {this.renderRequestApproval()}
                     </div>
                 </div>
                 <div className="row mx-0">
@@ -2571,11 +2724,12 @@ class RegisterForm extends React.Component {
                             localStorage.setItem("token", data.token);
                             localStorage.setItem("myself", JSON.stringify(data.member));
                             this.setState({ bsstyle: '', message: '', loggedin: true, loading: false });
-                            if (this.props.onLogin !== undefined) {
-                                this.props.onLogin();
-                            } else {
-                                this.setState({ redirectto: '/' });
-                            }
+                            location.reload();
+                            //if (this.props.onLogin !== undefined) {
+                            //    this.props.onLogin();
+                            //} else {
+                            //    this.setState({ redirectto: '/' });
+                            //}
                         }
                     });
                 }
@@ -2721,10 +2875,11 @@ class RegisterForm extends React.Component {
                     {loading}
                 </div>
             </div>;
-        return <div className="row align-items-center justify-content-center mx-0">
-            <div className="col px-0">
+        return <div className="row align-items-center justify-items-center mt-3">
+            <div className="col-lg-9">
                 {formcontents}
-            </div></div>;
+            </div>
+        </div>;
     }
 }
 
@@ -2866,6 +3021,151 @@ class ViewProfile extends React.Component {
     }
 }
 
+class FollowRequestList extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), requests: []
+        };
+    }
+
+    componentDidMount() {
+        this.fetchRequests();
+    }
+
+    fetchRequests = () => {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Follow/Requests', {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        console.log(data);
+                        this.setState({ loading: false, requests: data, bsstyle: '', message: '' });
+                    });
+                } else if (response.status === 500) {
+                    this.setState({ bsstyle: 'danger', message: 'Unable to process this request', loading: false });
+                }
+            }).catch(() => {
+                this.setState({ bsstyle: 'danger', message: 'Unable to process this request, check your internet connection.', loading: false });
+            });
+    }
+
+    allowRequest = (id) => {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Follow/Allow/' + id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    this.setState({ loading: false, requests: this.state.requests.filter(t => t.id !== id), bsstyle: '', message: '' });
+                } else if (response.status === 500) {
+                    this.setState({ bsstyle: 'danger', message: 'Unable to process this request', loading: false });
+                }
+            }).catch(() => {
+                this.setState({ bsstyle: 'danger', message: 'Unable to process this request, check your internet connection.', loading: false });
+            });
+    }
+
+    rejectRequest = (id) => {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Follow/Reject/' + id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    this.setState({ loading: false, requests: this.state.requests.filter(t => t.id !== id), bsstyle: '', message: '' });
+                } else if (response.status === 500) {
+                    this.setState({ bsstyle: 'danger', message: 'Unable to process this request', loading: false });
+                }
+            }).catch(() => {
+                this.setState({ bsstyle: 'danger', message: 'Unable to process this request, check your internet connection.', loading: false });
+            });
+    }
+
+    renderList = () => {
+        var items = [];
+        for (let k in this.state.requests) {
+            let r = this.state.requests[k];
+            items.push(<div key={r.id} className="row mx-0  justify-content-center align-items-center">
+                <div className="col px-0">
+                    <MemberPicSmall member={r} />
+                    <a href={'//' + window.location.host + '/profile?un=' + r.userName} className="fs-6 ms-2 fw-bold pointer d-inline-block text-dark text-decoration-none">
+                        {r.userName}
+                    </a>
+                </div>
+                <div className="col-6">
+                    <button type="button" data-id={r.id} onClick={(e) => { this.allowRequest(e.target.getAttribute("data-id")) }} className="btn btn-primary">Allow</button>
+                    <button type="button" data-id={r.id} onClick={(e) => { this.rejectRequest(e.target.getAttribute("data-id")) }} className="mx-2 btn btn-secondary">Reject</button>
+                </div>
+            </div>)
+        }
+        if (items.length === 0) {
+            items.push(<div key={0}>
+                <p>No Follow Requests Here.</p>
+            </div>)
+        }
+        return items;
+    }
+
+    render() {
+        return <React.Fragment>{this.renderList()}</React.Fragment>;
+    }
+
+}
+
+class SuggestedAccounts extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), list: []
+        };
+    }
+
+    render() {
+        if (this.state.loggedin) {
+            return <React.Fragment>
+                <div className="row">
+                    <div className="col-7">Suggested Accounts</div>
+                    <div className="col text-end"><button type="button" className="btn btn-light btn-sm">See all</button></div>
+                </div>
+            </React.Fragment>;
+        } else {
+            return null;
+        }
+    }
+}
 
 function transformMessage(text, id) {
     try {
@@ -2893,7 +3193,7 @@ function transformMessage(text, id) {
         for (l of links) {
             var imgreg = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png|jpeg)/g;
             if (imgreg.test(l)) {
-                let img = "<a href='" + l + "' target='_blank'><img src='" + l + "' class='img-fluid d-block mt-1 mb-1 img-thumbnail' style='width:300px; '/></a>";
+                let img = "<a href='" + l + "' target='_blank'><img src='" + l + "' className='img-fluid d-block mt-1 mb-1 img-thumbnail' style='width:300px; '/></a>";
                 text = text.replaceAllOccurence(l, img, true);
             } else {
                 let anchor = "<a href='" + l + "' target='_blank'>" + l + "</a>";
@@ -4667,6 +4967,34 @@ class PersonChat extends React.Component {
                 <HeartBeat activity="4" interval="3000" />
             </React.Fragment >
         );
+    }
+}
+
+class SendInvite extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), list: []
+        };
+    }
+
+    render() {
+        if (this.state.loggedin) {
+            return <React.Fragment>
+                <div className="text-center mb-2 p-2 rounded-2 bg-white">
+                    <div className="my-1">Invite your friends and build your followers.</div>
+                    <button type="button" className="btn btn-outline-dark my-2"><i className="bi bi-heart-fill text-danger"></i> Tell a Friend</button>
+                </div>
+            </React.Fragment>;
+        } else {
+            return null;
+        }
     }
 }
 
