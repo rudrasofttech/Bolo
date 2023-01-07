@@ -6,6 +6,7 @@ using Bolo.Data;
 using Bolo.Helper;
 using Bolo.Hubs;
 using Bolo.Models;
+using MailKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -228,6 +229,18 @@ namespace Bolo.Controllers
             _context.Followers.Remove(mf);
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("Recommended")]
+        public List<MemberDTO> Recommended([FromQuery]int take = 5)
+        {
+            if (take > 100) take = 100;
+            if(take < 1) take = 1;
+            var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            var followers = _context.Followers.Where(t => t.Following.ID == currentMember.ID).Select(t => t.Follower).ToList();
+            var secondlevel = _context.Followers.Where(t => followers.Contains(t.Following) && t.Follower.ID != currentMember.ID).Select(t => t.Follower).ToList();
+            return secondlevel.Take(take).Select(t => new MemberDTO(t)).ToList();
         }
     }
 }

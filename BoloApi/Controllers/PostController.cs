@@ -56,8 +56,8 @@ namespace Bolo.Controllers
             {
                 if (member.Visibility == MemberProfileVisibility.Private)
                 {
-                    var count = _context.Followers.Count(t => t.Follower.ID == currentMember.ID && t.Following.ID == member.ID && t.Status == FollowerStatus.Active);
-                    if (count > 0)
+                    var count = _context.Followers.Any(t => t.Follower.ID == currentMember.ID && t.Following.ID == member.ID && t.Status == FollowerStatus.Active);
+                    if (count || currentMember.ID == member.ID)
                     {
                         query = query.Where(t => t.Owner.ID == member.ID);
                     }
@@ -320,7 +320,7 @@ namespace Bolo.Controllers
                 await _context.SaveChangesAsync();
                 try
                 {
-                    nhelper.SaveNotification(post.Owner, string.Empty, false, MemberNotificationType.PostComment, post, member, mc);
+                    nhelper.SaveNotification(post.Owner, string.Format("{0} commented on your post.", member.Name), false, MemberNotificationType.PostComment, post, member, mc);
                 }
                 catch (Exception)
                 {
@@ -450,6 +450,9 @@ namespace Bolo.Controllers
                     _context.HashTags.RemoveRange(hashtags);
                     var reactions = _context.Reactions.Where(t => t.Post.ID == p.ID);
                     _context.Reactions.RemoveRange(reactions);
+                    var notifications = _context.Notifications.Where(t => t.Post.ID == p.ID);
+                    _context.Notifications.RemoveRange(notifications);
+
                     _context.PostPhotos.RemoveRange(p.Photos);
                     _context.Posts.Remove(p);
                 }

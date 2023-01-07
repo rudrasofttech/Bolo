@@ -409,6 +409,37 @@ namespace Bolo.Models
             Target = new MemberDTO(n.Target);
             Seen = n.Seen;
             Type = n.Type;
+            if (n.Comment != null)
+            {
+                Comment = new CommentDTO(n.Comment);
+            }
+            if(n.Post != null)
+            {
+                Post = new PostDTO(n.Post);
+                
+            }
+            if(n.Source!= null)
+            {
+                Source = new MemberDTO(n.Source);
+            }
+            if(n.Type == MemberNotificationType.NewPost || n.Type == MemberNotificationType.PostReaction 
+                || n.Type == MemberNotificationType.PostComment || n.Type == MemberNotificationType.FollowRequest)
+            {
+                Pic = string.IsNullOrEmpty(n.Source.Pic) ? "images/nopic.jpg" : n.Source.Pic;
+            }
+
+            if(n.Type == MemberNotificationType.NewPost) {
+                Title = string.Format("New post by {0}", string.IsNullOrEmpty(n.Source.Name) ? n.Source.UserName : n.Source.Name);
+            }
+            else if(n.Type == MemberNotificationType.PostComment)
+            {
+                Title = string.Format("{0} commented on your post.", string.IsNullOrEmpty(n.Source.Name) ? n.Source.UserName : n.Source.Name);
+            }
+            else if (n.Type == MemberNotificationType.PostReaction)
+            {
+                Title = string.Format("{0} reacted to your post.", string.IsNullOrEmpty(n.Source.Name) ? n.Source.UserName : n.Source.Name);
+            }
+            
             //URL = n.URL;
             //PostId = n.PostId;
         }

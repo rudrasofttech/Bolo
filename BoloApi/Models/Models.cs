@@ -295,4 +295,15 @@ namespace Bolo.Models
         public string P256dh { get; set; } = string.Empty;
         public string Auth { get; set; } = string.Empty;
     }
+
+    public class CountryItem
+    {
+        public int ID { get; set; }
+        [MaxLength(2)]
+        [Required]
+        public string Code { get; set; } = string.Empty;
+        [MaxLength(50)]
+        [Required]
+        public string Name { get; set; } = string.Empty;
+    }
 }

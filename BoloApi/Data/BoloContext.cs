@@ -13,7 +13,7 @@ namespace Bolo.Data
         public BoloContext(DbContextOptions<BoloContext> options) : base(options)
         {
         }
-
+        public DbSet<CountryItem> CountryItems { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Contact> Contacts { get; set; }
@@ -29,6 +29,7 @@ namespace Bolo.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
+            modelBuilder.Entity<CountryItem>().ToTable("CountryItem");
             modelBuilder.Entity<Member>().ToTable("Member");
             modelBuilder.Entity<ChatMessage>().ToTable("ChatMessage");
             modelBuilder.Entity<Contact>().ToTable("Contact");

@@ -606,7 +606,13 @@ class MemberPost extends React.Component {
                 localStorage.removeItem("token");
                 this.setState({ loggedin: false, loading: false });
             } else if (response.status === 200) {
-                this.setState({ loading: false, message: '', bsstyle: '', showpostoptions : false, post : null }, () => { });
+                let id = this.state.post.id;
+                this.setState({ loading: false, message: '', bsstyle: '', showpostoptions: false, post: null },
+                    () => {
+                        if (this.props.ondelete !== undefined && this.props.ondelete !== null) {
+                            this.props.ondelete(id);
+                        }
+                    });
 
             } else if (response.status === 400) {
                 try {
@@ -636,7 +642,7 @@ class MemberPost extends React.Component {
         if (this.state.showpostoptions) {
             let btn = null;
             if (this.state.post.owner.id === this.state.myself.id)
-                btn = <div className="text-center mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.deletePost(); } }>Delete Post</button></div>;
+                btn = <div className="text-center mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.deletePost(); }}>Delete Post</button></div>;
             return <div className="modal d-block" tabIndex="-1">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
@@ -979,6 +985,7 @@ class MemberPostList extends React.Component {
 
         this.selectPost = this.selectPost.bind(this);
         this.addReaction = this.addReaction.bind(this);
+        this.postDeleted = this.postDeleted.bind(this);
     }
 
     selectPost(id) {
@@ -1073,23 +1080,26 @@ class MemberPostList extends React.Component {
             });
     }
 
+    postDeleted(id) {
+        console.log(id);
+        this.setState({
+            posts: this.state.posts.filter(t => t.id !== id)
+        });
+    }
+
     renderPosts() {
 
         let empty = <div key={0}>
             <div className="text-center fs-3 pt-5">
                 <i className="bi bi-emoji-dizzy me-2"></i><h2>Nothing to see here</h2>
-                <p>You can start by -</p>
-                <ul>
-                    <li>Posting Photos</li>
-                    <li>Following People</li>
-                </ul>
+                <p>You can start by Posting Photos or Following People</p>
             </div>
         </div>;
         if (this.state.viewMode === 2) {
             let items = []
             if (this.state.model !== null) {
                 for (var k in this.state.posts) {
-                    items.push(<MemberPost key={this.state.posts[k].id} post={this.state.posts[k]} />);
+                    items.push(<MemberPost key={this.state.posts[k].id} post={this.state.posts[k]} ondelete={this.postDeleted} />);
                 }
             }
             if (items.length == 0) {
@@ -1355,18 +1365,24 @@ class MemberSmallRow extends React.Component {
                 ok={() => { this.setState({ showRemoveConfirm: false }); this.removeFollow(); }}
                 message="Are you sure you want to remove this member from your followers?" />;
         }
-        return <div className="row mx-0  justify-content-center align-items-center">
-            <div className="col px-0">
-                <MemberPicSmall member={this.state.member} />
-                <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="fs-6 ms-2 fw-bold pointer d-inline-block text-dark text-decoration-none">
-                    {this.state.member.userName}
-                </a>
-            </div>
-            <div className="col-3 col-md-3 px-0 text-end pe-2">
-                {followbtn}
-                {removeConfirmBox}
-            </div>
-        </div>
+        return <table className="w-100 mb-1" cellPadding="0" cellSpacing="0">
+            <tbody>
+                <tr>
+                    <td width="35px" className="p-1" align="center" valign="middle">
+                        <MemberPicSmall member={this.state.member} />
+                    </td>
+                    <td>
+                        <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="text-dark text-decoration-none">
+                            {this.state.member.userName}
+                        </a>
+                    </td>
+                    <td width="100px" align="right">
+                        {followbtn}
+                        {removeConfirmBox}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     }
 }
 
@@ -1381,8 +1397,8 @@ class MemberPicSmall extends React.Component {
     render() {
         var memberpic = this.state.member.pic !== "" ? <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0">
             <img src={this.state.member.pic} className="d-inline-block img-fluid pointer rounded-1 owner-thumb-small" alt="" /></a>
-            : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0 text-secondary" style={{ fontSize: "3rem" }}>
-                <i className="bi bi-person"></i></a>;
+            : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0 text-secondary">
+                <img src={'//' + location.host + '/images/nopic.jpg'} alt="No Pic" className="d-inline-block img-fluid pointer rounded-1 owner-thumb-small" /></a>;
 
 
         return <React.Fragment>{memberpic}</React.Fragment>;
@@ -1495,16 +1511,16 @@ class FollowButton extends React.Component {
         if (this.state.loading === false) {
             if (this.state.status === 0) {
                 if (this.state.member.id !== this.state.myself.id) {
-                    followbtn = <button type="button" className="btn btn-primary fw-bold" onClick={this.askToFollow}>Follow</button>;
+                    followbtn = <button type="button" className="btn btn-light" onClick={this.askToFollow}>Follow</button>;
                 }
             } else if (this.state.status === 1) {
-                followbtn = <button type="button" className="btn btn-light fw-bold" onClick={this.unFollow}>Unfollow</button>;
+                followbtn = <button type="button" className="btn btn-light" onClick={this.unFollow}>Unfollow</button>;
             }
             else if (this.state.status === 2) {
-                followbtn = <button type="button" className="btn btn-light fw-bold" onClick={this.unFollow}>Requested</button>;
+                followbtn = <button type="button" className="btn btn-light" onClick={this.unFollow}>Requested</button>;
             }
         } else if (this.state.loading === true) {
-            followbtn = <button type="button" className="btn btn-light fw-bold" disabled >Working...</button>;
+            followbtn = <button type="button" className="btn btn-light" disabled >Working...</button>;
         }
 
         return <React.Fragment>{followbtn}</React.Fragment>;
@@ -2137,31 +2153,34 @@ class Profile extends React.Component {
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <React.Fragment><div className="pt-2 border-bottom mb-1">
-                <div className="row mx-0">
-                    <div className="col-5 p-1 col-md-3 text-end">
-                        {pic}
+            me = <div className="row">
+                <div className="col">
+                    <div className="pt-2 border-bottom mb-1">
+                        <div className="row mx-0">
+                            <div className="col-5 p-1 col-md-3 text-end">
+                                {pic}
+                            </div>
+                            <div className="col-7 col-md-9 p-1">
+                                <div className="fs-6 p-1 ms-2 fw-bold">@{this.state.member.userName}</div>
+                                {name}
+                                {settings}
+                                {followhtml}
+                                {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
+                                {this.renderRequestApproval()}
+                            </div>
+                        </div>
+                        <div className="row mx-0">
+                            <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.postCount} Posts</button></div>
+                            <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>{this.state.member.followingCount} Following</button></div>
+                            <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>{this.state.member.followerCount} Followers</button></div>
+                        </div>
+                        {thought}
+                        <p>{this.state.member.bio}</p>
                     </div>
-                    <div className="col-7 col-md-9 p-1">
-                        <div className="fs-6 p-1 ms-2 fw-bold">@{this.state.member.userName}</div>
-                        {name}
-                        {settings}
-                        {followhtml}
-                        {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
-                        {this.renderRequestApproval()}
-                    </div>
+                    <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
+                    {followlist}
                 </div>
-                <div className="row mx-0">
-                    <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.postCount} Posts</button></div>
-                    <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>{this.state.member.followingCount} Following</button></div>
-                    <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>{this.state.member.followerCount} Followers</button></div>
-                </div>
-                {thought}
-                <p>{this.state.member.bio}</p>
-            </div>
-                <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
-                {followlist}
-            </React.Fragment>;
+            </div>;
         }
 
         return <React.Fragment>
@@ -2193,7 +2212,7 @@ class ManageProfile extends React.Component {
                 height: 300,
                 locked: true
             },
-            croppedImageUrl: null, profilepiczoom: 1
+            croppedImageUrl: null, profilepiczoom: 1, countryitems: []
         };
 
         this.hammer = null;
@@ -2213,6 +2232,24 @@ class ManageProfile extends React.Component {
         if (localStorage.getItem("token") !== null) {
             this.validate(localStorage.getItem("token"));
         }
+
+        this.fetchCountryItems();
+    }
+
+    fetchCountryItems() {
+        fetch('//' + window.location.host + '/api/CountryItem/', {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    console.log(data);
+                    this.setState({ countryitems: data });
+                });
+            }
+        });
     }
 
     handleChange(e) {
@@ -2661,7 +2698,255 @@ class ManageProfile extends React.Component {
                             <label htmlFor="countryselect" className="form-label">Country (Optional)</label>
                             <select className="form-select" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={() => { this.saveData("country", this.state.myself.country) }}>
                                 <option value=""></option>
-                                <option value="India">India</option>
+                                <option value="AD">Andorra</option>
+                                <option value="AE">United Arab Emirates</option>
+                                <option value="AF">Afghanistan</option>
+                                <option value="AG">Antigua and Barbuda</option>
+                                <option value="AI">Anguilla</option>
+                                <option value="AL">Albania</option>
+                                <option value="AM">Armenia</option>
+                                <option value="AO">Angola</option>
+                                <option value="AQ">Antarctica</option>
+                                <option value="AR">Argentina</option>
+                                <option value="AS">American Samoa</option>
+                                <option value="AT">Austria</option>
+                                <option value="AU">Australia</option>
+                                <option value="AW">Aruba</option>
+                                <option value="AX">Åland Islands</option>
+                                <option value="AZ">Azerbaijan</option>
+                                <option value="BA">Bosnia and Herzegovina</option>
+                                <option value="BB">Barbados</option>
+                                <option value="BD">Bangladesh</option>
+                                <option value="BE">Belgium</option>
+                                <option value="BF">Burkina Faso</option>
+                                <option value="BG">Bulgaria</option>
+                                <option value="BH">Bahrain</option>
+                                <option value="BI">Burundi</option>
+                                <option value="BJ">Benin</option>
+                                <option value="BL">Saint Barthélemy</option>
+                                <option value="BM">Bermuda</option>
+                                <option value="BN">Brunei Darussalam</option>
+                                <option value="BO">Bolivia, Plurinational State of</option>
+                                <option value="BQ">Bonaire, Sint Eustatius and Saba</option>
+                                <option value="BR">Brazil</option>
+                                <option value="BS">Bahamas</option>
+                                <option value="BT">Bhutan</option>
+                                <option value="BV">Bouvet Island</option>
+                                <option value="BW">Botswana</option>
+                                <option value="BY">Belarus</option>
+                                <option value="BZ">Belize</option>
+                                <option value="CA">Canada</option>
+                                <option value="CC">Cocos (Keeling) Islands</option>
+                                <option value="CD">Congo, the Democratic Republic of the</option>
+                                <option value="CF">Central African Republic</option>
+                                <option value="CG">Congo</option>
+                                <option value="CH">Switzerland</option>
+                                <option value="CI">Côte d'Ivoire</option>
+                                <option value="CK">Cook Islands</option>
+                                <option value="CL">Chile</option>
+                                <option value="CM">Cameroon</option>
+                                <option value="CN">China</option>
+                                <option value="CO">Colombia</option>
+                                <option value="CR">Costa Rica</option>
+                                <option value="CU">Cuba</option>
+                                <option value="CV">Cape Verde</option>
+                                <option value="CW">Curaçao</option>
+                                <option value="CX">Christmas Island</option>
+                                <option value="CY">Cyprus</option>
+                                <option value="CZ">Czech Republic</option>
+                                <option value="DE">Germany</option>
+                                <option value="DJ">Djibouti</option>
+                                <option value="DK">Denmark</option>
+                                <option value="DM">Dominica</option>
+                                <option value="DO">Dominican Republic</option>
+                                <option value="DZ">Algeria</option>
+                                <option value="EC">Ecuador</option>
+                                <option value="EE">Estonia</option>
+                                <option value="EG">Egypt</option>
+                                <option value="EH">Western Sahara</option>
+                                <option value="ER">Eritrea</option>
+                                <option value="ES">Spain</option>
+                                <option value="ET">Ethiopia</option>
+                                <option value="FI">Finland</option>
+                                <option value="FJ">Fiji</option>
+                                <option value="FK">Falkland Islands (Malvinas)</option>
+                                <option value="FM">Micronesia, Federated States of</option>
+                                <option value="FO">Faroe Islands</option>
+                                <option value="FR">France</option>
+                                <option value="GA">Gabon</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="GD">Grenada</option>
+                                <option value="GE">Georgia</option>
+                                <option value="GF">French Guiana</option>
+                                <option value="GG">Guernsey</option>
+                                <option value="GH">Ghana</option>
+                                <option value="GI">Gibraltar</option>
+                                <option value="GL">Greenland</option>
+                                <option value="GM">Gambia</option>
+                                <option value="GN">Guinea</option>
+                                <option value="GP">Guadeloupe</option>
+                                <option value="GQ">Equatorial Guinea</option>
+                                <option value="GR">Greece</option>
+                                <option value="GS">South Georgia and the South Sandwich Islands</option>
+                                <option value="GT">Guatemala</option>
+                                <option value="GU">Guam</option>
+                                <option value="GW">Guinea-Bissau</option>
+                                <option value="GY">Guyana</option>
+                                <option value="HK">Hong Kong</option>
+                                <option value="HM">Heard Island and McDonald Islands</option>
+                                <option value="HN">Honduras</option>
+                                <option value="HR">Croatia</option>
+                                <option value="HT">Haiti</option>
+                                <option value="HU">Hungary</option>
+                                <option value="ID">Indonesia</option>
+                                <option value="IE">Ireland</option>
+                                <option value="IL">Israel</option>
+                                <option value="IM">Isle of Man</option>
+                                <option value="IN">India</option>
+                                <option value="IO">British Indian Ocean Territory</option>
+                                <option value="IQ">Iraq</option>
+                                <option value="IR">Iran, Islamic Republic of</option>
+                                <option value="IS">Iceland</option>
+                                <option value="IT">Italy</option>
+                                <option value="JE">Jersey</option>
+                                <option value="JM">Jamaica</option>
+                                <option value="JO">Jordan</option>
+                                <option value="JP">Japan</option>
+                                <option value="KE">Kenya</option>
+                                <option value="KG">Kyrgyzstan</option>
+                                <option value="KH">Cambodia</option>
+                                <option value="KI">Kiribati</option>
+                                <option value="KM">Comoros</option>
+                                <option value="KN">Saint Kitts and Nevis</option>
+                                <option value="KP">Korea, Democratic People's Republic of</option>
+                                <option value="KR">Korea, Republic of</option>
+                                <option value="KW">Kuwait</option>
+                                <option value="KY">Cayman Islands</option>
+                                <option value="KZ">Kazakhstan</option>
+                                <option value="LA">Lao People's Democratic Republic</option>
+                                <option value="LB">Lebanon</option>
+                                <option value="LC">Saint Lucia</option>
+                                <option value="LI">Liechtenstein</option>
+                                <option value="LK">Sri Lanka</option>
+                                <option value="LR">Liberia</option>
+                                <option value="LS">Lesotho</option>
+                                <option value="LT">Lithuania</option>
+                                <option value="LU">Luxembourg</option>
+                                <option value="LV">Latvia</option>
+                                <option value="LY">Libya</option>
+                                <option value="MA">Morocco</option>
+                                <option value="MC">Monaco</option>
+                                <option value="MD">Moldova, Republic of</option>
+                                <option value="ME">Montenegro</option>
+                                <option value="MF">Saint Martin (French part)</option>
+                                <option value="MG">Madagascar</option>
+                                <option value="MH">Marshall Islands</option>
+                                <option value="MK">Macedonia, the Former Yugoslav Republic of</option>
+                                <option value="ML">Mali</option>
+                                <option value="MM">Myanmar</option>
+                                <option value="MN">Mongolia</option>
+                                <option value="MO">Macao</option>
+                                <option value="MP">Northern Mariana Islands</option>
+                                <option value="MQ">Martinique</option>
+                                <option value="MR">Mauritania</option>
+                                <option value="MS">Montserrat</option>
+                                <option value="MT">Malta</option>
+                                <option value="MU">Mauritius</option>
+                                <option value="MV">Maldives</option>
+                                <option value="MW">Malawi</option>
+                                <option value="MX">Mexico</option>
+                                <option value="MY">Malaysia</option>
+                                <option value="MZ">Mozambique</option>
+                                <option value="NA">Namibia</option>
+                                <option value="NC">New Caledonia</option>
+                                <option value="NE">Niger</option>
+                                <option value="NF">Norfolk Island</option>
+                                <option value="NG">Nigeria</option>
+                                <option value="NI">Nicaragua</option>
+                                <option value="NL">Netherlands</option>
+                                <option value="NO">Norway</option>
+                                <option value="NP">Nepal</option>
+                                <option value="NR">Nauru</option>
+                                <option value="NU">Niue</option>
+                                <option value="NZ">New Zealand</option>
+                                <option value="OM">Oman</option>
+                                <option value="PA">Panama</option>
+                                <option value="PE">Peru</option>
+                                <option value="PF">French Polynesia</option>
+                                <option value="PG">Papua New Guinea</option>
+                                <option value="PH">Philippines</option>
+                                <option value="PK">Pakistan</option>
+                                <option value="PL">Poland</option>
+                                <option value="PM">Saint Pierre and Miquelon</option>
+                                <option value="PN">Pitcairn</option>
+                                <option value="PR">Puerto Rico</option>
+                                <option value="PS">Palestine, State of</option>
+                                <option value="PT">Portugal</option>
+                                <option value="PW">Palau</option>
+                                <option value="PY">Paraguay</option>
+                                <option value="QA">Qatar</option>
+                                <option value="RE">Réunion</option>
+                                <option value="RO">Romania</option>
+                                <option value="RS">Serbia</option>
+                                <option value="RU">Russian Federation</option>
+                                <option value="RW">Rwanda</option>
+                                <option value="SA">Saudi Arabia</option>
+                                <option value="SB">Solomon Islands</option>
+                                <option value="SC">Seychelles</option>
+                                <option value="SD">Sudan</option>
+                                <option value="SE">Sweden</option>
+                                <option value="SG">Singapore</option>
+                                <option value="SH">Saint Helena, Ascension and Tristan da Cunha</option>
+                                <option value="SI">Slovenia</option>
+                                <option value="SJ">Svalbard and Jan Mayen</option>
+                                <option value="SK">Slovakia</option>
+                                <option value="SL">Sierra Leone</option>
+                                <option value="SM">San Marino</option>
+                                <option value="SN">Senegal</option>
+                                <option value="SO">Somalia</option>
+                                <option value="SR">Suriname</option>
+                                <option value="SS">South Sudan</option>
+                                <option value="ST">Sao Tome and Principe</option>
+                                <option value="SV">El Salvador</option>
+                                <option value="SX">Sint Maarten (Dutch part)</option>
+                                <option value="SY">Syrian Arab Republic</option>
+                                <option value="SZ">Swaziland</option>
+                                <option value="TC">Turks and Caicos Islands</option>
+                                <option value="TD">Chad</option>
+                                <option value="TF">French Southern Territories</option>
+                                <option value="TG">Togo</option>
+                                <option value="TH">Thailand</option>
+                                <option value="TJ">Tajikistan</option>
+                                <option value="TK">Tokelau</option>
+                                <option value="TL">Timor-Leste</option>
+                                <option value="TM">Turkmenistan</option>
+                                <option value="TN">Tunisia</option>
+                                <option value="TO">Tonga</option>
+                                <option value="TR">Turkey</option>
+                                <option value="TT">Trinidad and Tobago</option>
+                                <option value="TV">Tuvalu</option>
+                                <option value="TW">Taiwan, Province of China</option>
+                                <option value="TZ">Tanzania, United Republic of</option>
+                                <option value="UA">Ukraine</option>
+                                <option value="UG">Uganda</option>
+                                <option value="UM">United States Minor Outlying Islands</option>
+                                <option value="US">United States</option>
+                                <option value="UY">Uruguay</option>
+                                <option value="UZ">Uzbekistan</option>
+                                <option value="VA">Holy See (Vatican City State)</option>
+                                <option value="VC">Saint Vincent and the Grenadines</option>
+                                <option value="VE">Venezuela, Bolivarian Republic of</option>
+                                <option value="VG">Virgin Islands, British</option>
+                                <option value="VI">Virgin Islands, U.S.</option>
+                                <option value="VN">Viet Nam</option>
+                                <option value="VU">Vanuatu</option>
+                                <option value="WF">Wallis and Futuna</option>
+                                <option value="WS">Samoa</option>
+                                <option value="YE">Yemen</option>
+                                <option value="YT">Mayotte</option>
+                                <option value="ZA">South Africa</option>
+                                <option value="ZM">Zambia</option>
+                                <option value="ZW">Zimbabwe</option>
                             </select>
                         </div>
                     </div>
@@ -2669,7 +2954,7 @@ class ManageProfile extends React.Component {
 
                         <button className="btn btn-link text-dark mx-2" onClick={() => {
                             localStorage.clear();
-                            location.reload();
+                            location.href = '//' + location.host;
                         }}>Logout</button>
                     </div>
                 </div>
@@ -3151,6 +3436,52 @@ class SuggestedAccounts extends React.Component {
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), list: []
         };
+        this.fetchRecommended = this.fetchRecommended.bind(this);
+    }
+
+    componentDidMount() {
+        this.fetchRecommended();
+    }
+
+    fetchRecommended() {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Follow/Recommended', {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        console.log("recommended");
+                        console.log(data);
+                        this.setState({ loading: false, list: data, bsstyle: '', message: '' });
+                    });
+                } else if (response.status === 500) {
+                    this.setState({ bsstyle: 'danger', message: 'Unable to process this request', loading: false });
+                }
+            }).catch(() => {
+                this.setState({ bsstyle: 'danger', message: 'Unable to process this request, check your internet connection.', loading: false });
+            });
+    }
+
+    renderResult() {
+        let items = [];
+        for (let k in this.state.list) {
+            items.push(<li key={k} className="list-group-item border-0 border-bottom p-2"><MemberSmallRow member={this.state.list[k]} /></li>)
+        }
+        if (items.length > 0) {
+            return <ul className="list-group list-group-flush">
+                {items}
+            </ul>;
+        }
+        else {
+            return null;
+        }
     }
 
     render() {
@@ -3160,6 +3491,7 @@ class SuggestedAccounts extends React.Component {
                     <div className="col-7">Suggested Accounts</div>
                     <div className="col text-end"><button type="button" className="btn btn-light btn-sm">See all</button></div>
                 </div>
+                {this.renderResult()}
             </React.Fragment>;
         } else {
             return null;

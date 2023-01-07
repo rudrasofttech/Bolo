@@ -4,23 +4,25 @@
 }
 <div class="row">
     <div class="col-md-8" id="home"></div>
-    <div class="col-md-4" style="position: -webkit-sticky; position: sticky; top: 0;">
-        <div class="d-none p-1 rounded-3 mt-1 mb-2 bg-white" id="askNotificationPermissionModal">
-            <div class="text-center">
-                <div class="my-1 fw-bold">Would you like to receive notifications?</div>
-                <button id="PromptForAccessBtn" class="btn btn-primary my-2">Send Me Notification</button>
+    <div class="col-md-4" >
+        <div style="position: -webkit-sticky; position: sticky; top: 90;">
+            <div class="d-none p-1 rounded-3 mt-1 mb-2 bg-white" id="askNotificationPermissionModal">
+                <div class="text-center">
+                    <div class="my-1 fw-bold">Would you like to receive notifications?</div>
+                    <button id="PromptForAccessBtn" class="btn btn-primary my-2">Send Me Notification</button>
+                </div>
+                <div id="NoSupport" class="d-none alert alert-danger text-center my-2" role="alert">
+                    Your browser does not support Push Notifications or you have blocked notifications
+                </div>
+                <form asp-controller="Home" asp-action="SubscribeNotification" id="notificationaccessform" class="d-none">
+                    <input id="endpoint" name="endpoint" hidden />
+                    <input id="p256dh" name="p256dh" hidden />
+                    <input id="auth" name="auth" hidden />
+                </form>
             </div>
-            <div id="NoSupport" class="d-none alert alert-danger text-center my-2" role="alert">
-                Your browser does not support Push Notifications or you have blocked notifications
+            <div id="sendinvitecont"></div>
+            <div id="suggestedaccounts">
             </div>
-            <form asp-controller="Home" asp-action="SubscribeNotification" id="notificationaccessform" class="d-none">
-                <input id="endpoint" name="endpoint" hidden />
-                <input id="p256dh" name="p256dh" hidden />
-                <input id="auth" name="auth" hidden />
-            </form>
-        </div>
-        <div id="sendinvitecont"></div>
-        <div id="suggestedaccounts">
         </div>
     </div>
 </div>
