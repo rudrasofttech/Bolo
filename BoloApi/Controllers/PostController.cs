@@ -3,13 +3,17 @@ using Bolo.Helper;
 using Bolo.Hubs;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Org.BouncyCastle.Asn1.Crmf;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -26,11 +30,12 @@ namespace Bolo.Controllers
         private readonly BoloContext _context;
         private readonly IConfiguration _config;
         private readonly NotificationHelper nhelper;
-        
-        public PostController(BoloContext context, IConfiguration config, IHubContext<UniversalHub> uhub)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public PostController(BoloContext context, IConfiguration config, IHubContext<UniversalHub> uhub, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _config = config;
+            _webHostEnvironment = webHostEnvironment;
             nhelper = new NotificationHelper(context, uhub);
         }
 
@@ -139,14 +144,25 @@ namespace Bolo.Controllers
         [Route("explore")]
         public PostsPaged Explore([FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
-            var query = _context.Reactions.Include(t => t.Post).Include(t => t.Post.Owner).Include(t => t.Post.Photos).GroupBy(t => t.Post)
-                    .Select(t => new PostDTO(t.Key) { ReactionCount = t.Count() }).OrderByDescending(t => t.ReactionCount).OrderByDescending(t => t.PostDate);
+            /*
+             * SELECT MP.ID FROM MemberPost AS MP INNER JOIN
+                  Member AS M ON MP.OwnerID = M.ID LEFT OUTER JOIN
+                  MemberComment AS MC ON MP.ID = MC.PostID LEFT OUTER JOIN
+                  MemberReaction AS MR ON MP.ID = MR.PostID
+GROUP BY MP.ID, MP.PostDate, M.Visibility
+HAVING (M.Visibility = 2)
+ORDER BY MP.PostDate DESC, COUNT(MR.ID) DESC, COUNT(MC.ID) DESC
+             */
+            //var query = _context.Reactions.Include(t => t.Post).Include(t => t.Post.Owner).Include(t => t.Post.Photos).GroupBy(t => t.Post)
+            //        .Select(t => new PostDTO(t.Key) { ReactionCount = t.Count() }).OrderByDescending(t => t.ReactionCount).OrderByDescending(t => t.PostDate);
+            List<int> queryview = _context.DiscoverPostView.Skip(ps * p).Take(ps).Select(t => t.ID).ToList();
+            var query = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => queryview.Contains(t.ID)).Select(t=> new PostDTO(t)).ToList();
             PostsPaged result = new PostsPaged()
             {
                 Current = p,
                 PageSize = ps,
-                Total = query.Count(),
-                Posts = query.Skip(ps * p).Take(ps).ToList()
+                Total = _context.DiscoverPostView.Count(),
+                Posts = query
             };
             return result;
         }
@@ -263,7 +279,19 @@ namespace Bolo.Controllers
                 };
                 foreach (string s in value.Photos.Where(t => !string.IsNullOrEmpty(t)))
                 {
-                    p.Photos.Add(new PostPhoto() { Photo = s });
+                    string substr = s.Substring(s.IndexOf(";base64,") + 8, s.Length - (s.IndexOf(";base64,") + 8));
+                    byte[] data = System.Convert.FromBase64String(substr);
+                    string filename = string.Format("{0}.jpg", Guid.NewGuid().ToString());
+                    string webRootPath = _webHostEnvironment.WebRootPath;
+                    string abspath = Path.Combine(webRootPath, "photos", filename);
+                    string relpath = string.Format("photos/{0}", filename);
+                    using (var stream = new MemoryStream(data, 0, data.Length))
+                    {
+                        System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
+                        image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        
+                    }
+                    p.Photos.Add(new PostPhoto() { Photo = relpath });
                 }
                 _context.Posts.Add(p);
                 if (!string.IsNullOrEmpty(p.Describe))
@@ -454,9 +482,18 @@ namespace Bolo.Controllers
                     _context.Notifications.RemoveRange(notifications);
 
                     _context.PostPhotos.RemoveRange(p.Photos);
+                    
                     _context.Posts.Remove(p);
+                    await _context.SaveChangesAsync();
+                    foreach(var photo in p.Photos)
+                    {
+                        if(System.IO.File.Exists(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo)))
+                        {
+                            System.IO.File.Delete(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo));
+                        }
+                    }
                 }
-                await _context.SaveChangesAsync();
+                
                 return Ok();
             }
             catch (Exception ex)

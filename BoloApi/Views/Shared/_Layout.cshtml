@@ -22,7 +22,7 @@
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/custom.css" rel="stylesheet" />
     <link href="~/css/ReactCrop.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <script src="~/libs/jquery-3.6.0.min.js"></script>
     <script src="~/libs/react.development.js"></script>
     <script src="~/libs/react-dom.development.js"></script>
@@ -39,38 +39,51 @@
                 <table cellpadding="5" cellspacing="0" style="width:100%">
                     <tbody>
                         <tr>
-                            <td>
-                                <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold">Waarta</a>
+                            <td width="70%" style="max-width:70%">
+                                <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold">Home</a>
                             </td>
-                            <td align="right" valign="middle" width="100px">
-                                <button type="button" class="btn btn-link text-decoration-none text-dark fs-3 notificationcountcnt position-relative" title="Notifications" data-bs-toggle="modal" data-bs-target="#NotificationModal"></button>
+                            <td align="center" valign="middle">
+                                <a href="javascript:void(0)" class="text-dark mx-2 fs-5" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
                             </td>
-                            <td align="center" valign="middle" width="55px">
-                                <a class="text-dark fs-3" href="@Url.Content("~/")" title="Home"><i class="bi bi-house"></i></a>
+                            <td align="center" valign="middle">
+                                <a class="text-dark mx-2 fs-5" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
                             </td>
-                            <td align="center" valign="middle" width="55px">
-                                <a class="text-dark fs-3" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
+                            <td align="center" valign="middle">
+                                <a class="text-dark mx-2 fs-5" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
                             </td>
 
-                            <td align="center" valign="middle" width="55px">
-                                <a class="text-dark fs-3" href="@Url.Content("~/profile/")" title="Profile" id="profilemenuanchor">
-                                    <script>
-                                        try {
-                                            var member = JSON.parse(localStorage.getItem("myself"));
-                                            if (member.pic !== "") {
-                                                document.write("<img src='" + member.pic + "' class='profile-icon rounded' />");
-                                            } else {
+                            <td align="center" valign="middle">
+                                <div class="dropdown">
+                                    <a class="btn btn-link text-dark fs-5 text-decoration-none notificationcountcnt position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
+                                        <script>
+                                            try {
+                                                var member = JSON.parse(localStorage.getItem("myself"));
+                                                if (member.pic !== "") {
+                                                    document.write("<img src='" + member.pic + "' class='profile-icon    rounded' />");
+                                                } else {
+                                                    document.write('<i class="bi bi-person-square"></i>');
+                                                }
+                                            } catch (err) {
                                                 document.write('<i class="bi bi-person-square"></i>');
                                             }
-                                        } catch (err) {
-                                            document.write('<i class="bi bi-person-square"></i>');
-                                        }
-                                    </script>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="5" class="p-2" align="left" valign="middle" id="search" height="49px">
+                                        </script>
+                                    </a>
+
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal"><i class="bi bi-bell"></i> Notifications <span class="notificationcount badge rounded-pill bg-danger"></span></a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="@Url.Content("~/ignored")"><i class="bi bi-sign-stop"></i> Ignored</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -106,8 +119,20 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="SearchModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="notificationModalLabel"><i class="bi bi-search"></i> Search</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="search"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    
     <script src="~/libs/dayjs/dayjs.min.js"></script>
     <script src="~/libs/dayjs/plugin/utc.min.js"></script>
     <script src="~/libs/signalr.min.js"></script>
@@ -138,14 +163,14 @@
         if (localStorage.getItem("token") !== null) {
             sgrkr.showNotificationPermissionModal();
         }
-        
+
         document.getElementById('NotificationModal').addEventListener('shown.bs.modal', event => {
             console.log("shown.bs.modal");
             sgrkr.setSeenAllNotification();
         });
         $(document).ready(function () {
             sgrkr.getNotifications();
-            
+
         });
     </script>
     <environment include="Development">

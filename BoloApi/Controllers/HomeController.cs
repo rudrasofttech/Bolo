@@ -42,6 +42,12 @@ namespace Bolo.Controllers
             return View();
         }
 
+        [Route("discover")]
+        public IActionResult Discover()
+        {
+            return View();
+        }
+
         [Route("updateprofile")]
         public IActionResult UpdateProfile()
         {

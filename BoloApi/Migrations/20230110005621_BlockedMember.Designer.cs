@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20230110005621_BlockedMember")]
+    partial class BlockedMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,6 +21,31 @@ namespace Bolo.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("Bolo.Models.BlockedMember", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("BlockedID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("BlockedID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("BlockedMember");
+                });
 
             modelBuilder.Entity("Bolo.Models.ChatMessage", b =>
                 {
@@ -85,14 +112,6 @@ namespace Bolo.Migrations
                     b.ToTable("Contact");
                 });
 
-            modelBuilder.Entity("Bolo.Models.DiscoverPostView", b =>
-                {
-                    b.Property<int>("ID")
-                        .HasColumnType("int");
-
-                    b.ToView("DiscoverPostView");
-                });
-
             modelBuilder.Entity("Bolo.Models.HashTag", b =>
                 {
                     b.Property<int>("ID")
@@ -113,31 +132,6 @@ namespace Bolo.Migrations
                     b.HasIndex("PostID");
 
                     b.ToTable("HashTag");
-                });
-
-            modelBuilder.Entity("Bolo.Models.IgnoredMember", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("IgnoredID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UserID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("IgnoredID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("IgnoredMember");
                 });
 
             modelBuilder.Entity("Bolo.Models.Member", b =>
@@ -457,6 +451,21 @@ namespace Bolo.Migrations
                     b.ToTable("PushNotificationWebApp");
                 });
 
+            modelBuilder.Entity("Bolo.Models.BlockedMember", b =>
+                {
+                    b.HasOne("Bolo.Models.Member", "Blocked")
+                        .WithMany()
+                        .HasForeignKey("BlockedID");
+
+                    b.HasOne("Bolo.Models.Member", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
+                    b.Navigation("Blocked");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Bolo.Models.ChatMessage", b =>
                 {
                     b.HasOne("Bolo.Models.Member", "SentBy")
@@ -494,21 +503,6 @@ namespace Bolo.Migrations
                         .HasForeignKey("PostID");
 
                     b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("Bolo.Models.IgnoredMember", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", "Ignored")
-                        .WithMany()
-                        .HasForeignKey("IgnoredID");
-
-                    b.HasOne("Bolo.Models.Member", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
-
-                    b.Navigation("Ignored");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberComment", b =>

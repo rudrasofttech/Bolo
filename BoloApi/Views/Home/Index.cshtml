@@ -2,14 +2,18 @@
     ViewData["Title"] = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="row">
+<div class="row mt-1">
     <div class="col-md-8" id="home"></div>
     <div class="col-md-4" >
         <div style="position: -webkit-sticky; position: sticky; top: 90;">
-            <div class="d-none p-1 rounded-3 mt-1 mb-2 bg-white" id="askNotificationPermissionModal">
+            
+            <div id="sendinvitecont"></div>
+            <div id="suggestedaccounts">
+            </div>
+            @*<div class="d-none p-1 rounded-3 mb-2 bg-white" id="askNotificationPermissionModal">
                 <div class="text-center">
                     <div class="my-1 fw-bold">Would you like to receive notifications?</div>
-                    <button id="PromptForAccessBtn" class="btn btn-primary my-2">Send Me Notification</button>
+                    <button id="PromptForAccessBtn" class="btn btn-light my-2">Allow Notification</button>
                 </div>
                 <div id="NoSupport" class="d-none alert alert-danger text-center my-2" role="alert">
                     Your browser does not support Push Notifications or you have blocked notifications
@@ -19,10 +23,7 @@
                     <input id="p256dh" name="p256dh" hidden />
                     <input id="auth" name="auth" hidden />
                 </form>
-            </div>
-            <div id="sendinvitecont"></div>
-            <div id="suggestedaccounts">
-            </div>
+            </div>*@
         </div>
     </div>
 </div>

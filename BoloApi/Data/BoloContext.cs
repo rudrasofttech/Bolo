@@ -13,7 +13,6 @@ namespace Bolo.Data
         public BoloContext(DbContextOptions<BoloContext> options) : base(options)
         {
         }
-        public DbSet<CountryItem> CountryItems { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<Contact> Contacts { get; set; }
@@ -23,13 +22,16 @@ namespace Bolo.Data
         public DbSet<MemberReaction> Reactions { get; set; }
         public DbSet<MemberComment> Comments { get; set; }
         public DbSet<HashTag> HashTags { get; set; }
+        public DbSet<IgnoredMember> IgnoredMembers { get; set; }
 
         public DbSet<PushNotificationWebApp> PushNotificationWebApps { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+
+        public DbSet<DiscoverPostView> DiscoverPostView { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
-            modelBuilder.Entity<CountryItem>().ToTable("CountryItem");
+            modelBuilder.Entity<IgnoredMember>().ToTable("IgnoredMember");
             modelBuilder.Entity<Member>().ToTable("Member");
             modelBuilder.Entity<ChatMessage>().ToTable("ChatMessage");
             modelBuilder.Entity<Contact>().ToTable("Contact");
@@ -41,6 +43,8 @@ namespace Bolo.Data
             modelBuilder.Entity<HashTag>().ToTable("HashTag");
             modelBuilder.Entity<Notification>().ToTable("Notification");
             modelBuilder.Entity<PushNotificationWebApp>().ToTable("PushNotificationWebApp");
+
+            modelBuilder.Entity<DiscoverPostView>().ToView("DiscoverPostView").HasNoKey();
         }
     }
 }

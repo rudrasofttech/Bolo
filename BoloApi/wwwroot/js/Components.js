@@ -638,16 +638,46 @@ class MemberPost extends React.Component {
         });
     }
 
+    ignoreMember = () => {
+        fetch('//' + window.location.host + '/api/ignored/' + this.state.post.owner.id, {
+            method: 'post',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+             if (response.status === 200) {
+                response.text().then(data => {
+                    //console.log(data);
+                    if (data == "false") { } else if (data == "true") {
+                        if (this.props.onIgnoredMember !== undefined && this.props.onIgnoredMember !== null) {
+                            this.props.onIgnoredMember(this.state.post.owner.id);
+                        }
+                    }
+                });
+            } 
+        });
+    }
+
     renderPostOptions() {
         if (this.state.showpostoptions) {
-            let btn = null;
+            let deletebtn = null; let ignoreaccbtn = null;
             if (this.state.post.owner.id === this.state.myself.id)
-                btn = <div className="text-center mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.deletePost(); }}>Delete Post</button></div>;
+                deletebtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.deletePost(); }}>Delete Post</button></div>;
+
+            if (this.state.post.owner.id !== this.state.myself.id) {
+                ignoreaccbtn = <div className="text-center mb-1 p-1">
+                    <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.ignoreMember(); }}>Ignore Member</button>
+                </div>;
+            }
             return <div className="modal d-block" tabIndex="-1">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-body">
-                            {btn}
+                            {deletebtn}
+                            <div className="text-center  border-bottom mb-1 p-1">
+                                <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger">Report Post</button>
+                            </div>
+                            {ignoreaccbtn}
                         </div>
                         <div className="modal-footer text-center">
                             <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showpostoptions: false }) }} data-bs-dismiss="modal">Close</button>
@@ -698,23 +728,21 @@ class MemberPost extends React.Component {
         } else if (p.photos) {
             if (p.photos.length == 1) {
                 postshtml = <div className="text-center">
-                    <img src={p.photos[0].photo} className="img-fluid w-100 py-1" onDoubleClick={() => { this.addReaction(); }} />
+                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100 py-1" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
                 var imgs = [], imgs2 = [];
                 for (var i in p.photos) {
                     imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0">
-                        <div className="postdiv" style={{ backgroundImage: "url(" + p.photos[i].photo + ")" }}>
+                        <div className="postdiv" style={{ backgroundImage: "url(//" + location.host + "/" + p.photos[i].photo + ")" }}>
                             <img src={p.photos[i].photo} style={{ opacity: 0, maxHeight: "450px", maxWidth: "450px" }} />
                         </div></li>);
                     imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
                 }
-                postshtml = <div>
-                    <div className="table-responsive">
+                postshtml = <div className="table-responsive my-1">
                         <ul className="list-group list-group-horizontal" onDoubleClick={() => { this.addReaction(); }}>
                             {imgs}
-                        </ul></div>
-                </div>;
+                        </ul></div>;
                 //postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
             }
         }
@@ -1047,7 +1075,8 @@ class MemberPostList extends React.Component {
 
         if (this.state.q === "userfeed")
             url = '//' + window.location.host + '/api/post/feed?p=' + this.state.p;
-
+        else if (this.state.q === "explore")
+            url = '//' + window.location.host + '/api/post/explore';
         fetch(url, {
             method: 'get',
             headers: {
@@ -1099,7 +1128,12 @@ class MemberPostList extends React.Component {
             let items = []
             if (this.state.model !== null) {
                 for (var k in this.state.posts) {
-                    items.push(<MemberPost key={this.state.posts[k].id} post={this.state.posts[k]} ondelete={this.postDeleted} />);
+                    items.push(<MemberPost key={this.state.posts[k].id} post={this.state.posts[k]} ondelete={this.postDeleted} onIgnoredMember={(userid) => {
+                        this.setState({
+                            posts:
+                                this.state.posts.filter(t => t.owner.id !== userid)
+                        });
+                    }} />);
                 }
             }
             if (items.length == 0) {
@@ -1111,8 +1145,8 @@ class MemberPostList extends React.Component {
             for (var k in this.state.posts) {
                 var p = this.state.posts[k];
                 if (p.videoURL !== "") { } else {
-                    items.push(<div className="col" key={p.id}><div className="card h-100 border-0 rounded-0 pointer imgbg" style={{ backgroundImage: "url(" + p.photos[0].photo + ")" }} >
-                        <img src={p.photos[0].photo} className="card-img border-0 rounded-0" style={{ opacity: 0, padding: "1px" }} data-postid={p.id} onClick={(e) => {
+                    items.push(<div className="col" key={p.id}><div className="card h-100  rounded-0 pointer imgbg" style={{ backgroundImage: "url(//" + window.location.host + "/" + p.photos[0].photo + ")" }} >
+                        <img src={"//" + window.location.host + "/" + p.photos[0].photo} className="card-img border-0 rounded-0" style={{ opacity: 0, padding: "1px" }} data-postid={p.id} onClick={(e) => {
                             this.selectPost(e.target.getAttribute("data-postid"));
                         }} />
                     </div></div>);
@@ -1396,7 +1430,7 @@ class MemberPicSmall extends React.Component {
 
     render() {
         var memberpic = this.state.member.pic !== "" ? <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0">
-            <img src={this.state.member.pic} className="d-inline-block img-fluid pointer rounded-1 owner-thumb-small" alt="" /></a>
+            <img src={this.state.member.pic} className="d-inline-Ignore img-fluid pointer rounded-1 owner-thumb-small" alt="" /></a>
             : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0 text-secondary">
                 <img src={'//' + location.host + '/images/nopic.jpg'} alt="No Pic" className="d-inline-block img-fluid pointer rounded-1 owner-thumb-small" /></a>;
 
@@ -1911,14 +1945,15 @@ class Profile extends React.Component {
     componentDidMount() {
         if (localStorage.getItem("token") !== null) {
             this.validate(localStorage.getItem("token"));
-        }
-        if (this.props.username == undefined || this.props.username == null || this.props.username == "") {
-            //this.setState({ member: JSON.parse(localStorage.getItem("myself")) });
-            this.loadMember(localStorage.getItem("token"), JSON.parse(localStorage.getItem("myself")).id);
-        } else {
-            this.loadMember(localStorage.getItem("token"), this.props.username);
+            if (this.props.username == undefined || this.props.username == null || this.props.username == "") {
+                //this.setState({ member: JSON.parse(localStorage.getItem("myself")) });
+                this.loadMember(localStorage.getItem("token"), JSON.parse(localStorage.getItem("myself")).id);
+            } else {
+                this.loadMember(localStorage.getItem("token"), this.props.username);
 
+            }
         }
+        
     }
 
     loadMember(t, username) {
@@ -2950,13 +2985,6 @@ class ManageProfile extends React.Component {
                             </select>
                         </div>
                     </div>
-                    <div className="p-2 mt-3 border text-end bg-light sticky-bottom">
-
-                        <button className="btn btn-link text-dark mx-2" onClick={() => {
-                            localStorage.clear();
-                            location.href = '//' + location.host;
-                        }}>Logout</button>
-                    </div>
                 </div>
             </React.Fragment>;
         } else {
@@ -3161,7 +3189,7 @@ class RegisterForm extends React.Component {
                 </div>
             </div>;
         return <div className="row align-items-center justify-items-center mt-3">
-            <div className="col-lg-9">
+            <div className="col-lg-6">
                 {formcontents}
             </div>
         </div>;

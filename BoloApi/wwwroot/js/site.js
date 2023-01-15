@@ -277,10 +277,14 @@ class SiteGeneralWorker {
 
     renderNotifications() {
         let count = this.notifications.filter(t => !t.seen).length;
-        if (count > 0)
-            $(".notificationcountcnt").html('<i class="bi bi-bell"></i><span style="top:8px; font-size:13px;" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger">'+ count +' <span class="visually-hidden">unread messages</span></span>');
-        else
-            $(".notificationcountcnt").html('<i class="bi bi-bell"></i>');
+        if (count > 0) {
+            $(".notificationcountcnt").append('<span style="top:8px; font-size:13px;" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger">' + count + ' <span class="visually-hidden">unread messages</span></span>');
+            $(".notificationcount").html(count);
+        }
+        else {
+            $(".notificationcountcnt").find(".rounded-pill").remove();
+            $(".notificationcount").html("");
+        }
 
         if (this.notifications.length > 0) {
             bind(document.querySelector("#notificationscont"))`

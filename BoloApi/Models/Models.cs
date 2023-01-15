@@ -296,14 +296,16 @@ namespace Bolo.Models
         public string Auth { get; set; } = string.Empty;
     }
 
-    public class CountryItem
+    public class IgnoredMember
     {
         public int ID { get; set; }
-        [MaxLength(2)]
-        [Required]
-        public string Code { get; set; } = string.Empty;
-        [MaxLength(50)]
-        [Required]
-        public string Name { get; set; } = string.Empty;
+        public Member User { get; set; }
+        public Member Ignored { get; set; }
+        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+    }
+
+    public class DiscoverPostView
+    {
+        public int ID { get; set; }
     }
 }
