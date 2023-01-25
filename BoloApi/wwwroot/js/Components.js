@@ -1,4 +1,118 @@
-﻿class App extends React.Component {
+﻿class IgnoredUsers extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin,
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            q: '', items: []
+        };
+    }
+
+    componentDidMount() {
+        this.fetchData();
+    }
+
+    fetchData = () => {
+        this.setState({ loading: true });
+        let url = '//' + window.location.host + '/api/Ignored?q=' + this.state.q;
+        fetch(url, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        }).then(response => {
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                this.setState({ loggedin: false, loading: false });
+            } else if (response.status === 200) {
+                response.json().then(data => {
+                    console.log(data);
+                    this.setState({ loggedin: true, loading: false, items: data });
+                });
+            }
+        });
+    };
+
+    removeMember = (userid) => {
+        this.setState({ loading: true });
+        let url = '//' + window.location.host + '/api/Ignored/remove/' + userid;
+        fetch(url, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        }).then(response => {
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                this.setState({ loggedin: false, loading: false });
+            } else if (response.status === 200) {
+                response.text().then(data => {
+                    console.log(data);
+                    if (data === "true") {
+                        this.setState({ loading: false, items: this.state.items.filter(t => t.id !== userid) });
+                    }
+                });
+            }
+        });
+    }
+    render() {
+        if (!this.state.loggedin) {
+            return <RegisterForm beginWithRegister={false} onLogin={() => {
+                this.setState({
+                    loggedin: localStorage.getItem("token") === null ? false : true,
+                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                })
+            }} />;
+        }
+
+        let temp = [];
+        for (let k in this.state.items) {
+            temp.push(<table key={this.state.items[k].id} className="w-100 mb-2 border-bottom" cellPadding="0" cellSpacing="0">
+                <tbody>
+                    <tr>
+                        <td width="35px" className="p-1" align="center" valign="middle">
+                            <MemberPicSmall member={this.state.items[k]} />
+                        </td>
+                        <td>
+                            <a href={'//' + window.location.host + '/profile?un=' + this.state.items[k].userName} className="text-dark text-decoration-none">
+                                {this.state.items[k].userName}
+                            </a>
+                        </td>
+                        <td width="100px" align="right">
+                            <button className="btn btn-secondary" data-userid={this.state.items[k].id} onClick={(e) => { this.removeMember(e.target.getAttribute("data-userid")) }} type="button">Remove</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>)
+        }
+        if (temp.length === 0) {
+            temp.push(<table className="w-100 mb-1" cellPadding="0" cellSpacing="0">
+                <tbody>
+                    <tr>
+                        <td align="center" valign="middle">
+                            No ignored members found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>)
+        }
+        return <div className="bg-white px-2">
+            <h3 className="text-center">Ignored Members</h3>
+            {temp}
+        </div>;
+
+    }
+}
+
+class App extends React.Component {
 
     constructor(props) {
         super(props);
@@ -372,7 +486,7 @@ class Home extends React.Component {
             loading: null, loggedin: loggedin,
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             bsstyle: '', message: '',
-            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), search: this.props.search !== "" ? this.props.search : "userfeed"
         };
     }
 
@@ -387,7 +501,7 @@ class Home extends React.Component {
             }} />;
         }
 
-        return <React.Fragment><MemberPostList search="userfeed" viewMode={2} viewModeAllowed="false" /></React.Fragment>;
+        return <React.Fragment><MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" /></React.Fragment>;
     }
 }
 
@@ -482,7 +596,7 @@ class Search extends React.Component {
             } else if (p.hashtag) {
                 items.push(<li key={i} className="list-group-item border-0 border-bottom p-2">
                     <div>
-                        <a className="text-dark fw-bold text-decoration-none" href={'//' + window.location.host + '/post?q=%23' + p.hashtag.tag}>#{p.hashtag.tag}</a>
+                        <a className="text-dark fw-bold text-decoration-none" href={'//' + window.location.host + '/?q=%23' + p.hashtag.tag}>#{p.hashtag.tag}</a>
                         <div>{p.hashtag.postCount} Posts</div>
                     </div>
                 </li>);
@@ -545,7 +659,7 @@ class MemberPost extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : '',
-            showCommentBox: false, showpostoptions: false
+            showCommentBox: false, showpostoptions: false, showeditform: false
         };
 
         this.addReaction = this.addReaction.bind(this);
@@ -592,6 +706,38 @@ class MemberPost extends React.Component {
 
                 }
             });
+    }
+
+    editPost = () => {
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/post/edit/' + this.state.post.id, {
+            method: 'post',
+            body: JSON.stringify({ describe: this.state.post.describe, acceptComment: this.state.post.acceptComment }),
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token"),
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.status === 401) {
+                //if token is not valid than remove token, set myself object with empty values
+                localStorage.removeItem("token");
+                this.setState({ loggedin: false, loading: false });
+            } else if (response.status === 200) {
+                this.setState({ loading: false, message: '', bsstyle: '', showeditform: false, showpostoptions: false });
+            } else if (response.status > 400 && response.status < 500) {
+                this.setState({ loading: false, message: 'Unable to process request', bsstyle: 'danger' });
+            } else {
+                try {
+                    response.json().then(data => {
+                        this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                    });
+                } catch (err) {
+                    this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
+                }
+            }
+        }).catch(() => {
+            this.setState({ loading: false, message: 'Unable to contact server', bsstyle: 'danger' });
+        });
     }
 
     deletePost = () => {
@@ -645,7 +791,7 @@ class MemberPost extends React.Component {
                 'Authorization': 'Bearer ' + localStorage.getItem("token")
             }
         }).then(response => {
-             if (response.status === 200) {
+            if (response.status === 200) {
                 response.text().then(data => {
                     //console.log(data);
                     if (data == "false") { } else if (data == "true") {
@@ -654,15 +800,17 @@ class MemberPost extends React.Component {
                         }
                     }
                 });
-            } 
+            }
         });
     }
 
     renderPostOptions() {
         if (this.state.showpostoptions) {
-            let deletebtn = null; let ignoreaccbtn = null;
-            if (this.state.post.owner.id === this.state.myself.id)
+            let deletebtn = null; let ignoreaccbtn = null, editbtn = null;
+            if (this.state.post.owner.id === this.state.myself.id) {
+                editbtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-primary" onClick={() => { this.setState({ showeditform: true, showpostoptions: false }); }}>Edit Post</button></div>;
                 deletebtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.deletePost(); }}>Delete Post</button></div>;
+            }
 
             if (this.state.post.owner.id !== this.state.myself.id) {
                 ignoreaccbtn = <div className="text-center mb-1 p-1">
@@ -673,11 +821,12 @@ class MemberPost extends React.Component {
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
                         <div className="modal-body">
+                            {editbtn}
                             {deletebtn}
-                            <div className="text-center  border-bottom mb-1 p-1">
+                            {ignoreaccbtn}
+                            <div className="text-center mb-1 p-1">
                                 <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger">Report Post</button>
                             </div>
-                            {ignoreaccbtn}
                         </div>
                         <div className="modal-footer text-center">
                             <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showpostoptions: false }) }} data-bs-dismiss="modal">Close</button>
@@ -689,9 +838,15 @@ class MemberPost extends React.Component {
         }
     }
 
-    render() {
-        let p = this.state.post;
-        if (p === null) return null;
+    renderPostDisplay(p) {
+        p.describe = p.describe + " ";
+        let tempdescribe = p.describe;
+        let describe = p.describe;
+        let hashtagarr = tempdescribe.replace(/\n/g, " ").split(" ").filter(v => v.startsWith('#'));
+        hashtagarr.forEach(function (hashtag) {
+            let myExp = new RegExp(hashtag + "\\s", 'g');
+            describe = describe.replace(myExp, "<a href='//" + location.host + "/?q=" + encodeURIComponent(hashtag) + "'>" + hashtag + "</a> ");
+        });
 
         let ownerlink = this.state.hashtag !== '' ? <div className="d-inline-block">
             <a href={'//' + window.location.host + '/post/hastag?ht=' + this.state.hashtag} className="fs-6 fw-bold  text-dark text-decoration-none">
@@ -740,13 +895,13 @@ class MemberPost extends React.Component {
                     imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
                 }
                 postshtml = <div className="table-responsive my-1">
-                        <ul className="list-group list-group-horizontal" onDoubleClick={() => { this.addReaction(); }}>
-                            {imgs}
-                        </ul></div>;
+                    <ul className="list-group list-group-horizontal" onDoubleClick={() => { this.addReaction(); }}>
+                        {imgs}
+                    </ul></div>;
                 //postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
             }
         }
-        var commentbox = !this.state.showCommentBox ? null : <MemberComment post={p} cancel={() => { this.setState({ showCommentBox: false }); }} />;
+        var commentbox = !this.state.showCommentBox && p.acceptComment ? null : <MemberComment post={p} cancel={() => { this.setState({ showCommentBox: false }); }} />;
         var reactionCountHtml = (p.reactionCount > 0) ? <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" onClick={() => { this.setState({ showreactionlist: true }) }}>{p.reactionCount} Likes</button> : null;
         var reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-dark pe-2 ps-0" onClick={() => { this.addReaction(); }}><i className="bi bi-heart"></i></button>;
         if (p.hasReacted) {
@@ -773,20 +928,105 @@ class MemberPost extends React.Component {
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="mb-2 p-1 bg-white rounded-3">
+        return <div id={this.state.post.id} className="mb-2 p-1 p-lg-5 bg-white rounded-3">
             {owner}
             {postshtml}
             <div className="mt-1 text-center">
                 {reactionhtml}{reactionCountHtml} {commentBtn}{commentCountHtml}
             </div>
             <div>
-                <ExpandableTextLabel text={p.describe === null ? "" : p.describe} maxlength={200} />
+                <ExpandableTextLabel text={describe === null ? "" : describe} maxlength={200} />
             </div>
             {likemodal}
             {commentbox}
-
             {this.renderPostOptions()}
         </div>;
+    }
+
+    renderEditModal() {
+        if (this.state.showeditform) {
+            let loading = this.state.loading ? <div className="progress my-1" style={{height : "10px"}}>
+                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%"}} ></div>
+            </div> : null;
+            let message = this.state.message !== "" && this.state.bsstyle === "danger" ? <div className="alert alert-danger" role="alert">
+                {this.state.message}
+            </div> : null;
+
+            return <React.Fragment><div className="modal d-block" tabIndex="-1" aria-hidden="true">
+                <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-body">
+                            <EditPost post={this.state.post} onchange={(describe, ac) => {
+                                let p = this.state.post;
+                                p.describe = describe;
+                                p.acceptComment = ac;
+                                this.setState({ post: p });
+                            }} />
+                            {loading}
+                            { message}
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-primary" onClick={this.editPost}>Save</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showeditform: false, showpostoptions: false }); }}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
+        }
+        return null;
+    }
+
+    render() {
+        let p = this.state.post;
+        if (p === null) return null;
+
+        return <React.Fragment>
+            {this.renderPostDisplay(p)}
+            {this.renderEditModal()}
+        </React.Fragment>;
+
+    }
+}
+
+class EditPost extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            describe: this.props.post.describe, acceptComment: this.props.post.acceptComment, rows: 7
+        };
+    }
+
+    acceptCommentChanged = () => {
+        this.setState({ acceptComment: acceptComment }, () => { this.props.onchange(this.state.describe, this.state.acceptComment); });
+    }
+
+    render() {
+        let chk = <input className="form-check-input" type="checkbox" id="acceptcommentchk" role="switch" onChange={this.acceptCommentChanged} />;
+        if (this.state.acceptComment)
+            chk = <input className="form-check-input" checked type="checkbox" id="acceptcommentchk" role="switch" onChange={this.acceptCommentChanged} />;
+        return <div>
+            <div className="mb-3">
+                <textarea className="form-control border-0 border-bottom" onChange={(e) => {
+                    this.setState({ describe: e.target.value }, () => { this.props.onchange(this.state.describe, this.state.acceptComment) });
+                }} value={this.state.describe} rows={this.state.rows} placeholder="Add some description to your photo..." maxlength="7000"></textarea>
+            </div>
+            <div class="mb-3 ps-3">
+                <div class="form-check form-switch">
+                    {chk}
+                    <label className="form-check-label" htmlFor="acceptcommentchk">Accept Comment On Post</label>
+                </div>
+            </div>
+        </div>
     }
 }
 
@@ -1010,7 +1250,6 @@ class MemberPostList extends React.Component {
             viewModeAllowed: this.props.viewModeAllowed === "true" ? true : false,
             post: null
         };
-
         this.selectPost = this.selectPost.bind(this);
         this.addReaction = this.addReaction.bind(this);
         this.postDeleted = this.postDeleted.bind(this);
@@ -1071,7 +1310,7 @@ class MemberPostList extends React.Component {
 
     loadFeed() {
         this.setState({ loading: true });
-        let url = '//' + window.location.host + '/api/post?q=' + this.state.q + '&p=' + this.state.p;
+        let url = '//' + window.location.host + '/api/post?q=' + encodeURIComponent(this.state.q) + '&p=' + this.state.p;
 
         if (this.state.q === "userfeed")
             url = '//' + window.location.host + '/api/post/feed?p=' + this.state.p;
@@ -1603,11 +1842,25 @@ class ExpandableTextLabel extends React.Component {
             cssclass: this.props.cssclass !== undefined ? this.props.cssclass : ""
         };
     }
+
+    componentWillReceiveProps(nextProps) {
+        // You don't have to do this check first, but it can help prevent an unneeded render
+        if (nextProps.text !== this.state.text) {
+            let se = false;
+            if (nextProps.text.length > nextProps.maxlength || (nextProps.text.match(/\n/g) || []).length > 3) {
+                se = true;
+            }
+            this.setState({
+                text: nextProps.text, maxlength: parseInt(nextProps.maxlength, 10),
+                cssclass: nextProps.cssclass !== undefined ? nextProps.cssclass : "", showexpand: se
+            });
+        }
+    }
+
     componentDidMount() {
         if (this.state.text.length > this.state.maxlength || (this.state.text.match(/\n/g) || []).length > 3) {
             this.setState({ showexpand: true });
         }
-
     }
 
     render() {
@@ -1616,13 +1869,13 @@ class ExpandableTextLabel extends React.Component {
         if (this.state.expand) {
             text = <React.Fragment>
                 {this.state.text.split('\n').map((item, key) => {
-                    return <React.Fragment key={key}>{item}<br /></React.Fragment>
+                    return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
                 })}
             </React.Fragment>;
         } else {
             text = <div style={{ maxHeight: "28px", overflowY: "hidden", display: "inline-flex" }}>
                 {this.state.text.substring(0, length).split('\n').map((item, key) => {
-                    return <React.Fragment key={key}>{item}<br /></React.Fragment>
+                    return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
                 })}</div>;
         }
 
@@ -1953,7 +2206,7 @@ class Profile extends React.Component {
 
             }
         }
-        
+
     }
 
     loadMember(t, username) {
@@ -3498,14 +3751,19 @@ class SuggestedAccounts extends React.Component {
     }
 
     renderResult() {
+
         let items = [];
         for (let k in this.state.list) {
             items.push(<li key={k} className="list-group-item border-0 border-bottom p-2"><MemberSmallRow member={this.state.list[k]} /></li>)
         }
         if (items.length > 0) {
-            return <ul className="list-group list-group-flush">
-                {items}
-            </ul>;
+            return <React.Fragment>
+                <div className="row">
+                    <div className="col-7">Suggested Accounts</div>
+                    <div className="col text-end"><button type="button" className="btn btn-light btn-sm">See all</button></div>
+                </div><ul className="list-group list-group-flush">
+                    {items}
+                </ul></React.Fragment>;
         }
         else {
             return null;
@@ -3514,13 +3772,7 @@ class SuggestedAccounts extends React.Component {
 
     render() {
         if (this.state.loggedin) {
-            return <React.Fragment>
-                <div className="row">
-                    <div className="col-7">Suggested Accounts</div>
-                    <div className="col text-end"><button type="button" className="btn btn-light btn-sm">See all</button></div>
-                </div>
-                {this.renderResult()}
-            </React.Fragment>;
+            return <React.Fragment>{this.renderResult()}</React.Fragment>;
         } else {
             return null;
         }

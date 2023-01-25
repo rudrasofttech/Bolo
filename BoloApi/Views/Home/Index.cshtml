@@ -3,9 +3,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="row mt-1">
-    <div class="col-md-8" id="home"></div>
-    <div class="col-md-4" >
-        <div style="position: -webkit-sticky; position: sticky; top: 90;">
+    <div class="col-lg-8" id="home"></div>
+    <div class="col-lg-4" >
+        <div style="position: -webkit-sticky; position: sticky; top: 62px;">
             
             <div id="sendinvitecont"></div>
             <div id="suggestedaccounts">
@@ -32,7 +32,7 @@
     <environment include="Development">
         <script type="text/babel">
             ReactDOM.render(
-            <Home />,
+            <Home search="@ViewBag.Search" />,
             document.getElementById('home')
             );
             ReactDOM.render(<SuggestedAccounts />, document.getElementById('suggestedaccounts'));
@@ -41,8 +41,9 @@
     </environment>
     <environment include="Staging,Production" exclude="Development">
         <script>
-            ReactDOM.render(React.createElement(Home, null), document.getElementById('home'));
+            ReactDOM.render(React.createElement(Home, { search: "@ViewBag.Search" }), document.getElementById('home'));
             ReactDOM.render(React.createElement(SuggestedAccounts, null), document.getElementById('suggestedaccounts'));
+            ReactDOM.render(React.createElement(SendInvite, null), document.getElementById('sendinvitecont'));
         </script>
     </environment>
 }

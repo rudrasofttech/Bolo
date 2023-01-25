@@ -50,7 +50,7 @@
                 <div class="step" id="step2">
                     <div>
                         <div class="mb-3">
-                            <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000"></textarea>
+                            <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000" onkeydown="adjustDescriptionTextareaHeight();"></textarea>
                         </div>
                         <div class="mb-3 ps-3">
                             <div class="form-check form-switch">
@@ -204,6 +204,17 @@
                 location.href = "@Url.Content("~/")"
             });
             return false;
+        }
+
+        function adjustDescriptionTextareaHeight(){
+            let val = $("#photodescriptiontxt").val();
+            let newlines = val.split("\n").length;
+            if (newlines < 7){
+                $("#photodescriptiontxt").attr("rows", "7");
+            }else{
+                $("#photodescriptiontxt").attr("rows", newlines);
+            }
+            
         }
     </script>
 }

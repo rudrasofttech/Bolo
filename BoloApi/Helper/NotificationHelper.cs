@@ -111,7 +111,7 @@ namespace Bolo.Helper
         {
             List<Notification> result = new List<Notification>();
             result.AddRange(_context.Notifications
-                .Include(t => t.Source).Include(t => t.Post).Include(t => t.Comment)
+                .Include(t => t.Source).Include(t => t.Post).Include(t => t.Post.Photos).Include(t => t.Comment)
                 .Include(t => t.Target).Where(t => t.Target.ID == TargetUser.ID).OrderByDescending(t => t.CreateDate).ToList());
             return result;
         }

@@ -28,10 +28,15 @@ namespace BoloWeb.Controllers
         }
 
         [HttpGet]
-        public List<MemberSmallDTO> Get()
+        public List<MemberSmallDTO> Get([FromQuery]string q = "")
         {
             var currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
-            var list = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).OrderByDescending(t => t.CreateDate).Select(t => new MemberSmallDTO(t.Ignored)).ToList();
+            var query = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID);
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(t => t.Ignored.UserName.Contains(q) || t.Ignored.Email.Contains(q) || t.Ignored.Name.Contains(q));
+            }
+            var list = query.OrderByDescending(t => t.CreateDate).Select(t => new MemberSmallDTO(t.Ignored)).ToList();
             return list;
         }
 

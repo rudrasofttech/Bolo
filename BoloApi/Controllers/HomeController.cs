@@ -19,8 +19,9 @@ namespace Bolo.Controllers
             _context = context;
             _config = config;
         }
-        public IActionResult Index()
+        public IActionResult Index([FromQuery]string q = "")
         {
+            ViewBag.Search = q;
             return View();
         }
 
@@ -87,6 +88,12 @@ namespace Bolo.Controllers
                     ViewBag.Success = "Password sent at registered email and phone.";
                 }
             }
+            return View();
+        }
+
+        [Route("ignored")]
+        public IActionResult Ignored()
+        {
             return View();
         }
     }

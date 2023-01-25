@@ -50,6 +50,7 @@ namespace Bolo.Controllers
         public async Task<PostsPaged> Get([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+
             Member member = null;
             if (!string.IsNullOrEmpty(q))
             {
@@ -72,10 +73,16 @@ namespace Bolo.Controllers
                     query = query.Where(t => t.Owner.ID == member.ID);
                 }
             }
+            else if (q.StartsWith("#") || !string.IsNullOrEmpty(q))
+            {
+                query = query.Where(t => t.Describe.Contains(q));
+            }
             else
             {
-                List<Member> MemberList = new List<Member>();
-                MemberList.Add(currentMember);
+                var MemberList = new List<Member>
+                {
+                    currentMember
+                };
                 MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active).Select(t => t.Following).ToList());
                 query = query.Where(t => MemberList.Contains(t.Owner));
             }
@@ -109,8 +116,9 @@ namespace Bolo.Controllers
         public async Task<PostsPaged> HashTag([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
             var query = _context.HashTags.Include(t => t.Post).Include(t => t.Post.Photos).Include(t => t.Post.Owner)
-                .Where(t => t.Tag == q).Select(t => t.Post).OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps);
+                .Where(t => t.Tag == q).Where(t => !ignored.Contains(t.Post.Owner)).Select(t => t.Post).OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps);
             List<PostDTO> posts = new List<PostDTO>();
             foreach (MemberPost pd in query)
             {
@@ -144,19 +152,11 @@ namespace Bolo.Controllers
         [Route("explore")]
         public PostsPaged Explore([FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
-            /*
-             * SELECT MP.ID FROM MemberPost AS MP INNER JOIN
-                  Member AS M ON MP.OwnerID = M.ID LEFT OUTER JOIN
-                  MemberComment AS MC ON MP.ID = MC.PostID LEFT OUTER JOIN
-                  MemberReaction AS MR ON MP.ID = MR.PostID
-GROUP BY MP.ID, MP.PostDate, M.Visibility
-HAVING (M.Visibility = 2)
-ORDER BY MP.PostDate DESC, COUNT(MR.ID) DESC, COUNT(MC.ID) DESC
-             */
-            //var query = _context.Reactions.Include(t => t.Post).Include(t => t.Post.Owner).Include(t => t.Post.Photos).GroupBy(t => t.Post)
-            //        .Select(t => new PostDTO(t.Key) { ReactionCount = t.Count() }).OrderByDescending(t => t.ReactionCount).OrderByDescending(t => t.PostDate);
+            Member currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
             List<int> queryview = _context.DiscoverPostView.Skip(ps * p).Take(ps).Select(t => t.ID).ToList();
-            var query = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => queryview.Contains(t.ID)).Select(t=> new PostDTO(t)).ToList();
+            var query = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => queryview.Contains(t.ID))
+                .Where(t => !ignored.Contains(t.Owner)).Select(t=> new PostDTO(t)).ToList();
             PostsPaged result = new PostsPaged()
             {
                 Current = p,
@@ -173,6 +173,7 @@ ORDER BY MP.PostDate DESC, COUNT(MR.ID) DESC, COUNT(MC.ID) DESC
         public async Task<PostsPaged> FeedAsync([FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
             var query = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => true);
             List<string> tags = new List<string>();
             List<Member> MemberList = new List<Member>
@@ -181,7 +182,7 @@ ORDER BY MP.PostDate DESC, COUNT(MR.ID) DESC, COUNT(MC.ID) DESC
             };
             MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active && string.IsNullOrEmpty(t.Tag)).Select(t => t.Following).ToList());
             tags.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && !string.IsNullOrEmpty(t.Tag) && t.Following == null).Select(t => t.Tag).ToList());
-            query = query.Where(t => MemberList.Contains(t.Owner));
+            query = query.Where(t => MemberList.Contains(t.Owner)).Where(t => !ignored.Contains(t.Owner));
             foreach (string tag in tags)
             {
                 query = query.Where(t => t.Describe.Contains(tag));
@@ -425,34 +426,43 @@ ORDER BY MP.PostDate DESC, COUNT(MR.ID) DESC, COUNT(MC.ID) DESC
         }
 
         // PUT api/<PhotoController>/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult> PutAsync(int id, [FromBody] PutPhotoDTO value)
+        [HttpPost]
+        [Route("edit/{id}")]
+        public async Task<ActionResult> EditAsync(Guid id, [FromBody] PutPhotoDTO value)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { error = "Invalid Input" });
             }
-
+            
             try
             {
-                var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-                MemberPost p = await _context.Posts.FirstOrDefaultAsync(t => t.ID == id && t.Owner.ID == member.ID);
-                p.Modifier = member;
-                p.ModifyDate = DateTime.UtcNow;
-                p.Describe = string.IsNullOrEmpty(value.Describe) ? "" : value.Describe;
-                var tags = _context.HashTags.Where(t => t.Post.ID == p.ID);
-                _context.HashTags.RemoveRange(tags);
-
-                var regex = new Regex(@"#\w+");
-                var matches = regex.Matches(p.Describe);
-                foreach (var match in matches)
+                var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                var p = _context.Posts.FirstOrDefault(t => t.PublicID == id && t.Owner.ID == member.ID);
+                if (p != null)
                 {
-                    HashTag ht = new HashTag() { Post = p, Tag = match.ToString() };
-                    _context.HashTags.Add(ht);
-                }
+                    p.Modifier = member;
+                    p.ModifyDate = DateTime.UtcNow;
+                    p.AcceptComment= value.AcceptComment;
+                    p.Describe = string.IsNullOrEmpty(value.Describe) ? "" : value.Describe;
+                    var tags = _context.HashTags.Where(t => t.Post.ID == p.ID);
+                    _context.HashTags.RemoveRange(tags);
 
-                await _context.SaveChangesAsync();
-                return Ok();
+                    var regex = new Regex(@"#\w+");
+                    var matches = regex.Matches(p.Describe);
+                    foreach (var match in matches)
+                    {
+                        HashTag ht = new HashTag() { Post = p, Tag = match.ToString() };
+                        _context.HashTags.Add(ht);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest(new { erro = "Post not found" });
+                }
             }
             catch (Exception ex)
             {

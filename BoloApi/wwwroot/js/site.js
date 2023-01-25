@@ -298,15 +298,18 @@ ${this.notifications.map(n => this.renderNotificationItem(n))}
     }
 
     renderNotificationItem(n) {
-        console.log(n);
-        return wire(n)`<tr class="pointer" onclick=${(e) => { this.onNotificationClick(n); }}><td width="50px" valign="middle" align="right" class="p-1">
+        //console.log(n);
+        return wire(n)`<tr class="pointer" onclick=${(e) => { this.onNotificationClick(n); }}>
+<td width="50px" valign="middle" align="right" class="p-1">
 <img src=${this.getURL(n.pic)} class="img-fluid rounded-1" />
-</td><td valign="middle" class="p-1">
+</td>
+<td valign="middle" class="p-1">
 <p class="m-0 p-0">${n.title}</p>
 ${n.seen ? "" : wire()`<span class="badge bg-primary fs-12">New</span>`}
 ${n.type === 4 ? wire()`<span class="text-primary fw-bold fs-12">Follow Request</span>` : "" }
-<span class="fs-12">${dayjs(n.createDate).format("d-MMM-YYYY")}</span>
-</td></tr>`
+<span class="fs-12">${dayjs(n.createDate).format("DD-MMM-YYYY")}</span>
+</td>
+</tr>`
     }
 
     getURL(p) {
