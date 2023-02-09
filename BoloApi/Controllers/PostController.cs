@@ -397,6 +397,8 @@ namespace Bolo.Controllers
                 var post = _context.Comments.FirstOrDefault(t => t.ID == id && t.CommentedBy.ID == member.ID);
                 if (post != null)
                 {
+                    var notifications = _context.Notifications.Where(t => t.Comment != null && t.Comment.ID == post.ID);
+                    _context.Notifications.RemoveRange(notifications);
                     _context.Comments.Remove(post);
                     await _context.SaveChangesAsync();
                 }
@@ -541,6 +543,34 @@ namespace Bolo.Controllers
             }
 
             return model;
+        }
+
+        [HttpGet]
+        [Route("flag/{id}")]
+        public ActionResult Flag(Guid id,[FromQuery] FlagTypeEnum type)
+        {
+            try
+            {
+                var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                var p = _context.Posts.FirstOrDefault(t => t.PublicID == id);
+                
+                if (p != null)
+                {
+                    var fi = _context.FlaggedItems.FirstOrDefault(t => t.User.ID == member.ID && t.PostID == p.ID);
+                    if(fi == null)
+                    {
+                        fi = new FlaggedItem() { CreateDate = DateTime.UtcNow, PostID = p.ID, User = member, FlagType = type };
+                        _context.FlaggedItems.Add(fi);
+                        _context.SaveChanges();
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
+            }
         }
     }
 }

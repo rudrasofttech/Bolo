@@ -6,14 +6,14 @@
 <style>
     #photocontainer {
         width: 100%;
-        max-width: 500px;
-        height: 505px;
+        max-width: 600px;
+        height: 600px;
         margin: 0 auto;
         /*overflow-y: hidden;
-            overflow-x: scroll;
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-start;*/
+                    overflow-x: scroll;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;*/
     }
 
         #photocontainer .photobox {
@@ -31,9 +31,9 @@
 <div class="row">
     <div class="col ">
         <form id="photoform" onsubmit="return savePhoto();">
-            <div class="wizard mt-1" id="wizard">
+            <div class="wizard mt-1 bg-white" id="wizard">
                 <div class="step active" id="step1">
-                    <div id="photocontainer" class="d-none"></div>
+                    <div id="photocontainer"></div>
                     <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
                     <div class="container-xl py-1 maxwidth">
                         <div class="row text-center my-2">
@@ -88,17 +88,21 @@
             }
 
             prepare() {
-                var width = document.documentElement.clientWidth <= 500 ? (document.documentElement.clientWidth - 5) : 500;
-                var height = width;
-                $(this.container).height((height + 5) + "px");
-                $(this.container).append('<div class="photobox"><canvas id="canvas' + this.index + '"></canvas></div>');
+                let width = $(this.container).width() <= 600 ? $(this.container).width() - 5 : 600;//document.documentElement.clientWidth <= 500 ? (document.documentElement.clientWidth - 5) : 500;
+                let height = width;
+                console.log($(this.img).width() + " " + $(this.img).height());
+                $(this.container).height(height + "px");
+                $(this.container).append('<div class="photobox border"><canvas id="canvas' + this.index + '"></canvas></div>');
                 this.canvas = new fabric.Canvas('canvas' + this.index);
                 this.canvas.backgroundColor = "white";
                 this.canvas.setDimensions({ width: width, height: height });
                 this.imgInst = new fabric.Image(this.img, {
                     angle: 0, padding: 0, cornersize: 0
                 });
+
                 this.changeImageSize();
+                //console.log(this.imgInst.width + " " + this.imgInst.height);
+                //this.canvas.setDimensions({ width: this.imgInst.width, height: this.imgInst.height });
                 this.addImage();
             }
 
@@ -111,24 +115,27 @@
             }
 
             changeImageSize() {
-                if (this.size === "contain") {
-                    $("#changesizebtn").html('<i class="bi bi-arrows-angle-expand"></i>');
-                    if (this.img.width >= this.img.height) {
-                        this.imgInst.scaleToWidth(this.canvas.width);
-                    } else if (this.img.height > this.img.width) {
-                        this.imgInst.scaleToHeight(this.canvas.height);
-                    }
-                } else if (this.size === "cover") {
-                    $("#changesizebtn").html('<i class="bi bi-arrows-angle-contract"></i>');
-                    if (this.img.width >= this.img.height) {
-                        this.imgInst.scaleToHeight(this.canvas.height);
-                    } else if (this.img.height > this.img.width) {
-                        this.imgInst.scaleToWidth(this.canvas.width);
-                    }
-                }
+                if (this.img.width > this.canvas.width || this.img.height > this.canvas.height) {
+                    if (this.size === "contain") {
+                        $("#changesizebtn").html('<i class="bi bi-arrows-angle-expand"></i>');
 
-                this.canvas.remove(this.imgInst);
-                this.addImage();
+                        if (this.img.width >= this.img.height) {
+                            this.imgInst.scaleToWidth(this.canvas.width);
+                        } else if (this.img.height > this.img.width) {
+                            this.imgInst.scaleToHeight(this.canvas.height);
+                        }
+                    } else if (this.size === "cover") {
+                        $("#changesizebtn").html('<i class="bi bi-arrows-angle-contract"></i>');
+                        if (this.img.width >= this.img.height) {
+                            this.imgInst.scaleToHeight(this.canvas.height);
+                        } else if (this.img.height > this.img.width) {
+                            this.imgInst.scaleToWidth(this.canvas.width);
+                        }
+                    }
+
+                    this.canvas.remove(this.imgInst);
+                    this.addImage();
+                }
             }
 
             changeScale(s) {
@@ -206,15 +213,15 @@
             return false;
         }
 
-        function adjustDescriptionTextareaHeight(){
+        function adjustDescriptionTextareaHeight() {
             let val = $("#photodescriptiontxt").val();
             let newlines = val.split("\n").length;
-            if (newlines < 7){
+            if (newlines < 7) {
                 $("#photodescriptiontxt").attr("rows", "7");
-            }else{
+            } else {
                 $("#photodescriptiontxt").attr("rows", newlines);
             }
-            
+
         }
     </script>
 }

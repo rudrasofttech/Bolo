@@ -659,7 +659,7 @@ class MemberPost extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : '',
-            showCommentBox: false, showpostoptions: false, showeditform: false
+            showCommentBox: false, showpostoptions: false, showeditform: false, showdeletemodal: false, showflagmodal : false
         };
 
         this.addReaction = this.addReaction.bind(this);
@@ -753,7 +753,7 @@ class MemberPost extends React.Component {
                 this.setState({ loggedin: false, loading: false });
             } else if (response.status === 200) {
                 let id = this.state.post.id;
-                this.setState({ loading: false, message: '', bsstyle: '', showpostoptions: false, post: null },
+                this.setState({ loading: false, message: '', bsstyle: '', showeditform: false, showdeletemodal: false, showpostoptions: false, post: null },
                     () => {
                         if (this.props.ondelete !== undefined && this.props.ondelete !== null) {
                             this.props.ondelete(id);
@@ -764,23 +764,25 @@ class MemberPost extends React.Component {
                 try {
                     response.json().then(data => {
                         //console.log(data);
-                        this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                        this.setState({ showeditform: false, showdeletemodal: false, showpostoptions: false, loading: false, message: data.error, bsstyle: 'danger' });
                     });
                 } catch (err) {
-                    this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
+                    this.setState({ showeditform: false, showdeletemodal: false, showpostoptions: false, loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
                 }
 
             } else {
                 try {
                     response.json().then(data => {
                         //console.log(data);
-                        this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                        this.setState({ showeditform: false, showdeletemodal: false, showpostoptions: false, loading: false, message: data.error, bsstyle: 'danger' });
                     });
                 } catch (err) {
-                    this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
+                    this.setState({ showeditform: false, showdeletemodal: false, showpostoptions: false, loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
                 }
 
             }
+        }).catch((data) => {
+            this.setState({ showeditform: false, showdeletemodal: false, showpostoptions: false, loading: false, message: 'Unable to contact server', bsstyle: 'danger' });
         });
     }
 
@@ -804,17 +806,35 @@ class MemberPost extends React.Component {
         });
     }
 
+    flagPost = (typeid) => {
+        fetch('//' + window.location.host + '/api/post/flag/' + this.state.post.id + "?type=" + typeid, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 200) {
+                this.setState({ showflagmodal: false }, () => { alert("Thank you! for reporting the post.") });
+
+            } else {
+                this.setState({ showflagmodal: false }, () => { alert("Unable to process your request") });
+            }
+        }).catch(() => {
+            this.setState({ showflagmodal: false }, () => { alert("Unable to process your request") });
+        });
+    }
+
     renderPostOptions() {
         if (this.state.showpostoptions) {
             let deletebtn = null; let ignoreaccbtn = null, editbtn = null;
             if (this.state.post.owner.id === this.state.myself.id) {
-                editbtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-primary" onClick={() => { this.setState({ showeditform: true, showpostoptions: false }); }}>Edit Post</button></div>;
-                deletebtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.deletePost(); }}>Delete Post</button></div>;
+                editbtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-primary" onClick={() => { this.setState({ showdeletemodal: false, showeditform: true, showpostoptions: false }); }}><i className="bi bi-pencil-fill me-2"></i> Edit Post</button></div>;
+                deletebtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showdeletemodal: true, showeditform: false, showpostoptions: false }); }}><i className="bi bi-trash3-fill  me-2"></i> Delete Post</button></div>;
             }
 
             if (this.state.post.owner.id !== this.state.myself.id) {
                 ignoreaccbtn = <div className="text-center mb-1 p-1">
-                    <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.ignoreMember(); }}>Ignore Member</button>
+                    <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.ignoreMember(); }}><i className="bi bi-sign-stop-fill me-2"></i> Ignore Member</button>
                 </div>;
             }
             return <div className="modal d-block" tabIndex="-1">
@@ -825,7 +845,7 @@ class MemberPost extends React.Component {
                             {deletebtn}
                             {ignoreaccbtn}
                             <div className="text-center mb-1 p-1">
-                                <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger">Report Post</button>
+                                <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showflagmodal: true, showdeletemodal: false, showeditform: false, showpostoptions: false }); } }><i className="bi bi-flag-fill me-2"></i> Report Post</button>
                             </div>
                         </div>
                         <div className="modal-footer text-center">
@@ -883,14 +903,14 @@ class MemberPost extends React.Component {
         } else if (p.photos) {
             if (p.photos.length == 1) {
                 postshtml = <div className="text-center">
-                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100 py-1" onDoubleClick={() => { this.addReaction(); }} />
+                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid py-1" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
                 var imgs = [], imgs2 = [];
                 for (var i in p.photos) {
                     imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0">
                         <div className="postdiv" style={{ backgroundImage: "url(//" + location.host + "/" + p.photos[i].photo + ")" }}>
-                            <img src={p.photos[i].photo} style={{ opacity: 0, maxHeight: "450px", maxWidth: "450px" }} />
+                            <img src={p.photos[i].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "500px" }} />
                         </div></li>);
                     imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
                 }
@@ -928,7 +948,7 @@ class MemberPost extends React.Component {
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="mb-2 p-1 p-lg-5 bg-white rounded-3">
+        return <div id={this.state.post.id} className="mb-2 p-1 p-lg-3 bg-white rounded-3">
             {owner}
             {postshtml}
             <div className="mt-1 text-center">
@@ -943,10 +963,64 @@ class MemberPost extends React.Component {
         </div>;
     }
 
+    renderDeleteModal() {
+        if (this.state.showdeletemodal) {
+            return <React.Fragment>
+                <div className="modal fade show d-block" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5" >Delete Post</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showdeletemodal: false, showeditform: false, showpostoptions: false }) }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <p>You are going to delete this post permanently. Please confirm?</p>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-primary" onClick={this.deletePost}>Yes</button>
+                                <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showdeletemodal: false, showeditform: false, showpostoptions: false }) }}>No</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </React.Fragment>;
+        }
+    }
+
+    renderFlagModal() {
+        if (this.state.showflagmodal) {
+            return <React.Fragment>
+                <div className="modal fade show d-block" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5" >Flag Post</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showdeletemodal: false, showeditform: false, showpostoptions: false, showflagmodal : false }) }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <ul className="list-group">
+                                    <li className="list-group-item">
+                                        <button onClick={() => { this.flagPost(1) } } className="btn btn-light" type="button">Abusive Content</button>
+                                    </li>
+                                    <li className="list-group-item">
+                                        <button onClick={() => { this.flagPost(2) }} className="btn btn-light" type="button">Spam Content</button>
+                                    </li>
+                                    <li className="list-group-item"><button onClick={() => { this.flagPost(3) }} className="btn btn-light" type="button">Fake / Misleading</button></li>
+                                    <li className="list-group-item"><button onClick={() => { this.flagPost(4) }} className="btn btn-light" type="button">Nudity</button></li>
+                                    <li className="list-group-item"><button onClick={() => { this.flagPost(5) }} className="btn btn-light" type="button">Promoting Violence</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </React.Fragment>;
+        }
+    }
+
     renderEditModal() {
         if (this.state.showeditform) {
-            let loading = this.state.loading ? <div className="progress my-1" style={{height : "10px"}}>
-                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%"}} ></div>
+            let loading = this.state.loading ? <div className="progress my-1" style={{ height: "10px" }}>
+                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }} ></div>
             </div> : null;
             let message = this.state.message !== "" && this.state.bsstyle === "danger" ? <div className="alert alert-danger" role="alert">
                 {this.state.message}
@@ -963,7 +1037,7 @@ class MemberPost extends React.Component {
                                 this.setState({ post: p });
                             }} />
                             {loading}
-                            { message}
+                            {message}
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-primary" onClick={this.editPost}>Save</button>
@@ -985,8 +1059,9 @@ class MemberPost extends React.Component {
         return <React.Fragment>
             {this.renderPostDisplay(p)}
             {this.renderEditModal()}
+            {this.renderDeleteModal()}
+            {this.renderFlagModal()}
         </React.Fragment>;
-
     }
 }
 
@@ -1020,8 +1095,8 @@ class EditPost extends React.Component {
                     this.setState({ describe: e.target.value }, () => { this.props.onchange(this.state.describe, this.state.acceptComment) });
                 }} value={this.state.describe} rows={this.state.rows} placeholder="Add some description to your photo..." maxlength="7000"></textarea>
             </div>
-            <div class="mb-3 ps-3">
-                <div class="form-check form-switch">
+            <div className="mb-3 ps-3">
+                <div className="form-check form-switch">
                     {chk}
                     <label className="form-check-label" htmlFor="acceptcommentchk">Accept Comment On Post</label>
                 </div>
@@ -1039,7 +1114,7 @@ class MemberComment extends React.Component {
         }
 
         this.state = {
-            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            loadingComments: false, loading: false, loggedin: loggedin, bsstyle: '', message: '',
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, comments: { current: 0, pageSize: 20, total: 0, commentList: [] },
@@ -1122,6 +1197,7 @@ class MemberComment extends React.Component {
     }
 
     fetchComments() {
+        this.setState({ loadingComments: true });
         let url = '//' + window.location.host + '/api/post/comments/' + this.state.post.id + '?ps=' + this.state.comments.pageSize + '&p=' + this.state.comments.current;
         fetch(url, {
             method: 'get',
@@ -1132,7 +1208,7 @@ class MemberComment extends React.Component {
             .then(response => {
                 if (response.status === 401) {
                     localStorage.removeItem("token");
-                    this.setState({ loggedin: false, loading: false });
+                    this.setState({ loggedin: false, loadingComments: false });
                 } else if (response.status === 200) {
                     response.json().then(data => {
                         console.log(data);
@@ -1149,10 +1225,18 @@ class MemberComment extends React.Component {
                             commentList: temp
                         };
                         this.setState({
-                            loggedin: true, loading: false, comments
+                            loadingComments: false, comments
                         });
                     });
+                } else {
+                    this.setState({
+                        loadingComments: false
+                    });
                 }
+            }).catch(() => {
+                this.setState({
+                    loadingComments: false
+                });
             });
     }
 
@@ -1166,26 +1250,32 @@ class MemberComment extends React.Component {
             var ownedCommentMenu = null;
             if (this.state.myself.id === p.postedBy.id) {
                 ownedCommentMenu = <React.Fragment>
-                    <button data-id={p.id} onClick={(e) => { this.setState({ commentiddel: parseInt(e.target.getAttribute("data-id"), 10) }) }} className="btn btn-link text-secondary text-decoration-none px-0 fs-12" type="button">Remove</button>
+                    <button data-id={p.id} onClick={(e) => { this.setState({ commentiddel: parseInt(e.target.getAttribute("data-id"), 10) }) }} className="btn btn-light" type="button"><i data-id={p.id} className="bi bi-trash"></i></button>
                 </React.Fragment>;
             }
             items.push(<table key={p.id} cellPadding="0" cellSpacing="0" width="100%" border="0">
                 <tbody>
                     <tr>
-                        <td width="50px" valign="middle">
+                        <td width="35" className="p-1" valign="middle">
                             <MemberPicSmall member={p.postedBy} />
                         </td>
                         <td valign="middle" className="px-2">
-                            <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName} className="fs-6 fw-bold pointer d-inline-block text-dark text-decoration-none">
+                            <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName} className="fs-6 fw-bold pointer d-inline-block text-decoration-none">
                                 {p.postedBy.userName}
-                            </a>
-                            <ExpandableTextLabel text={p.comment} maxlength={200} />
+                            </a><br />
+                            <span className="fs-12 text-secondary"><DateLabel value={p.postDate} /></span>
+                            
+                        </td>
+                        <td width="40" valign="middle" align="center">{ownedCommentMenu}
                         </td>
                     </tr>
                     <tr>
-                        <td></td>
-                        <td className="px-2">
-                            <span className="fs-12 text-secondary"><DateLabel value={p.postDate} /></span> {ownedCommentMenu}
+                        <td className="px-2" colSpan="3">
+                            <React.Fragment>
+                                {p.comment.split('\n').map((item, key) => {
+                                    return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
+                                })}
+                            </React.Fragment>
                         </td>
                     </tr>
                 </tbody>
@@ -1198,14 +1288,14 @@ class MemberComment extends React.Component {
         }
 
         return <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
-            <div className="modal-dialog modal-xl modal-fullscreen-md-down">
+            <div className="modal-dialog modal-xl">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Comments</h5>
                         <button type="button" className="btn-close" onClick={() => { this.props.cancel(); }}></button>
                     </div>
                     <div className="modal-body p-1" style={{ minHeight: "300px" }}>
-                        {items}
+                        { this.state.loadingComments ? <p>Loading Comments...</p> : items}
                         {confirmdelete}
                     </div>
                     <div className="modal-footer">
@@ -1213,11 +1303,7 @@ class MemberComment extends React.Component {
                             <tbody>
                                 <tr>
                                     <td valign="middle" align="right">
-                                        <textarea rows={this.state.textarearows} className="form-control" value={this.state.commenttext} onChange={(e) => {
-                                            let rows = this.state.commenttext.split(/\r\n|\r|\n/).length > 1 ? this.state.commenttext.split(/\r\n|\r|\n/).length : 1;
-                                            rows = rows > 7 ? 7 : rows;
-                                            this.setState({ commenttext: e.target.value, textarearows: rows });
-                                        }}></textarea>
+                                        <AutoAdjustTextArea htmlattr={{ class: "form-control mb-2", required: "required", placeholder: "Type your comment here...", maxLength: 3000 }} required={true} onChange={(val) => { this.setState({ commenttext: val }) }} value={this.state.commenttext} maxRows={5} minRows={1} />
                                     </td>
                                     <td valign="middle" width="58px">
                                         <button type="button" className="btn btn-link text-decoration-none" onClick={() => { this.addComment(); }}>Post</button>
@@ -1837,7 +1923,7 @@ class ExpandableTextLabel extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            text: this.props.text, expand: false, showexpand: false,
+            text: this.props.text, expand: false, showexpand: this.props.text.length > parseInt(this.props.maxlength, 10),
             maxlength: parseInt(this.props.maxlength, 10),
             cssclass: this.props.cssclass !== undefined ? this.props.cssclass : ""
         };
@@ -1874,7 +1960,7 @@ class ExpandableTextLabel extends React.Component {
             </React.Fragment>;
         } else {
             text = <div style={{ maxHeight: "28px", overflowY: "hidden", display: "inline-flex" }}>
-                {this.state.text.substring(0, length).split('\n').map((item, key) => {
+                {this.state.text.split('\n').map((item, key) => {
                     return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
                 })}</div>;
         }
@@ -1883,13 +1969,15 @@ class ExpandableTextLabel extends React.Component {
             expandbtn = <button type="button" onClick={() => { this.setState({ expand: !this.state.expand }) }} className="btn btn-link d-block p-0 text-secondary text-decoration-none" >{(!this.state.expand) ? "More" : "Less"}</button>
         }
 
-        return <div className={this.state.cssclass}>{text}{expandbtn}</div>;
+        return <div className={this.state.cssclass}><div>{text}</div>{expandbtn}</div>;
     }
 }
 
 class DateLabel extends React.Component {
+     
     constructor(props) {
         super(props);
+        this.month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         this.state = {
             value: this.props.value
         };
@@ -1897,7 +1985,7 @@ class DateLabel extends React.Component {
 
     transformData() {
         var d = new Date(this.state.value);
-        return d.getDate() + "." + d.getMonth() + "." + d.getFullYear();
+        return d.getDate() + " " + this.month[d.getMonth()] + " " + d.getFullYear();
     }
 
     render() {
@@ -5607,6 +5695,34 @@ class SendInvite extends React.Component {
         } else {
             return null;
         }
+    }
+}
+
+class AutoAdjustTextArea extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            cssclass: this.props.cssclass, htmlattr: this.props.htmlattr,
+            maxlength: this.props.maxlength,
+            value: this.props.value, rows: this.props.minRows,
+            maxRows: this.props.maxRows, minRows: this.props.minRows
+        };
+    }
+    componentWillReceiveProps(nextProps) {
+        // You don't have to do this check first, but it can help prevent an unneeded render
+        if (nextProps.value !== this.state.value) {
+            this.setState({ value: nextProps.value });
+        }
+    }
+    valueChanged = (val) => {
+        let newlines = val.split("\n").length;
+        if (newlines > this.state.maxRows) newlines = this.state.maxRows;
+        else if (newlines < this.state.minRows) newlines = this.state.minRows;
+        this.setState({ value: val, rows: newlines }, () => { this.props.onChange(this.state.value); });
+    };
+
+    render() {
+        return <textarea maxLength={this.state.maxlength} {...this.state.htmlattr} rows={this.state.rows} className={this.props.cssclass} value={this.state.value} onChange={(e) => { this.valueChanged(e.target.value); }}></textarea>;
     }
 }
 

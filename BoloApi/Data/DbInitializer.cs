@@ -20,16 +20,15 @@ namespace Bolo.Data
 
             var members = new Member[] { new Member { CountryCode = "91",
                 CreateDate = DateTime.UtcNow,
-                Email = "rajkiran.singh@gmail.com",
-            Name = "Raj Kiran Singh",
-                Password = Bolo.Helper.EncryptionHelper.CalculateSHA256("111111"),
+                Email = "rajkiran.singh@gmail.com", Name = "Raj Kiran Singh",
+                Password = Bolo.Helper.EncryptionHelper.CalculateSHA256("Welcome1!"),
                 Phone = "9871500276",
                 Status= RecordStatus.Active,
                 Visibility = MemberProfileVisibility.Public,
                 Activity = ActivityStatus.Online,
                 BirthYear = 1983,
                 UserName = "rajkiran.singh",
-                Bio = "",
+                Bio = "I create this app.",
                 City = "Noida",
                 Country = "India",
                 Pic = "",
@@ -37,7 +36,9 @@ namespace Bolo.Data
                 ThoughtStatus = "",
                 Gender = Gender.Male,
                 LastPulse = DateTime.UtcNow,
-            PublicID = Guid.NewGuid()} };
+            PublicID = Guid.NewGuid(),
+            Roles= new List<MemberRole>() { new MemberRole() { Name = "Master" } }
+            } };
 
             foreach (Member m in members)
             {

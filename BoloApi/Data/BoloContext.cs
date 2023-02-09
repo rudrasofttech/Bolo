@@ -23,6 +23,7 @@ namespace Bolo.Data
         public DbSet<MemberComment> Comments { get; set; }
         public DbSet<HashTag> HashTags { get; set; }
         public DbSet<IgnoredMember> IgnoredMembers { get; set; }
+        public DbSet<FlaggedItem> FlaggedItems { get; set; }
 
         public DbSet<PushNotificationWebApp> PushNotificationWebApps { get; set; }
         public DbSet<Notification> Notifications { get; set; }
@@ -43,6 +44,7 @@ namespace Bolo.Data
             modelBuilder.Entity<HashTag>().ToTable("HashTag");
             modelBuilder.Entity<Notification>().ToTable("Notification");
             modelBuilder.Entity<PushNotificationWebApp>().ToTable("PushNotificationWebApp");
+            modelBuilder.Entity<FlaggedItem>().ToTable("FlaggedItem");
 
             modelBuilder.Entity<DiscoverPostView>().ToView("DiscoverPostView").HasNoKey();
         }

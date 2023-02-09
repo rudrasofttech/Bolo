@@ -161,6 +161,14 @@ namespace Bolo.Models
             else
                 return Name;
         }
+
+        public List<MemberRole> Roles { get; set; }
+    }
+
+    public class MemberRole
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
     }
 
     public class ChatMessage
@@ -302,6 +310,25 @@ namespace Bolo.Models
         public Member User { get; set; }
         public Member Ignored { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+    }
+
+    public enum FlagTypeEnum
+    {
+        Abusive = 1,
+        Spam = 2,
+        Fake = 3,
+        Nudity =4,
+        Violence = 5
+    }
+    public class FlaggedItem
+    {
+        public int ID { get; set; }
+        public int PostID { get; set; }
+        public Member User { get; set; }
+        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+        public int CommentID { get; set; }
+        public int MemberID { get; set; }
+        public FlagTypeEnum FlagType { get; set; }
     }
 
     public class DiscoverPostView

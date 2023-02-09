@@ -164,16 +164,21 @@ namespace Bolo.Controllers
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var claims = new[] {
+            var claims = new List<Claim>() {
                 new Claim(ClaimTypes.Name, m.PublicID.ToString()),
         new Claim(ClaimTypes.NameIdentifier,  m.PublicID.ToString()),
         new Claim(JwtRegisteredClaimNames.Email, m.Email),
         new Claim(JwtRegisteredClaimNames.Exp, Helper.Utility.TokenExpiry.ToString("yyyy-MM-dd")),
         new Claim(JwtRegisteredClaimNames.Jti, m.PublicID.ToString())
     };
+            foreach (MemberRole mr in m.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, mr.Name));
+            }
+
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
-              claims,
+              claims.ToArray(),
               expires: Helper.Utility.TokenExpiry,
               signingCredentials: credentials);
 
@@ -201,7 +206,7 @@ namespace Bolo.Controllers
 
                 MemberDTO result = new MemberDTO(member)
                 {
-                    
+
                     Phone = member.Phone,
                     Email = member.Email,
                     FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID),
@@ -259,7 +264,7 @@ namespace Bolo.Controllers
                 FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
                 PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID),
                 FollowRequestCount = _context.Followers.Count(t => t.Following.ID == member.ID && t.Status == FollowerStatus.Requested)
-            }; 
+            };
             return result;
         }
 
@@ -639,14 +644,16 @@ namespace Bolo.Controllers
             if (String.IsNullOrEmpty(model.UserName))
             {
                 return BadRequest(new { error = "Username is missing." });
-            }else if (!Helper.Utility.RegexMatch(model.UserName, "^[a-zA-Z0-9_.]*$"))
+            }
+            else if (!Helper.Utility.RegexMatch(model.UserName, "^[a-zA-Z0-9_.]*$"))
             {
                 return BadRequest(new { error = "Only alphabets, numbers _ and . allowed in Username." });
             }
             if (string.IsNullOrEmpty(model.Password))
             {
                 return BadRequest(new { error = "Password is missing." });
-            }else if(model.Password.Length < 8)
+            }
+            else if (model.Password.Length < 8)
             {
                 return BadRequest(new { error = "Password should be 8 characters long." });
             }
@@ -654,7 +661,7 @@ namespace Bolo.Controllers
             //{
             //    return BadRequest(new { error = "Password and Verify Password should match." });
             //}
-            
+
             if (_context.Members.Count(t => t.UserName == model.UserName) > 0)
             {
                 return BadRequest(new { error = "Username already exist, please try to log in." });

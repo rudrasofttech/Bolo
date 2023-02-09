@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20230129163430_FlaggedItemTable")]
+    partial class FlaggedItemTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,9 +107,6 @@ namespace Bolo.Migrations
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("FlagType")
-                        .HasColumnType("int");
 
                     b.Property<int>("MemberID")
                         .HasColumnType("int");
@@ -396,26 +395,6 @@ namespace Bolo.Migrations
                     b.ToTable("MemberReaction");
                 });
 
-            modelBuilder.Entity("Bolo.Models.MemberRole", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("MemberID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("MemberID");
-
-                    b.ToTable("MemberRole");
-                });
-
             modelBuilder.Entity("Bolo.Models.Notification", b =>
                 {
                     b.Property<Guid>("ID")
@@ -637,13 +616,6 @@ namespace Bolo.Migrations
                     b.Navigation("ReactedBy");
                 });
 
-            modelBuilder.Entity("Bolo.Models.MemberRole", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", null)
-                        .WithMany("Roles")
-                        .HasForeignKey("MemberID");
-                });
-
             modelBuilder.Entity("Bolo.Models.Notification", b =>
                 {
                     b.HasOne("Bolo.Models.MemberComment", "Comment")
@@ -685,11 +657,6 @@ namespace Bolo.Migrations
                         .HasForeignKey("UserID");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Bolo.Models.Member", b =>
-                {
-                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberPost", b =>
