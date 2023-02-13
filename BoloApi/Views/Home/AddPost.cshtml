@@ -9,15 +9,19 @@
         max-width: 600px;
         height: 600px;
         margin: 0 auto;
-        /*overflow-y: hidden;
-                    overflow-x: scroll;
-                    display: flex;
-                    flex-direction: row;
-                    justify-content: flex-start;*/
+        background-image: url(images/upload-icon.png);
+        background-position:center;
+        background-size:contain;
+        background-repeat:no-repeat;
+        overflow-y: hidden;
+                        overflow-x: scroll;
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: flex-start;
     }
 
         #photocontainer .photobox {
-            display: block;
+            display: inline-block;
         }
 
     .wizard .step {
@@ -28,26 +32,38 @@
             display: block;
         }
 </style>
-<div class="row">
+<div class="row g-0">
     <div class="col ">
         <form id="photoform" onsubmit="return savePhoto();">
-            <div class="wizard mt-1 bg-white" id="wizard">
+            <div class="wizard mt-1" id="wizard">
                 <div class="step active" id="step1">
-                    <div id="photocontainer"></div>
-                    <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
                     <div class="container-xl py-1 maxwidth">
-                        <div class="row text-center my-2">
+                        <div class="row my-2">
                             <div class="col">
-                                <button type="button" class="btn btn-primary px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
+                                <button type="button" id="uploadbtn" class="btn btn-primary d-none px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
                                 <button id="changesizebtn" type="button" class="btn btn-primary hasphotos  px-3 me-2 d-none" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
                                 @*<input type="range" value="0" min="-10" max="10" onchange="changeScale();" id="scalerange" class="form-range hasphotos py-2" style="max-width:150px;" disabled />*@
+                            </div>
+                            <div class="col text-end">
                                 <button type="button" style="width:105px" class="btn btn-primary hasphotos d-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
                             </div>
                         </div>
-
                     </div>
+                    <div id="photocontainer" onclick="if(photos.length === 0){ $('#uploadbtn')[0].click();}"></div>
+                    <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
+
                 </div>
                 <div class="step" id="step2">
+                    <div class="container-xl bg-white mt-2 py-1">
+                        <div class="row my-2">
+                            <div class="col">
+                                <button type="button" class="btn btn-primary" style="width:105px" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
+                            </div>
+                            <div class="col text-end">
+                                <button type="submit" style="width:105px" class="btn btn-primary mx-2">Save</button>
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <div class="mb-3">
                             <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000" onkeydown="adjustDescriptionTextareaHeight();"></textarea>
@@ -63,10 +79,6 @@
                     {
                         <input name="Photos[@i]" id="@Html.Raw("photohdn" + i)" value="@Model.Photos[i]" type="hidden" />
                     }
-                    <div class="container-xl bg-white mt-2 text-center py-1 maxwidth">
-                        <button type="button" class="btn btn-primary" style="width:105px" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
-                        <button type="submit" style="width:105px" class="btn btn-primary mx-2">Save</button>
-                    </div>
                 </div>
             </div>
         </form>
@@ -90,7 +102,6 @@
             prepare() {
                 let width = $(this.container).width() <= 600 ? $(this.container).width() - 5 : 600;//document.documentElement.clientWidth <= 500 ? (document.documentElement.clientWidth - 5) : 500;
                 let height = width;
-                console.log($(this.img).width() + " " + $(this.img).height());
                 $(this.container).height(height + "px");
                 $(this.container).append('<div class="photobox border"><canvas id="canvas' + this.index + '"></canvas></div>');
                 this.canvas = new fabric.Canvas('canvas' + this.index);
@@ -115,7 +126,8 @@
             }
 
             changeImageSize() {
-                if (this.img.width > this.canvas.width || this.img.height > this.canvas.height) {
+                //if (this.img.width > this.canvas.width || this.img.height > this.canvas.height) 
+                {
                     if (this.size === "contain") {
                         $("#changesizebtn").html('<i class="bi bi-arrows-angle-expand"></i>');
 
@@ -221,8 +233,9 @@
             } else {
                 $("#photodescriptiontxt").attr("rows", newlines);
             }
-
         }
+
+        
     </script>
 }
 

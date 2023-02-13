@@ -2529,10 +2529,10 @@ class Profile extends React.Component {
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <div className="row">
+            me = <div className="row g-0">
                 <div className="col">
                     <div className="pt-2 border-bottom mb-1">
-                        <div className="row mx-0">
+                        <div className="row g-0">
                             <div className="col-5 p-1 col-md-3 text-end">
                                 {pic}
                             </div>
@@ -2545,7 +2545,7 @@ class Profile extends React.Component {
                                 {this.renderRequestApproval()}
                             </div>
                         </div>
-                        <div className="row mx-0">
+                        <div className="row g-0">
                             <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.postCount} Posts</button></div>
                             <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>{this.state.member.followingCount} Following</button></div>
                             <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>{this.state.member.followerCount} Followers</button></div>
@@ -5680,8 +5680,33 @@ class SendInvite extends React.Component {
 
         this.state = {
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
-            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), list: []
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            showModal: false
         };
+    }
+
+    renderModal() {
+        if (this.state.showModal) {
+            return <React.Fragment>
+                <div className="modal fade show d-block" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5" id="exampleModalLabel">Spread The Word</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: false }); }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <textarea rows="7" className="form-control">
+                                    some text will come here.
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
+        }
+        else return null;
     }
 
     render() {
@@ -5689,8 +5714,9 @@ class SendInvite extends React.Component {
             return <React.Fragment>
                 <div className="text-center mb-2 p-2 rounded-2 bg-white">
                     <div className="my-1">Invite your friends and build your followers.</div>
-                    <button type="button" className="btn btn-outline-dark my-2"><i className="bi bi-heart-fill text-danger"></i> Tell a Friend</button>
+                    <button onClick={() => { this.setState({ showModal: true }); } } type="button" className="btn btn-outline-dark my-2"><i className="bi bi-heart-fill text-danger"></i> Tell a Friend</button>
                 </div>
+                {this.renderModal()}
             </React.Fragment>;
         } else {
             return null;
