@@ -2,14 +2,8 @@
     ViewData["Title"] = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="row mt-1 g-0">
-    <div class="col-lg-8" id="home"></div>
-    <div class="col-lg-4" >
-        <div style="position: -webkit-sticky; position: sticky; top: 60px;" class="p-1">
-            
-            <div id="sendinvitecont"></div>
-            <div id="suggestedaccounts">
-            </div>
+<div id="home">
+    
             @*<div class="d-none p-1 rounded-3 mb-2 bg-white" id="askNotificationPermissionModal">
                 <div class="text-center">
                     <div class="my-1 fw-bold">Would you like to receive notifications?</div>
@@ -24,26 +18,19 @@
                     <input id="auth" name="auth" hidden />
                 </form>
             </div>*@
-        </div>
-    </div>
 </div>
 @section scripts{
-
     <environment include="Development">
         <script type="text/babel">
             ReactDOM.render(
             <Home search="@ViewBag.Search" />,
             document.getElementById('home')
             );
-            ReactDOM.render(<SuggestedAccounts />, document.getElementById('suggestedaccounts'));
-            ReactDOM.render(<SendInvite />, document.getElementById("sendinvitecont"));
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
         <script>
             ReactDOM.render(React.createElement(Home, { search: "@ViewBag.Search" }), document.getElementById('home'));
-            ReactDOM.render(React.createElement(SuggestedAccounts, null), document.getElementById('suggestedaccounts'));
-            ReactDOM.render(React.createElement(SendInvite, null), document.getElementById('sendinvitecont'));
         </script>
     </environment>
 }

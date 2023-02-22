@@ -492,16 +492,29 @@ class Home extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <RegisterForm beginWithRegister={false} onLogin={() => {
-                this.setState({
-                    loggedin: localStorage.getItem("token") === null ? false : true,
-                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                })
-            }} />;
+            return <div className="row mt-1 g-0 bg-white">
+                <div className="col-lg-6 offset-lg-3 mt-5">
+                    <RegisterForm beginWithRegister={false} onLogin={() => {
+                        this.setState({
+                            loggedin: localStorage.getItem("token") === null ? false : true,
+                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                        })
+                    }} /></div>
+            </div>;
         }
 
-        return <React.Fragment><MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" /></React.Fragment>;
+        return <div className="row mt-1 g-0">
+            <div className="col-lg-8">
+                <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
+            </div>
+            <div className="col-lg-4">
+                <div style={{ position: "-webkit-sticky", position: "sticky", top: "60px" }} className="p-1">
+                    <SendInvite />
+                    <SuggestedAccounts />
+                </div>
+            </div>
+        </div>;
     }
 }
 
@@ -659,7 +672,7 @@ class MemberPost extends React.Component {
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : '',
-            showCommentBox: false, showpostoptions: false, showeditform: false, showdeletemodal: false, showflagmodal : false
+            showCommentBox: false, showpostoptions: false, showeditform: false, showdeletemodal: false, showflagmodal: false
         };
 
         this.addReaction = this.addReaction.bind(this);
@@ -845,7 +858,7 @@ class MemberPost extends React.Component {
                             {deletebtn}
                             {ignoreaccbtn}
                             <div className="text-center mb-1 p-1">
-                                <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showflagmodal: true, showdeletemodal: false, showeditform: false, showpostoptions: false }); } }><i className="bi bi-flag-fill me-2"></i> Report Post</button>
+                                <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showflagmodal: true, showdeletemodal: false, showeditform: false, showpostoptions: false }); }}><i className="bi bi-flag-fill me-2"></i> Report Post</button>
                             </div>
                         </div>
                         <div className="modal-footer text-center">
@@ -995,12 +1008,12 @@ class MemberPost extends React.Component {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h1 className="modal-title fs-5" >Flag Post</h1>
-                                <button type="button" className="btn-close" onClick={() => { this.setState({ showdeletemodal: false, showeditform: false, showpostoptions: false, showflagmodal : false }) }} aria-label="Close"></button>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showdeletemodal: false, showeditform: false, showpostoptions: false, showflagmodal: false }) }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
                                 <ul className="list-group">
                                     <li className="list-group-item">
-                                        <button onClick={() => { this.flagPost(1) } } className="btn btn-light" type="button">Abusive Content</button>
+                                        <button onClick={() => { this.flagPost(1) }} className="btn btn-light" type="button">Abusive Content</button>
                                     </li>
                                     <li className="list-group-item">
                                         <button onClick={() => { this.flagPost(2) }} className="btn btn-light" type="button">Spam Content</button>
@@ -1264,7 +1277,7 @@ class MemberComment extends React.Component {
                                 {p.postedBy.userName}
                             </a><br />
                             <span className="fs-12 text-secondary"><DateLabel value={p.postDate} /></span>
-                            
+
                         </td>
                         <td width="40" valign="middle" align="center">{ownedCommentMenu}
                         </td>
@@ -1295,7 +1308,7 @@ class MemberComment extends React.Component {
                         <button type="button" className="btn-close" onClick={() => { this.props.cancel(); }}></button>
                     </div>
                     <div className="modal-body p-1" style={{ minHeight: "300px" }}>
-                        { this.state.loadingComments ? <p>Loading Comments...</p> : items}
+                        {this.state.loadingComments ? <p>Loading Comments...</p> : items}
                         {confirmdelete}
                     </div>
                     <div className="modal-footer">
@@ -1974,7 +1987,7 @@ class ExpandableTextLabel extends React.Component {
 }
 
 class DateLabel extends React.Component {
-     
+
     constructor(props) {
         super(props);
         this.month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -2579,7 +2592,7 @@ class ManageProfile extends React.Component {
             myself: null, bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             onProfileChange: this.props.onProfileChange === undefined ? null : this.props.onProfileChange,
-            showProfilePicModal: false, src: null,
+            showProfilePicModal: false, src: null, showSecAnsModal: false,
             crop: {
                 unit: "px",
                 x: 0,
@@ -2631,6 +2644,12 @@ class ManageProfile extends React.Component {
     handleChange(e) {
         let m = this.state.myself;
         switch (e.target.name) {
+            case 'securityQuestion':
+                m.securityQuestion = e.target.value;
+                break;
+            case 'securityAnswer':
+                m.securityAnswer = e.target.value;
+                break;
             case 'userName':
                 m.userName = e.target.value.replace(" ", "").replace("\\", "").replace("/", "").replace(";", "").replace("\"", "").replace("'", "").replace("#", "");
                 break;
@@ -2816,14 +2835,13 @@ class ManageProfile extends React.Component {
                         localStorage.removeItem("token");
                         this.setState({ loggedin: false, loading: false });
                     } else if (response.status === 200) {
-                        this.setState({ loading: false, message: '', bsstyle: '' });
+                        this.setState({ loading: false, message: 'Data is saved', bsstyle: 'success' });
                         if (this.state.onProfileChange) {
                             this.state.onProfileChange();
                         }
                     } else if (response.status === 400) {
                         try {
                             response.json().then(data => {
-                                //console.log(data);
                                 this.setState({ loading: false, message: data.error, bsstyle: 'danger' }, () => {
                                     if (this.props.onProfileChange) {
                                         this.props.onProfileChange();
@@ -2953,6 +2971,39 @@ class ManageProfile extends React.Component {
         }
     }
 
+    renderSecAnsModal() {
+        if (this.state.showSecAnsModal) {
+            return <React.Fragment><div className="modal  d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Set Security Answer</h5>
+                            <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close" onClick={() => { this.setState({ showSecAnsModal: false }) }}>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="mb-3">
+                                <label htmlFor="securityAnswerTxt" className="form-label">Security Question </label>
+                                <div>{this.state.myself.securityQuestion}</div>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="securityAnswerTxt" className="form-label">Security Answer <span className="text-danger">(Required)</span></label>
+                                <input type="text" id="securityAnswerTxt" maxLength="100" name="securityAnswer" className="form-control" maxLength="300" value={this.state.myself.securityAnswer} onChange={this.handleChange} />
+                            </div>
+                            {this.state.message !== "" ? <div className={'my-1 text-center noMargin noRadius alert alert-' + this.state.bsstyle} role="alert">
+                                {this.state.message}
+                            </div> : null}
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-primary" onClick={() => { this.saveData("securityanswer", this.state.myself.securityAnswer) }}>Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div><div className="modal-backdrop fade show"></div></React.Fragment>;
+        }
+        else { return null; }
+    }
+
     renderProfilePicModal() {
         if (this.state.showProfilePicModal) {
             const { crop, profile_pic, src } = this.state;
@@ -3016,6 +3067,7 @@ class ManageProfile extends React.Component {
                 <div className="container py-5">
                     {loading}
                     {message}
+                    {this.renderSecAnsModal()}
                     <div className="row align-items-center">
                         <div className="col-md-6 text-center">
                             {pic}
@@ -3024,25 +3076,25 @@ class ManageProfile extends React.Component {
                         </div>
                         <div className="col-md-6">
                             <div className="mb-2">
-                                <label htmlFor="channelnametxt" className="form-label">Username</label>
+                                <label htmlFor="channelnametxt" className="form-label fw-bold">Username</label>
                                 <input type="text" id="channelnametxt" readOnly name="userName" placeholder="Unique Channel Name" className="form-control" value={this.state.myself.userName} />
                             </div>
                             <div className="mb-2">
-                                <label htmlFor="nametxt" className="form-label">Name <span className="text-danger">(Required)</span></label>
+                                <label htmlFor="nametxt" className="form-label fw-bold">Name <span className="text-danger">(Required)</span></label>
                                 <input type="text" id="nametxt" name="name" placeholder="Your Name" className="form-control" value={this.state.myself.name} onChange={this.handleChange} onBlur={() => { this.saveData("name", this.state.myself.name) }} />
                             </div>
                             <div className="mb-2">
-                                <label className="form-label">Mobile <span className="text-danger">(Required)</span></label>
+                                <label className="form-label fw-bold">Mobile <span className="text-danger">(Required)</span></label>
                                 <input type="text" name="phone" className="form-control" maxLength="15" value={this.state.myself.phone} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("phone", this.state.myself.phone) }} />
                             </div>
                             <div className="mb-2">
-                                <label className="form-label">Email <span className="text-danger">(Required)</span></label>
+                                <label className="form-label fw-bold">Email <span className="text-danger">(Required)</span></label>
                                 <input type="email" name="email" className="form-control" maxLength="250" value={this.state.myself.email} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("email", this.state.myself.email) }} />
                             </div>
                             <div className="mb-2">
-                                <label htmlFor="birthyeartxt" className="form-label">Year of Birth (optional)</label>
+                                <label htmlFor="birthyeartxt" className="form-label fw-bold">Year of Birth</label>
                                 <select id="birthyeartxt" name="birthYear" className="form-select" value={this.state.myself.birthYear} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("birthYear", this.state.myself.birthYear) }}>
                                     {yearitems}
@@ -3050,19 +3102,31 @@ class ManageProfile extends React.Component {
                             </div>
                         </div>
                     </div>
+                    <div className="row g-1 mb-3">
+                        <div className="col-md-6">
+                            <label htmlFor="securityQuesitonTxt" className="form-label fw-bold">Security Question <span className="text-danger">(Required)</span></label>
+                            <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control" maxLength="300" value={this.state.myself.securityQuestion} onChange={this.handleChange}
+                                onBlur={() => { this.saveData("securityquestion", this.state.myself.securityQuestion) }} />
+                        </div>
+                        <div className="col-md-6">
+                            <label htmlFor="securityAnswerTxt" className="form-label fw-bold">Security Answer <span className="text-danger">(Required)</span></label>
+                            <div>Your existing answer is not shown. <button type="button" class="btn btn-primary ms-2 btn-sm" onClick={() => { this.setState({ showSecAnsModal: true }); }}>Change Answer</button></div>
+                        </div>
+                    </div>
                     <div className="mb-3">
-                        <label htmlFor="thoughtStatus" className="form-label">One line Introduction (Optional)</label>
+                        <label htmlFor="thoughtStatus" className="form-label fw-bold">One line Introduction</label>
                         <input type="text" name="thoughtStatus" className="form-control" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange}
                             onBlur={() => { this.saveData("thoughtstatus", this.state.myself.thoughtStatus) }} />
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="biotxt" className="form-label">About Me (Optional)</label>
+                        <label htmlFor="biotxt" className="form-label fw-bold">About Me</label>
                         <textarea className="form-control" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} rows="4" placeholder="Write something about yourself."
                             onBlur={() => { this.saveData("bio", this.state.myself.bio) }}></textarea>
                     </div>
-                    <div className="row">
+                    
+                    <div className="row g-1">
                         <div className="col-md-6">
-                            <label htmlFor="visibilityselect" className="form-label">Profile Visibility (Optional)</label>
+                            <label htmlFor="visibilityselect" className="form-label fw-bold">Profile Visibility</label>
                             <select className="form-select" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange}
                                 onBlur={() => { this.saveData("visibility", this.state.myself.visibility) }}>
                                 <option value="0"></option>
@@ -3071,7 +3135,7 @@ class ManageProfile extends React.Component {
                             </select>
                         </div>
                         <div className="col-md-6">
-                            <label htmlFor="countryselect" className="form-label">Country (Optional)</label>
+                            <label htmlFor="countryselect" className="form-label fw-bold">Country</label>
                             <select className="form-select" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={() => { this.saveData("country", this.state.myself.country) }}>
                                 <option value=""></option>
                                 <option value="AD">Andorra</option>
@@ -3346,8 +3410,8 @@ class RegisterForm extends React.Component {
         }
 
         this.state = {
-            showregisterform: props.beginWithRegister,
-            registerdto: { userName: '', password: '', userEmail: '' },
+            showregisterform: props.beginWithRegister, showForgotPassword: false,
+            registerdto: { userName: '', password: '', userEmail: '', verifyPassword: '', securityQuestion: '', securityAnswer: '' },
             logindto: { userName: '', password: '' },
             loading: false, message: '', bsstyle: '', loggedin: loggedin
         };
@@ -3399,10 +3463,24 @@ class RegisterForm extends React.Component {
 
     handleRegisterSubmit(e) {
         e.preventDefault();
+        if (this.state.registerdto.password !== this.state.registerdto.verifyPassword) {
+            this.setState({
+                loading: false,
+                bsstyle: 'danger',
+                message: 'Verify password should match password.',
+            });
+            return;
+        }
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/members/register', {
             method: 'post',
-            body: JSON.stringify({ UserName: this.state.registerdto.userName, Password: this.state.registerdto.password, Email: this.state.registerdto.userEmail }),
+            body: JSON.stringify({
+                UserName: this.state.registerdto.userName,
+                Password: this.state.registerdto.password,
+                Email: this.state.registerdto.userEmail,
+                SecurityQuestion: this.state.registerdto.securityQuestion,
+                SecurityAnswer: this.state.registerdto.securityAnswer
+            }),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -3450,24 +3528,34 @@ class RegisterForm extends React.Component {
     }
 
     renderLoginForm() {
-        return <form onSubmit={this.handleLogin}>
-            <div className="mb-3">
-                <label>Username</label>
-                <input type="text" className="form-control" required name="userName" value={this.state.logindto.userName} onChange={(e) => { this.setState({ logindto: { userName: e.target.value, password: this.state.logindto.password } }) }} />
-            </div>
-            <div className="mb-3">
-                <label>Password</label>
-                <input className="form-control" required name="password" type="password" onChange={(e) => { this.setState({ logindto: { userName: this.state.logindto.userName, password: e.target.value } }) }} />
-            </div>
-            <div className="row">
-                <div className="col">
-                    <button className="btn btn-dark" type="submit">Login</button>
-                </div>
-                <div className="col text-end">
-                    <a href="/forgotpassword" className="btn btn-link text-dark">Forgot Password?</a>
-                </div>
-            </div>
-        </form>;
+        if (!this.state.showForgotPassword) {
+            return <div><h3>Login</h3>
+                <form onSubmit={this.handleLogin}>
+                    <div className="mb-3">
+                        <label>Username</label>
+                        <input type="text" className="form-control" required name="userName" value={this.state.logindto.userName} onChange={(e) => { this.setState({ logindto: { userName: e.target.value, password: this.state.logindto.password } }) }} />
+                    </div>
+                    <div className="mb-3">
+                        <label>Password</label>
+                        <input className="form-control" required name="password" type="password" onChange={(e) => { this.setState({ logindto: { userName: this.state.logindto.userName, password: e.target.value } }) }} />
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <button className="btn btn-dark" type="submit">Login</button>
+                        </div>
+                        <div className="col text-end">
+                            <button type="button" onClick={() => { this.setState({ showForgotPassword: true }); }} className="btn btn-link text-dark">Forgot Password?</button>
+                        </div>
+                    </div>
+                </form></div>;
+        } else {
+            return <div>
+                <ForgotPassword />
+                <p className="my-2 text-center border-top py-2">
+                    <button type="button" onClick={() => { this.setState({ showForgotPassword: false }); }} className="btn btn-link text-dark">Try Login Again</button>
+                </p>
+            </div>;
+        }
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -3490,26 +3578,67 @@ class RegisterForm extends React.Component {
             : this.renderLoginForm();
 
         let formcontents = this.state.showregisterform ?
-            <div>
+            <div >
                 <h3>Register</h3>
-                <div >
+                <div className="">
+                    <p className="text-end"><span class="text-danger">*</span> indicate mandatory fields</p>
                     <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
                         <div className="mb-3">
-                            <label>Email</label>
+                            <label>Username <span className="text-danger">*</span></label>
+                            <input type="text" className="form-control" minLength="3" maxLength="30" required name="username" value={this.state.registerdto.userName}
+                                onChange={(e) => {
+                                    let rdto = this.state.registerdto;
+                                    rdto.userName = e.target.value;
+                                    this.setState({ registerdto: rdto });
+                                }} aria-describedby="usernameHelp" />
+                            <div id="usernameHelp" class="form-text">Username should be unique and creative, it will be your identity on the site.</div>
+                        </div>
+                        <div className="mb-3">
+                            <label>Password <span className="text-danger">*</span></label>
+                            <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => {
+                                let rdto = this.state.registerdto;
+                                rdto.password = e.target.value;
+                                this.setState({ registerdto: rdto });
+                            }} />
+                        </div>
+                        <div className="mb-3">
+                            <label>Verify Password <span className="text-danger">*</span></label>
+                            <input className="form-control" required name="verifypassword" type="password" onChange={(e) => {
+                                let rdto = this.state.registerdto;
+                                rdto.verifyPassword = e.target.value;
+                                this.setState({ registerdto: rdto });
+                            }} />
+                        </div>
+                        <div className="mb-3">
+                            <label>Security Question <span className="text-danger">*</span></label>
+                            <input type="text" className="form-control" minLength="10" required maxlength="300" name="securityQuestion" value={this.state.registerdto.securityQuestion}
+                                onChange={(e) => {
+                                    let rdto = this.state.registerdto;
+                                    rdto.securityQuestion = e.target.value;
+                                    this.setState({ registerdto: rdto });
+                                }} aria-describedby="securityquestionHelp" />
+                            <div id="securityquestionHelp" class="form-text">In case you forget your password, we will ask you this security quesiton. Choose your security question wisely</div>
+                        </div>
+                        <div className="mb-3">
+                            <label>Security Answer <span className="text-danger">*</span></label>
+                            <input type="text" className="form-control" maxlength="100" required name="securityAnswer" value={this.state.registerdto.securityAnswer}
+                                onChange={(e) => {
+                                    let rdto = this.state.registerdto;
+                                    rdto.securityAnswer = e.target.value;
+                                    this.setState({ registerdto: rdto });
+                                }} aria-describedby="securitypasswordHelp" />
+                            <div id="securitypasswordHelp" class="form-text">You will be allowed to reset your password only if you provide this security answer.</div>
+                        </div>
+                        <div className="mb-3">
+                            <label>Email <span className="text-danger">*</span></label>
                             <input className="form-control" maxLength="250" required name="userEmail" type="email"
                                 value={this.state.registerdto.userEmail}
-                                onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: this.state.registerdto.password, userEmail: e.target.value } }) }} />
+                                onChange={(e) => {
+                                    let rdto = this.state.registerdto;
+                                    rdto.userEmail = e.target.value;
+                                    this.setState({ registerdto: rdto });
+                                }} />
                         </div>
-                        <div className="mb-3">
-                            <label>Username</label>
-                            <input type="text" className="form-control" required name="username" value={this.state.registerdto.userName}
-                                onChange={(e) => { this.setState({ registerdto: { userName: e.target.value, password: this.state.registerdto.password, userEmail: this.state.registerdto.userEmail } }) }} />
-                        </div>
-                        <div className="mb-3">
-                            <label>Password</label>
-                            <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => { this.setState({ registerdto: { userName: this.state.registerdto.userName, password: e.target.value, userEmail: this.state.registerdto.userEmail } }) }} />
-                        </div>
-
                         <button className="btn btn-dark" type="submit">Register</button>
                     </form>
 
@@ -3520,20 +3649,15 @@ class RegisterForm extends React.Component {
                 </div>
             </div> :
             <div>
-                <h3>Login</h3>
-                <div >
-                    {logincontents}
-                    <p className="text-center mt-3 p-3 border-top">
-                        Register for FREE <a onClick={this.handleRegisterClickHere} className="link-success">Click Here</a></p>
-                    {messagecontent}
-                    {loading}
-                </div>
+                {logincontents}
+                <p className="text-center mt-3 p-3 border-top">
+                    Register for FREE <a onClick={this.handleRegisterClickHere} className="link-success">Click Here</a></p>
+                {messagecontent}
+                {loading}
             </div>;
-        return <div className="row align-items-center justify-items-center mt-3">
-            <div className="col-lg-6">
-                {formcontents}
-            </div>
-        </div>;
+        return <React.Fragment>
+            {formcontents}
+        </React.Fragment>;
     }
 }
 
@@ -3864,6 +3988,120 @@ class SuggestedAccounts extends React.Component {
         } else {
             return null;
         }
+    }
+}
+
+class ForgotPassword extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), username: '', securityQuestion: '', securityAnswer: '', password: '', verifyPassword: ''
+        };
+    }
+
+    loadSecurityQuestion = () => {
+        this.setState({ loading: true });
+        fetch("//" + window.location.host + "/api/members/getsecurityquestion/" + this.state.username, {
+            method: "get"
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    response.json().then(data => {
+                        this.setState({ loading: false, securityQuestion: data.securityQuestion, bsstyle: '', message: '' });
+                    });
+                } else {
+                    this.setState({ loading: false, securityQuestion: '', bsstyle: 'danger', message: 'Incorrect username provided.' });
+                }
+            })
+            .catch(error => { this.setState({ loading: false, securityQuestion: '', bsstyle: 'danger', message: 'Unable to contact server.' }); });
+    };
+
+    savePassword = () => {
+        if (this.state.password !== this.state.verifyPassword) {
+            this.setState({
+                loading: false,
+                bsstyle: 'danger',
+                message: 'Verify password should match password.',
+            });
+            return;
+        }
+        this.setState({ loading: true });
+        let fd = new FormData();
+        fd.append("username", this.state.username);
+        fd.append("question", this.state.securityQuestion);
+        fd.append("answer", this.state.securityAnswer);
+        fd.append("password", this.state.password);
+        fetch("//" + window.location.host + "/api/members/validatesecurityanswer", {
+            method: "post",
+            body : fd
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({ loading: false, bsstyle: 'success', message: 'Your password is successfully reset. You can try logging in now.' });
+                } else if (response.status == 500 || response.status === 400 || response.status === 404) {
+                    response.json().then(data => {
+                        this.setState({ loading: false, bsstyle: 'danger', message: data.error });
+                    });
+                } else {
+                    this.setState({ loading: false, securityQuestion: '', bsstyle: 'danger', message: 'Incorrect username provided.' });
+                }
+            })
+            .catch(error => { this.setState({ loading: false, securityQuestion: '', bsstyle: 'danger', message: 'Unable to contact server.' }); });
+    };
+
+    render() {
+        return <div>
+            <h3>Forgot Password</h3>
+            <p>Provide your username or email address, you will be asked with security question.</p>
+            <form onSubmit={(e) => { e.preventDefault(); this.loadSecurityQuestion(); }}>
+                <label className="form-label" >Username</label>
+                <div className="row g-0 mb-3">
+                    <div className="col-9">
+                        
+                        <input type="text" className="form-control" style={{ width: "210 px" }} maxlength="300" placeholder="Username or Email" value={this.state.username} onChange={(e) => { this.setState({ username: e.target.value }); }} required />
+                    </div>
+                    <div className="col-3">
+                        <button type="submit" className="btn btn-light btn-sm">Load Member</button>
+                    </div>
+                </div>
+            </form>
+            {
+                this.state.securityQuestion !== "" ?
+                    <form onSubmit={(e) => { e.preventDefault(); this.savePassword(); }}>
+                        <div className="mb-3">
+                            <label className="form-label">Security Question</label>
+                            <input type="text" readOnly required className="form-control" value={this.state.securityQuestion} />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Security Answer</label>
+                            <input type="text" maxLength="300" required className="form-control" value={this.state.securityAnswer} onChange={(e) => { this.setState({ securityAnswer: e.target.value }) }} />
+                            <div class="form-text">Your new password will set only if your security answer matches with our records.</div>
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">New Password</label>
+                            <input type="password" required className="form-control" minLength="8" value={this.state.password} onChange={(e) => { this.setState({ password: e.target.value }) }} />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Verify New Password</label>
+                            <input type="password" required className="form-control" value={this.state.verifyPassword} onChange={(e) => { this.setState({ verifyPassword: e.target.value }) }} />
+                        </div>
+                        <button type="submit" className="btn btn-primary">Save New Password</button>
+                    </form>
+                    : null
+            }
+
+            {this.state.loading ? <div className="progress my-2" style={{ height: "5px" }}>
+                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }} ></div>
+            </div> : null}
+            {this.state.message !== "" ? <div className={"my-2 alert alert-" + this.state.bsstyle}>
+                {this.state.message}
+            </div> : null}
+        </div>;
     }
 }
 
@@ -5714,7 +5952,7 @@ class SendInvite extends React.Component {
             return <React.Fragment>
                 <div className="text-center mb-2 p-2 rounded-2 bg-white">
                     <div className="my-1">Invite your friends and build your followers.</div>
-                    <button onClick={() => { this.setState({ showModal: true }); } } type="button" className="btn btn-outline-dark my-2"><i className="bi bi-heart-fill text-danger"></i> Tell a Friend</button>
+                    <button onClick={() => { this.setState({ showModal: true }); }} type="button" className="btn btn-outline-dark my-2"><i className="bi bi-heart-fill text-danger"></i> Tell a Friend</button>
                 </div>
                 {this.renderModal()}
             </React.Fragment>;

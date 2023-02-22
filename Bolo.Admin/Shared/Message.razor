@@ -1,0 +1,31 @@
+﻿
+@if(MessageType == MessageType.Success)
+{
+    <div class="alert alert-success my-2" role="alert">
+        @MessageText
+    </div>
+}else if(MessageType == MessageType.Error)
+{
+    <div class="alert alert-danger my-2" role="alert">
+        @MessageText
+    </div>
+}
+else if (MessageType == MessageType.Warning)
+{
+    <div class="alert alert-warning my-2" role="alert">
+        @MessageText
+    </div>
+}
+else if (MessageType == MessageType.Information)
+{
+    <div class="alert alert-info my-2" role="alert">
+        @MessageText
+    </div>
+}
+
+@code {
+    [Parameter]
+    public MessageType MessageType{ get; set; }
+    [Parameter]
+    public string MessageText { get; set; } = string.Empty;
+}

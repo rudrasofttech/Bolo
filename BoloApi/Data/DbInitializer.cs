@@ -18,7 +18,7 @@ namespace Bolo.Data
                 return;   // DB has been seeded
             }
 
-            var members = new Member[] { new Member { CountryCode = "91",
+            var members = new Member[] { new Member { 
                 CreateDate = DateTime.UtcNow,
                 Email = "rajkiran.singh@gmail.com", Name = "Raj Kiran Singh",
                 Password = Bolo.Helper.EncryptionHelper.CalculateSHA256("Welcome1!"),

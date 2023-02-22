@@ -19,6 +19,7 @@ using Bolo.Hubs;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using NetTopologySuite.Triangulate.QuadEdge;
 
 namespace Bolo.Controllers
 {
@@ -146,7 +147,7 @@ namespace Bolo.Controllers
                 return BadRequest();
             }
 
-            var member = await _context.Members.FirstOrDefaultAsync(t => t.UserName == model.UserName && t.Password == EncryptionHelper.CalculateSHA256(model.Password));
+            var member = await _context.Members.Include(t => t.Roles).FirstOrDefaultAsync(t => (t.UserName == model.UserName || t.Email == model.UserName) && t.Password == EncryptionHelper.CalculateSHA256(model.Password));
             if (member == null)
             {
                 return NotFound(new { error = "Invalid Credentials" });
@@ -171,11 +172,13 @@ namespace Bolo.Controllers
         new Claim(JwtRegisteredClaimNames.Exp, Helper.Utility.TokenExpiry.ToString("yyyy-MM-dd")),
         new Claim(JwtRegisteredClaimNames.Jti, m.PublicID.ToString())
     };
-            foreach (MemberRole mr in m.Roles)
+            if (m.Roles != null)
             {
-                claims.Add(new Claim(ClaimTypes.Role, mr.Name));
+                foreach (MemberRole mr in m.Roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, mr.Name));
+                }
             }
-
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
               claims.ToArray(),
@@ -187,11 +190,50 @@ namespace Bolo.Controllers
 
         // GET: api/Members
         [HttpGet]
-        [Authorize("Admin")]
-        public async Task<ActionResult<IEnumerable<Member>>> GetMembers()
+        [Route("getmembers")]
+        public MemberListPaged GetMembers([FromQuery]string k = "",[FromQuery]int p = 0, [FromQuery]int ps = 20)
         {
-            return await _context.Members.ToListAsync();
+            if (!User.IsInRole("Master"))
+                return null;
+
+            MemberListPaged result = new MemberListPaged() { Current = p, PageSize = ps };
+            var query = _context.Members.Where(t => true);
+            if (!string.IsNullOrEmpty(k))
+                query = query.Where(t => t.Email.Contains(k) || t.UserName.Contains(k) || t.Name.Contains(k));
+            result.Total = query.Count();
+            result.Members = query.OrderByDescending(t => t.CreateDate).Select(t => new MemberDTO(t)).Skip(ps * p).Take(ps).ToList();
+            foreach(var m in result.Members)
+            {
+                m.FollowerCount = _context.Followers.Count(t => t.Following.PublicID == m.ID);
+                m.PostCount = _context.Posts.Count(t => t.Owner.PublicID== m.ID);
+                m.FollowingCount = _context.Followers.Count(t => t.Follower.PublicID == m.ID);
+            }
+            return result;
         }
+
+        [HttpGet]
+        [Route("changestatus")]
+        public ActionResult ChangeStatus([FromQuery] Guid id, [FromQuery] RecordStatus status)
+        {
+            if (!User.IsInRole("Master"))
+                return null;
+            try
+            {
+                var m = _context.Members.FirstOrDefault(t => t.PublicID == id);
+                if (m != null)
+                {
+                    m.Status = status;
+                    m.ModifyDate = DateTime.UtcNow;
+                }
+                _context.SaveChanges();
+                return Ok();
+            }catch(Exception ex)
+            {
+                return StatusCode(500, new { error = "Unable to process request. " + ex.Message });
+            }
+        }
+
+        
 
         // GET: api/Members
         [HttpGet]
@@ -203,10 +245,8 @@ namespace Bolo.Controllers
                 return NotFound();
             else
             {
-
                 MemberDTO result = new MemberDTO(member)
                 {
-
                     Phone = member.Phone,
                     Email = member.Email,
                     FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID),
@@ -268,6 +308,52 @@ namespace Bolo.Controllers
             return result;
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("getsecurityquestion/{id}")]
+        public ActionResult<string> GetSecurityQuestion(string id)
+        {
+            var member = _context.Members.FirstOrDefault(t => t.Email == id || t.UserName == id);
+            if(member == null) { return NotFound(); }
+
+            return Ok(new { member.SecurityQuestion });
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("validatesecurityanswer")]
+        public ActionResult ValidateSecurityAnswer([FromForm]string username,[FromForm]string question, [FromForm]string answer, [FromForm]string password)
+        {
+            if (string.IsNullOrEmpty(answer))
+                return BadRequest(new { error = "Security Answer missing." });
+            if (string.IsNullOrEmpty(question))
+                return BadRequest(new { error = "Security Question missing." });
+            if (string.IsNullOrEmpty(username))
+                return BadRequest(new { error = "Security Question missing." });
+            if (string.IsNullOrEmpty(password))
+                return BadRequest(new { error = "Password missing." });
+            else if(password.Length < 8)
+                return BadRequest(new { error = "Try a longer password, minimum 8 characters." });
+            
+            try
+            {
+                var member = _context.Members.FirstOrDefault(t => (t.Email == username || t.UserName == username) && t.SecurityQuestion == question && t.SecurityAnswer == EncryptionHelper.CalculateSHA256(answer.ToLower()));
+                if (member == null) { 
+                    return NotFound(new { error = "Security answer provided does not match our records." }); 
+                }
+                else
+                {
+                    member.Password = EncryptionHelper.CalculateSHA256(password);
+                    member.ModifyDate = DateTime.UtcNow;
+                    _context.SaveChanges();
+                }
+                return Ok();
+            }catch(Exception ex)
+            {
+                return StatusCode(500, new { error = "Unable to process request. " + ex.Message });
+            }
+        }
+
         [HttpPost]
         [Route("savebio")]
         public async Task<IActionResult> SaveBio([FromForm] string d)
@@ -316,6 +402,47 @@ namespace Bolo.Controllers
                     MemberDTO mdto = new MemberDTO(member);
                     _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
                 }
+                return Ok();
+            }
+        }
+        
+        [HttpGet]
+        [Route("savesecurityquestion")]
+        public async Task<IActionResult> SaveSecurityQuestion([FromQuery] string d)
+        {
+            if (string.IsNullOrEmpty(d))
+                return BadRequest(new { error = "Security Question is required." });
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                member.SecurityQuestion = d;
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savesecurityanswer")]
+        public async Task<IActionResult> SaveSecurityAnswer([FromQuery] string d)
+        {
+            if (string.IsNullOrEmpty(d))
+                return BadRequest(new { error = "Security Answer is required." });
+            
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                member.SecurityAnswer = EncryptionHelper.CalculateSHA256(d);
+                member.ModifyDate = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
                 return Ok();
             }
         }
@@ -649,6 +776,14 @@ namespace Bolo.Controllers
             {
                 return BadRequest(new { error = "Only alphabets, numbers _ and . allowed in Username." });
             }
+            if (string.IsNullOrEmpty(model.SecurityQuestion))
+            {
+                return BadRequest(new { error = "Security question is missing." });
+            }
+            if (string.IsNullOrEmpty(model.SecurityAnswer))
+            {
+                return BadRequest(new { error = "Security Answer is missing." });
+            }
             if (string.IsNullOrEmpty(model.Password))
             {
                 return BadRequest(new { error = "Password is missing." });
@@ -657,10 +792,6 @@ namespace Bolo.Controllers
             {
                 return BadRequest(new { error = "Password should be 8 characters long." });
             }
-            //if(model.Password != model.VerifyPassword)
-            //{
-            //    return BadRequest(new { error = "Password and Verify Password should match." });
-            //}
 
             if (_context.Members.Count(t => t.UserName == model.UserName) > 0)
             {
@@ -678,8 +809,7 @@ namespace Bolo.Controllers
 
             Member m = new Member()
             {
-                CountryCode = string.Empty,
-                Status = RecordStatus.Unverified,
+                Status = RecordStatus.Active,
                 CreateDate = DateTime.UtcNow,
                 Email = model.Email,
                 Name = string.Empty,
@@ -687,15 +817,17 @@ namespace Bolo.Controllers
                 Password = EncryptionHelper.CalculateSHA256(model.Password),
                 PublicID = Guid.NewGuid(),
                 Activity = ActivityStatus.Online,
-                Bio = "",
+                Bio = string.Empty,
                 UserName = model.UserName,
-                City = "",
-                Country = "",
+                City = string.Empty,
                 LastPulse = DateTime.UtcNow,
-                Pic = "",
-                ThoughtStatus = "",
+                Pic = string.Empty,
+                ThoughtStatus = string.Empty,
                 Visibility = MemberProfileVisibility.Public,
-                State = ""
+                State = string.Empty,
+                SecurityAnswer = EncryptionHelper.CalculateSHA256(model.SecurityAnswer.ToLower().Trim()),
+                SecurityQuestion = model.SecurityQuestion,
+                IsEmailVerified = false
             };
             _context.Members.Add(m);
             await _context.SaveChangesAsync();

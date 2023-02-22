@@ -111,8 +111,6 @@ namespace Bolo.Models
         public string Email { get; set; } = string.Empty;
         [MaxLength(15)]
         public string Phone { get; set; } = string.Empty;
-        [MaxLength(4)]
-        public string CountryCode { get; set; } = string.Empty;
         [Required]
         public byte[] Password { get; set; }
 
@@ -155,15 +153,23 @@ namespace Bolo.Models
         [MaxLength(200)]
         public string ThoughtStatus { get; set; } = string.Empty;
 
-        public string GetNameOrUsername() {
-            if (string.IsNullOrEmpty(Name))
-                return UserName;
-            else
-                return Name;
-        }
-
         public List<MemberRole> Roles { get; set; }
+        [Required]
+        [MaxLength(300)]
+        public string  SecurityQuestion{ get; set; }
+        [Required]
+        public byte[] SecurityAnswer { get; set; }
+        public bool IsEmailVerified { get; set; }
     }
+
+    //public class EmailVerification
+    //{
+    //    public int ID { get; set; }
+    //    public Member Member { get; set; }
+    //    public string SecretCode { get; set; }
+    //    public DateTime CreateDate { get; set; }
+    //}
+
 
     public class MemberRole
     {
@@ -317,7 +323,7 @@ namespace Bolo.Models
         Abusive = 1,
         Spam = 2,
         Fake = 3,
-        Nudity =4,
+        Nudity = 4,
         Violence = 5
     }
     public class FlaggedItem

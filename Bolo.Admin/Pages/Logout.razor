@@ -1,0 +1,10 @@
+﻿@page "/logout"
+@inject LocalStorageAccessor lss
+@inject NavigationManager nm
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await lss.clearSessionStorage();
+        nm.NavigateTo("");
+    }
+}

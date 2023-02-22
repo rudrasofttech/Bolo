@@ -1,0 +1,75 @@
+﻿@page "/login"
+@using Bolo.Admin.Models;
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+@inject LocalStorageAccessor lss
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <InputText @bind-Value="model.UserName" class="form-control" />
+                    <ValidationMessage For="@(() => model.UserName)" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => model.Password)" />
+                </div>
+                <button type="submit" disabled="@loading" class="btn btn-primary">
+                    @if (loading)
+                    {
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    }Submit
+                </button>
+            </EditForm>
+            <Message MessageType="@messagetype" MessageText="@messagetext"></Message>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Models.LoginDTO model = new Models.LoginDTO();
+    private bool loading;
+    private string messagetext = "";
+    private MessageType messagetype = MessageType.None;
+
+    private async void OnValidSubmit()
+    {
+        loading = true;
+        try
+        {
+            var resp = await Http.PostAsJsonAsync("api/Members/Login", model);
+            if (resp.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var result = await resp.Content.ReadFromJsonAsync<LoginReturnDTO>();
+                await lss.SetSessionValueAsync<MemberDTO>("user", result.Member);
+                await lss.SetSessionValueAsync("token", result.Token);
+                var returnUrl = NavigationManager.QueryString("returnUrl") ?? "";
+                NavigationManager.NavigateTo(returnUrl);
+            }
+            else if(resp.StatusCode == System.Net.HttpStatusCode.NotFound || resp.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                messagetype = MessageType.Error;
+                messagetext = "Invalid Credentials";
+            }
+            else
+            {
+                messagetype = MessageType.Error;
+                messagetext = "Unable to process your request.";
+            }
+            loading = false;
+            
+        }
+        catch (Exception ex)
+        {
+            loading = false;
+            messagetype = MessageType.Error;
+            messagetext = "Unable to contact server. " + ex.Message;
+        }
+        StateHasChanged();
+    }
+}

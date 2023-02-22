@@ -1,0 +1,168 @@
+﻿@page "/users"
+@using Bolo.Admin.Models;
+@using System.Net.Http.Headers;
+@inject HttpClient Http
+@inject LocalStorageAccessor lss
+@inject NavigationManager nm
+<PageTitle>Users</PageTitle>
+
+<h1>Users</h1>
+
+@if (Loading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (Model != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>User Name</th>
+                <th>Last Pulse</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Members)
+            {
+                <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(m.Pic))
+                        {
+                            <img src="@m.Pic" class="img-fluid" style="max-height:30px" />
+                        }
+                    </td>
+                    <td>@m.Name</td>
+                    <td>@m.UserName</td>
+                    <td>@m.LastPulse</td>
+                    <td>
+                    @if(m.Status == RecordStatus.Inactive)
+                    {
+                            <span class="text-danger">Inactive</span>
+                        }
+                        else if(m.Status == RecordStatus.Active)
+                        {
+                            <span class="text-success">Active</span>
+                        }
+                        else if (m.Status == RecordStatus.Unverified)
+                        {
+                            <span>Unverified</span>
+                        }
+                        else if (m.Status == RecordStatus.Deleted)
+                        {
+                            <span>Deleted</span>
+                        }
+                    </td>
+                    <td>
+                        @if (m.Status == RecordStatus.Inactive)
+                        {
+                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
+                        }
+                        else if (m.Status == RecordStatus.Active)
+                        {
+                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Inactive);}">Set Inactive</button>
+                        }
+                        else if (m.Status == RecordStatus.Unverified)
+                        {
+                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
+                        }
+                        else if (m.Status == RecordStatus.Deleted)
+                        {
+                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (Model.TotalPages > 1)
+    {
+        <div>
+            <EditForm Model="CurrentPage" OnSubmit="LoadUsers" class="row row-cols-lg-auto g-3 align-items-center">
+                <div class="col-12">
+                    <div class="input-group">
+                        <InputNumber max="@Model.TotalPages" min="0" class="form-control" @bind-Value="CurrentPage" />
+                        <div class="input-group-text">of @Model.TotalPages Pages</div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </EditForm>
+        </div>
+    }
+}
+@if (!string.IsNullOrEmpty(Error))
+{
+    <Message MessageText="Error" MessageType="MessageType.Error" />
+}
+@if (!string.IsNullOrEmpty(Success))
+{
+    <Message MessageText="Success" MessageType="MessageType.Success" />
+}
+
+@code {
+    private MemberListPaged? Model;
+    public string Keywords { get; set; } = string.Empty;
+    public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 100;
+    public bool Loading { get; set; }
+    public string Error { get; set; } = string.Empty;
+    public string Success { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        if (await lss.GetSessionValueAsync<MemberDTO>("user") == null)
+        {
+            nm.NavigateTo("login?returnUrl=users");
+            return;
+        }
+        await LoadUsers();
+    }
+
+    public async Task LoadUsers()
+    {
+        try
+        {
+
+            Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("Bearer " + await lss.GetSessionValueAsync("token"));
+            Model = await Http.GetFromJsonAsync<MemberListPaged>($"api/members/getmembers?k={Keywords}&p={CurrentPage - 1}&ps={PageSize}");
+            Error = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Error = ex.Message;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+
+    }
+
+    public async Task ChangeStatus(MemberDTO m, RecordStatus status)
+    {
+        try
+        {
+            Loading = true;
+            Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("Bearer " + await lss.GetSessionValueAsync("token"));
+            await Http.GetAsync($"api/members/changestatus?id={m.ID}&status={status}");
+            m.Status = status;
+            Error = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Error = ex.Message;
+        }
+        finally
+        {
+            Loading = false;
+            StateHasChanged();
+        }
+        
+    }
+}

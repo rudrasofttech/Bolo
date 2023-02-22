@@ -148,12 +148,12 @@ namespace Bolo.Models
         public int FollowRequestCount { get; set; }
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string RecoveryQuestion { get; set; } = string.Empty;
-
+        public string SecurityQuestion { get; set; } = string.Empty;
+        public string SecurityAnswer { get; set; } = string.Empty;
         public int ProfileCompletePercent { get; set; }
         public string EmptyFields { get; set; } = string.Empty;
-
         public DateTime LastPulse { get; set; }
+        public RecordStatus Status { get; set; }
         public MemberDTO()
         {
             ID = Guid.Empty;
@@ -185,6 +185,8 @@ namespace Bolo.Models
             ThoughtStatus = string.IsNullOrEmpty(m.ThoughtStatus) ? "" : m.ThoughtStatus;
             Phone = "";
             Email = "";
+            SecurityQuestion = m.SecurityQuestion;
+            Status = m.Status;
         }
     }
 
@@ -193,9 +195,18 @@ namespace Bolo.Models
         [MaxLength(50)]
         [Required]
         public string UserName { get; set; } = string.Empty;
+        [MinLength(8)]
+        [Required]
         public string Password { get; set; } = string.Empty;
+
         [MaxLength(250)]
         public string Email { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(300)]
+        public string SecurityQuestion { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public string SecurityAnswer { get; set; }
         //[MaxLength(4)]
         //public string Country { get; set; } = string.Empty;
         //[MaxLength(15)]
@@ -352,7 +363,7 @@ namespace Bolo.Models
         public List<PostDTO> Posts { get; set; } = new List<PostDTO>();
     }
 
-    public class MemberListPaged : PagingModel
+    public class MemberSmallListPaged : PagingModel
     {
         public List<MemberSmallDTO> Members { get; set; } = new List<MemberSmallDTO>();
     }
@@ -360,6 +371,11 @@ namespace Bolo.Models
     public class ReactionListPaged : PagingModel
     {
         public List<ReactionMemberFollowerDTO> Reactions { get; set; } = new List<ReactionMemberFollowerDTO>();
+    }
+
+    public class MemberListPaged : PagingModel
+    {
+        public List<MemberDTO> Members { get; set; } = new List<MemberDTO>();
     }
 
     public class NotificationListPaged : PagingModel
