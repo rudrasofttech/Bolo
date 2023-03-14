@@ -39,6 +39,27 @@ namespace Bolo.Controllers
             nhelper = new NotificationHelper(context, uhub);
         }
 
+        [HttpGet("{id}")]
+        public PostDTO Get(Guid id)
+        {
+            Member currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            var p = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).FirstOrDefault(t => t.PublicID == id);
+            if (p == null)
+                return null;
+            else
+            {
+                var pdto = new PostDTO(p)
+                {
+                    ReactionCount = _context.Reactions.Count(t => t.Post.ID == p.ID),
+                    CommentCount = _context.Comments.Count(t => t.Post.ID == p.ID)
+                };
+                if (currentMember != null)
+                    pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == p.ID && t.ReactedBy.ID == currentMember.ID) > 0;
+                return pdto;
+            }
+
+        }
+
         /// <summary>
         /// This action will return post based on a hashtag or profile
         /// </summary>
@@ -571,6 +592,14 @@ namespace Bolo.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
             }
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("count")]
+        public ActionResult Count([FromQuery] RecordStatus status)
+        {
+            return Ok(new { count = _context.Posts.Count(t => t.Status == status) });
         }
     }
 }

@@ -1066,6 +1066,14 @@ namespace Bolo.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize]
+        [Route("count")]
+        public ActionResult Count([FromQuery]RecordStatus status)
+        {
+            return Ok(new { count = _context.Members.Count(t => t.Status == status) });
+        }
+
         private bool MemberExists(int id)
         {
             return _context.Members.Any(e => e.ID == id);

@@ -1,25 +1,23 @@
-﻿@model Bolo.Models.MemberDTO
-
-@using System.Text.Json
-@{
-    ViewData["Title"] = "Profile";
+﻿@{
+    ViewData["Title"] = "Post";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section scripts{
-    <script src="~/libs/hammer.min.js"></script>
     <environment include="Development">
         <script type="text/babel">
             ReactDOM.render(
-            <Profile username='@ViewBag.UserName'/>,
+            <Post id='@ViewBag.PostId'/>,
             document.getElementById('root')
             );
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
         <script>
-            ReactDOM.render(React.createElement(Profile, {
-                username: "@ViewBag.UserName"
+            ReactDOM.render(React.createElement(Post, {
+                id: "@ViewBag.PostId"
             }), document.getElementById('root'));
         </script>
     </environment>
 }
+
+

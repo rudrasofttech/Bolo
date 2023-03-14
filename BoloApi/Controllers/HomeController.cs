@@ -96,5 +96,12 @@ namespace Bolo.Controllers
         {
             return View();
         }
+
+        [Route("post/{id}")]
+        public IActionResult Post(Guid id)
+        {
+            ViewBag.PostId = id;
+            return View();
+        }
     }
 }

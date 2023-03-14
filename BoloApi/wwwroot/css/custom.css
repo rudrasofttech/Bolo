@@ -2,21 +2,96 @@
     font-family: 'Forum-Regular';
     src: url('../font/Forum-Regular.ttf') format('truetype');
 }*/
-
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 body {
-    font-family: Candara, Arial;
+    font-family: Inter, Candara, Arial;
 }
-button.btn, a{
-    font-family:Arial !important;
+button.btn, a {
+    font-family: Inter,Arial !important;
 }
-.row{
-    margin-left:0px;
-    margin-right:0px;
+body {
+    color: #666;
+    font-size: 15px;
+    line-height: 27px;
+    background-color: #f0f2f5;
+    font-family: "Inter", sans-serif;
+    text-transform: none;
+}
+
+    body p {
+        font-size: 15px;
+        line-height: 27px;
+    }
+
+/* Main Font */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Inter", sans-serif;
+    text-transform: none;
+}
+
+input[type="text"], input[type="password"], input[type="email"] {
+    font-family: "Inter", sans-serif;
+    text-transform: none;
+}
+
+textarea,
+select {
+    font-family: "Inter", sans-serif;
+    text-transform: none;
+}
+
+input[type="button"], input[type="submit"] {
+    font-family: "Inter", sans-serif;
+    text-transform: none;
+}
+
+
+
+/* Headlines */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #333;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 26px;
+}
+
+h3 {
+    font-size: 22px;
+}
+
+h4 {
+    font-size: 15px;
+}
+
+h5 {
+    font-size: 14px;
+}
+
+h6 {
+    font-size: 12px;
 }
 
 /* Provide sufficient contrast against white background */
 a {
-    color: #0366d6;
+    color: #333; /* #0366d6;*/
     cursor: pointer;
 }
 .postdiv {
@@ -55,7 +130,9 @@ code {
 .fs-12 {
    font-size:12px;
 }
-
+.bg-light {
+    background-color: #f0f2f5 !important;
+}
 .btn-primary {
     color: #fff;
     background-color: #0064DA;
@@ -70,8 +147,8 @@ code {
 }
 
 .owner-thumb-small {
-    max-height: 35px;
-    max-width: 35px;
+    max-height: 45px;
+    max-width: 45px;
 }
 
 .pointer {

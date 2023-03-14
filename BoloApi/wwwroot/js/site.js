@@ -269,7 +269,7 @@ class SiteGeneralWorker {
                         this.notifications[k].seen = true;
                 }
                 this.renderNotifications();
-                location.href = n.url; // this.getURL(n.url);
+                location.href = this.getURL(n.url);
             }
         });
 

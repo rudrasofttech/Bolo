@@ -35,26 +35,27 @@
 <body class="bg-light">
     <div class="container-lg p-0 sticky-top">
         <div class="row g-0">
-            <div class="col rounded-bottom rounded-2 bg-white">
+            <div class="col bg-white">
                 <table cellpadding="5" cellspacing="0" style="width:100%">
                     <tbody>
                         <tr>
-                            <td width="70%" style="max-width:70%">
-                                <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold">Home</a>
+                            <td align="center" valign="middle">
+                                <a href="javascript:void(0)" class="text-dark mx-2 fs-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
                             </td>
                             <td align="center" valign="middle">
-                                <a href="javascript:void(0)" class="text-dark mx-2 fs-5" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
+                                <a class="text-dark mx-2 fs-4" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
                             </td>
-                            <td align="center" valign="middle">
-                                <a class="text-dark mx-2 fs-5" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
+                            <td align="center" width="70%" style="max-width:70%">
+                                <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold"><img src="~/images/yocail.png" class="img-fluid" style="max-height:40px;" alt="Yocail logo" /></a>
                             </td>
+                            
                             <td align="center" valign="middle">
-                                <a class="text-dark mx-2 fs-5" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
+                                <a class="text-dark mx-2 fs-4" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
                             </td>
 
                             <td align="center" valign="middle">
                                 <div class="dropdown">
-                                    <a class="btn btn-link text-dark fs-5 text-decoration-none notificationcountcnt position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
+                                    <a class="btn btn-link text-dark fs-4 text-decoration-none notificationcountcnt position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
                                         <script>
                                             try {
                                                 var member = JSON.parse(localStorage.getItem("myself"));
@@ -71,16 +72,16 @@
 
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a class="dropdown-item" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
+                                            <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal"><i class="bi bi-bell"></i> Notifications <span class="notificationcount badge rounded-pill bg-danger"></span></a>
+                                            <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal"><i class="bi bi-bell"></i> Notifications <span class="notificationcount badge rounded-pill bg-danger"></span></a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" href="@Url.Content("~/ignored")"><i class="bi bi-sign-stop"></i> Ignored</a>
+                                            <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/ignored")"><i class="bi bi-sign-stop"></i> Ignored</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
+                                            <a class="dropdown-item fs-6 my-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -92,7 +93,7 @@
         </div>
         @RenderSection("toolbar", false)
     </div>
-    <div id="root" class="container-lg p-0" style="min-height: 500px;">
+    <div id="root" class="container-lg mt-2 p-0" style="min-height: 500px;">
         @RenderBody()
     </div>
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">

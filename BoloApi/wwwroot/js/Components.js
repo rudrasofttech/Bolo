@@ -509,7 +509,7 @@ class Home extends React.Component {
                 <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
             </div>
             <div className="col-lg-4">
-                <div style={{ position: "-webkit-sticky", position: "sticky", top: "60px" }} className="p-1">
+                <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-1">
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -656,6 +656,91 @@ class Search extends React.Component {
             </div>
             {this.renderSearchResult()}
         </React.Fragment>;
+    }
+}
+
+class Post extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: null, loggedin: loggedin,
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), id: this.props.id, post : null
+        };
+    }
+
+    componentDidMount() {
+        this.fetchPost();
+    }
+
+    fetchPost = () => {
+        this.setState({ loading: true });
+        let url = '//' + window.location.host + '/api/post/' + this.state.id;
+
+        fetch(url, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        }).then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    response.json().then(data => {
+                        console.log(data);
+                        this.setState({
+                            loading: false,post : data
+                        });
+                    });
+                }
+            });
+    }
+
+    render() {
+        if (!this.state.loggedin) {
+            return <div className="row mt-1 g-0 bg-white">
+                <div className="col-lg-6 offset-lg-3 mt-5">
+                    <RegisterForm beginWithRegister={false} onLogin={() => {
+                        this.setState({
+                            loggedin: localStorage.getItem("token") === null ? false : true,
+                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                        })
+                    }} /></div>
+            </div>;
+        }
+        if (this.state.post !== null) {
+            return <div className="row mt-1 g-0">
+                <div className="col-lg-8">
+                    <MemberPost post={this.state.post} ondelete={(id) => { this.setState({ post: null }) }} onIgnoredMember={userid => { }} />
+                </div>
+                <div className="col-lg-4">
+                    <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-1">
+                        <SendInvite />
+                        <SuggestedAccounts />
+                    </div>
+                </div>
+            </div>;
+        } else {
+            return <div className="row mt-1 g-0">
+                <div className="col-lg-8">
+                    {!this.state.loading ? <p>No post found.</p> : ""}
+                </div>
+                <div className="col-lg-4">
+                    <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-1">
+                        <SendInvite />
+                        <SuggestedAccounts />
+                    </div>
+                </div>
+            </div>;;
+        }
     }
 }
 
@@ -892,16 +977,16 @@ class MemberPost extends React.Component {
             <a href={'//' + window.location.host + '/profile?un=' + p.owner.userName} className="fs-6 fw-bold pointer d-inline-block text-dark text-decoration-none">
                 {p.owner.userName}
             </a>;
-        let owner = <table className="w-100" cellPadding="0" cellSpacing="0">
+        let owner = <table className="w-100 mb-3" cellPadding="0" cellSpacing="0">
             <tbody>
                 <tr>
-                    <td width="50px">
+                    <td width="45px" valign="top">
                         <MemberPicSmall member={p.owner} />
                     </td>
-                    <td className="ps-2">
+                    <td className="ps-2" valign="top">
                         {ownerlink}
-                        <div>
-                            <span style={{ fontSize: "14px" }}><DateLabel value={p.postDate} /></span>
+                        <div style={{ fontSize: "0.67rem" }}>
+                            <DateLabel value={p.postDate} />
                         </div>
                     </td>
                     <td width="40px">
@@ -916,14 +1001,14 @@ class MemberPost extends React.Component {
         } else if (p.photos) {
             if (p.photos.length == 1) {
                 postshtml = <div className="text-center">
-                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid py-1" onDoubleClick={() => { this.addReaction(); }} />
+                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
                 var imgs = [], imgs2 = [];
                 for (var i in p.photos) {
                     imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0">
                         <div className="postdiv" style={{ backgroundImage: "url(//" + location.host + "/" + p.photos[i].photo + ")" }}>
-                            <img src={p.photos[i].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "500px" }} />
+                            <img src={"//" + location.host + "/" + p.photos[i].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "500px" }} />
                         </div></li>);
                     imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
                 }
@@ -961,15 +1046,13 @@ class MemberPost extends React.Component {
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="mb-2 p-1 p-lg-3 bg-white rounded-3">
+        return <div id={this.state.post.id} className="mb-4 pb-1 bg-white rounded-3">
             {owner}
             {postshtml}
             <div className="mt-1 text-center">
                 {reactionhtml}{reactionCountHtml} {commentBtn}{commentCountHtml}
             </div>
-            <div>
-                <ExpandableTextLabel text={describe === null ? "" : describe} maxlength={200} />
-            </div>
+            <ExpandableTextLabel cssclass="m-3" text={describe === null ? "" : describe} maxlength={200} />
             {likemodal}
             {commentbox}
             {this.renderPostOptions()}
@@ -1963,8 +2046,10 @@ class ExpandableTextLabel extends React.Component {
     }
 
     render() {
-        var length = (this.state.text.length < this.state.maxlength) ? this.state.text.length : this.state.maxlength;
-        var text = null, expandbtn = null;
+        if (this.state.text.trim() === "") return null;
+
+        let length = (this.state.text.length < this.state.maxlength) ? this.state.text.length : this.state.maxlength;
+        let text = null, expandbtn = null;
         if (this.state.expand) {
             text = <React.Fragment>
                 {this.state.text.split('\n').map((item, key) => {
@@ -1982,7 +2067,7 @@ class ExpandableTextLabel extends React.Component {
             expandbtn = <button type="button" onClick={() => { this.setState({ expand: !this.state.expand }) }} className="btn btn-link d-block p-0 text-secondary text-decoration-none" >{(!this.state.expand) ? "More" : "Less"}</button>
         }
 
-        return <div className={this.state.cssclass}><div>{text}</div>{expandbtn}</div>;
+        return <div className={this.state.cssclass}>{text}{expandbtn}</div>;
     }
 }
 
@@ -2156,7 +2241,6 @@ class BlockContact extends React.Component {
     }
 
     componentDidMount() {
-
         this.fetchContactDetail();
     }
 
@@ -3123,7 +3207,7 @@ class ManageProfile extends React.Component {
                         <textarea className="form-control" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} rows="4" placeholder="Write something about yourself."
                             onBlur={() => { this.saveData("bio", this.state.myself.bio) }}></textarea>
                     </div>
-                    
+
                     <div className="row g-1">
                         <div className="col-md-6">
                             <label htmlFor="visibilityselect" className="form-label fw-bold">Profile Visibility</label>
@@ -4038,7 +4122,7 @@ class ForgotPassword extends React.Component {
         fd.append("password", this.state.password);
         fetch("//" + window.location.host + "/api/members/validatesecurityanswer", {
             method: "post",
-            body : fd
+            body: fd
         })
             .then(response => {
                 if (response.status === 200) {
@@ -4062,7 +4146,7 @@ class ForgotPassword extends React.Component {
                 <label className="form-label" >Username</label>
                 <div className="row g-0 mb-3">
                     <div className="col-9">
-                        
+
                         <input type="text" className="form-control" style={{ width: "210 px" }} maxlength="300" placeholder="Username or Email" value={this.state.username} onChange={(e) => { this.setState({ username: e.target.value }); }} required />
                     </div>
                     <div className="col-3">

@@ -1,10 +1,66 @@
 ﻿@page "/"
-
+@using Bolo.Admin.Models;
+@using System.Net.Http.Headers;
+@inject HttpClient Http
+@inject LocalStorageAccessor lss
+@inject NavigationManager nm
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Dashboard</h1>
 
-Welcome to your new app.
+@if (Loading)
+{
+    <p><em>Loading...</em></p>
+}
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@if (!string.IsNullOrEmpty(Error))
+{
+    <Message MessageText="Error" MessageType="MessageType.Error" />
+}
+@if (!string.IsNullOrEmpty(Success))
+{
+    <Message MessageText="Success" MessageType="MessageType.Success" />
+}
+
+@code {
+    public int UserCount { get; set; }
+    public string Keywords { get; set; } = string.Empty;
+    public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 100;
+    public bool Loading { get; set; }
+    public string Error { get; set; } = string.Empty;
+    public string Success { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        if (await lss.GetSessionValueAsync<MemberDTO>("user") == null)
+        {
+            nm.NavigateTo("login?returnUrl=users");
+            return;
+        }
+        await LoadUsers();
+    }
+
+    public async Task LoadUsers()
+    {
+        try
+        {
+
+            Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("Bearer " + await lss.GetSessionValueAsync("token"));
+            Model = await Http.GetFromJsonAsync<MemberListPaged>($"api/members/getmembers?k={Keywords}&p={CurrentPage - 1}&ps={PageSize}");
+            Error = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Error = ex.Message;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+
+    }
+
+    
+}
