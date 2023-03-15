@@ -166,8 +166,6 @@ namespace Bolo.Controllers
                 PageSize = ps,
                 FollowList = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList()
             };
-
-
             return result;
         }
 
@@ -242,5 +240,7 @@ namespace Bolo.Controllers
             var secondlevel = _context.Followers.Where(t => followers.Contains(t.Following) && t.Follower.ID != currentMember.ID).Select(t => t.Follower).ToList();
             return secondlevel.Take(take).Select(t => new MemberDTO(t)).ToList();
         }
+
+        
     }
 }

@@ -39,7 +39,8 @@ namespace Bolo.Models
         NewPost = 1,
         PostReaction = 2,
         PostComment = 3,
-        FollowRequest = 4
+        FollowRequest = 4,
+        SharePost = 5
     }
 
     public enum ChatMessageSentStatus
@@ -245,6 +246,7 @@ namespace Bolo.Models
         public RecordStatus Status { get; set; } = RecordStatus.Active;
         public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
         public bool AcceptComment { get; set; } = true;
+        public bool AllowShare { get; set; } = true;
         [MaxLength(1000)]
         public string VideoURL { get; set; }
     }
@@ -315,6 +317,15 @@ namespace Bolo.Models
         public int ID { get; set; }
         public Member User { get; set; }
         public Member Ignored { get; set; }
+        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+    }
+
+    public class SharedPost
+    {
+        public int ID { get; set; }
+        public Member SharedBy { get; set; }
+        public Member SharedWith { get; set; }
+        public MemberPost Post { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
     }
 

@@ -234,7 +234,8 @@ namespace Bolo.Models
         [MaxLength(7000)]
         public string Describe { get; set; } = string.Empty;
         public bool AcceptComment { get; set; } = true;
-        public List<String> Photos { get; set; } = new List<string>(10);
+        public bool AllowShare { get; set; } = true;
+        public List<string> Photos { get; set; } = new List<string>(10);
 
         public PostPhotoDTO()
         {
@@ -256,6 +257,7 @@ namespace Bolo.Models
         [MaxLength(7000)]
         public string Describe { get; set; } = string.Empty;
         public bool AcceptComment { get; set; }
+        public bool AllowShare { get; set; }
     }
 
     public class PostDTO
@@ -275,6 +277,7 @@ namespace Bolo.Models
         public RecordStatus Status { get; set; } = RecordStatus.Active;
         public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
         public bool AcceptComment { get; set; } = true;
+        public bool AllowShare { get; set; } = true;
         public string VideoURL { get; set; }
         public int ReactionCount { get; set; }
         public int CommentCount { get; set; }
@@ -295,6 +298,7 @@ namespace Bolo.Models
                     Photos.Add(pp);
                 AcceptComment = mp.AcceptComment;
                 VideoURL = mp.VideoURL;
+                AllowShare = mp.AllowShare;
             }
         }
     }
@@ -452,8 +456,8 @@ namespace Bolo.Models
                 URL = $"post/{n.Post.PublicID}";
             }else if(n.Type == MemberNotificationType.FollowRequest)
             {
-                Title = $"{n.Target.Name} wants to follow you.";
-                URL = $"profile?un={n.Target.UserName}";
+                Title = $"{n.Source.Name} wants to follow you.";
+                URL = $"profile?un={n.Source.UserName}";
             }
         }
     }

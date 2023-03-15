@@ -47,7 +47,7 @@
         {
 
             Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("Bearer " + await lss.GetSessionValueAsync("token"));
-            Model = await Http.GetFromJsonAsync<MemberListPaged>($"api/members/getmembers?k={Keywords}&p={CurrentPage - 1}&ps={PageSize}");
+            //Model = await Http.GetFromJsonAsync<MemberListPaged>($"api/members/getmembers?k={Keywords}&p={CurrentPage - 1}&ps={PageSize}");
             Error = string.Empty;
         }
         catch (Exception ex)

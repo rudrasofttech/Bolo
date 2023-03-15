@@ -177,7 +177,7 @@ namespace Bolo.Controllers
             var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
             List<int> queryview = _context.DiscoverPostView.Skip(ps * p).Take(ps).Select(t => t.ID).ToList();
             var query = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => queryview.Contains(t.ID))
-                .Where(t => !ignored.Contains(t.Owner)).Select(t=> new PostDTO(t)).ToList();
+                .Where(t => !ignored.Contains(t.Owner)).Select(t => new PostDTO(t)).ToList();
             PostsPaged result = new PostsPaged()
             {
                 Current = p,
@@ -261,7 +261,7 @@ namespace Bolo.Controllers
                         await _context.SaveChangesAsync();
                         try
                         {
-                            nhelper.SaveNotification(mp.Owner, string.Empty,false, MemberNotificationType.PostReaction, mp, member, null);
+                            nhelper.SaveNotification(mp.Owner, string.Empty, false, MemberNotificationType.PostReaction, mp, member, null);
                         }
                         catch (Exception)
                         {
@@ -275,6 +275,40 @@ namespace Bolo.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("share/{id}")]
+        public ActionResult Share(Guid id, [FromQuery] Guid uid)
+        {
+            try
+            {
+                var currentmember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                var targetmember = _context.Members.FirstOrDefault(t => t.PublicID == uid);
+                if (targetmember == null)
+                    return BadRequest(new { error = "Could not find the person to share post." });
+                var post = _context.Posts.FirstOrDefault(t => t.PublicID == id);
+                if (post == null)
+                    return BadRequest(new { error = "Could not find the post." });
+
+                SharedPost sp = new SharedPost() { CreateDate = DateTime.UtcNow, Post = post, SharedBy = currentmember, SharedWith = targetmember };
+                _context.SharedPosts.Add(sp);
+                _context.SaveChanges();
+
+                try
+                {
+                    nhelper.SaveNotification(targetmember, "Post shared", false, MemberNotificationType.SharePost, post, currentmember, null);
+                }
+                catch (Exception)
+                {
+
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
             }
         }
 
@@ -297,6 +331,7 @@ namespace Bolo.Controllers
                     Status = RecordStatus.Active,
                     VideoURL = string.Empty,
                     AcceptComment = value.AcceptComment,
+                    AllowShare = value.AllowShare,
                     PublicID = Guid.NewGuid()
                 };
                 foreach (string s in value.Photos.Where(t => !string.IsNullOrEmpty(t)))
@@ -311,7 +346,7 @@ namespace Bolo.Controllers
                     {
                         System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
                         image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        
+
                     }
                     p.Photos.Add(new PostPhoto() { Photo = relpath });
                 }
@@ -329,7 +364,7 @@ namespace Bolo.Controllers
                 await _context.SaveChangesAsync();
 
                 var followers = _context.Followers.Include(t => t.Follower).Where(t => t.Following.ID == member.ID).ToList();
-                foreach(var f in followers)
+                foreach (var f in followers)
                 {
                     try
                     {
@@ -350,7 +385,7 @@ namespace Bolo.Controllers
 
         [HttpPost]
         [Route("addcomment")]
-        public async Task<ActionResult<CommentDTO>> AddComment([FromForm]PostCommentDTO value)
+        public async Task<ActionResult<CommentDTO>> AddComment([FromForm] PostCommentDTO value)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { error = "Invalid Input" });
@@ -437,7 +472,8 @@ namespace Bolo.Controllers
         {
             var query = _context.Comments.Include(t => t.CommentedBy).Include(t => t.Post)
                 .Where(t => t.Post.PublicID == id).OrderByDescending(t => t.ID);
-            CommentListPaged result = new CommentListPaged() {
+            CommentListPaged result = new CommentListPaged()
+            {
                 Current = p,
                 PageSize = ps,
                 Total = query.Count(),
@@ -457,7 +493,7 @@ namespace Bolo.Controllers
             {
                 return BadRequest(new { error = "Invalid Input" });
             }
-            
+
             try
             {
                 var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
@@ -466,7 +502,8 @@ namespace Bolo.Controllers
                 {
                     p.Modifier = member;
                     p.ModifyDate = DateTime.UtcNow;
-                    p.AcceptComment= value.AcceptComment;
+                    p.AcceptComment = value.AcceptComment;
+                    p.AllowShare = value.AllowShare;
                     p.Describe = string.IsNullOrEmpty(value.Describe) ? "" : value.Describe;
                     var tags = _context.HashTags.Where(t => t.Post.ID == p.ID);
                     _context.HashTags.RemoveRange(tags);
@@ -499,9 +536,9 @@ namespace Bolo.Controllers
         public async Task<ActionResult> DeleteAsync(Guid id)
         {
             try
-            {   
+            {
                 var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-                
+
                 MemberPost p = _context.Posts.Include(t => t.Photos).FirstOrDefault(t => t.PublicID == id && t.Owner.ID == member.ID);
                 if (p != null)
                 {
@@ -513,20 +550,22 @@ namespace Bolo.Controllers
                     _context.Reactions.RemoveRange(reactions);
                     var notifications = _context.Notifications.Where(t => t.Post.ID == p.ID);
                     _context.Notifications.RemoveRange(notifications);
+                    var sharedphotos = _context.SharedPosts.Where(t => t.Post.ID == p.ID);
+                    _context.SharedPosts.RemoveRange(sharedphotos);
 
                     _context.PostPhotos.RemoveRange(p.Photos);
-                    
+
                     _context.Posts.Remove(p);
                     await _context.SaveChangesAsync();
-                    foreach(var photo in p.Photos)
+                    foreach (var photo in p.Photos)
                     {
-                        if(System.IO.File.Exists(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo)))
+                        if (System.IO.File.Exists(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo)))
                         {
                             System.IO.File.Delete(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo));
                         }
                     }
                 }
-                
+
                 return Ok();
             }
             catch (Exception ex)
@@ -568,17 +607,17 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("flag/{id}")]
-        public ActionResult Flag(Guid id,[FromQuery] FlagTypeEnum type)
+        public ActionResult Flag(Guid id, [FromQuery] FlagTypeEnum type)
         {
             try
             {
                 var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
                 var p = _context.Posts.FirstOrDefault(t => t.PublicID == id);
-                
+
                 if (p != null)
                 {
                     var fi = _context.FlaggedItems.FirstOrDefault(t => t.User.ID == member.ID && t.PostID == p.ID);
-                    if(fi == null)
+                    if (fi == null)
                     {
                         fi = new FlaggedItem() { CreateDate = DateTime.UtcNow, PostID = p.ID, User = member, FlagType = type };
                         _context.FlaggedItems.Add(fi);
@@ -595,11 +634,24 @@ namespace Bolo.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         [Route("count")]
         public ActionResult Count([FromQuery] RecordStatus status)
         {
             return Ok(new { count = _context.Posts.Count(t => t.Status == status) });
+        }
+
+        [HttpGet]
+        [Route("reactioncount/{id}")]
+        public int ReactionCount(Guid id)
+        {
+            return _context.Reactions.Count(t => t.Post.PublicID == id);
+        }
+
+        [HttpGet]
+        [Route("commentcount/{id}")]
+        public int CommentCount(Guid id)
+        {
+            return _context.Comments.Count(t => t.Post.PublicID == id);
         }
     }
 }
