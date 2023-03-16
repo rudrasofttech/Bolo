@@ -509,7 +509,7 @@ class Home extends React.Component {
                 <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
             </div>
             <div className="col-lg-4">
-                <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-1">
+                <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-2">
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -758,10 +758,11 @@ class MemberPost extends React.Component {
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : '',
             showCommentBox: false, showpostoptions: false, showeditform: false, showdeletemodal: false, showflagmodal: false,
-            showModal : '' /*reaction,comment,post,edit,delete,flag,share */
+            showModal: '' /*reaction,comment,post,edit,delete,flag,share */
         };
 
         this.addReaction = this.addReaction.bind(this);
+        this.sharePost = this.sharePost.bind(this);
     }
 
     addReaction() {
@@ -811,7 +812,7 @@ class MemberPost extends React.Component {
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/post/edit/' + this.state.post.id, {
             method: 'post',
-            body: JSON.stringify({ describe: this.state.post.describe, acceptComment: this.state.post.acceptComment }),
+            body: JSON.stringify({ describe: this.state.post.describe, acceptComment: this.state.post.acceptComment, allowShare : this.state.post.allowShare }),
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem("token"),
                 'Content-Type': 'application/json'
@@ -822,7 +823,7 @@ class MemberPost extends React.Component {
                 localStorage.removeItem("token");
                 this.setState({ loggedin: false, loading: false });
             } else if (response.status === 200) {
-                this.setState({ loading: false, message: '', bsstyle: '', showModal : '' /*showeditform: false, showpostoptions: false*/ });
+                this.setState({ loading: false, message: '', bsstyle: '', showModal: '' /*showeditform: false, showpostoptions: false*/ });
             } else if (response.status > 400 && response.status < 500) {
                 this.setState({ loading: false, message: 'Unable to process request', bsstyle: 'danger' });
             } else {
@@ -839,6 +840,47 @@ class MemberPost extends React.Component {
         });
     }
 
+    removeMessage = () => { this.setState({ bsstyle: '', message: '' }); }
+
+    sharePost(sharewithid) {
+        fetch('//' + window.location.host + '/api/post/share/' + this.state.post.id + "?uid=" + sharewithid, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    //if token is not valid than remove token, set myself object with empty values
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    this.setState({ loading: false, bsstyle: "success", message: "Post is shared." });
+                    setTimeout(this.removeMessage, 1500);
+                } else if (response.status === 400 || response.status === 500) {
+                    try {
+                        response.json().then(data => {
+                            //console.log(data);
+                            this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                        });
+                    } catch (err) {
+                        this.setState({ loading: false, message: 'Unable to process your request', bsstyle: 'danger' });
+                    }
+
+                } else {
+                    try {
+                        response.json().then(data => {
+                            //console.log(data);
+                            this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                        });
+                    } catch (err) {
+                        this.setState({ loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
+                    }
+
+                }
+            });
+    }
+
     deletePost = () => {
         fetch('//' + window.location.host + '/api/post/delete/' + this.state.post.id, {
             method: 'get',
@@ -852,7 +894,7 @@ class MemberPost extends React.Component {
                 this.setState({ loggedin: false, loading: false });
             } else if (response.status === 200) {
                 let id = this.state.post.id;
-                this.setState({ loading: false, message: '', bsstyle: '', showModal:'' /*showeditform: false, showdeletemodal: false, showpostoptions: false*/, post: null },
+                this.setState({ loading: false, message: '', bsstyle: '', showModal: '' /*showeditform: false, showdeletemodal: false, showpostoptions: false*/, post: null },
                     () => {
                         if (this.props.ondelete !== undefined && this.props.ondelete !== null) {
                             this.props.ondelete(id);
@@ -863,7 +905,7 @@ class MemberPost extends React.Component {
                 try {
                     response.json().then(data => {
                         //console.log(data);
-                        this.setState({ showModal : '' /*showeditform: false, showdeletemodal: false, showpostoptions: false*/, loading: false, message: data.error, bsstyle: 'danger' });
+                        this.setState({ showModal: '' /*showeditform: false, showdeletemodal: false, showpostoptions: false*/, loading: false, message: data.error, bsstyle: 'danger' });
                     });
                 } catch (err) {
                     this.setState({ showModal: '' /*showeditform: false, showdeletemodal: false, showpostoptions: false*/, loading: false, message: 'Unable to save ' + name, bsstyle: 'danger' });
@@ -927,8 +969,8 @@ class MemberPost extends React.Component {
         if (this.state.showModal === "post"/*this.state.showpostoptions*/) {
             let deletebtn = null; let ignoreaccbtn = null, editbtn = null;
             if (this.state.post.owner.id === this.state.myself.id) {
-                editbtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-primary" onClick={() => { this.setState({ showModal : 'edit' /*showdeletemodal: false, showeditform: true, showpostoptions: false*/ }); }}><i className="bi bi-pencil-fill me-2"></i> Edit Post</button></div>;
-                deletebtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showModal : 'delete' /*showdeletemodal: true, showeditform: false, showpostoptions: false*/ }); }}><i className="bi bi-trash3-fill  me-2"></i> Delete Post</button></div>;
+                editbtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-primary" onClick={() => { this.setState({ showModal: 'edit' /*showdeletemodal: false, showeditform: true, showpostoptions: false*/ }); }}><i className="bi bi-pencil-fill me-2"></i> Edit Post</button></div>;
+                deletebtn = <div className="text-center border-bottom mb-1 p-1"><button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showModal: 'delete' /*showdeletemodal: true, showeditform: false, showpostoptions: false*/ }); }}><i className="bi bi-trash3-fill  me-2"></i> Delete Post</button></div>;
             }
 
             if (this.state.post.owner.id !== this.state.myself.id) {
@@ -944,11 +986,11 @@ class MemberPost extends React.Component {
                             {deletebtn}
                             {ignoreaccbtn}
                             <div className="text-center mb-1 p-1">
-                                <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showModal : 'flag' /*showflagmodal: true, showdeletemodal: false, showeditform: false, showpostoptions: false*/ }); }}><i className="bi bi-flag-fill me-2"></i> Report Post</button>
+                                <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger" onClick={() => { this.setState({ showModal: 'flag' /*showflagmodal: true, showdeletemodal: false, showeditform: false, showpostoptions: false*/ }); }}><i className="bi bi-flag-fill me-2"></i> Report Post</button>
                             </div>
                         </div>
                         <div className="modal-footer text-center">
-                            <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal:'' /*showpostoptions: false*/ }) }} data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal: '' /*showpostoptions: false*/ }) }} data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -991,7 +1033,7 @@ class MemberPost extends React.Component {
                         </div>
                     </td>
                     <td width="40px">
-                        <button className="btn btn-link text-dark" onClick={() => { this.setState({ showModal : 'post' /*showpostoptions: true*/ }) }}><i className="bi bi-three-dots"></i></button>
+                        <button className="btn btn-link text-dark" onClick={() => { this.setState({ showModal: 'post' /*showpostoptions: true*/ }) }}><i className="bi bi-three-dots"></i></button>
                     </td>
                 </tr>
             </tbody>
@@ -1020,22 +1062,27 @@ class MemberPost extends React.Component {
                 //postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
             }
         }
-        let commentbox = this.state.showModal !== "comment" && p.acceptComment ? null : <MemberComment post={p}
+
+        let commentbox = this.state.showModal === "comment" ? <MemberComment post={p}
             cancel={() => { this.setState({ showModal: '' }); }} onCommentAdded={count => { this.state.post.commentCount = count; this.setState({ post: this.state.post }) }}
-            onCommentRemoved={count => { this.state.post.commentCount = count; this.setState({ post: this.state.post }) }} />;
-        let reactionCountHtml = (p.reactionCount > 0) ? <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" title="Show Reactions" onClick={() => { this.setState({ showModal : 'reaction'/* showreactionlist: true */}) }}>{p.reactionCount}</button> : null;
+            onCommentRemoved={count => { this.state.post.commentCount = count; this.setState({ post: this.state.post }) }} /> : null;
+
+        if (!p.acceptComment)
+            commentbox = null;
+
+        let reactionCountHtml = (p.reactionCount > 0) ? <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" title="Show Reactions" onClick={() => { this.setState({ showModal: 'reaction'/* showreactionlist: true */ }) }}>{p.reactionCount}</button> : null;
         let reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-dark pe-2 ps-0" onClick={() => { this.addReaction(); }}><i className="bi bi-heart"></i></button>;
         if (p.hasReacted) {
             reactionhtml = <button type="button" className="btn btn-link fs-4 fw-bold text-danger pe-2 ps-0" onClick={() => { this.addReaction(); }}><i className="bi bi-heart-fill"></i></button>;
         }
         let commentBtn = null, commentCountHtml = null;
         if (p.acceptComment) {
-            commentCountHtml = p.commentCount > 0 ? <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" title="Show Comments" onClick={() => { this.setState({ showModal:'comment' /*showCommentBox: true*/ }) }}>{p.commentCount}</button> : null;
-            commentBtn = <button type="button" className="btn btn-link fs-4 fw-bold text-dark pe-1" onClick={() => { this.setState({ showModal : 'comment' /*showCommentBox: true */}) }}><i className="bi bi-chat-square-text"></i></button>;
+            commentCountHtml = p.commentCount > 0 ? <button className="btn btn-link text-dark text-decoration-none fw-bold ps-0" type="button" title="Show Comments" onClick={() => { this.setState({ showModal: 'comment' /*showCommentBox: true*/ }) }}>{p.commentCount}</button> : null;
+            commentBtn = <button type="button" className="btn btn-link fs-4 fw-bold text-dark pe-1" onClick={() => { this.setState({ showModal: 'comment' /*showCommentBox: true */ }) }}><i className="bi bi-chat-square-text"></i></button>;
         }
         let shareBtn = null;
         if (p.allowShare) {
-            shareBtn = <button type="button" title="Share post with people" className="btn btn-link fs-4 fw-bold text-dark pe-1" onClick={() => { this.setState({ showModal: 'share' /*showCommentBox: true */ }) }}><i className="bi bi-send"></i></button>
+            shareBtn = <button type="button" title="Share post with people" className="btn btn-link fs-4 fw-bold text-dark pe-1" onClick={() => { this.setState({ showModal: 'share' }) }}><i className="bi bi-send"></i></button>
         }
         let likemodal = null;
         if (this.state.showModal === "reaction"/*this.state.showreactionlist*/) {
@@ -1044,7 +1091,7 @@ class MemberPost extends React.Component {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">Likes</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { this.setState({ showModal : '' /*showreactionlist: false*/ }); }}></button>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { this.setState({ showModal: '' /*showreactionlist: false*/ }); }}></button>
                         </div>
                         <div className="modal-body p-1">
                             <MemberSmallList target="reaction" postid={this.state.post.id} />
@@ -1066,6 +1113,33 @@ class MemberPost extends React.Component {
         </div>;
     }
 
+    renderShareModal() {
+        if (this.state.showModal === "share") {
+            return <React.Fragment>
+                <div className="modal fade show d-block" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-scrollable">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5" >Share Post with People</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: '' }) }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <MemberSmallList memberid={this.state.myself.id} target="share" onSelected={(id) => { this.sharePost(id); }}></MemberSmallList>
+                            </div>
+                            <div className="modal-footer">
+                                {this.state.loading ? <div className="progress mb-2" style={{ height: "5px" }}>
+                                    <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                                </div> : null}
+                                {this.state.bsstyle === "success" && this.state.message !== "" ? <div className="text-success text-center my-2">{this.state.message}</div> : null}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </React.Fragment>;
+        }
+    }
+
     renderDeleteModal() {
         if (this.state.showModal === "delete"/*this.state.showdeletemodal*/) {
             return <React.Fragment>
@@ -1074,14 +1148,14 @@ class MemberPost extends React.Component {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h1 className="modal-title fs-5" >Delete Post</h1>
-                                <button type="button" className="btn-close" onClick={() => { this.setState({ showModal : ''/*showdeletemodal: false, showeditform: false, showpostoptions: false*/ }) }} aria-label="Close"></button>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: ''/*showdeletemodal: false, showeditform: false, showpostoptions: false*/ }) }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
                                 <p>You are going to delete this post permanently. Please confirm?</p>
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" onClick={this.deletePost}>Yes</button>
-                                <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal : ''/*showdeletemodal: false, showeditform: false, showpostoptions: false*/ }) }}>No</button>
+                                <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal: ''/*showdeletemodal: false, showeditform: false, showpostoptions: false*/ }) }}>No</button>
                             </div>
                         </div>
                     </div>
@@ -1098,7 +1172,7 @@ class MemberPost extends React.Component {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h1 className="modal-title fs-5" >Flag Post</h1>
-                                <button type="button" className="btn-close" onClick={() => { this.setState({ showModal :''/*showdeletemodal: false, showeditform: false, showpostoptions: false, showflagmodal: false*/ }) }} aria-label="Close"></button>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: ''/*showdeletemodal: false, showeditform: false, showpostoptions: false, showflagmodal: false*/ }) }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
                                 <ul className="list-group">
@@ -1145,7 +1219,7 @@ class MemberPost extends React.Component {
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-primary" onClick={this.editPost}>Save</button>
-                            <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal : ''/*showeditform: false, showpostoptions: false*/ }); }}>Close</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal: ''/*showeditform: false, showpostoptions: false*/ }); }}>Close</button>
                         </div>
                     </div>
                 </div>
@@ -1165,6 +1239,7 @@ class MemberPost extends React.Component {
             {this.renderEditModal()}
             {this.renderDeleteModal()}
             {this.renderFlagModal()}
+            {this.renderShareModal()}
         </React.Fragment>;
     }
 }
@@ -1186,10 +1261,10 @@ class EditPost extends React.Component {
     }
 
     acceptCommentChanged = () => {
-        this.setState({ acceptComment: acceptComment }, () => { this.props.onchange(this.state.describe, this.state.acceptComment, this.state.allowShare); });
+        this.setState({ acceptComment: !this.state.acceptComment }, () => { this.props.onchange(this.state.describe, this.state.acceptComment, this.state.allowShare); });
     }
     allowShareChanged = () => {
-        this.setState({ allowShare: allowShare }, () => { this.props.onchange(this.state.describe, this.state.acceptComment, this.state.allowShare); });
+        this.setState({ allowShare: !this.state.allowShare }, () => { this.props.onchange(this.state.describe, this.state.acceptComment, this.state.allowShare); });
     }
     render() {
         let chk = <input className="form-check-input" type="checkbox" id="acceptcommentchk" role="switch" onChange={this.acceptCommentChanged} />;
@@ -1202,7 +1277,7 @@ class EditPost extends React.Component {
         return <div>
             <div className="mb-3">
                 <textarea className="form-control border-0 border-bottom" onChange={(e) => {
-                    this.setState({ describe: e.target.value }, () => { this.props.onchange(this.state.describe, this.state.acceptComment) });
+                    this.setState({ describe: e.target.value }, () => { this.props.onchange(this.state.describe, this.state.acceptComment, this.state.allowShare) });
                 }} value={this.state.describe} rows={this.state.rows} placeholder="Add some description to your photo..." maxlength="7000"></textarea>
             </div>
             <div className="mb-3 ps-3">
@@ -1214,7 +1289,7 @@ class EditPost extends React.Component {
             <div className="mb-3 ps-3">
                 <div className="form-check form-switch">
                     {chk2}
-                    <label className="form-check-label" htmlFor="acceptcommentchk">Allow sharing of Post</label>
+                    <label className="form-check-label" htmlFor="allowsharechk">Allow sharing of Post</label>
                 </div>
             </div>
         </div>
@@ -1522,7 +1597,7 @@ class MemberPostList extends React.Component {
         if (this.state.q === "userfeed")
             url = '//' + window.location.host + '/api/post/feed?p=' + this.state.p;
         else if (this.state.q === "explore")
-            url = '//' + window.location.host + '/api/post/explore';
+            url = '//' + window.location.host + '/api/post/explore?p=' + this.state.p;
         fetch(url, {
             method: 'get',
             headers: {
@@ -1720,7 +1795,7 @@ class MemberSmallList extends React.Component {
                                 },
                                 reactions: temp
                             });
-                        } else if (this.props.target === 'follower' || this.props.target === 'following') {
+                        } else if (this.props.target === 'follower' || this.props.target === 'following' || this.props.target === "share") {
                             var temp = this.state.followList;
                             for (var k in data.followList) {
                                 temp.push(data.followList[k]);
@@ -1800,6 +1875,7 @@ class MemberSmallList extends React.Component {
         return <div style={{ minHeight: "50vh" }}>
             {this.renderPosts()}
             {loadmore}
+            {this.state.loading ? <p>Loading Data...</p> : null}
         </div>;
     }
 }
@@ -1853,7 +1929,7 @@ class MemberSmallRow extends React.Component {
             followbtn = <button type="button" className="btn btn-light text-dark" onClick={() => { this.setState({ showRemoveConfirm: true }) }}>Remove</button>;
         }
         if (this.state.showShare)
-            followbtn = <button type="button" data-id={this.props.member.id} className="btn btn-light text-dark" onClick={(e) => { this.props.onShare(e.target.getAttribute("data-id")); }}>Share</button>;
+            followbtn = <button type="button" data-id={this.props.member.id} className="btn btn-primary" onClick={(e) => { this.props.onShare(e.target.getAttribute("data-id")); }}>Share</button>;
         var removeConfirmBox = null;
         if (this.state.showRemoveConfirm) {
             removeConfirmBox = <ConfirmBox cancel={() => { this.setState({ showRemoveConfirm: false }) }}
@@ -4094,10 +4170,11 @@ class SuggestedAccounts extends React.Component {
         }
         if (items.length > 0) {
             return <React.Fragment>
-                <div className="row">
+                <div className="row mb-1">
                     <div className="col-7">Suggested Accounts</div>
                     <div className="col text-end"><button type="button" className="btn btn-light btn-sm">See all</button></div>
-                </div><ul className="list-group list-group-flush">
+                </div>
+                <ul className="list-group list-group-flush">
                     {items}
                 </ul></React.Fragment>;
         }

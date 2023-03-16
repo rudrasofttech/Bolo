@@ -281,6 +281,8 @@ namespace Bolo.Models
         public string VideoURL { get; set; }
         public int ReactionCount { get; set; }
         public int CommentCount { get; set; }
+        public int ShareCount { get; set; }
+        public int Rank { get; set; }
         public bool HasReacted { get; set; }
 
         public PostDTO(MemberPost mp)
@@ -299,6 +301,10 @@ namespace Bolo.Models
                 AcceptComment = mp.AcceptComment;
                 VideoURL = mp.VideoURL;
                 AllowShare = mp.AllowShare;
+                ReactionCount= mp.ReactionCount;
+                CommentCount= mp.CommentCount;
+                ShareCount= mp.ShareCount;
+                Rank= mp.Rank;
             }
         }
     }

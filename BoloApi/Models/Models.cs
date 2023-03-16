@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Mozilla;
+using Org.BouncyCastle.Bcpg;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -249,6 +250,11 @@ namespace Bolo.Models
         public bool AllowShare { get; set; } = true;
         [MaxLength(1000)]
         public string VideoURL { get; set; }
+
+        public int ReactionCount { get; set; }
+        public int CommentCount { get; set; }
+        public int ShareCount { get; set; }
+        public int Rank { get; set; }
     }
 
     public class HashTag
@@ -317,15 +323,6 @@ namespace Bolo.Models
         public int ID { get; set; }
         public Member User { get; set; }
         public Member Ignored { get; set; }
-        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
-    }
-
-    public class SharedPost
-    {
-        public int ID { get; set; }
-        public Member SharedBy { get; set; }
-        public Member SharedWith { get; set; }
-        public MemberPost Post { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
     }
 

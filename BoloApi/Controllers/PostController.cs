@@ -48,11 +48,7 @@ namespace Bolo.Controllers
                 return null;
             else
             {
-                var pdto = new PostDTO(p)
-                {
-                    ReactionCount = _context.Reactions.Count(t => t.Post.ID == p.ID),
-                    CommentCount = _context.Comments.Count(t => t.Post.ID == p.ID)
-                };
+                var pdto = new PostDTO(p);
                 if (currentMember != null)
                     pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == p.ID && t.ReactedBy.ID == currentMember.ID) > 0;
                 return pdto;
@@ -112,11 +108,7 @@ namespace Bolo.Controllers
             var qresults = query.Skip(p * ps).Take(ps);
             foreach (MemberPost pd in qresults)
             {
-                PostDTO pdto = new PostDTO(pd)
-                {
-                    ReactionCount = _context.Reactions.Count(t => t.Post.ID == pd.ID),
-                    CommentCount = _context.Comments.Count(t => t.Post.ID == pd.ID)
-                };
+                PostDTO pdto = new PostDTO(pd);
                 if (currentMember != null)
                     pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID) > 0;
 
@@ -143,11 +135,7 @@ namespace Bolo.Controllers
             List<PostDTO> posts = new List<PostDTO>();
             foreach (MemberPost pd in query)
             {
-                PostDTO pdto = new PostDTO(pd)
-                {
-                    ReactionCount = _context.Reactions.Count(t => t.Post.ID == pd.ID),
-                    CommentCount = _context.Comments.Count(t => t.Post.ID == pd.ID)
-                };
+                PostDTO pdto = new PostDTO(pd);
                 if (currentMember != null)
                     pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID) > 0;
 
@@ -174,16 +162,20 @@ namespace Bolo.Controllers
         public PostsPaged Explore([FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             Member currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
-            List<int> queryview = _context.DiscoverPostView.Skip(ps * p).Take(ps).Select(t => t.ID).ToList();
-            var query = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => queryview.Contains(t.ID))
-                .Where(t => !ignored.Contains(t.Owner)).Select(t => new PostDTO(t)).ToList();
+            //var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
+            //List<int> queryview = _context.DiscoverPostView.Skip(ps * p).Take(ps).Select(t => t.ID).ToList();
+            //var query = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => queryview.Contains(t.ID))
+            //    .Where(t => !ignored.Contains(t.Owner)).Select(t => new PostDTO(t)).ToList();
+
+            var q = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => t.Owner.Visibility == MemberProfileVisibility.Public).OrderByDescending(t => t.PostDate)
+                .OrderByDescending(t => t.Rank)
+                .OrderByDescending(t => t.ReactionCount).OrderByDescending(t => t.CommentCount).OrderByDescending(t => t.ShareCount);
             PostsPaged result = new PostsPaged()
             {
                 Current = p,
                 PageSize = ps,
-                Total = _context.DiscoverPostView.Count(),
-                Posts = query
+                Total = q.Count(), //_context.DiscoverPostView.Count(),
+                Posts = q.Skip(ps * p).Take(ps).Select(t => new PostDTO(t)).ToList()
             };
             return result;
         }
@@ -246,6 +238,7 @@ namespace Bolo.Controllers
                     if (reaction != null)
                     {
                         _context.Reactions.Remove(reaction);
+                        mp.ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID);
                         await _context.SaveChangesAsync();
                         return Ok(new { HasReacted = false, ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID) });
                     }
@@ -258,6 +251,7 @@ namespace Bolo.Controllers
                             Reaction = PostReactionType.Like,
                             ReactionDate = DateTime.UtcNow
                         });
+                        mp.ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID);
                         await _context.SaveChangesAsync();
                         try
                         {
@@ -292,10 +286,8 @@ namespace Bolo.Controllers
                 if (post == null)
                     return BadRequest(new { error = "Could not find the post." });
 
-                SharedPost sp = new SharedPost() { CreateDate = DateTime.UtcNow, Post = post, SharedBy = currentmember, SharedWith = targetmember };
-                _context.SharedPosts.Add(sp);
-                _context.SaveChanges();
 
+                post.ShareCount = post.ShareCount + 1;
                 try
                 {
                     nhelper.SaveNotification(targetmember, "Post shared", false, MemberNotificationType.SharePost, post, currentmember, null);
@@ -402,6 +394,7 @@ namespace Bolo.Controllers
                     Post = post
                 };
                 _context.Comments.Add(mc);
+                post.CommentCount = _context.Comments.Count(t => t.Post.ID == post.ID);
                 await _context.SaveChangesAsync();
                 try
                 {
@@ -450,12 +443,13 @@ namespace Bolo.Controllers
             try
             {
                 var member = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-                var post = _context.Comments.FirstOrDefault(t => t.ID == id && t.CommentedBy.ID == member.ID);
-                if (post != null)
+                var comment = _context.Comments.Include(t => t.Post).FirstOrDefault(t => t.ID == id && t.CommentedBy.ID == member.ID);
+                if (comment != null)
                 {
-                    var notifications = _context.Notifications.Where(t => t.Comment != null && t.Comment.ID == post.ID);
+                    var notifications = _context.Notifications.Where(t => t.Comment != null && t.Comment.ID == comment.ID);
                     _context.Notifications.RemoveRange(notifications);
-                    _context.Comments.Remove(post);
+                    _context.Comments.Remove(comment);
+                    comment.Post.CommentCount = _context.Comments.Count(t => t.Post.ID == comment.ID);
                     await _context.SaveChangesAsync();
                 }
                 return Ok(new { success = true });
@@ -550,8 +544,6 @@ namespace Bolo.Controllers
                     _context.Reactions.RemoveRange(reactions);
                     var notifications = _context.Notifications.Where(t => t.Post.ID == p.ID);
                     _context.Notifications.RemoveRange(notifications);
-                    var sharedphotos = _context.SharedPosts.Where(t => t.Post.ID == p.ID);
-                    _context.SharedPosts.RemoveRange(sharedphotos);
 
                     _context.PostPhotos.RemoveRange(p.Photos);
 
@@ -560,9 +552,7 @@ namespace Bolo.Controllers
                     foreach (var photo in p.Photos)
                     {
                         if (System.IO.File.Exists(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo)))
-                        {
                             System.IO.File.Delete(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo));
-                        }
                     }
                 }
 

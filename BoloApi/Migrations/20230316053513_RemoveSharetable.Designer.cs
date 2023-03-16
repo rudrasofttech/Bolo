@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20230316053513_RemoveSharetable")]
+    partial class RemoveSharetable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -337,9 +339,6 @@ namespace Bolo.Migrations
                     b.Property<bool>("AllowShare")
                         .HasColumnType("bit");
 
-                    b.Property<int>("CommentCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("Describe")
                         .HasColumnType("nvarchar(max)");
 
@@ -360,15 +359,6 @@ namespace Bolo.Migrations
 
                     b.Property<Guid>("PublicID")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Rank")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ReactionCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShareCount")
-                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

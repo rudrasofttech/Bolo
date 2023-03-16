@@ -238,7 +238,7 @@ namespace Bolo.Controllers
             var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
             var followers = _context.Followers.Where(t => t.Following.ID == currentMember.ID).Select(t => t.Follower).ToList();
             var secondlevel = _context.Followers.Where(t => followers.Contains(t.Following) && t.Follower.ID != currentMember.ID).Select(t => t.Follower).ToList();
-            return secondlevel.Take(take).Select(t => new MemberDTO(t)).ToList();
+            return secondlevel.Where(t => !followers.Contains(t)).Take(take).Select(t => new MemberDTO(t)).ToList();
         }
 
         
