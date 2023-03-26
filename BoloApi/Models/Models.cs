@@ -32,7 +32,8 @@ namespace Bolo.Models
         Photo = 2,
         Video = 3,
         Audio = 4,
-        Document = 5
+        Document = 5,
+        Post = 6
     }
 
     public enum MemberNotificationType

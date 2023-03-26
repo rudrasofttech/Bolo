@@ -64,13 +64,16 @@
     }
     render() {
         if (!this.state.loggedin) {
-            return <RegisterForm beginWithRegister={false} onLogin={() => {
-                this.setState({
-                    loggedin: localStorage.getItem("token") === null ? false : true,
-                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                })
-            }} />;
+            return <div className="row mt-1 g-0 bg-white">
+                <div className="col-lg-6 offset-lg-3 mt-5">
+                    <RegisterForm beginWithRegister={false} onLogin={() => {
+                        this.setState({
+                            loggedin: localStorage.getItem("token") === null ? false : true,
+                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                        })
+                    }} /></div>
+            </div>;
         }
 
         let temp = [];
@@ -1047,19 +1050,19 @@ class MemberPost extends React.Component {
                     <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
-                var imgs = [], imgs2 = [];
-                for (var i in p.photos) {
-                    imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0">
-                        <div className="postdiv" style={{ backgroundImage: "url(//" + location.host + "/" + p.photos[i].photo + ")" }}>
-                            <img src={"//" + location.host + "/" + p.photos[i].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "500px" }} />
-                        </div></li>);
-                    imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
-                }
-                postshtml = <div className="table-responsive my-1">
-                    <ul className="list-group list-group-horizontal" onDoubleClick={() => { this.addReaction(); }}>
-                        {imgs}
-                    </ul></div>;
-                //postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
+                //var imgs = [], imgs2 = [];
+                //for (var i in p.photos) {
+                //    imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0">
+                //        <div className="postdiv" style={{ backgroundImage: "url(//" + location.host + "/" + p.photos[i].photo + ")" }}>
+                //            <img src={"//" + location.host + "/" + p.photos[i].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "500px" }} />
+                //        </div></li>);
+                //    imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
+                //}
+                //postshtml = <div className="table-responsive my-1">
+                //    <ul className="list-group list-group-horizontal" onDoubleClick={() => { this.addReaction(); }}>
+                //        {imgs}
+                //    </ul></div>;
+                postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
             }
         }
 
@@ -1637,7 +1640,6 @@ class MemberPostList extends React.Component {
     }
 
     renderPosts() {
-
         let empty = <div key={0}>
             <div className="text-center fs-3 pt-5">
                 <i className="bi bi-emoji-dizzy me-2"></i><h2>Nothing to see here</h2>
@@ -1681,18 +1683,21 @@ class MemberPostList extends React.Component {
     }
 
     render() {
-
+        if (!this.state.loggedin) {
+            return <div className="row mt-1 g-0 bg-white">
+                <div className="col-lg-6 offset-lg-3 mt-5">
+                    <RegisterForm beginWithRegister={false} onLogin={() => {
+                        this.setState({
+                            loggedin: localStorage.getItem("token") === null ? false : true,
+                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                        })
+                    }} /></div>
+            </div>;
+        }
         var html = (this.state.loading === false) ? this.renderPosts() : null;
         var loadmore = null;
-        if (!this.state.loggedin) {
-            return <RegisterForm beginWithRegister={false} onLogin={() => {
-                this.setState({
-                    loggedin: localStorage.getItem("token") === null ? false : true,
-                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                })
-            }} />;
-        }
+        
         let loading = null;
         if (this.state.loading) {
             loading = <div className="progress fixed-bottom" style={{ height: "5px" }}>
@@ -2436,44 +2441,47 @@ class BlockContact extends React.Component {
 class PhotoCarousel extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { photos: this.props.photos, id: this.props.postid };
-    }
-    componentDidMount() {
-        var myCarousel = document.querySelector("#postcarousel-" + this.state.id)
-        var carousel = new bootstrap.Carousel(myCarousel, {
-            interval: false
-        });
+        this.state = {
+            photos: this.props.photos,
+            id: "carousel" + this.props.postid,
+            active: 0
+        };
     }
 
     render() {
-        var dots = [], photos = [];
-        var id = "postcarousel-" + this.state.id;
-        var active = "active";
-        for (var k in this.state.photos) {
-            dots.push(<button type="button" data-bs-target={"#" + id} data-bs-slide-to={k} className={active} aria-label={"Slide " + k}></button>);
-            photos.push(<div className={"carousel-item " + active}>
-                <div className="postdiv bg-light" style={{ backgroundImage: "url(" + this.state.photos[k].photo + ")" }}>
-                    <img src={this.state.photos[k].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "450px" }} />
-                </div>
+        let items1 = [], items2 = [];
+        for (let k = 0; k < this.state.photos.length; k++) {
+            items1.push(<button type="button" data-bs-target={this.state.id} className={k === this.state.active ? "btn btn-sm btn-primary me-2" : "btn btn-sm btn-secondary me-2"} data-index={k} onClick={(e) => {
+                this.setState({ active: parseInt(e.target.getAttribute("data-index", 10)) });
+            }}></button>)
+            items2.push(<div className={k === this.state.active ? "carousel-item active" : "carousel-item"}>
+                <img src={"//" + location.host + "/" + this.state.photos[k].photo} className="d-block w-100" alt="" />
             </div>);
-            active = "";
         }
-        return <div id={id} className="carousel slide" data-bs-ride="carousel">
-            <div className="carousel-indicators">
-                {dots}
-            </div>
+        return <React.Fragment><div id={this.state.id} className="carousel carousel-dark slide" data-bs-ride="true">
+
             <div className="carousel-inner">
-                {photos}
+                {items2}
             </div>
-            <button className="carousel-control-prev" type="button" data-bs-target={"#" + id} data-bs-slide="prev">
+            <button className="carousel-control-prev" type="button" data-bs-target={this.state.id} data-bs-slide="prev" onClick={() => {
+                if (this.state.active > 0) {
+                    this.setState({ active: this.state.active - 1 });
+                }
+            }}>
                 <span className="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span className="visually-hidden">Previous</span>
             </button>
-            <button className="carousel-control-next" type="button" data-bs-target={"#" + id} data-bs-slide="next">
+            <button className="carousel-control-next" type="button" data-bs-target={this.state.id} data-bs-slide="next" onClick={() => {
+                if (this.state.active < this.state.photos.length - 1) {
+                    this.setState({ active: this.state.active + 1 });
+                }
+            }}>
                 <span className="carousel-control-next-icon" aria-hidden="true"></span>
                 <span className="visually-hidden">Next</span>
             </button>
-        </div>;
+        </div><div className="text-center p-2">
+                {items1}
+            </div></React.Fragment>;
     }
 }
 
@@ -2697,15 +2705,20 @@ class Profile extends React.Component {
     }
 
     render() {
+
         if (!this.state.loggedin) {
-            return <RegisterForm beginWithRegister={false} onLogin={() => {
-                this.setState({
-                    loggedin: localStorage.getItem("token") === null ? false : true,
-                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                })
-            }} />;
+            return <div className="row mt-1 g-0 bg-white">
+                <div className="col-lg-6 offset-lg-3 mt-5">
+                    <RegisterForm beginWithRegister={false} onLogin={() => {
+                        this.setState({
+                            loggedin: localStorage.getItem("token") === null ? false : true,
+                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                        })
+                    }} /></div>
+            </div>;
         }
+
         if (this.state.showSettings) {
             return <ManageProfile onProfileChange={() => { this.validate(localStorage.getItem("token")); }} onBack={() => { this.setState({ showSettings: false }); }} />;
         }

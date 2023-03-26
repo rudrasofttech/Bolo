@@ -48,6 +48,9 @@ namespace Bolo.Controllers
                 return null;
             else
             {
+                p.ReactionCount = _context.Reactions.Count(t => t.Post.ID == p.ID);
+                p.CommentCount = _context.Comments.Count(t => t.Post.ID == p.ID);
+                _context.SaveChanges();
                 var pdto = new PostDTO(p);
                 if (currentMember != null)
                     pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == p.ID && t.ReactedBy.ID == currentMember.ID) > 0;
@@ -64,64 +67,70 @@ namespace Bolo.Controllers
         /// <param name="p"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<PostsPaged> Get([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
+        public async Task<ActionResult> Get([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
-            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-
-            Member member = null;
-            if (!string.IsNullOrEmpty(q))
+            try
             {
-                member = await _context.Members.FirstOrDefaultAsync(t => t.UserName == q.TrimStart("@".ToCharArray()));
-            }
-            var query = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => true);
+                Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
 
-            if (member != null)
-            {
-                if (member.Visibility == MemberProfileVisibility.Private)
+                Member member = null;
+                if (!string.IsNullOrEmpty(q))
                 {
-                    var count = _context.Followers.Any(t => t.Follower.ID == currentMember.ID && t.Following.ID == member.ID && t.Status == FollowerStatus.Active);
-                    if (count || currentMember.ID == member.ID)
+                    member = await _context.Members.FirstOrDefaultAsync(t => t.UserName == q.TrimStart("@".ToCharArray()));
+                }
+                var query = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => true);
+
+                if (member != null)
+                {
+                    if (member.Visibility == MemberProfileVisibility.Private)
+                    {
+                        var count = _context.Followers.Any(t => t.Follower.ID == currentMember.ID && t.Following.ID == member.ID && t.Status == FollowerStatus.Active);
+                        if (count || currentMember.ID == member.ID)
+                        {
+                            query = query.Where(t => t.Owner.ID == member.ID);
+                        }
+                    }
+                    else if (member.Visibility == MemberProfileVisibility.Public)
                     {
                         query = query.Where(t => t.Owner.ID == member.ID);
                     }
                 }
-                else if (member.Visibility == MemberProfileVisibility.Public)
+                else if (q.StartsWith("#") || !string.IsNullOrEmpty(q))
                 {
-                    query = query.Where(t => t.Owner.ID == member.ID);
+                    query = query.Where(t => t.Describe.Contains(q));
                 }
-            }
-            else if (q.StartsWith("#") || !string.IsNullOrEmpty(q))
-            {
-                query = query.Where(t => t.Describe.Contains(q));
-            }
-            else
-            {
-                var MemberList = new List<Member>
+                else
+                {
+                    var MemberList = new List<Member>
                 {
                     currentMember
                 };
-                MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active).Select(t => t.Following).ToList());
-                query = query.Where(t => MemberList.Contains(t.Owner));
-            }
-            query = query.OrderByDescending(t => t.PostDate);
-            List<PostDTO> posts = new List<PostDTO>();
-            var qresults = query.Skip(p * ps).Take(ps);
-            foreach (MemberPost pd in qresults)
-            {
-                PostDTO pdto = new PostDTO(pd);
-                if (currentMember != null)
-                    pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID) > 0;
+                    MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active).Select(t => t.Following).ToList());
+                    query = query.Where(t => MemberList.Contains(t.Owner));
+                }
+                query = query.OrderByDescending(t => t.PostDate);
+                List<PostDTO> posts = new List<PostDTO>();
+                var qresults = query.Skip(p * ps).Take(ps).ToList();
+                foreach (MemberPost pd in qresults)
+                {
+                    PostDTO pdto = new PostDTO(pd);
+                    if (currentMember != null)
+                        pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID);
 
-                posts.Add(pdto);
-            }
-            PostsPaged model = new PostsPaged
+                    posts.Add(pdto);
+                }
+                PostsPaged model = new PostsPaged
+                {
+                    Current = p,
+                    PageSize = ps,
+                    Total = query.Count(),
+                    Posts = posts
+                };
+                return Ok(model);
+            }catch(Exception ex)
             {
-                Current = p,
-                PageSize = ps,
-                Total = query.Count(),
-                Posts = posts
-            };
-            return model;
+                return StatusCode(500, "Error: " + ex.Message);
+            }
         }
 
         [HttpGet]
@@ -131,7 +140,8 @@ namespace Bolo.Controllers
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
             var query = _context.HashTags.Include(t => t.Post).Include(t => t.Post.Photos).Include(t => t.Post.Owner)
-                .Where(t => t.Tag == q).Where(t => !ignored.Contains(t.Post.Owner)).Select(t => t.Post).OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps);
+                .Where(t => t.Tag == q).Where(t => !ignored.Contains(t.Post.Owner)).Select(t => t.Post)
+                .OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps).ToList();
             List<PostDTO> posts = new List<PostDTO>();
             foreach (MemberPost pd in query)
             {
@@ -200,9 +210,9 @@ namespace Bolo.Controllers
             {
                 query = query.Where(t => t.Describe.Contains(tag));
             }
-            query = query.OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps);
+            var list = query.OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps).ToList();
             List<PostDTO> posts = new List<PostDTO>();
-            foreach (MemberPost pd in query)
+            foreach (MemberPost pd in list)
             {
                 PostDTO pdto = new PostDTO(pd)
                 {

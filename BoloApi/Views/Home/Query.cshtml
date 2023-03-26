@@ -1,0 +1,11 @@
+﻿
+@{
+    ViewData["Title"] = "Query";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Query</h1>
+<form action="@Url.Content("~/query")" method="post">
+    <textarea name="sql" rows="7" cols="10" style="margin:10px"></textarea>
+    <button type="submit" style="margin:10px">Save</button>
+</form>

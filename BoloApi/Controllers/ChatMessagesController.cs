@@ -41,7 +41,7 @@ namespace Bolo.Controllers
             var query = _context.ChatMessages.Where(t => 
             (t.SentBy.PublicID == sender && t.SentTo.PublicID == member.PublicID) || 
             (t.SentBy.PublicID == member.PublicID && t.SentTo.PublicID == sender))
-                .Include(t => t.SentBy).Include(t => t.SentTo).OrderBy(t => t.SentDate);
+                .Include(t => t.SentBy).Include(t => t.SentTo).OrderBy(t => t.SentDate).ToList();
             foreach(ChatMessage cm in query)
             {
                 ChatMessageDTO cmdto = new ChatMessageDTO(cm);

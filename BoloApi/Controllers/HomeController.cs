@@ -7,6 +7,9 @@ using Bolo.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Bolo.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Data.SqlClient;
 
 namespace Bolo.Controllers
 {
@@ -102,6 +105,28 @@ namespace Bolo.Controllers
         {
             ViewBag.PostId = id;
             return View();
+        }
+
+        
+        [HttpGet]
+        [Route("query")]
+        public IActionResult Query() { return View(); }
+
+        
+        [HttpPost]
+        [Route("query")]
+        public IActionResult Query([FromForm]string sql) { 
+        
+            using(SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+            {
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            return View(); 
+        
         }
     }
 }
