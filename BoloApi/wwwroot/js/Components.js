@@ -815,7 +815,7 @@ class MemberPost extends React.Component {
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/post/edit/' + this.state.post.id, {
             method: 'post',
-            body: JSON.stringify({ describe: this.state.post.describe, acceptComment: this.state.post.acceptComment, allowShare : this.state.post.allowShare }),
+            body: JSON.stringify({ describe: this.state.post.describe, acceptComment: this.state.post.acceptComment, allowShare: this.state.post.allowShare }),
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem("token"),
                 'Content-Type': 'application/json'
@@ -1047,7 +1047,7 @@ class MemberPost extends React.Component {
         } else if (p.photos) {
             if (p.photos.length == 1) {
                 postshtml = <div className="text-center">
-                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100" onDoubleClick={() => { this.addReaction(); }} />
+                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
                 //var imgs = [], imgs2 = [];
@@ -1697,7 +1697,7 @@ class MemberPostList extends React.Component {
         }
         var html = (this.state.loading === false) ? this.renderPosts() : null;
         var loadmore = null;
-        
+
         let loading = null;
         if (this.state.loading) {
             loading = <div className="progress fixed-bottom" style={{ height: "5px" }}>
@@ -2454,32 +2454,32 @@ class PhotoCarousel extends React.Component {
             items1.push(<button type="button" data-bs-target={this.state.id} className={k === this.state.active ? "btn btn-sm btn-primary me-2" : "btn btn-sm btn-secondary me-2"} data-index={k} onClick={(e) => {
                 this.setState({ active: parseInt(e.target.getAttribute("data-index", 10)) });
             }}></button>)
-            items2.push(<div className={k === this.state.active ? "carousel-item active" : "carousel-item"}>
-                <img src={"//" + location.host + "/" + this.state.photos[k].photo} className="d-block w-100" alt="" />
+            items2.push(<div className={k === this.state.active ? "carousel-item text-center active" : "carousel-item text-center"}>
+                <img src={"//" + location.host + "/" + this.state.photos[k].photo} className="img-fluid" alt="" />
             </div>);
         }
-        return <React.Fragment><div id={this.state.id} className="carousel carousel-dark slide" data-bs-ride="true">
-
-            <div className="carousel-inner">
-                {items2}
-            </div>
-            <button className="carousel-control-prev" type="button" data-bs-target={this.state.id} data-bs-slide="prev" onClick={() => {
-                if (this.state.active > 0) {
-                    this.setState({ active: this.state.active - 1 });
-                }
-            }}>
-                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span className="visually-hidden">Previous</span>
-            </button>
-            <button className="carousel-control-next" type="button" data-bs-target={this.state.id} data-bs-slide="next" onClick={() => {
-                if (this.state.active < this.state.photos.length - 1) {
-                    this.setState({ active: this.state.active + 1 });
-                }
-            }}>
-                <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                <span className="visually-hidden">Next</span>
-            </button>
-        </div><div className="text-center p-2">
+        return <React.Fragment>
+            <div id={this.state.id} className="carousel carousel-dark slide" data-bs-ride="true">
+                <div className="carousel-inner">
+                    {items2}
+                </div>
+                <button className={this.state.active === 0 ? "d-none" : "carousel-control-prev"} type="button" data-bs-target={this.state.id} data-bs-slide="prev" onClick={() => {
+                    if (this.state.active > 0) {
+                        this.setState({ active: this.state.active - 1 });
+                    }
+                }}>
+                    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span className="visually-hidden">Previous</span>
+                </button>
+                <button className={this.state.active === this.state.photos.length - 1 ? "d-none" : "carousel-control-next"} type="button" data-bs-target={this.state.id} data-bs-slide="next" onClick={() => {
+                    if (this.state.active < this.state.photos.length - 1) {
+                        this.setState({ active: this.state.active + 1 });
+                    }
+                }}>
+                    <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span className="visually-hidden">Next</span>
+                </button>
+            </div><div className="text-center p-2">
                 {items1}
             </div></React.Fragment>;
     }
@@ -3791,83 +3791,93 @@ class RegisterForm extends React.Component {
             : this.renderLoginForm();
 
         let formcontents = this.state.showregisterform ?
-            <div >
-                <h3>Register</h3>
-                <div className="">
-                    <p className="text-end"><span class="text-danger">*</span> indicate mandatory fields</p>
-                    <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
-                        <div className="mb-3">
-                            <label>Username <span className="text-danger">*</span></label>
-                            <input type="text" className="form-control" minLength="3" maxLength="30" required name="username" value={this.state.registerdto.userName}
-                                onChange={(e) => {
-                                    let rdto = this.state.registerdto;
-                                    rdto.userName = e.target.value;
-                                    this.setState({ registerdto: rdto });
-                                }} aria-describedby="usernameHelp" />
-                            <div id="usernameHelp" class="form-text">Username should be unique and creative, it will be your identity on the site.</div>
-                        </div>
-                        <div className="mb-3">
-                            <label>Password <span className="text-danger">*</span></label>
-                            <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => {
+            <React.Fragment>
+                <div className="float-end"><span class="text-danger">*</span> Required</div>
+                <h3 className="mb-2">Register</h3>
+                <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
+                    <div className="mb-3">
+                        <label className="fw-bold">Username <span className="text-danger">*</span></label>
+                        <input type="text" className="form-control" minLength="3" maxLength="30" required name="username" value={this.state.registerdto.userName}
+                            onChange={(e) => {
                                 let rdto = this.state.registerdto;
-                                rdto.password = e.target.value;
+                                rdto.userName = e.target.value;
+                                this.setState({ registerdto: rdto });
+                            }} aria-describedby="usernameHelp" />
+                        <div id="usernameHelp" class="form-text">Username should be unique and creative,
+                            it will be your identity on the site.<br />
+                            मन चाहा Username चुने, यह Yocail पर आपकी पहचान बनेगा। Username अनोखा और रचनात्मक रखे।
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label className="fw-bold">Password <span className="text-danger">*</span></label>
+                        <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => {
+                            let rdto = this.state.registerdto;
+                            rdto.password = e.target.value;
+                            this.setState({ registerdto: rdto });
+                        }} />
+                        <div id="passwordHelp" class="form-text">Password should be at least 8 characters long, make it difficult to guess.<br />
+                            पासवर्ड कम से कम आठ अक्षर का हो, पासवर्ड कठिन चुने।
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label className="fw-bold">Verify Password <span className="text-danger">*</span></label>
+                        <input className="form-control" required name="verifypassword" type="password" onChange={(e) => {
+                            let rdto = this.state.registerdto;
+                            rdto.verifyPassword = e.target.value;
+                            this.setState({ registerdto: rdto });
+                        }} />
+                        <div id="verifypasswordHelp" class="form-text">Repeat your password here.<br />
+                            पासवर्ड फिर से दोहराए।
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label className="fw-bold">Security Question <span className="text-danger">*</span></label>
+                        <input type="text" className="form-control" minLength="10" required maxlength="300" name="securityQuestion" value={this.state.registerdto.securityQuestion}
+                            onChange={(e) => {
+                                let rdto = this.state.registerdto;
+                                rdto.securityQuestion = e.target.value;
+                                this.setState({ registerdto: rdto });
+                            }} aria-describedby="securityquestionHelp" />
+                        <div id="securityquestionHelp" class="form-text">In case you forget your password, we will ask you this security question. Choose your security question wisely। <br />
+                            पासवर्ड भूल जाने पर यही security question आप से पूछा जाएगा। Security question ऐसा रखे जिसका उत्तर सिर्फ आपको पता हो।
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label className="fw-bold">Security Answer <span className="text-danger">*</span></label>
+                        <input type="text" className="form-control" maxlength="100" required name="securityAnswer" value={this.state.registerdto.securityAnswer}
+                            onChange={(e) => {
+                                let rdto = this.state.registerdto;
+                                rdto.securityAnswer = e.target.value;
+                                this.setState({ registerdto: rdto });
+                            }} aria-describedby="securitypasswordHelp" />
+                        <div id="securitypasswordHelp" class="form-text">You will be allowed to reset your password only if you provide this security answer. <br />
+                            आप को अपना पासवॉर्ड तभी बदलने दिया जाएगा जब आपका security question उत्तर इस से मेल खाएगा।
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <label className="fw-bold">Email <span className="text-danger">*</span></label>
+                        <input className="form-control" maxLength="250" required name="userEmail" type="email"
+                            value={this.state.registerdto.userEmail}
+                            onChange={(e) => {
+                                let rdto = this.state.registerdto;
+                                rdto.userEmail = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} />
-                        </div>
-                        <div className="mb-3">
-                            <label>Verify Password <span className="text-danger">*</span></label>
-                            <input className="form-control" required name="verifypassword" type="password" onChange={(e) => {
-                                let rdto = this.state.registerdto;
-                                rdto.verifyPassword = e.target.value;
-                                this.setState({ registerdto: rdto });
-                            }} />
-                        </div>
-                        <div className="mb-3">
-                            <label>Security Question <span className="text-danger">*</span></label>
-                            <input type="text" className="form-control" minLength="10" required maxlength="300" name="securityQuestion" value={this.state.registerdto.securityQuestion}
-                                onChange={(e) => {
-                                    let rdto = this.state.registerdto;
-                                    rdto.securityQuestion = e.target.value;
-                                    this.setState({ registerdto: rdto });
-                                }} aria-describedby="securityquestionHelp" />
-                            <div id="securityquestionHelp" class="form-text">In case you forget your password, we will ask you this security quesiton. Choose your security question wisely</div>
-                        </div>
-                        <div className="mb-3">
-                            <label>Security Answer <span className="text-danger">*</span></label>
-                            <input type="text" className="form-control" maxlength="100" required name="securityAnswer" value={this.state.registerdto.securityAnswer}
-                                onChange={(e) => {
-                                    let rdto = this.state.registerdto;
-                                    rdto.securityAnswer = e.target.value;
-                                    this.setState({ registerdto: rdto });
-                                }} aria-describedby="securitypasswordHelp" />
-                            <div id="securitypasswordHelp" class="form-text">You will be allowed to reset your password only if you provide this security answer.</div>
-                        </div>
-                        <div className="mb-3">
-                            <label>Email <span className="text-danger">*</span></label>
-                            <input className="form-control" maxLength="250" required name="userEmail" type="email"
-                                value={this.state.registerdto.userEmail}
-                                onChange={(e) => {
-                                    let rdto = this.state.registerdto;
-                                    rdto.userEmail = e.target.value;
-                                    this.setState({ registerdto: rdto });
-                                }} />
-                        </div>
-                        <button className="btn btn-dark" type="submit">Register</button>
-                    </form>
-
-                    <p className="text-center mt-2">
-                        Already a Member! <a onClick={this.handleLoginClickHere} className="link-success">Login Here</a> </p>
-                    {messagecontent}
-                    {loading}
-                </div>
-            </div> :
-            <div>
+                    </div>
+                    <button className="btn btn-dark" type="submit">Register</button>
+                </form>
+                <p className="text-center mt-2">
+                    Already a Member! <a onClick={this.handleLoginClickHere} className="link-success">Login Here</a> </p>
+                {messagecontent}
+                {loading}
+            </React.Fragment> :
+            <React.Fragment>
                 {logincontents}
                 <p className="text-center mt-3 p-3 border-top">
                     Register for FREE <a onClick={this.handleRegisterClickHere} className="link-success">Click Here</a></p>
                 {messagecontent}
                 {loading}
-            </div>;
+            </React.Fragment>;
         return <React.Fragment>
             {formcontents}
         </React.Fragment>;

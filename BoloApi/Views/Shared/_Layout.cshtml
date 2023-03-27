@@ -18,6 +18,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewBag.Title</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/images/favicon-16x16.png">
     <link rel="manifest" href="@Url.Content("~/manifest.json")" />
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/custom.css" rel="stylesheet" />
@@ -40,21 +43,21 @@
                     <tbody>
                         <tr>
                             <td align="center" valign="middle">
-                                <a href="javascript:void(0)" class="text-dark mx-2 fs-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
+                                <a href="javascript:void(0)" class="text-dark loggedmenuitem d-none mx-2 fs-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
                             </td>
                             <td align="center" valign="middle">
-                                <a class="text-dark mx-2 fs-4" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
+                                <a class="text-dark mx-2 fs-4 loggedmenuitem d-none" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
                             </td>
                             <td align="center" width="70%" style="max-width:70%">
                                 <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold"><img src="~/images/yocail.png" class="img-fluid" style="max-height:40px;" alt="Yocail logo" /></a>
                             </td>
-                            
+
                             <td align="center" valign="middle">
-                                <a class="text-dark mx-2 fs-4" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
+                                <a class="text-dark loggedmenuitem d-none mx-2 fs-4" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
                             </td>
 
                             <td align="center" valign="middle">
-                                <div class="dropdown">
+                                <div class="dropdown loggedmenuitem d-none">
                                     <a class="btn btn-link text-dark fs-4 text-decoration-none notificationcountcnt position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
                                         <script>
                                             try {
@@ -197,6 +200,13 @@
         </script>
     </environment>
     <script>
+        $(document).ready(function () { 
+            if(window.localStorage.getItem("token") !== null){
+                $(".loggedmenuitem").removeClass("d-none");
+            }else{
+                $(".loggedmenuitem").addClass("d-none");
+            }
+        });
         // Check that service workers are supported
         if ('serviceWorker' in navigator) {
             // Use the window load event to keep the page load performant
@@ -204,6 +214,8 @@
                 navigator.serviceWorker.register('@Url.Content("~/serviceWorker.js")');
             });
         }
+
+
     </script>
 </body>
 </html>
