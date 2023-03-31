@@ -22,7 +22,7 @@ namespace Bolo.Controllers
             _context = context;
             _config = config;
         }
-        public IActionResult Index([FromQuery]string q = "")
+        public IActionResult Index([FromQuery] string q = "")
         {
             ViewBag.Search = q;
             return View();
@@ -40,7 +40,7 @@ namespace Bolo.Controllers
         }
 
         [Route("profile")]
-        public IActionResult Profile([FromQuery]string un = "")
+        public IActionResult Profile([FromQuery] string un = "")
         {
             ViewBag.UserName = un;
             return View();
@@ -59,12 +59,12 @@ namespace Bolo.Controllers
         }
 
         [Route("forgotpassword")]
-        public async Task<IActionResult> ForgotPasswordAsync([FromQuery]string username = "")
+        public async Task<IActionResult> ForgotPasswordAsync([FromQuery] string username = "")
         {
             if (!string.IsNullOrEmpty(username))
             {
                 var member = _context.Members.FirstOrDefault(t => t.UserName == username || t.Email == username || t.Phone == username);
-                if(member != null)
+                if (member != null)
                 {
                     Random r = new Random();
                     string password = string.Format("{0}{1}{2}{3}{4}{5}", r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9), r.Next(0, 9));
@@ -107,26 +107,37 @@ namespace Bolo.Controllers
             return View();
         }
 
-        
+
         [HttpGet]
         [Route("query")]
         public IActionResult Query() { return View(); }
 
-        
+
         [HttpPost]
         [Route("query")]
-        public IActionResult Query([FromForm]string sql) { 
-        
-            using(SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+        [Authorize]
+        public IActionResult Query([FromForm] string sql)
+        {
+            try
             {
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                Member member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                if (member.UserName.ToLower() == "rajkiransingh")
                 {
-                    connection.Open();
-                    command.ExecuteNonQuery();
+                    using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
+                    {
+                        using (SqlCommand command = new SqlCommand(sql, connection))
+                        {
+                            connection.Open();
+                            command.ExecuteNonQuery();
+                        }
+
+                    }
                 }
             }
-            return View(); 
-        
+            catch(Exception ex) {
+                ViewBag.Error = ex.Message;
+            }
+            return View();
         }
     }
 }

@@ -28,6 +28,8 @@ namespace Bolo.Data
         public DbSet<Notification> Notifications { get; set; }
 
         public DbSet<DiscoverPostView> DiscoverPostView { get; set; }
+
+        public DbSet<PopularPublicAccountView> PopularPublicAccountViews { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("dbo");
@@ -45,6 +47,7 @@ namespace Bolo.Data
             modelBuilder.Entity<PushNotificationWebApp>().ToTable("PushNotificationWebApp");
             modelBuilder.Entity<FlaggedItem>().ToTable("FlaggedItem");
             modelBuilder.Entity<DiscoverPostView>().ToView("DiscoverPostView").HasNoKey();
+            modelBuilder.Entity<PopularPublicAccountView>().ToView("PopularPublicAccountView").HasNoKey();
         }
     }
 }

@@ -231,16 +231,41 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("Recommended")]
-        public List<MemberDTO> Recommended([FromQuery]int take = 5)
+        public List<MemberDTO> Recommended([FromQuery]int take = 10)
         {
             if (take > 100) take = 100;
             if(take < 1) take = 1;
-            var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            var followers = _context.Followers.Where(t => t.Following.ID == currentMember.ID).Select(t => t.Follower).ToList();
-            var secondlevel = _context.Followers.Where(t => followers.Contains(t.Following) && t.Follower.ID != currentMember.ID).Select(t => t.Follower).ToList();
-            return secondlevel.Where(t => !followers.Contains(t)).Take(take).Select(t => new MemberDTO(t)).ToList();
-        }
+            var currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+            var followers = _context.Followers.Where(t => t.Following.ID == currentMember.ID).Select(t => t.Follower.ID).ToList();
 
-        
+            var accounts = _context.PopularPublicAccountViews
+                .Where(t => t.Country.ToLower() == currentMember.Country.ToLower() && t.ID != currentMember.ID && !followers.Contains(t.ID))
+                .Take(take).ToList();
+            List<MemberDTO> result = new List<MemberDTO>();
+            foreach(var item in accounts)
+            {
+                result.Add(new MemberDTO()
+                {
+                    Activity = item.Activity,
+                    Bio=item.Bio,
+                    BirthYear=item.BirthYear,
+                    City=item.City,
+                    Country=item.Country,
+                    Email=item.Email,
+                    Gender=item.Gender,
+                     ID=item.PublicID,
+                     LastPulse=item.LastPulse,
+                     Name=item.Name,
+                     Phone=item.Phone,
+                     Pic=item.Pic,
+                     State=item.State,
+                     Status=item.Status,
+                     ThoughtStatus=item.ThoughtStatus,
+                     UserName=item.UserName,
+                     Visibility=item.Visibility
+                });
+            }
+            return result;
+        }
     }
 }

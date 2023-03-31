@@ -3624,7 +3624,7 @@ class RegisterForm extends React.Component {
 
         this.state = {
             showregisterform: props.beginWithRegister, showForgotPassword: false,
-            registerdto: { userName: '', password: '', userEmail: '', verifyPassword: '', securityQuestion: '', securityAnswer: '' },
+            registerdto: { userName: '', password: '', userEmail: '', securityQuestion: '', securityAnswer: '' },
             logindto: { userName: '', password: '' },
             loading: false, message: '', bsstyle: '', loggedin: loggedin
         };
@@ -3676,14 +3676,6 @@ class RegisterForm extends React.Component {
 
     handleRegisterSubmit(e) {
         e.preventDefault();
-        if (this.state.registerdto.password !== this.state.registerdto.verifyPassword) {
-            this.setState({
-                loading: false,
-                bsstyle: 'danger',
-                message: 'Verify password should match password.',
-            });
-            return;
-        }
         this.setState({ loading: true });
         fetch('//' + window.location.host + '/api/members/register', {
             method: 'post',
@@ -3817,17 +3809,6 @@ class RegisterForm extends React.Component {
                         }} />
                         <div id="passwordHelp" class="form-text">Password should be at least 8 characters long, make it difficult to guess.<br />
                             पासवर्ड कम से कम आठ अक्षर का हो, पासवर्ड कठिन चुने।
-                        </div>
-                    </div>
-                    <div className="mb-3">
-                        <label className="fw-bold">Verify Password <span className="text-danger">*</span></label>
-                        <input className="form-control" required name="verifypassword" type="password" onChange={(e) => {
-                            let rdto = this.state.registerdto;
-                            rdto.verifyPassword = e.target.value;
-                            this.setState({ registerdto: rdto });
-                        }} />
-                        <div id="verifypasswordHelp" class="form-text">Repeat your password here.<br />
-                            पासवर्ड फिर से दोहराए।
                         </div>
                     </div>
                     <div className="mb-3">
@@ -4193,13 +4174,14 @@ class SuggestedAccounts extends React.Component {
         }
         if (items.length > 0) {
             return <React.Fragment>
-                <div className="row mb-1">
-                    <div className="col-7">Suggested Accounts</div>
-                    <div className="col text-end"><button type="button" className="btn btn-light btn-sm">See all</button></div>
+                <div className="row mb-1 mt-2">
+                    <div className="col-7 fw-bold">Suggested Accounts</div>
+                    <div className="col text-end"><button type="button" className="btn btn-light d-none btn-sm">See all</button></div>
                 </div>
                 <ul className="list-group list-group-flush">
                     {items}
-                </ul></React.Fragment>;
+                </ul>
+            </React.Fragment>;
         }
         else {
             return null;
@@ -6195,6 +6177,7 @@ class SendInvite extends React.Component {
     }
 
     render() {
+        return null;
         if (this.state.loggedin) {
             return <React.Fragment>
                 <div className="text-center mb-2 p-2 rounded-2 bg-white">

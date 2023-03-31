@@ -350,4 +350,45 @@ namespace Bolo.Models
     {
         public int ID { get; set; }
     }
+    public class PopularPublicAccountView 
+    {
+        public int ID { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public DateTime CreateDate { get; set; }
+        public DateTime? ModifyDate { get; set; }
+        public RecordStatus Status { get; set; }
+
+        public Guid PublicID { get; set; }
+        public string UserName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// This will tell if the member is online, in a meeting or broadcasting or offline
+        /// </summary>
+        public ActivityStatus Activity { get; set; }
+        /// <summary>
+        /// Member when online should always send a pulse at set interval
+        /// </summary>
+        public DateTime LastPulse { get; set; }
+
+        public MemberProfileVisibility Visibility { get; set; }
+
+        public Gender Gender { get; set; }
+
+        public string Bio { get; set; } = string.Empty;
+
+        public string Pic { get; set; } = string.Empty;
+
+        public int BirthYear { get; set; }
+
+        public string Country { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+
+        public string City { get; set; } = string.Empty;
+        
+        public string ThoughtStatus { get; set; } = string.Empty;
+public string SecurityQuestion { get; set; }
+       
+    }
 }
