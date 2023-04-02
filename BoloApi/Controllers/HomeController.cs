@@ -128,7 +128,8 @@ namespace Bolo.Controllers
                         using (SqlCommand command = new SqlCommand(sql, connection))
                         {
                             connection.Open();
-                            command.ExecuteNonQuery();
+                            int result = command.ExecuteNonQuery();
+                            ViewBag.Success = "Result " + result;
                         }
 
                     }

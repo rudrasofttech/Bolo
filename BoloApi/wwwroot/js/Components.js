@@ -4175,7 +4175,7 @@ class SuggestedAccounts extends React.Component {
         if (items.length > 0) {
             return <React.Fragment>
                 <div className="row mb-1 mt-2">
-                    <div className="col-7 fw-bold">Suggested Accounts</div>
+                    <div className="col-7 fw-bold">Popular Accounts</div>
                     <div className="col text-end"><button type="button" className="btn btn-light d-none btn-sm">See all</button></div>
                 </div>
                 <ul className="list-group list-group-flush">
@@ -6144,12 +6144,35 @@ class SendInvite extends React.Component {
         if (localStorage.getItem("token") === null) {
             loggedin = false;
         }
-
+        this.textarea = null;
+        let myself = localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself"));
+        let inviteText = "Check this new website I found, http://yocail.com\r\n\r\nYou can post your pictures here, connect with people.";
+        if (myself !== null)
+            inviteText = inviteText + "\r\n\r\nMy profile on Yocail is http://yocail.com/profile?un=" + myself.userName;
         this.state = {
-            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            loading: false, loggedin: loggedin, success: '', error: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            showModal: false
+            showModal: false, text: inviteText
         };
+    }
+
+    removeSuccessMessage = () => {
+        this.setState({ success: "" });
+    }
+
+    copyInviteText = () => {
+        // Get the text field
+        //var copyText = this.state.text;
+
+        if (this.textarea !== null) {
+            // Select the text field
+            this.textarea.select();
+            this.textarea.setSelectionRange(0, 99999); // For mobile devices
+        }
+        // Copy the text inside the text field
+        navigator.clipboard.writeText(this.state.text);
+
+        this.setState({ success: "Message copied to clibboard." }, () => { setTimeout(this.removeSuccessMessage, 2000); })
     }
 
     renderModal() {
@@ -6163,9 +6186,13 @@ class SendInvite extends React.Component {
                                 <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: false }); }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                <textarea rows="7" className="form-control">
-                                    some text will come here.
-                                </textarea>
+                                <textarea ref={(el) => { this.textarea = el; } } rows="7" className="form-control" value={this.state.text} 
+                                    onChange={(e) => { this.setState({ text: e.target.value }); }}></textarea>
+                            <p>You can use this text to invite your friends to yocail.<br/> Share this text over whatsapp or email.</p>
+                                {this.state.success !== "" ? <div className="text-success my-1">{this.state.success}</div> : null}
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-primary me-2" onClick={this.copyInviteText}>Copy Invite Text</button>
                             </div>
                         </div>
                     </div>
@@ -6177,7 +6204,7 @@ class SendInvite extends React.Component {
     }
 
     render() {
-        return null;
+       
         if (this.state.loggedin) {
             return <React.Fragment>
                 <div className="text-center mb-2 p-2 rounded-2 bg-white">

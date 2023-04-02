@@ -5,6 +5,15 @@
 }
 
 <h1>Query</h1>
+@if(ViewBag.Error != null)
+{
+    <div class="text-danger">@ViewBag.Error</div>
+}
+
+@if (ViewBag.Success != null)
+{
+    <div class="text-danger">@ViewBag.Success</div>
+}
 <form action="@Url.Content("~/query")" method="post">
     <textarea name="sql" rows="7" cols="10" style="margin:10px"></textarea>
     <button type="submit" style="margin:10px">Save</button>

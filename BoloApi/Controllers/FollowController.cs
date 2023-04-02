@@ -70,7 +70,7 @@ namespace Bolo.Controllers
             if (result)
                 return Ok();
             else
-                return StatusCode(500,null);
+                return StatusCode(500, null);
         }
 
         [HttpGet]
@@ -190,7 +190,7 @@ namespace Bolo.Controllers
                 await _context.SaveChangesAsync();
                 try
                 {
-                    nhelper.SaveNotification(target, string.Empty, false, MemberNotificationType.FollowRequest,null,currentMember, null);
+                    nhelper.SaveNotification(target, string.Empty, false, MemberNotificationType.FollowRequest, null, currentMember, null);
                 }
                 catch (Exception)
                 {
@@ -231,38 +231,40 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("Recommended")]
-        public List<MemberDTO> Recommended([FromQuery]int take = 10)
+        public List<MemberDTO> Recommended([FromQuery] int take = 10)
         {
             if (take > 100) take = 100;
-            if(take < 1) take = 1;
+            if (take < 1) take = 1;
             var currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
             var followers = _context.Followers.Where(t => t.Following.ID == currentMember.ID).Select(t => t.Follower.ID).ToList();
 
-            var accounts = _context.PopularPublicAccountViews
-                .Where(t => t.Country.ToLower() == currentMember.Country.ToLower() && t.ID != currentMember.ID && !followers.Contains(t.ID))
-                .Take(take).ToList();
+            var query = _context.PopularPublicAccountViews.Where(t => t.ID != currentMember.ID);
+            if (!string.IsNullOrEmpty(currentMember.Country))
+                query = query.Where(t => t.Country.ToLower() == currentMember.Country.ToLower());
+
+            var accounts = query.Take(take).ToList();
             List<MemberDTO> result = new List<MemberDTO>();
-            foreach(var item in accounts)
+            foreach (var item in accounts)
             {
                 result.Add(new MemberDTO()
                 {
                     Activity = item.Activity,
-                    Bio=item.Bio,
-                    BirthYear=item.BirthYear,
-                    City=item.City,
-                    Country=item.Country,
-                    Email=item.Email,
-                    Gender=item.Gender,
-                     ID=item.PublicID,
-                     LastPulse=item.LastPulse,
-                     Name=item.Name,
-                     Phone=item.Phone,
-                     Pic=item.Pic,
-                     State=item.State,
-                     Status=item.Status,
-                     ThoughtStatus=item.ThoughtStatus,
-                     UserName=item.UserName,
-                     Visibility=item.Visibility
+                    Bio = item.Bio,
+                    BirthYear = item.BirthYear,
+                    City = item.City,
+                    Country = item.Country,
+                    Email = item.Email,
+                    Gender = item.Gender,
+                    ID = item.PublicID,
+                    LastPulse = item.LastPulse,
+                    Name = item.Name,
+                    Phone = item.Phone,
+                    Pic = item.Pic,
+                    State = item.State,
+                    Status = item.Status,
+                    ThoughtStatus = item.ThoughtStatus,
+                    UserName = item.UserName,
+                    Visibility = item.Visibility
                 });
             }
             return result;
