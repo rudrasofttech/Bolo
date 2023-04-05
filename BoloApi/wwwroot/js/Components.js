@@ -1524,13 +1524,17 @@ class MemberPostList extends React.Component {
         if (localStorage.getItem("token") === null) {
             loggedin = false;
         }
-
+        let ls = { model : null, posts : []};
+        if (this.props.search === "userfeed" && localStorage.getItem("userfeed") != null)
+            ls = JSON.parse(localStorage.getItem("userfeed"))
+        else if (this.props.search === "explore" && localStorage.getItem("explore") != null)
+            ls = JSON.parse(localStorage.getItem("explore"))
         this.state = {
             loading: false, loggedin: loggedin,
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             bsstyle: '', message: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            model: null, q: this.props.search, p: 0, posts: [],
+            model: ls.model, q: this.props.search, p: 0, posts: ls.posts,
             viewMode: parseInt(this.props.viewMode, 10),
             viewModeAllowed: this.props.viewModeAllowed === "true" ? true : false,
             post: null
@@ -1590,10 +1594,10 @@ class MemberPostList extends React.Component {
     }
 
     componentDidMount() {
-        this.loadFeed();
+        this.loadFeed(true);
     }
 
-    loadFeed() {
+    loadFeed(firsttime) {
         this.setState({ loading: true });
         let url = '//' + window.location.host + '/api/post?q=' + encodeURIComponent(this.state.q) + '&p=' + this.state.p;
 
@@ -1614,9 +1618,11 @@ class MemberPostList extends React.Component {
                 } else if (response.status === 200) {
                     response.json().then(data => {
                         console.log(data);
-                        var temp = this.state.posts;
-                        for (var k in data.posts) {
-                            temp.push(data.posts[k]);
+                        let temp = firsttime ? data.posts : this.state.posts;
+                        if (!firsttime) {
+                            for (var k in data.posts) {
+                                temp.push(data.posts[k]);
+                            }
                         }
                         this.setState({
                             loggedin: true, loading: false,
@@ -1627,6 +1633,12 @@ class MemberPostList extends React.Component {
                                 totalPages: data.totalPages
                             },
                             posts: temp
+                        }, () => {
+                            let obj = { model: this.state.model, posts: this.state.posts };
+                            if (this.state.q === "userfeed")
+                                localStorage.setItem("userfeed", JSON.stringify(obj));
+                            else if (this.state.q === "explore")
+                                localStorage.setItem("explore", JSON.stringify(obj));
                         });
                     });
                 }
@@ -1707,7 +1719,7 @@ class MemberPostList extends React.Component {
         if (this.state.model !== null) {
             if ((this.state.model.current + 1) < this.state.model.totalPages) {
                 loadmore = <div className="text-center bg-white p-3">
-                    <button className="btn btn-light" onClick={() => { this.setState({ p: this.state.model.current + 1 }, () => { this.loadFeed(); }) }}>Load More</button>
+                    <button className="btn btn-light" onClick={() => { this.setState({ p: this.state.model.current + 1 }, () => { this.loadFeed(false); }) }}>Load More</button>
                 </div>;
             }
         }
@@ -1972,7 +1984,7 @@ class MemberPicSmall extends React.Component {
 
     render() {
         var memberpic = this.state.member.pic !== "" ? <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0">
-            <img src={this.state.member.pic} className="d-inline-Ignore img-fluid pointer rounded-1 owner-thumb-small" alt="" /></a>
+            <img src={'//' + window.location.host + "/" + this.state.member.pic} className="d-inline-Ignore img-fluid pointer rounded-1 owner-thumb-small" alt="" /></a>
             : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0 text-secondary">
                 <img src={'//' + location.host + '/images/nopic.jpg'} alt="No Pic" className="d-inline-block img-fluid pointer rounded-1 owner-thumb-small" /></a>;
 
@@ -2705,7 +2717,6 @@ class Profile extends React.Component {
     }
 
     render() {
-
         if (!this.state.loggedin) {
             return <div className="row mt-1 g-0 bg-white">
                 <div className="col-lg-6 offset-lg-3 mt-5">
@@ -2715,7 +2726,8 @@ class Profile extends React.Component {
                             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
                             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
                         })
-                    }} /></div>
+                    }} />
+                </div>
             </div>;
         }
 
@@ -2741,7 +2753,7 @@ class Profile extends React.Component {
         }
         let me = null, pic = null, settings = null, followhtml = null;
         if (this.state.member !== null) {
-            pic = this.state.member.pic !== "" ? <img src={this.state.member.pic} className="img-fluid rounded profile-thumb" alt="" />
+            pic = this.state.member.pic !== "" ? <img src={"//" + window.location.host + "/" + this.state.member.pic} className="img-fluid rounded profile-thumb" alt="" />
                 : <img src="/images/nopic.jpg" className="img-fluid profile-thumb rounded" alt="" />;
             let name = null, thought = null, email = null, phone = null;
             if (this.state.member.name !== "") {
@@ -2779,7 +2791,18 @@ class Profile extends React.Component {
                         {thought}
                         <p>{this.state.member.bio}</p>
                     </div>
-                    <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
+                    <div className="row mt-1 g-0">
+                        <div className="col-lg-8">
+                            <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
+                        </div>
+                        <div className="col-lg-4">
+                            <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-2">
+                                <SendInvite />
+                                <SuggestedAccounts />
+                            </div>
+                        </div>
+                    </div>
+                    
                     {followlist}
                 </div>
             </div>;

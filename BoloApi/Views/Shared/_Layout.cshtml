@@ -25,7 +25,8 @@
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/custom.css" rel="stylesheet" />
     <link href="~/css/ReactCrop.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <script src="~/libs/jquery-3.6.0.min.js"></script>
     <script src="~/libs/react.development.js"></script>
     <script src="~/libs/react-dom.development.js"></script>
@@ -63,7 +64,7 @@
                                             try {
                                                 var member = JSON.parse(localStorage.getItem("myself"));
                                                 if (member.pic !== "") {
-                                                    document.write("<img src='" + member.pic + "' class='profile-icon    rounded' />");
+                                                    document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon    rounded' />");
                                                 } else {
                                                     document.write('<i class="bi bi-person-square"></i>');
                                                 }

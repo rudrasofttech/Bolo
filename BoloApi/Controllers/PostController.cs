@@ -53,7 +53,7 @@ namespace Bolo.Controllers
                 _context.SaveChanges();
                 var pdto = new PostDTO(p);
                 if (currentMember != null)
-                    pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == p.ID && t.ReactedBy.ID == currentMember.ID) > 0;
+                    pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == p.ID && t.ReactedBy.ID == currentMember.ID);
                 return pdto;
             }
 
@@ -147,7 +147,7 @@ namespace Bolo.Controllers
             {
                 PostDTO pdto = new PostDTO(pd);
                 if (currentMember != null)
-                    pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID) > 0;
+                    pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID);
 
                 posts.Add(pdto);
             }
@@ -214,13 +214,9 @@ namespace Bolo.Controllers
             List<PostDTO> posts = new List<PostDTO>();
             foreach (MemberPost pd in list)
             {
-                PostDTO pdto = new PostDTO(pd)
-                {
-                    ReactionCount = _context.Reactions.Count(t => t.Post.ID == pd.ID),
-                    CommentCount = _context.Comments.Count(t => t.Post.ID == pd.ID)
-                };
+                PostDTO pdto = new PostDTO(pd);
                 if (currentMember != null)
-                    pdto.HasReacted = _context.Reactions.Count(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID) > 0;
+                    pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID);
 
                 posts.Add(pdto);
             }

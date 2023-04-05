@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -263,7 +264,8 @@ namespace Bolo.Models
     public class PostDTO
     {
         public Guid ID { get; set; }
-        public MemberDTO Owner { get; set; }
+        public MemberSmallDTO Owner { get; set; }
+        [JsonIgnore]
         public DateTime PostDate { get; set; }
         public string PostDateDisplay
         {
@@ -282,6 +284,7 @@ namespace Bolo.Models
         public int ReactionCount { get; set; }
         public int CommentCount { get; set; }
         public int ShareCount { get; set; }
+        [JsonIgnore]
         public int Rank { get; set; }
         public bool HasReacted { get; set; }
 
@@ -290,7 +293,7 @@ namespace Bolo.Models
             if (mp != null)
             {
                 ID = mp.PublicID;
-                Owner = new MemberDTO(mp.Owner);
+                Owner = new MemberSmallDTO(mp.Owner);
                 PostDate = mp.PostDate;
                 PostType = mp.PostType;
                 Describe = mp.Describe;

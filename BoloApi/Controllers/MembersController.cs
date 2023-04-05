@@ -20,6 +20,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using NetTopologySuite.Triangulate.QuadEdge;
+using Microsoft.AspNetCore.Hosting;
+using Org.BouncyCastle.Crypto.Parameters;
 
 namespace Bolo.Controllers
 {
@@ -31,11 +33,13 @@ namespace Bolo.Controllers
         private readonly BoloContext _context;
         private readonly IConfiguration _config;
         private readonly IHubContext<PersonChatHub> _hubContext;
-        public MembersController(BoloContext context, IConfiguration config, IHubContext<PersonChatHub> hubContext)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public MembersController(BoloContext context, IConfiguration config, IHubContext<PersonChatHub> hubContext, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _config = config;
             _hubContext = hubContext;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         //[HttpGet()]
@@ -191,7 +195,7 @@ namespace Bolo.Controllers
         // GET: api/Members
         [HttpGet]
         [Route("getmembers")]
-        public MemberListPaged GetMembers([FromQuery]string k = "",[FromQuery]int p = 0, [FromQuery]int ps = 20)
+        public MemberListPaged GetMembers([FromQuery] string k = "", [FromQuery] int p = 0, [FromQuery] int ps = 20)
         {
             if (!User.IsInRole("Master"))
                 return null;
@@ -202,10 +206,10 @@ namespace Bolo.Controllers
                 query = query.Where(t => t.Email.Contains(k) || t.UserName.Contains(k) || t.Name.Contains(k));
             result.Total = query.Count();
             result.Members = query.OrderByDescending(t => t.CreateDate).Select(t => new MemberDTO(t)).Skip(ps * p).Take(ps).ToList();
-            foreach(var m in result.Members)
+            foreach (var m in result.Members)
             {
                 m.FollowerCount = _context.Followers.Count(t => t.Following.PublicID == m.ID);
-                m.PostCount = _context.Posts.Count(t => t.Owner.PublicID== m.ID);
+                m.PostCount = _context.Posts.Count(t => t.Owner.PublicID == m.ID);
                 m.FollowingCount = _context.Followers.Count(t => t.Follower.PublicID == m.ID);
             }
             return result;
@@ -227,13 +231,14 @@ namespace Bolo.Controllers
                 }
                 _context.SaveChanges();
                 return Ok();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Unable to process request. " + ex.Message });
             }
         }
 
-        
+
 
         // GET: api/Members
         [HttpGet]
@@ -314,7 +319,7 @@ namespace Bolo.Controllers
         public ActionResult<string> GetSecurityQuestion(string id)
         {
             var member = _context.Members.FirstOrDefault(t => t.Email == id || t.UserName == id);
-            if(member == null) { return NotFound(); }
+            if (member == null) { return NotFound(); }
 
             return Ok(new { member.SecurityQuestion });
         }
@@ -322,7 +327,7 @@ namespace Bolo.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("validatesecurityanswer")]
-        public ActionResult ValidateSecurityAnswer([FromForm]string username,[FromForm]string question, [FromForm]string answer, [FromForm]string password)
+        public ActionResult ValidateSecurityAnswer([FromForm] string username, [FromForm] string question, [FromForm] string answer, [FromForm] string password)
         {
             if (string.IsNullOrEmpty(answer))
                 return BadRequest(new { error = "Security Answer missing." });
@@ -332,14 +337,15 @@ namespace Bolo.Controllers
                 return BadRequest(new { error = "Security Question missing." });
             if (string.IsNullOrEmpty(password))
                 return BadRequest(new { error = "Password missing." });
-            else if(password.Length < 8)
+            else if (password.Length < 8)
                 return BadRequest(new { error = "Try a longer password, minimum 8 characters." });
-            
+
             try
             {
                 var member = _context.Members.FirstOrDefault(t => (t.Email == username || t.UserName == username) && t.SecurityQuestion == question && t.SecurityAnswer == EncryptionHelper.CalculateSHA256(answer.ToLower()));
-                if (member == null) { 
-                    return NotFound(new { error = "Security answer provided does not match our records." }); 
+                if (member == null)
+                {
+                    return NotFound(new { error = "Security answer provided does not match our records." });
                 }
                 else
                 {
@@ -348,7 +354,8 @@ namespace Bolo.Controllers
                     _context.SaveChanges();
                 }
                 return Ok();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Unable to process request. " + ex.Message });
             }
@@ -405,7 +412,7 @@ namespace Bolo.Controllers
                 return Ok();
             }
         }
-        
+
         [HttpGet]
         [Route("savesecurityquestion")]
         public async Task<IActionResult> SaveSecurityQuestion([FromQuery] string d)
@@ -432,7 +439,7 @@ namespace Bolo.Controllers
         {
             if (string.IsNullOrEmpty(d))
                 return BadRequest(new { error = "Security Answer is required." });
-            
+
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
             {
@@ -659,6 +666,25 @@ namespace Bolo.Controllers
             {
                 try
                 {
+                    if (!string.IsNullOrEmpty(pic))
+                    {
+                        string substr = pic.Substring(pic.IndexOf(";base64,") + 8, pic.Length - (pic.IndexOf(";base64,") + 8));
+                        byte[] data = System.Convert.FromBase64String(substr);
+                        string filename = string.Format("{0}.jpg", Guid.NewGuid().ToString());
+                        string webRootPath = _webHostEnvironment.WebRootPath;
+                        if (!Directory.Exists(Path.Combine(webRootPath, "dp")))
+                            Directory.CreateDirectory(Path.Combine(webRootPath, "dp"));
+
+                        string abspath = Path.Combine(webRootPath, "dp", filename);
+                        string relpath = string.Format("dp/{0}", filename);
+                        using (var stream = new MemoryStream(data, 0, data.Length))
+                        {
+                            System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
+                            image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                        }
+                        pic = relpath;
+                    }
                     member.Pic = pic;
                     member.ModifyDate = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
@@ -676,6 +702,42 @@ namespace Bolo.Controllers
                     throw;
                 }
             }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("changeallpic")]
+        public async Task<IActionResult> ChangeAllPic()
+        {
+
+            var members = _context.Members.Where(t => !string.IsNullOrEmpty(t.Pic) && t.Pic.Contains(";base64,"));
+            foreach (var member in members)
+            {
+                string pic = member.Pic;
+                if (!string.IsNullOrEmpty(pic))
+                {
+                    string substr = pic.Substring(pic.IndexOf(";base64,") + 8, pic.Length - (pic.IndexOf(";base64,") + 8));
+                    byte[] data = System.Convert.FromBase64String(substr);
+                    string filename = string.Format("{0}.jpg", Guid.NewGuid().ToString());
+                    string webRootPath = _webHostEnvironment.WebRootPath;
+                    if (!Directory.Exists(Path.Combine(webRootPath, "dp")))
+                        Directory.CreateDirectory(Path.Combine(webRootPath, "dp"));
+
+                    string abspath = Path.Combine(webRootPath, "dp", filename);
+                    string relpath = string.Format("dp/{0}", filename);
+                    using (var stream = new MemoryStream(data, 0, data.Length))
+                    {
+                        System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
+                        image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                    }
+                    pic = relpath;
+                }
+                member.Pic = pic;
+                member.ModifyDate = DateTime.UtcNow;
+            }
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpGet]
@@ -1069,7 +1131,7 @@ namespace Bolo.Controllers
         [HttpGet]
         [Authorize]
         [Route("count")]
-        public ActionResult Count([FromQuery]RecordStatus status)
+        public ActionResult Count([FromQuery] RecordStatus status)
         {
             return Ok(new { count = _context.Members.Count(t => t.Status == status) });
         }
