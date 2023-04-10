@@ -3,9 +3,10 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 @inject LocalStorageAccessor lss
+
 <div class="container">
     <div class="row">
-        <div class="col-6">
+        <div class="col-lg-4">
             <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
                 <div class="mb-3">
                     <label class="form-label">Username</label>
@@ -20,7 +21,7 @@
                 <button type="submit" disabled="@loading" class="btn btn-primary">
                     @if (loading)
                     {
-                        <div class="spinner-border spinner-border-sm" role="status">
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     }Submit

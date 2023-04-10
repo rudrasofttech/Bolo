@@ -495,8 +495,8 @@ class Home extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row mt-1 g-0 bg-white">
-                <div className="col-lg-6 offset-lg-3 mt-5">
+            return <div className="row bg-white g-0">
+                <div className="col-lg-6 offset-lg-3 p-3 pt-5 ">
                     <RegisterForm beginWithRegister={false} onLogin={() => {
                         this.setState({
                             loggedin: localStorage.getItem("token") === null ? false : true,
@@ -2769,7 +2769,7 @@ class Profile extends React.Component {
             }
             me = <div className="row g-0">
                 <div className="col">
-                    <div className="pt-2 border-bottom mb-1">
+                    <div className="pt-2 bg-white border-bottom mb-1">
                         <div className="row g-0">
                             <div className="col-5 p-1 col-md-3 text-end">
                                 {pic}
@@ -3768,7 +3768,7 @@ class RegisterForm extends React.Component {
                         <input className="form-control" required name="password" type="password" onChange={(e) => { this.setState({ logindto: { userName: this.state.logindto.userName, password: e.target.value } }) }} />
                     </div>
                     <div className="row">
-                        <div className="col">
+                        <div className="col-4">
                             <button className="btn btn-dark" type="submit">Login</button>
                         </div>
                         <div className="col text-end">

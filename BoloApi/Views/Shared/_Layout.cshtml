@@ -36,7 +36,7 @@
     </environment>
     @RenderSection("head", false)
 </head>
-<body class="bg-light">
+<body>
     <div class="container-lg p-0 sticky-top" style="height:61px">
         <div class="row g-0">
             <div class="col bg-white">
@@ -97,7 +97,7 @@
         </div>
         @RenderSection("toolbar", false)
     </div>
-    <div id="root" class="container-lg mt-1 p-0" style="min-height: 500px;">
+    <div id="root" class="container-lg p-0" style="min-height: 500px;">
         @RenderBody()
     </div>
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">

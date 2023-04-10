@@ -28,22 +28,27 @@ else if (Model != null)
         <tbody>
             @foreach (var m in Model.Members)
             {
+                string pic = m.Pic;
+                if (pic.StartsWith("dp"))
+                {
+                    pic = "//www.yocail.com/" + pic;
+                }
                 <tr>
                     <td>
                         @if (!string.IsNullOrEmpty(m.Pic))
                         {
-                            <img src="@m.Pic" class="img-fluid" style="max-height:30px" />
+                            <img src="@pic" class="img-fluid rounded" style="max-height:50px" />
                         }
                     </td>
-                    <td>@m.Name</td>
-                    <td>@m.UserName</td>
-                    <td>@m.LastPulse</td>
-                    <td>
-                    @if(m.Status == RecordStatus.Inactive)
-                    {
+                    <td valign="middle">@m.Name</td>
+                    <td valign="middle">@m.UserName</td>
+                    <td valign="middle">@m.LastPulse</td>
+                    <td valign="middle">
+                        @if (m.Status == RecordStatus.Inactive)
+                        {
                             <span class="text-danger">Inactive</span>
                         }
-                        else if(m.Status == RecordStatus.Active)
+                        else if (m.Status == RecordStatus.Active)
                         {
                             <span class="text-success">Active</span>
                         }
@@ -59,19 +64,19 @@ else if (Model != null)
                     <td>
                         @if (m.Status == RecordStatus.Inactive)
                         {
-                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
+                            <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
                         }
                         else if (m.Status == RecordStatus.Active)
                         {
-                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Inactive);}">Set Inactive</button>
+                            <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Inactive);}">Set Inactive</button>
                         }
                         else if (m.Status == RecordStatus.Unverified)
                         {
-                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
+                            <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
                         }
                         else if (m.Status == RecordStatus.Deleted)
                         {
-                            <button @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
+                            <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
                         }
                     </td>
                 </tr>
@@ -126,7 +131,7 @@ else if (Model != null)
     {
         try
         {
-
+            Loading = true;
             Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("Bearer " + await lss.GetSessionValueAsync("token"));
             Model = await Http.GetFromJsonAsync<MemberListPaged>($"api/members/getmembers?k={Keywords}&p={CurrentPage - 1}&ps={PageSize}");
             Error = string.Empty;
@@ -138,6 +143,7 @@ else if (Model != null)
         }
         finally
         {
+            Loading = false;
             StateHasChanged();
         }
 
@@ -163,6 +169,6 @@ else if (Model != null)
             Loading = false;
             StateHasChanged();
         }
-        
+
     }
 }
