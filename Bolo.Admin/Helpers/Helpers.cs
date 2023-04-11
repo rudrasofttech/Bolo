@@ -15,9 +15,9 @@ namespace Bolo.Admin
             return HttpUtility.ParseQueryString(new Uri(navigationManager.Uri).Query);
         }
 
-        public static string QueryString(this NavigationManager navigationManager, string key)
+        public static string? QueryString(this NavigationManager? navigationManager, string key)
         {
-            return navigationManager.QueryString()[key];
+            return navigationManager?.QueryString()[key];
         }
     }
 }

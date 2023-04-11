@@ -6,9 +6,15 @@
     xmlns:local="clr-namespace:YocailApp"
     Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
-
+    <TabBar>
+        <Tab Icon="home.png">
+            <ShellContent Title="Home" ContentTemplate="{DataTemplate local:MainPage}" />
+        </Tab>
+        <Tab Icon="search.png">
+            <ShellContent Title="Search" ContentTemplate="{DataTemplate local:SearchPage}" />
+        </Tab>
+        <Tab Icon="coffeecup.png">
+            <ShellContent Title="Discover" ContentTemplate="{DataTemplate local:DiscoverPage}" />
+        </Tab>
+    </TabBar>
 </Shell>

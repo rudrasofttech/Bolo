@@ -5,8 +5,8 @@
         public App()
         {
             InitializeComponent();
-
-            MainPage = new AppShell();
+            Preferences.Set(Utility.YocailAPIKey, "https://www.yocail.com/");
+            MainPage = new LoginPage();
         }
     }
 }

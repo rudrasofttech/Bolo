@@ -3769,7 +3769,10 @@ class RegisterForm extends React.Component {
                     </div>
                     <div className="row">
                         <div className="col-4">
-                            <button className="btn btn-dark" type="submit">Login</button>
+                            <button className="btn btn-dark" disabled={this.state.loading} style={{minWidth :"60px"}} type="submit">{this.state.loading ? <div className="spinner-border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div> : "Login" }
+                                </button>
                         </div>
                         <div className="col text-end">
                             <button type="button" onClick={() => { this.setState({ showForgotPassword: true }); }} className="btn btn-link text-dark">Forgot Password?</button>
@@ -3868,7 +3871,9 @@ class RegisterForm extends React.Component {
                                 this.setState({ registerdto: rdto });
                             }} />
                     </div>
-                    <button className="btn btn-dark" type="submit">Register</button>
+                    <button className="btn btn-dark" type="submit">{this.state.loading ? <div className="spinner-border text-light" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div> : "Register"}</button>
                 </form>
                 <p className="text-center mt-2">
                     Already a Member! <a onClick={this.handleLoginClickHere} className="link-success">Login Here</a> </p>

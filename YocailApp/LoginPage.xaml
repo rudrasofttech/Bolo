@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:YocailApp.ViewModel"
+             xmlns:res="clr-namespace:YocailApp.Resources.Translations"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="YocailApp.LoginPage"
+             Title="Login">
+    <ContentPage.BindingContext>
+        <local:LoginPageVM />
+    </ContentPage.BindingContext>
+    <VerticalStackLayout Padding="10" HorizontalOptions="Fill" VerticalOptions="Center">
+        <Image Source="icon192.png" WidthRequest="150" Margin="10" HorizontalOptions="Center" VerticalOptions="Center" />
+        <VerticalStackLayout Padding="10">
+            <Entry Placeholder="{x:Static res:AppRes.UsernamePh }" Text="{Binding UserName, Mode=TwoWay}" MaximumWidthRequest="300">
+                <Entry.Behaviors>
+                    <toolkit:TextValidationBehavior 
+                InvalidStyle="{StaticResource InvalidEntryStyle}"
+                ValidStyle="{StaticResource ValidEntryStyle}"
+                Flags="ValidateOnValueChanged"
+                MinimumLength="1"
+                MaximumLength="200" />
+                </Entry.Behaviors>
+            </Entry>
+            <StackLayout HeightRequest="30"></StackLayout>
+            <Entry  IsPassword="True" Placeholder="{x:Static res:AppRes.PasswordPh }" Text="{Binding Password, Mode=TwoWay}" MaximumWidthRequest="300" />
+            <StackLayout HeightRequest="30"></StackLayout>
+            <Button Text="{x:Static res:AppRes.LoginBtn }" x:Name="LoginName" Command="{Binding SubmitLoginCommand}" MaximumWidthRequest="300"></Button>
+            <StackLayout HeightRequest="10"></StackLayout>
+            <StackLayout Margin="5" MinimumHeightRequest="30">
+                <Label HorizontalOptions="CenterAndExpand" IsVisible="{Binding Error, Mode=TwoWay}" Style="{StaticResource InvalidLabel}" VerticalOptions="Center" Text="{Binding ErrorMessage, Mode=TwoWay}"></Label>
+            </StackLayout>
+            <ActivityIndicator HorizontalOptions="Center" IsRunning="{Binding Loading ,Mode=TwoWay}" />
+            
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

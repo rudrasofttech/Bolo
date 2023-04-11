@@ -1,44 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Bolo.Admin
+namespace YocailApp
 {
-    public enum MessageType
-    {
-        None,
-        Success,
-        Error,
-        Warning,
-        Information
-    }
-}
-namespace Bolo.Admin.Models
-{
-    public abstract class PagingModel
-    {
-        public int Total { get; set; }
-        public int Current { get; set; }
-        public int TotalPages
-        {
-            get
-            {
-                return (int)Math.Ceiling((decimal)Total / (decimal)PageSize);
-            }
-        }
-        public int PageSize { get; set; }
-    }
-
-    public enum MemberProfileVisibility
-    {
-        Private = 1,
-        Public = 2
-    }
-
-    public enum Gender
-    {
-        Male = 1,
-        Female = 2,
-        Other = 3
-    }
     public enum ActivityStatus
     {
         Online = 1,
@@ -55,20 +23,45 @@ namespace Bolo.Admin.Models
         Deleted = 4
     }
 
-    public class LoginReturnDTO
+    public enum FollowerStatus
     {
-        public MemberDTO Member { get; set; }
-        public string Token { get; set; } = string.Empty;
+        Active = 1,
+        Requested = 2,
+
+        NotFollowing = 10
+    }
+
+    public enum PostReactionType
+    {
+        Like = 1
+    }
+    public enum MemberProfileVisibility
+    {
+        Private = 1,
+        Public = 2
+    }
+
+    public enum Gender
+    {
+        Male = 1,
+        Female = 2,
+        Other = 3
     }
 
     public class LoginDTO
     {
         [MaxLength(250)]
         [Required]
-        public string UserName { get; set; } = string.Empty;
+        public string UserName { get; set; }
 
         [Required]
-        public string Password { get; set; } = string.Empty;
+        public string Password { get; set; }
+    }
+
+    public class LoginReturnDTO
+    {
+        public MemberDTO Member { get; set; }
+        public string Token { get; set; }
     }
 
     public class MemberDTO
@@ -92,12 +85,12 @@ namespace Bolo.Admin.Models
         public int FollowRequestCount { get; set; }
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string RecoveryQuestion { get; set; } = string.Empty;
-        public RecordStatus Status { get; set; }
+        public string SecurityQuestion { get; set; } = string.Empty;
+        public string SecurityAnswer { get; set; } = string.Empty;
         public int ProfileCompletePercent { get; set; }
         public string EmptyFields { get; set; } = string.Empty;
-
         public DateTime LastPulse { get; set; }
+        public RecordStatus Status { get; set; }
         public MemberDTO()
         {
             ID = Guid.Empty;
@@ -110,10 +103,5 @@ namespace Bolo.Admin.Models
             City = "";
             ThoughtStatus = "";
         }
-    }
-
-    public class MemberListPaged : PagingModel
-    {
-        public List<MemberDTO> Members { get; set; } = new List<MemberDTO>();
     }
 }
