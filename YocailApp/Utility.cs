@@ -10,7 +10,7 @@ namespace YocailApp
     {
         public static async Task WriteAsync(string key, string value)
         {
-             await SecureStorage.Default.SetAsync(key, value);
+            await SecureStorage.Default.SetAsync(key, value);
         }
 
         public static async Task<string> ReadAsync(string key)
@@ -30,12 +30,14 @@ namespace YocailApp
             SecureStorage.Default.RemoveAll();
         }
 
-        public static async void SetAuthToken(string authToken) { 
-            await WriteAsync("authtoken", authToken); }
+        public static async void SetAuthToken(string authToken)
+        {
+            await WriteAsync("authtoken", authToken);
+        }
 
         public static async Task<string> GetAuthToken() { return await ReadAsync("authtoken"); }
 
-        
+
     }
 
     public class Utility
@@ -43,7 +45,20 @@ namespace YocailApp
         public const string YocailAPIKey = "YocailAPI";
         public const string CurrentMemberKey = "CurrentMember";
 
-        public static HttpClient SharedClient => new HttpClient() { BaseAddress = new Uri("https://www.yocail.com/") };
+        public static async Task<HttpClient> SharedClientAsync()
+        {
+            var hc = new HttpClient()
+            {
+                BaseAddress = new Uri("https://www.yocail.com/"),
+
+            };
+            string? token = await AccessSecureStorage.GetAuthToken();
+            if (!string.IsNullOrEmpty(token))
+            {
+                hc.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+            return hc;
+        }
     }
 }
 

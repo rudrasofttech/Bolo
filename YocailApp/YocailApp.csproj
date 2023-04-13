@@ -52,6 +52,8 @@
 	  <None Remove="Resources\Images\coffeecup.png" />
 	  <None Remove="Resources\Images\home.png" />
 	  <None Remove="Resources\Images\icon192.png" />
+	  <None Remove="Resources\Images\personsquare.png" />
+	  <None Remove="Resources\Images\plussquare.png" />
 	  <None Remove="Resources\Images\search.png" />
 	</ItemGroup>
 
@@ -76,10 +78,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="AddPostPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="DiscoverPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="ProfilePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="SearchPage.xaml">

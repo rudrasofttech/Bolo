@@ -1,4 +1,6 @@
-﻿namespace YocailApp
+﻿using YocailApp.ViewModel;
+
+namespace YocailApp
 {
     public partial class MainPage : ContentPage
     {
@@ -19,6 +21,15 @@
                 CounterBtn.Text = $"Clicked {count} times";
 
             SemanticScreenReader.Announce(CounterBtn.Text);
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            if (!(BindingContext as MainPageVM).HasCacheData)
+            {
+                await (BindingContext as MainPageVM).LoadData();
+            }
         }
     }
 }

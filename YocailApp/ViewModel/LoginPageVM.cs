@@ -138,15 +138,15 @@ namespace YocailApp.ViewModel
                 Loading = true;
                 try
                 {
-                    var client = Utility.SharedClient;
+                    var client = await Utility.SharedClientAsync();
                     using StringContent jsonContent = new(JsonSerializer.Serialize(new LoginDTO() { UserName = UserName, Password = Password }), Encoding.UTF8, "application/json");
                     using HttpResponseMessage response = await client.PostAsync("api/Members/Login", jsonContent);
                     if (response.IsSuccessStatusCode)
                     {
                         HttpContent content = response.Content;
                         string result = await content.ReadAsStringAsync();
-
-                        var loginresult = JsonSerializer.Deserialize<LoginReturnDTO>(result);
+                        JsonSerializerOptions l = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
+                        var loginresult = JsonSerializer.Deserialize<LoginReturnDTO>(result, l);
                         AccessSecureStorage.SetAuthToken(loginresult.Token);
                         await AccessSecureStorage.WriteAsync(Utility.CurrentMemberKey, JsonSerializer.Serialize(loginresult.Member));
                         Application.Current.MainPage = new AppShell();

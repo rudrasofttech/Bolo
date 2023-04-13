@@ -2,11 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.SearchPage"
-             Title="SearchPage">
+             xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+             Title="Search">
     <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+        <StackLayout HorizontalOptions="FillAndExpand" Margin="10">
+            <SearchBar ios:SearchBar.SearchBarStyle="Minimal" Placeholder="Search People and Hashtag" />
+
+        </StackLayout>
     </VerticalStackLayout>
 </ContentPage>

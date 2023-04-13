@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace YocailApp
 {
+    public enum MemberPostType
+    {
+        Photo = 1,
+        Video = 2
+    }
     public enum ActivityStatus
     {
         Online = 1,
@@ -46,6 +52,20 @@ namespace YocailApp
         Male = 1,
         Female = 2,
         Other = 3
+    }
+
+    public abstract class PagingModel
+    {
+        public int Total { get; set; }
+        public int Current { get; set; }
+        public int TotalPages
+        {
+            get
+            {
+                return (int)Math.Ceiling((decimal)Total / (decimal)PageSize);
+            }
+        }
+        public int PageSize { get; set; }
     }
 
     public class LoginDTO
@@ -103,5 +123,61 @@ namespace YocailApp
             City = "";
             ThoughtStatus = "";
         }
+    }
+
+    public class MemberSmallDTO
+    {
+        public Guid ID { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Pic { get; set; } = string.Empty;
+        /// <summary>
+        /// Should be true if the member seeing this member info is a follower or not
+        /// </summary>
+        public MemberSmallDTO()
+        {
+            ID = Guid.Empty;
+            Name = string.Empty;
+            UserName = string.Empty;
+            Pic = string.Empty;
+        }
+
+    }
+
+    public class PostDTO
+    {
+        public Guid ID { get; set; }
+        public MemberSmallDTO Owner { get; set; }
+        public string PostDateDisplay
+        {
+            get; set;
+        } = string.Empty;
+        public MemberPostType PostType { get; set; } = MemberPostType.Photo;
+        public string Describe { get; set; } = string.Empty;
+        public RecordStatus Status { get; set; } = RecordStatus.Active;
+        public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
+        public bool AcceptComment { get; set; } = true;
+        public bool AllowShare { get; set; } = true;
+        public string VideoURL { get; set; }
+        public int ReactionCount { get; set; }
+        public int CommentCount { get; set; }
+        public int ShareCount { get; set; }
+        public bool HasReacted { get; set; }
+
+        public PostDTO()
+        {
+
+        }
+    }
+
+    public class PostPhoto
+    {
+        public int ID { get; set; }
+        public string Photo { get; set; }
+    }
+
+    public class PostsPaged : PagingModel
+    {
+        public List<PostDTO> Posts { get; set; } = new List<PostDTO>();
     }
 }

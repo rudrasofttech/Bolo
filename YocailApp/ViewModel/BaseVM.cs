@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace YocailApp.ViewModel
 {
@@ -83,5 +84,13 @@ namespace YocailApp.ViewModel
 
         public void OnPropertyChanged([CallerMemberName] string name = "") =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        public async Task<string> Token()
+        {
+            return await AccessSecureStorage.GetAuthToken();
+        }
+
+        public ICommand LoadMoreCommand { get; set; }
+        public ICommand RefreshCommand { get; set; }
     }
 }

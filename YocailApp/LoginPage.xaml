@@ -10,7 +10,7 @@
         <local:LoginPageVM />
     </ContentPage.BindingContext>
     <VerticalStackLayout Padding="10" HorizontalOptions="Fill" VerticalOptions="Center">
-        <Image Source="icon192.png" WidthRequest="150" Margin="10" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Image Source="icon192.png" WidthRequest="100" Margin="10" HorizontalOptions="Center" VerticalOptions="Center" />
         <VerticalStackLayout Padding="10">
             <Entry Placeholder="{x:Static res:AppRes.UsernamePh }" Text="{Binding UserName, Mode=TwoWay}" MaximumWidthRequest="300">
                 <Entry.Behaviors>
