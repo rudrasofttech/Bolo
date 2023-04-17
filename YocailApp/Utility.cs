@@ -44,6 +44,16 @@ namespace YocailApp
     {
         public const string YocailAPIKey = "YocailAPI";
         public const string CurrentMemberKey = "CurrentMember";
+        public const string FeedDataFileName = "feeddata.txt";
+        public static string FeedDataFilePath
+        {
+            get { return System.IO.Path.Combine(FileSystem.Current.CacheDirectory, Utility.FeedDataFileName); }
+        }
+
+        public static void ClearCachedData()
+        {
+            System.IO.File.Delete(FeedDataFilePath);
+        }
 
         public static async Task<HttpClient> SharedClientAsync()
         {

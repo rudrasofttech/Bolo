@@ -49,12 +49,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Fonts\Inter-Bold.ttf" />
+	  <None Remove="Resources\Fonts\Inter-ExtraBold.ttf" />
+	  <None Remove="Resources\Fonts\Inter-ExtraLight.ttf" />
+	  <None Remove="Resources\Fonts\Inter-Light.ttf" />
+	  <None Remove="Resources\Fonts\Inter-Medium.ttf" />
+	  <None Remove="Resources\Fonts\Inter-Regular.ttf" />
+	  <None Remove="Resources\Fonts\Inter-SemiBold.ttf" />
+	  <None Remove="Resources\Fonts\Inter-Thin.ttf" />
 	  <None Remove="Resources\Images\coffeecup.png" />
 	  <None Remove="Resources\Images\home.png" />
 	  <None Remove="Resources\Images\icon192.png" />
 	  <None Remove="Resources\Images\personsquare.png" />
 	  <None Remove="Resources\Images\plussquare.png" />
 	  <None Remove="Resources\Images\search.png" />
+	  <None Remove="Resources\Images\threedotsvertical.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -79,6 +88,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="AddPostPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\PostCV.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="DiscoverPage.xaml">

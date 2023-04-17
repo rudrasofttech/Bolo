@@ -13,6 +13,8 @@ namespace YocailApp.ViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public MemberModel CurrentMember { get; set; }
+
         private bool _loading;
         public bool Loading
         {
@@ -68,6 +70,7 @@ namespace YocailApp.ViewModel
                 }
             }
         }
+
         private string _successMessage = string.Empty;
         public string SuccessMessage
         {
@@ -89,6 +92,45 @@ namespace YocailApp.ViewModel
         {
             return await AccessSecureStorage.GetAuthToken();
         }
+    }
+
+    public class CollectionBaseVM : BaseVM
+    {
+        private int _totalRecords = 0;
+        public int TotalRecords
+        {
+            get => _totalRecords;
+            set
+            {
+                if (_totalRecords != value)
+                {
+                    _totalRecords = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _currentPage = 0;
+        public int CurrentPage
+        {
+            get => _currentPage;
+            set
+            {
+                if (_currentPage != value)
+                {
+                    _currentPage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public int TotalPages
+        {
+            get
+            {
+                return (int)Math.Ceiling((decimal)_totalRecords / (decimal)PageSize);
+            }
+        }
+        public int PageSize { get; set; } = 30;
 
         public ICommand LoadMoreCommand { get; set; }
         public ICommand RefreshCommand { get; set; }

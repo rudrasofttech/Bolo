@@ -149,6 +149,9 @@ namespace YocailApp.ViewModel
                         var loginresult = JsonSerializer.Deserialize<LoginReturnDTO>(result, l);
                         AccessSecureStorage.SetAuthToken(loginresult.Token);
                         await AccessSecureStorage.WriteAsync(Utility.CurrentMemberKey, JsonSerializer.Serialize(loginresult.Member));
+
+                        Utility.ClearCachedData();
+
                         Application.Current.MainPage = new AppShell();
                     }
                     else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)

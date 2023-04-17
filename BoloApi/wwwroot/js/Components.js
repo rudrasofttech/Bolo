@@ -3823,7 +3823,7 @@ class RegisterForm extends React.Component {
                             }} aria-describedby="usernameHelp" />
                         <div id="usernameHelp" class="form-text">Username should be unique and creative,
                             it will be your identity on the site.<br />
-                            मन चाहा Username चुने, यह Yocail पर आपकी पहचान बनेगा। Username अनोखा और रचनात्मक रखे।
+                            {/*मन चाहा Username चुने, यह Yocail पर आपकी पहचान बनेगा। Username अनोखा और रचनात्मक रखे।*/}
                         </div>
                     </div>
                     <div className="mb-3">
@@ -3833,8 +3833,9 @@ class RegisterForm extends React.Component {
                             rdto.password = e.target.value;
                             this.setState({ registerdto: rdto });
                         }} />
-                        <div id="passwordHelp" class="form-text">Password should be at least 8 characters long, make it difficult to guess.<br />
-                            पासवर्ड कम से कम आठ अक्षर का हो, पासवर्ड कठिन चुने।
+                        <div id="passwordHelp" class="form-text">Password should be at least 8 characters long, make it difficult to guess.
+                            {/*<br />*/}
+                            {/*पासवर्ड कम से कम आठ अक्षर का हो, पासवर्ड कठिन चुने।*/}
                         </div>
                     </div>
                     <div className="mb-3">
@@ -3845,8 +3846,9 @@ class RegisterForm extends React.Component {
                                 rdto.securityQuestion = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="securityquestionHelp" />
-                        <div id="securityquestionHelp" class="form-text">In case you forget your password, we will ask you this security question. Choose your security question wisely। <br />
-                            पासवर्ड भूल जाने पर यही security question आप से पूछा जाएगा। Security question ऐसा रखे जिसका उत्तर सिर्फ आपको पता हो।
+                        <div id="securityquestionHelp" class="form-text">In case you forget your password, we will ask you this security question. Choose your security question wisely.
+                            {/*<br />*/}
+                            {/*पासवर्ड भूल जाने पर यही security question आप से पूछा जाएगा। Security question ऐसा रखे जिसका उत्तर सिर्फ आपको पता हो।*/}
                         </div>
                     </div>
                     <div className="mb-3">
@@ -3857,8 +3859,9 @@ class RegisterForm extends React.Component {
                                 rdto.securityAnswer = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="securitypasswordHelp" />
-                        <div id="securitypasswordHelp" class="form-text">You will be allowed to reset your password only if you provide this security answer. <br />
-                            आप को अपना पासवॉर्ड तभी बदलने दिया जाएगा जब आपका security question उत्तर इस से मेल खाएगा।
+                        <div id="securitypasswordHelp" class="form-text">You will be allowed to reset your password only if you provide this security answer.
+                            {/*<br />*/}
+                            {/*आप को अपना पासवॉर्ड तभी बदलने दिया जाएगा जब आपका security question उत्तर इस से मेल खाएगा।*/}
                         </div>
                     </div>
                     <div className="mb-3">

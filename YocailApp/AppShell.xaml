@@ -5,9 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:YocailApp"
     Shell.FlyoutBehavior="Disabled" Title="" NavBarIsVisible="False">
-
     <TabBar>
-        <Tab Icon="home.png" >
+        <Tab Icon="home.png">
             <ShellContent Title="Home" ContentTemplate="{DataTemplate local:MainPage}" />
         </Tab>
         <Tab Icon="search.png" >

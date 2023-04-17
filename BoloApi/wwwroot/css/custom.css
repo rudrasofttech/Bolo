@@ -1,7 +1,3 @@
-/*@font-face {
-    font-family: 'Forum-Regular';
-    src: url('../font/Forum-Regular.ttf') format('truetype');
-}*/
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 body {
     font-family: Inter, Candara, Arial;

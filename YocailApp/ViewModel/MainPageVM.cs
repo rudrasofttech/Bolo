@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -9,18 +10,18 @@ using YocailApp.Resources.Translations;
 
 namespace YocailApp.ViewModel
 {
-    public class MainPageVM : BaseVM
+    public class MainPageVM : CollectionBaseVM
     {
 
-        string feeddatapath = System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "feeddata.txt");
-        PostsPaged _postPaged = new PostsPaged() { PageSize = 30 };
-        public PostsPaged PostsPaged
-        {
-            get => _postPaged; set
+        string feeddatapath = Utility.FeedDataFilePath;
+
+        public ObservableCollection<PostVM> _posts ;
+        public ObservableCollection<PostVM> Posts { get => _posts;
+            set
             {
-                if (value != null)
+                if(_posts != value)
                 {
-                    _postPaged = value;
+                    _posts = value;
                     OnPropertyChanged();
                 }
             }
@@ -43,21 +44,22 @@ namespace YocailApp.ViewModel
         {
             LoadMoreCommand = new Command(async () =>
             {
-                if (PostsPaged.Current < (PostsPaged.TotalPages - 1))
+                if (CurrentPage < (TotalPages - 1))
                 {
-                    PostsPaged.Current++;
+                    CurrentPage++;
                 }
                 await LoadData();
             });
+
             RefreshCommand = new Command(async () =>
             {
-                PostsPaged.Current = 0;
-                PostsPaged.Total = 0;
-                PostsPaged.PageSize = 30;
-                PostsPaged.Posts.Clear();
+                CurrentPage = 0;
+                TotalRecords = 0;
+                PageSize = 30;
+                if (Posts != null)
+                    Posts.Clear();
                 await LoadData();
             });
-            LoadFeedFromCache();
         }
 
         public async Task LoadData()
@@ -66,7 +68,7 @@ namespace YocailApp.ViewModel
             try
             {
                 var client = await Utility.SharedClientAsync();
-                using HttpResponseMessage response = await client.GetAsync($"api/post/feed?ps={PostsPaged.PageSize}&p={PostsPaged.Current}");
+                using HttpResponseMessage response = await client.GetAsync($"api/post/feed?ps={PageSize}&p={CurrentPage}");
                 if (response.IsSuccessStatusCode)
                 {
                     HttpContent content = response.Content;
@@ -74,14 +76,25 @@ namespace YocailApp.ViewModel
                     JsonSerializerOptions l = new() { PropertyNameCaseInsensitive = true };
                     var data = JsonSerializer.Deserialize<PostsPaged>(result, l);
 
-                    PostsPaged.Current = data.Current;
-                    PostsPaged.Total = data.Total;
-                    PostsPaged.PageSize = data.PageSize;
-                    PostsPaged.Posts.AddRange(data.Posts);
+                    CurrentPage = data.Current;
+                    TotalRecords = data.Total;
+                    PageSize = data.PageSize;
+                    Posts ??= new ObservableCollection<PostVM>();
+                    foreach(var i in data.Posts)
+                    {
+                        PostVM apm = new PostVM() { 
+                        Post = i,
+                        IsOwner = i.Owner.ID == CurrentMember.ID
+                        };
+                        Posts.Add(apm);
+                    }
 
+                    var list = new List<PostModel>();
+                    list.AddRange(Posts.Select(t => t.Post).ToList());
                     using FileStream outputStream = System.IO.File.OpenWrite(feeddatapath);
                     using StreamWriter streamWriter = new(outputStream);
-                    await streamWriter.WriteAsync(JsonSerializer.Serialize(PostsPaged));
+                    await streamWriter.WriteAsync(JsonSerializer.Serialize(new PostsPaged() { Current = CurrentPage, PageSize = PageSize, Total = TotalRecords, Posts = list }));
+                    OnPropertyChanged("PostsPaged");
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -112,10 +125,23 @@ namespace YocailApp.ViewModel
                 if (System.IO.File.Exists(feeddatapath))
                 {
                     using Stream fileStream = System.IO.File.OpenRead(feeddatapath);
-                    using StreamReader reader = new StreamReader(fileStream);
+                    using var reader = new StreamReader(fileStream);
                     var c = reader.ReadToEnd();
                     JsonSerializerOptions l = new() { PropertyNameCaseInsensitive = true };
-                    PostsPaged = JsonSerializer.Deserialize<PostsPaged>(c, l);
+                    var data = JsonSerializer.Deserialize<PostsPaged>(c, l);
+                    CurrentPage = data.Current;
+                    TotalRecords = data.Total;
+                    PageSize = data.PageSize;
+                    Posts ??= new ObservableCollection<PostVM>();
+                    foreach (var i in data.Posts)
+                    {
+                        PostVM apm = new PostVM()
+                        {
+                            Post = i,
+                            IsOwner = i.Owner.ID == CurrentMember.ID
+                        };
+                        Posts.Add(apm);
+                    }
                     _hasCacheData = true;
                     return;
                 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YocailApp.Controls.PostCV" x:Name="this">
+    <VerticalStackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <Grid RowDefinitions="*" ColumnDefinitions="45,*,40" HorizontalOptions="FillAndExpand">
+            <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
+                <Image Source="{Binding Post.Owner.PicPathConverted}" WidthRequest="45" HeightRequest="45"/>
+            </Frame>
+            <StackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="FillAndExpand">
+                <Label Text="{Binding Post.Owner.UserName}" FontSize="15"  Padding="10"></Label>
+            </StackLayout>
+            <StackLayout Grid.Row="0" Grid.Column="2" HorizontalOptions="FillAndExpand">
+                <ImageButton Source="threedotsvertical.png" Padding="13" HorizontalOptions="Center" VerticalOptions="Center" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
+            </StackLayout>
+        </Grid>
+        <Frame HeightRequest="10" BorderColor="Transparent" HorizontalOptions="FillAndExpand" BackgroundColor="White"></Frame>
+    </VerticalStackLayout>
+</ContentView>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -80,11 +81,11 @@ namespace YocailApp
 
     public class LoginReturnDTO
     {
-        public MemberDTO Member { get; set; }
+        public MemberModel Member { get; set; }
         public string Token { get; set; }
     }
 
-    public class MemberDTO
+    public class MemberModel
     {
         public Guid ID { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -111,7 +112,7 @@ namespace YocailApp
         public string EmptyFields { get; set; } = string.Empty;
         public DateTime LastPulse { get; set; }
         public RecordStatus Status { get; set; }
-        public MemberDTO()
+        public MemberModel()
         {
             ID = Guid.Empty;
             Name = string.Empty;
@@ -125,16 +126,35 @@ namespace YocailApp
         }
     }
 
-    public class MemberSmallDTO
+    public class MemberSmallModel
     {
         public Guid ID { get; set; }
         public string Name { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Pic { get; set; } = string.Empty;
+        public string PicPathConverted
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Pic))
+                {
+                    if(!Pic.ToLower().StartsWith("http://") && !Pic.ToLower().StartsWith("https://"))
+                    {
+                        return $"https://www.yocail.com/{Pic}";
+                    }
+                    return Pic;
+                }
+                else
+                {
+                    return "nopic.png";
+                }
+                
+            }
+        }
         /// <summary>
         /// Should be true if the member seeing this member info is a follower or not
         /// </summary>
-        public MemberSmallDTO()
+        public MemberSmallModel()
         {
             ID = Guid.Empty;
             Name = string.Empty;
@@ -144,10 +164,10 @@ namespace YocailApp
 
     }
 
-    public class PostDTO
+    public class PostModel
     {
         public Guid ID { get; set; }
-        public MemberSmallDTO Owner { get; set; }
+        public MemberSmallModel Owner { get; set; }
         public string PostDateDisplay
         {
             get; set;
@@ -164,7 +184,7 @@ namespace YocailApp
         public int ShareCount { get; set; }
         public bool HasReacted { get; set; }
 
-        public PostDTO()
+        public PostModel()
         {
 
         }
@@ -178,6 +198,6 @@ namespace YocailApp
 
     public class PostsPaged : PagingModel
     {
-        public List<PostDTO> Posts { get; set; } = new List<PostDTO>();
+        public List<PostModel> Posts { get; set; } = new List<PostModel>();
     }
 }
