@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -81,10 +82,11 @@ namespace BoloApi
                 o.KeepAliveInterval = TimeSpan.FromMinutes(1);
                 o.MaximumReceiveMessageSize = null;
             });
-
+            
             services.Configure<HubOptions>(options =>
             {
                 options.MaximumReceiveMessageSize = null;
+                
             });
 
             services.Configure<SmtpSetting>(Configuration.GetSection("SmtpSetting"));

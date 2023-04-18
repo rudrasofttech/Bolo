@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -382,6 +383,66 @@ namespace Bolo.Controllers
         }
 
         [HttpPost]
+        [Route("postvideo")]
+        [RequestFormLimits(MultipartBodyLengthLimit = 20971520)]
+        public async Task<ActionResult> PostVideoAsync([FromForm] PostVideoDTO value)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { error = "Invalid Input" });
+            }
+            try
+            {
+                if (value.Video.Length > 0 && value.Video.Length <= Bolo.Helper.Utility.MultipartBodyLengthLimit)
+                {
+                    var filePath = Path.GetTempFileName();
+                    string filename = $"{Guid.NewGuid()}{Path.GetExtension(value.Video.FileName)}";
+                    string webRootPath = _webHostEnvironment.WebRootPath;
+                    string abspath = Path.Combine(webRootPath, "videos", filename);
+                    string relpath = $"videos/{filename}";
+
+                    using (var stream = System.IO.File.Create(abspath))
+                    {
+                        await value.Video.CopyToAsync(stream);
+                    }
+                    var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+                    MemberPost p = new MemberPost()
+                    {
+                        Describe = string.IsNullOrEmpty(value.Describe) ? "" : value.Describe,
+                        Owner = member,
+                        PostDate = DateTime.UtcNow,
+                        PostType = MemberPostType.Video,
+                        Status = RecordStatus.Active,
+                        VideoURL = relpath,
+                        AcceptComment = value.AcceptComment,
+                        AllowShare = value.AllowShare,
+                        PublicID = Guid.NewGuid()
+                    };
+                    _context.Posts.Add(p);
+                    if (!string.IsNullOrEmpty(p.Describe))
+                    {
+                        var regex = new Regex(@"#\w+");
+                        var matches = regex.Matches(p.Describe);
+                        foreach (var match in matches)
+                        {
+                            HashTag ht = new HashTag() { Post = p, Tag = match.ToString() };
+                            _context.HashTags.Add(ht);
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                    return Ok(new { success = true });
+                }
+                else
+                {
+                    return BadRequest(new { error = "Video should not be more than 20MB in size" });
+                }
+            }catch(Exception ex)
+            {
+                return StatusCode(500, new { error = "Unable to process your request. " + ex.Message });
+            }
+        }
+
+        [HttpPost]
         [Route("addcomment")]
         public async Task<ActionResult<CommentDTO>> AddComment([FromForm] PostCommentDTO value)
         {
@@ -559,6 +620,13 @@ namespace Bolo.Controllers
                     {
                         if (System.IO.File.Exists(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo)))
                             System.IO.File.Delete(string.Format("{0}/{1}", _webHostEnvironment.WebRootPath, photo.Photo));
+                    }
+                    if (!string.IsNullOrEmpty(p.VideoURL))
+                    {
+                        if (System.IO.File.Exists($"{_webHostEnvironment.WebRootPath}/{p.VideoURL}"))
+                        {
+                            System.IO.File.Delete($"{_webHostEnvironment.WebRootPath}/{p.VideoURL}");
+                        }
                     }
                 }
 

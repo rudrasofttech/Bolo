@@ -27,6 +27,8 @@ namespace Bolo.Helper
     public class Utility
     {
         public const string UniversalGroup = "Universal";
+
+        public const int MultipartBodyLengthLimit = 20971520;
         public static DateTime OTPExpiry
         {
             get

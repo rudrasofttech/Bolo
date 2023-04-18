@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -229,6 +230,17 @@ namespace Bolo.Models
         public MemberDTO Member { get; set; }
         public string Token { get; set; }
     }
+
+    public class PostVideoDTO {
+        [MaxLength(7000)]
+        public string Describe { get; set; } = string.Empty;
+        public bool AcceptComment { get; set; } = true;
+        public bool AllowShare { get; set; } = true;
+
+        [Required]
+        public IFormFile Video { get; set; }
+    }
+
 
     public class PostPhotoDTO
     {

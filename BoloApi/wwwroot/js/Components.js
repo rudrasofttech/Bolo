@@ -761,7 +761,7 @@ class MemberPost extends React.Component {
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
             post: this.props.post, showreactionlist: false, hashtag: this.props.hashtag ? this.props.hashtag : '',
             showCommentBox: false, showpostoptions: false, showeditform: false, showdeletemodal: false, showflagmodal: false,
-            showModal: '' /*reaction,comment,post,edit,delete,flag,share */
+            showModal: '' /*reaction,comment,post,edit,delete,flag,share */, muted: true
         };
 
         this.addReaction = this.addReaction.bind(this);
@@ -1043,7 +1043,9 @@ class MemberPost extends React.Component {
         </table>;
         let postshtml = null;
         if (p.videoURL !== "") {
-
+            postshtml = <div>
+                <video src={"//" + location.host + "/" + p.videoURL} className="w-100"></video>
+            </div>;
         } else if (p.photos) {
             if (p.photos.length == 1) {
                 postshtml = <div className="text-center">
@@ -1512,7 +1514,7 @@ class MemberPostList extends React.Component {
         if (localStorage.getItem("token") === null) {
             loggedin = false;
         }
-        let ls = { model : null, posts : []};
+        let ls = { model: null, posts: [] };
         if (this.props.search === "userfeed" && localStorage.getItem("userfeed") != null)
             ls = JSON.parse(localStorage.getItem("userfeed"))
         else if (this.props.search === "explore" && localStorage.getItem("explore") != null)
@@ -2790,7 +2792,7 @@ class Profile extends React.Component {
                             </div>
                         </div>
                     </div>
-                    
+
                     {followlist}
                 </div>
             </div>;
@@ -3757,10 +3759,10 @@ class RegisterForm extends React.Component {
                     </div>
                     <div className="row">
                         <div className="col-4">
-                            <button className="btn btn-dark" disabled={this.state.loading} style={{minWidth :"60px"}} type="submit">{this.state.loading ? <div className="spinner-border" role="status">
+                            <button className="btn btn-dark" disabled={this.state.loading} style={{ minWidth: "60px" }} type="submit">{this.state.loading ? <div className="spinner-border" role="status">
                                 <span className="visually-hidden">Loading...</span>
-                            </div> : "Login" }
-                                </button>
+                            </div> : "Login"}
+                            </button>
                         </div>
                         <div className="col text-end">
                             <button type="button" onClick={() => { this.setState({ showForgotPassword: true }); }} className="btn btn-link text-dark">Forgot Password?</button>
@@ -4352,10 +4354,11 @@ class PostShareModal extends React.Component {
     }
 }
 
-class AddPost extends React.Component {
+class AddVideo extends React.Component {
     constructor(props) {
         super(props);
         this.videoinput = null;
+        this.videotag = null;
         let loggedin = true;
         if (localStorage.getItem("token") === null) {
             loggedin = false;
@@ -4365,24 +4368,95 @@ class AddPost extends React.Component {
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            video : null
+            video: null, describe: "", allowComment: false, allowShare: false, play: true, muted: true
         };
     }
 
     videoFileChange = (e) => {
-        
         let fileURL = URL.createObjectURL(e.target.files[0]);
-        this.videoinput.src = fileURL;
+        this.videotag.src = fileURL;
         // wait for duration to change from NaN to the actual duration
-        this.videoinput.ondurationchange = function () {
-            alert(this.duration);
-        };
+        //this.videoinput.ondurationchange = function () {
+        //    alert(this.duration);
+        //};
+    }
+
+    saveData = () => {
+        this.setState({ loading: true });
+        const fd = new FormData();
+        fd.append("Video", this.state.video);
+        fd.append("Describe", this.state.describe);
+        fd.append("AcceptComment", this.state.allowComment);
+        fd.append("AllowShare", this.state.allowShare);
+
+        fetch("//" + location.host + "/api/post/postvideo", {
+            method: "post",
+            body: fd,
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
+        }).then(response => {
+            if (response.status === 200) {
+                this.setState({ loading: false });
+                location.href = "//" + location.host;
+            } else if(response.status === 413) {
+                this.setState({loading : false, bssytle:'error', message:"Video file too large."})
+            }
+        })
     }
 
     render() {
         return <div>
-            <input  type="file" onChange={this.videoFileChange} />
-            <video ref={el => { this.videoinput = el }} className="d-none"></video>
+            <div className="mb-3">
+                <div className="text-center mb-2">
+                    <button type="button" className="btn btn-primary" onClick={() => { this.videoinput.click(); }}><i className="bi bi-upload"></i></button>
+                    <input ref={el => { this.videoinput = el }} type="file" className="d-none" onChange={this.videoFileChange} />
+                </div>
+                <div className="text-center">
+                    <video ref={el => { this.videotag = el }} muted className={this.state.video !== null ? "img-fluid" : "d-none img-fluid"} style={{ maxHeight: "600px" }} onDurationChange={(e) => {
+                        //alert(e.target.duration);
+                        if (e.target.duration < 100) {
+                            this.videotag.play();
+                            this.setState({ video: this.videoinput.files[0], play: true });
+                        } else {
+                            this.setState({ video: null, bsstyle: "error", message: "Video should not be more than 30 seconds long." })
+                        }
+                    }}>
+                    </video>
+                    {this.state.video !== null ?
+                        <div className="my-1">
+                            {
+                                this.state.play ?
+                                <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.pause(); this.setState({ play: false }); }}><i className="bi bi-pause-fill"></i></button> :
+                                <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.play(); this.setState({ play: true }); }}><i className="bi bi-play-fill"></i></button>
+                            }
+                            {
+                                this.state.muted ?
+                                    <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.muted = false; this.setState({ muted: false }); }}><i className="bi bi-volume-mute-fill"></i></button> :
+                                    <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.muted = true; this.setState({ muted: true }); }}><i className="bi bi-volume-up-fill"></i></button>
+                            }
+                        </div> :
+                        null}
+                </div>
+            </div>
+            <div class="mb-3">
+                <textarea value={this.state.describe} onChange={(e) => { this.setState({ describe: e.target.value }) }} class="form-control border-0 border-bottom" rows="7" placeholder="Add some description to your video..." maxlength="7000"></textarea>
+            </div>
+            <div class="mb-3 ps-3">
+                <div class="form-check form-switch">
+                    {this.state.allowComment ?
+                        <input class="form-check-input" type="checkbox" role="switch" checked onChange={(e) => { this.setState({ allowComment: false }) }} /> :
+                        <input class="form-check-input" type="checkbox" role="switch" onChange={(e) => { this.setState({ allowComment: true }) }} />}
+                    <label class="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
+                </div>
+            </div>
+            <div class="ps-3">
+                <div class="form-check form-switch">
+                    {this.state.allowShare ?
+                        <input class="form-check-input" type="checkbox" role="switch" checked onChange={() => { this.setState({ allowShare: false }); }} /> :
+                        <input class="form-check-input" type="checkbox" role="switch" onChange={() => { this.setState({ allowShare: true }); }} />}
+                    <label class="form-check-label" for="allowsharechk">Allow Sharing of Post</label>
+                </div>
+            </div>
+            <div><button type="button" className="btn btn-primary" onClick={this.saveData}>Save</button></div>
         </div>
     }
 }
@@ -6240,9 +6314,9 @@ class SendInvite extends React.Component {
                                 <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: false }); }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                <textarea ref={(el) => { this.textarea = el; } } rows="7" className="form-control" value={this.state.text} 
+                                <textarea ref={(el) => { this.textarea = el; }} rows="7" className="form-control" value={this.state.text}
                                     onChange={(e) => { this.setState({ text: e.target.value }); }}></textarea>
-                            <p>You can use this text to invite your friends to yocail.<br/> Share this text over whatsapp or email.</p>
+                                <p>You can use this text to invite your friends to yocail.<br /> Share this text over whatsapp or email.</p>
                                 {this.state.success !== "" ? <div className="text-success my-1">{this.state.success}</div> : null}
                             </div>
                             <div className="modal-footer">
@@ -6258,7 +6332,7 @@ class SendInvite extends React.Component {
     }
 
     render() {
-       
+
         if (this.state.loggedin) {
             return <React.Fragment>
                 <div className="text-center mb-2 p-2 rounded-2 bg-white">

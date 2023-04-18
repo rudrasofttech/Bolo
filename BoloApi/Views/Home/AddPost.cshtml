@@ -7,7 +7,7 @@
     #photocontainer {
         width: 100%;
         max-width: 600px;
-        height: 600px;
+        max-height: 600px;
         margin: 0 auto;
         /*background-image: url(images/upload-icon.png);
         background-position: center;
@@ -101,14 +101,14 @@
 </div>
 <div id="videocontainer"></div>
 @section scripts{
-    <environment include="Development">
+    @*<environment include="Development">
         <script type="text/babel">
             ReactDOM.render(
-            <AddPost />,
+            <AddVideo />,
             document.getElementById('videocontainer')
             );
         </script>
-    </environment>
+    </environment>*@
     <script src="~/libs/fabric.min.js"></script>
     <script>
         var photos = [];

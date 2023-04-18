@@ -84,6 +84,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\font\" />
+    <Folder Include="wwwroot\videos\" />
     <Folder Include="wwwroot\photos\" />
   </ItemGroup>
 
