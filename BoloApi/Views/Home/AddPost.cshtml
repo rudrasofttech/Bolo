@@ -99,8 +99,16 @@
         </form>
     </div>
 </div>
-
+<div id="videocontainer"></div>
 @section scripts{
+    <environment include="Development">
+        <script type="text/babel">
+            ReactDOM.render(
+            <AddPost />,
+            document.getElementById('videocontainer')
+            );
+        </script>
+    </environment>
     <script src="~/libs/fabric.min.js"></script>
     <script>
         var photos = [];

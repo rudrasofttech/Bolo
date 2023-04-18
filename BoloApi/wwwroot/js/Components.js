@@ -1047,21 +1047,9 @@ class MemberPost extends React.Component {
         } else if (p.photos) {
             if (p.photos.length == 1) {
                 postshtml = <div className="text-center">
-                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid" onDoubleClick={() => { this.addReaction(); }} />
+                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
-                //var imgs = [], imgs2 = [];
-                //for (var i in p.photos) {
-                //    imgs.push(<li key={"img" + p.photos[i].id} className="list-group-item p-0 me-1 border-0">
-                //        <div className="postdiv" style={{ backgroundImage: "url(//" + location.host + "/" + p.photos[i].photo + ")" }}>
-                //            <img src={"//" + location.host + "/" + p.photos[i].photo} style={{ opacity: 0, maxHeight: "500px", maxWidth: "500px" }} />
-                //        </div></li>);
-                //    imgs2.push(<span style={{ width: "5px", height: "5px" }} className="bg-secondary d-inline-block me-1"></span>);
-                //}
-                //postshtml = <div className="table-responsive my-1">
-                //    <ul className="list-group list-group-horizontal" onDoubleClick={() => { this.addReaction(); }}>
-                //        {imgs}
-                //    </ul></div>;
                 postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
             }
         }
@@ -1109,7 +1097,7 @@ class MemberPost extends React.Component {
             <div className="mt-1 text-center">
                 {reactionhtml}{reactionCountHtml} {commentBtn}{commentCountHtml} {shareBtn}
             </div>
-            <ExpandableTextLabel cssclass="m-3" text={describe === null ? "" : describe} maxlength={200} />
+            <ExpandableTextLabel cssclass="m-3 text-center" text={describe === null ? "" : describe} maxlength={200} />
             {likemodal}
             {commentbox}
             {this.renderPostOptions()}
@@ -2197,7 +2185,7 @@ class ExpandableTextLabel extends React.Component {
         }
 
         if (this.state.showexpand) {
-            expandbtn = <button type="button" onClick={() => { this.setState({ expand: !this.state.expand }) }} className="btn btn-link d-block p-0 text-secondary text-decoration-none" >{(!this.state.expand) ? "More" : "Less"}</button>
+            expandbtn = <button type="button" onClick={() => { this.setState({ expand: !this.state.expand }) }} className="btn btn-link text-secondary" >{(!this.state.expand) ? "More" : "Less"}</button>
         }
 
         return <div className={this.state.cssclass}>{text}{expandbtn}</div>;
@@ -2467,7 +2455,7 @@ class PhotoCarousel extends React.Component {
                 this.setState({ active: parseInt(e.target.getAttribute("data-index", 10)) });
             }}></button>)
             items2.push(<div className={k === this.state.active ? "carousel-item text-center active" : "carousel-item text-center"}>
-                <img src={"//" + location.host + "/" + this.state.photos[k].photo} className="img-fluid" alt="" />
+                <img src={"//" + location.host + "/" + this.state.photos[k].photo} className="img-fluid w-100" alt="" />
             </div>);
         }
         return <React.Fragment>
@@ -4361,6 +4349,41 @@ class PostShareModal extends React.Component {
 
     render() {
         return <MemberSmallList memberid={this.state.member.id} target="share" />;
+    }
+}
+
+class AddPost extends React.Component {
+    constructor(props) {
+        super(props);
+        this.videoinput = null;
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            video : null
+        };
+    }
+
+    videoFileChange = (e) => {
+        
+        let fileURL = URL.createObjectURL(e.target.files[0]);
+        this.videoinput.src = fileURL;
+        // wait for duration to change from NaN to the actual duration
+        this.videoinput.ondurationchange = function () {
+            alert(this.duration);
+        };
+    }
+
+    render() {
+        return <div>
+            <input  type="file" onChange={this.videoFileChange} />
+            <video ref={el => { this.videoinput = el }} className="d-none"></video>
+        </div>
     }
 }
 

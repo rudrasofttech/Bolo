@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
+using System.IO;
 
 namespace Bolo.Controllers
 {
@@ -18,10 +21,12 @@ namespace Bolo.Controllers
     {
         private readonly BoloContext _context;
         private readonly IConfiguration _config;
-        public HomeController(BoloContext context, IConfiguration config)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public HomeController(BoloContext context, IConfiguration config, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _config = config;
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index([FromQuery] string q = "")
         {
@@ -124,16 +129,11 @@ namespace Bolo.Controllers
                 Member member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
                 if (member.UserName.ToLower() == "rajkiransingh")
                 {
-                    using (SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection")))
-                    {
-                        using (SqlCommand command = new SqlCommand(sql, connection))
-                        {
-                            connection.Open();
-                            int result = command.ExecuteNonQuery();
-                            ViewBag.Success = "Result " + result;
-                        }
-
-                    }
+                    using SqlConnection connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+                    using SqlCommand command = new SqlCommand(sql, connection);
+                    connection.Open();
+                    int result = command.ExecuteNonQuery();
+                    ViewBag.Success = "Result " + result;
                 }
             }
             catch(Exception ex) {
@@ -141,5 +141,39 @@ namespace Bolo.Controllers
             }
             return View();
         }
+
+        //public IActionResult ChangeDP()
+        //{
+        //    foreach (var member in _context.Members)
+        //    {
+        //        try
+        //        {
+        //            if (!string.IsNullOrEmpty(member.Pic) && member.Pic.StartsWith("data:image/"))
+        //            {
+        //                string substr = member.Pic.Substring(member.Pic.IndexOf(";base64,") + 8, member.Pic.Length - (member.Pic.IndexOf(";base64,") + 8));
+        //                byte[] data = System.Convert.FromBase64String(substr);
+        //                string filename = string.Format("{0}.jpg", Guid.NewGuid().ToString());
+        //                string webRootPath = _webHostEnvironment.WebRootPath;
+        //                if (!Directory.Exists(Path.Combine(webRootPath, "dp")))
+        //                    Directory.CreateDirectory(Path.Combine(webRootPath, "dp"));
+
+        //                string abspath = Path.Combine(webRootPath, "dp", filename);
+        //                string relpath = string.Format("dp/{0}", filename);
+        //                using (var stream = new MemoryStream(data, 0, data.Length))
+        //                {
+        //                    System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
+        //                    image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
+        //                }
+        //                member.Pic = relpath;
+        //            } 
+        //        }
+        //        catch
+        //        {
+        //            throw;
+        //        }
+        //    }
+        //    _context.SaveChanges();
+        //    return Ok();
+        //}
     }
 }
