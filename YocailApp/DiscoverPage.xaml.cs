@@ -6,10 +6,4 @@ public partial class DiscoverPage : ContentPage
 	{
 		InitializeComponent();
 	}
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        if(AccessSecureStorage.GetAuthToken() != null) { }
-    }
 }

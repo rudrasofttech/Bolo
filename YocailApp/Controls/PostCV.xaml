@@ -1,19 +1,65 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="YocailApp.Controls.PostCV" x:Name="this">
-    <VerticalStackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-        <Grid RowDefinitions="*" ColumnDefinitions="45,*,40" HorizontalOptions="FillAndExpand">
-            <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:controls="clr-namespace:YocailApp.Controls"
+             x:Class="YocailApp.Controls.PostCV" x:Name="this" >
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <toolkit:BoolToObjectConverter x:Key="BoolToSourceConverter" TrueObject="heartfill.svg" FalseObject="heart.svg" />
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <VerticalStackLayout x:Name="PostVerticalLayout" HorizontalOptions="FillAndExpand" Margin="0,30,0,0" >
+        <Grid RowDefinitions="*" Margin="5,5,5,15" ColumnDefinitions="60,*,30">
+            <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Margin="5" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
                 <Image Source="{Binding Post.Owner.PicPathConverted}" WidthRequest="45" HeightRequest="45"/>
             </Frame>
             <StackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="FillAndExpand">
-                <Label Text="{Binding Post.Owner.UserName}" FontSize="15"  Padding="10"></Label>
+                <Label Text="{Binding Post.Owner.UserName}" VerticalOptions="Center" FontFamily="InterSemiBold" FontSize="17" Padding="5"></Label>
+                <Label Text="{Binding Post.PostDateDisplay}" VerticalOptions="Center" FontAttributes="Bold" FontFamily="InterLight" FontSize="12" Padding="5,0,0,0"></Label>
             </StackLayout>
-            <StackLayout Grid.Row="0" Grid.Column="2" HorizontalOptions="FillAndExpand">
-                <ImageButton Source="threedotsvertical.png" Padding="13" HorizontalOptions="Center" VerticalOptions="Center" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
-            </StackLayout>
+            <ImageButton Grid.Row="0" Grid.Column="2" Source="threedotsvertical.svg" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
         </Grid>
-        <Frame HeightRequest="10" BorderColor="Transparent" HorizontalOptions="FillAndExpand" BackgroundColor="White"></Frame>
+        <StackLayout x:Name="PhotoStackLayout" MinimumHeightRequest="400">
+            <!--<Image Aspect="AspectFill" x:Name="SingleImage" IsVisible="{Binding ShowSinglePhoto}" Margin="0"  Source="{Binding FirstPhoto}" 
+               HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"  />-->
+            <!--<CarouselView x:Name="PostCarousel" IsVisible="{Binding ShowCarousel}" IndicatorView="indicatorView" Loop="False" 
+                      Margin="0" ItemsSource="{Binding Post.Photos}" VerticalOptions="FillAndExpand" BackgroundColor="Black">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <Image Margin="0" Source="{Binding PhotoURLTransformed}" HorizontalOptions="FillAndExpand" 
+                           VerticalOptions="StartAndExpand"   />
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
+            <IndicatorView x:Name="indicatorView" IsVisible="{Binding ShowCarousel}" Margin="0,10,0,0" IndicatorsShape="Circle" MaximumVisible="6" HideSingle="True"
+                   IndicatorColor="{StaticResource Gray100}"
+                   SelectedIndicatorColor="{StaticResource Gray500}"
+                   HorizontalOptions="Center" />-->
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer NumberOfTapsRequired="2" Command="{Binding DoubleTapCommand}" />
+            </StackLayout.GestureRecognizers>
+        </StackLayout>
+        <Grid  RowDefinitions="30" ColumnDefinitions="35,*,35,*,40" Padding="15,15,15,0">
+            <ImageButton Source="{Binding HasReacted, Converter={StaticResource BoolToSourceConverter}}" Grid.Column="0" HeightRequest="27" Command="{Binding DoubleTapCommand}"></ImageButton>
+            <Label VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="1" IsVisible="{Binding ShowReactionCount}" FontAttributes="Bold" FontSize="15">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding ReactionCount}" FontAttributes="Bold" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <ImageButton IsVisible="{Binding Post.AcceptComment}" Source="chatsquaretext.svg" Grid.Column="2" HeightRequest="27" Clicked="ImageButton_Clicked"></ImageButton>
+            <Label VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="3" IsVisible="{Binding ShowCommentCount}" FontAttributes="Bold" FontSize="15">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding CommentCount}" FontAttributes="Bold" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <ImageButton IsVisible="{Binding Post.AllowShare}" Source="share.svg" Grid.Column="4" HeightRequest="27"></ImageButton>
+        </Grid>
+        <controls:ExpandableLabel x:Name="ExpDescribeLabel" BindingContext="{Binding Post.Describe}" />
+        
     </VerticalStackLayout>
 </ContentView>

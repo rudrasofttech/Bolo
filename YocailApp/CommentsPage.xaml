@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:YocailApp.ViewModel"
+             x:Class="YocailApp.CommentsPage"
+             Title="Comments" Shell.PresentationMode="Modal">
+    <ContentPage.BindingContext>
+        <local:CommentPageVM />
+    </ContentPage.BindingContext>
+    <Grid RowDefinitions="45,*,Auto" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <StackLayout Grid.Row="0">
+            <Grid ColumnDefinitions="50,*,50" Margin="0,7,0,7">
+                <ImageButton HorizontalOptions="Center" VerticalOptions="Center" x:Name="BackButton" Source="chevronleft.svg" 
+                        Padding="3"  Grid.Row="0" Grid.Column="0" Clicked="BackButton_Clicked"></ImageButton>
+                <Label Grid.Row="0" Grid.Column="1" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" Text="Comments"></Label>
+            </Grid>
+            <Border HeightRequest="2"></Border>
+        </StackLayout>
+
+        <ScrollView Grid.Row="1" Padding="0,10,0,10">
+            <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+                <CollectionView  ItemsSource="{Binding Comments, Mode=TwoWay}" x:Name="CommentsCollectionView" HorizontalOptions="FillAndExpand" 
+                            VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" 
+                                 RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <StackLayout Padding="10" Margin="0,0,15,0">
+                                <Grid ColumnDefinitions="55,*,30">
+                                    <Frame BorderColor="Transparent" VerticalOptions="Start" CornerRadius="0" Padding="0" Margin="0,5,5,5" Grid.Row="0" Grid.Column="0" >
+                                        <Image Source="{Binding Comment.PostedBy.PicPathConverted}" WidthRequest="45" HeightRequest="45"/>
+                                    </Frame>
+                                    <StackLayout Grid.Column="1">
+                                        <Label Text="{Binding Comment.PostedBy.UserName}" VerticalOptions="Center" FontFamily="InterSemiBold" FontSize="16" Padding="5"></Label>
+                                        <Label Text="{Binding Comment.PostDateDisplay}" VerticalOptions="Center" FontAttributes="Bold" FontFamily="InterLight" FontSize="12" Padding="5,0,0,0"></Label>
+                                    </StackLayout>
+                                    <StackLayout Grid.Column="2" VerticalOptions="Center">
+                                        <ImageButton Source="threedotsvertical.svg" HeightRequest="20" CommandParameter="{Binding}" Clicked="ImageButton_Clicked" />
+                                    </StackLayout>
+                                </Grid>
+                                <Label Text="{Binding Comment.Comment}" FontSize="16" LineBreakMode="WordWrap"></Label>
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </ScrollView>
+        <StackLayout Grid.Row="2">
+            <Border HeightRequest="2"></Border>
+            <Grid ColumnDefinitions="*,50" Padding="10">
+                <Editor AutoSize="TextChanges" Text="{Binding CommentDraft, Mode=TwoWay}" FontSize="16" MaximumHeightRequest="200" IsTextPredictionEnabled="True" Placeholder="Type your comment" Grid.Column="0" ></Editor>
+                <ImageButton Source="cursorfill.svg" Command="{Binding PostCommentCommand}" Padding="5" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center"></ImageButton>
+            </Grid>
+        </StackLayout>
+    </Grid>
+</ContentPage>

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -14,6 +15,20 @@ namespace YocailApp.ViewModel
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MemberModel CurrentMember { get; set; }
+
+        public bool _refreshing;
+        public bool IsRefreshing
+        {
+            get { return _refreshing; }
+            set
+            {
+                if (_refreshing != value)
+                {
+                    _refreshing = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private bool _loading;
         public bool Loading
@@ -88,9 +103,15 @@ namespace YocailApp.ViewModel
         public void OnPropertyChanged([CallerMemberName] string name = "") =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-        public async Task<string> Token()
+        public string Token()
         {
-            return await AccessSecureStorage.GetAuthToken();
+            return AccessSecureStorage.GetAuthToken();
+        }
+
+        public BaseVM()
+        {
+            CurrentMember = JsonSerializer.Deserialize<MemberModel>(AccessSecureStorage.GetCurrentMember()
+                , new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
         }
     }
 
@@ -123,6 +144,7 @@ namespace YocailApp.ViewModel
                 }
             }
         }
+
         public int TotalPages
         {
             get
@@ -130,9 +152,24 @@ namespace YocailApp.ViewModel
                 return (int)Math.Ceiling((decimal)_totalRecords / (decimal)PageSize);
             }
         }
-        public int PageSize { get; set; } = 30;
+
+        public bool HasMorePages
+        {
+            get
+            {
+                return CurrentPage < (TotalPages - 1);
+            }
+        }
+
+        public int PageSize { get; set; } = 4;
 
         public ICommand LoadMoreCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
+        public ICommand ItemThresholdReachedCommand { get; set; }
+
+        public CollectionBaseVM(): base() { 
+        
+        }
+        
     }
 }

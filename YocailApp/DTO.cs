@@ -69,6 +69,14 @@ namespace YocailApp
         public int PageSize { get; set; }
     }
 
+    public class PostCommentDTO
+    {
+        public Guid PostId { get; set; }
+        [Required]
+        [MaxLength(7999)]
+        public string Comment { get; set; }
+    }
+
     public class LoginDTO
     {
         [MaxLength(250)]
@@ -194,10 +202,62 @@ namespace YocailApp
     {
         public int ID { get; set; }
         public string Photo { get; set; }
+
+        public string PhotoURLTransformed
+        {
+            get
+            {
+                if(!Photo.ToLower().StartsWith("http://") && !Photo.ToLower().StartsWith("https://"))
+                {
+                    return $"https://www.yocail.com/{Photo}";
+                }
+                else
+                {
+                    return Photo;
+                }
+            }
+        }
     }
 
     public class PostsPaged : PagingModel
     {
         public List<PostModel> Posts { get; set; } = new List<PostModel>();
+    }
+
+    public class AddReactionDTO
+    {
+        public bool HasReacted { get; set; }
+        public int ReactionCount { get; set; }
+    }
+
+    public class CommentDTO
+    {
+        public int ID { get; set; }
+        public string Comment { get; set; } = string.Empty;
+        public DateTime PostDate { get; set; }
+
+        public string PostDateDisplay
+        {
+            get
+            {
+                if(PostDate.ToLocalTime().Year == DateTime.Now.Year && PostDate.ToLocalTime().Month == DateTime.Now.Month && PostDate.ToLocalTime().Day == DateTime.Now.Day)
+                {
+                    return PostDate.ToLocalTime().ToString("t");
+                }
+                else
+                {
+                    return PostDate.ToLocalTime().ToString("d MMM yy");
+                }
+                
+            }
+        }
+        public MemberSmallModel PostedBy { get; set; }
+
+        public CommentDTO() { }
+    }
+
+    public class CommentListPaged : PagingModel
+    {
+        public List<CommentDTO> CommentList { get; set; } = new List<CommentDTO>();
     }
 }

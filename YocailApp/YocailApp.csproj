@@ -57,13 +57,20 @@
 	  <None Remove="Resources\Fonts\Inter-Regular.ttf" />
 	  <None Remove="Resources\Fonts\Inter-SemiBold.ttf" />
 	  <None Remove="Resources\Fonts\Inter-Thin.ttf" />
+	  <None Remove="Resources\Images\chatsquaretext.svg" />
+	  <None Remove="Resources\Images\chevronleft.svg" />
 	  <None Remove="Resources\Images\coffeecup.png" />
+	  <None Remove="Resources\Images\cursorfill.svg" />
+	  <None Remove="Resources\Images\heart.svg" />
+	  <None Remove="Resources\Images\heartfill.svg" />
 	  <None Remove="Resources\Images\home.png" />
 	  <None Remove="Resources\Images\icon192.png" />
 	  <None Remove="Resources\Images\personsquare.png" />
 	  <None Remove="Resources\Images\plussquare.png" />
 	  <None Remove="Resources\Images\search.png" />
-	  <None Remove="Resources\Images\threedotsvertical.png" />
+	  <None Remove="Resources\Images\share.svg" />
+	  <None Remove="Resources\Images\threedotsvertical.svg" />
+	  <None Remove="Resources\Images\trash3.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -72,6 +79,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="CommentsPage.xaml.cs">
+	    <DependentUpon>CommentsPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Resources\Translations\AppRes.Designer.cs">
 	    <DesignTime>True</DesignTime>
 	    <AutoGen>True</AutoGen>
@@ -90,6 +100,12 @@
 	  <MauiXaml Update="AddPostPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\ExpandableLabel.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\PostCarouselCV.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\PostCV.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -97,6 +113,12 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MediatorPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="CommentsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="ProfilePage.xaml">

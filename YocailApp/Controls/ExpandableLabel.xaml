@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YocailApp.Controls.ExpandableLabel">
+    <Label x:Name="DescribeLabel"
+            VerticalOptions="Center" 
+            HorizontalOptions="Start" FontSize="16" Padding="20,10,0,0">
+    </Label>
+</ContentView>

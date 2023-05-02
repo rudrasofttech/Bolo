@@ -1,8 +1,11 @@
-﻿using System;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YocailApp.Resources.Translations;
 
 namespace YocailApp
 {
@@ -30,14 +33,32 @@ namespace YocailApp
             SecureStorage.Default.RemoveAll();
         }
 
-        public static async void SetAuthToken(string authToken)
+        public static void SetAuthToken(string authToken)
         {
-            await WriteAsync("authtoken", authToken);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "token.txt"), authToken);
         }
 
-        public static async Task<string> GetAuthToken() { return await ReadAsync("authtoken"); }
+        public static string GetAuthToken() {
+            if (System.IO.File.Exists(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "token.txt")))
+            {
+                return System.IO.File.ReadAllText(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "token.txt"));
+            }
+            return string.Empty;
+        }
 
+        public static void SetCurrentMember(string member)
+        {
+            System.IO.File.WriteAllText(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "currentmember.txt"), member);
+        }
 
+        public static string GetCurrentMember()
+        {
+            if (System.IO.File.Exists(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "currentmember.txt")))
+            {
+                return System.IO.File.ReadAllText(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "currentmember.txt"));
+            }
+            return string.Empty;
+        }
     }
 
     public class Utility
@@ -62,12 +83,19 @@ namespace YocailApp
                 BaseAddress = new Uri("https://www.yocail.com/"),
 
             };
-            string? token = await AccessSecureStorage.GetAuthToken();
+            string? token = AccessSecureStorage.GetAuthToken();
             if (!string.IsNullOrEmpty(token))
             {
                 hc.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             }
             return hc;
+        }
+
+        public static async Task ShowToast(string message, ToastDuration duration = ToastDuration.Short, double fontSize = 14)
+        {
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            var toast = Toast.Make(message, duration, fontSize);
+            await toast.Show(cancellationTokenSource.Token);
         }
     }
 }

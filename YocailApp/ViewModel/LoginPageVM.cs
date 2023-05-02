@@ -34,10 +34,12 @@ namespace YocailApp.ViewModel
         }
 
         private bool _usernameValid = false;
-        public bool UserNameValid { get => _usernameValid;
+        public bool UserNameValid
+        {
+            get => _usernameValid;
             set
             {
-                if(_usernameValid != value)
+                if (_usernameValid != value)
                 {
                     _usernameValid = value;
                     OnPropertyChanged();
@@ -112,8 +114,8 @@ namespace YocailApp.ViewModel
         {
             UserNameValid = true;
             if (string.IsNullOrEmpty(UserName))
-            {       
-                UserNameValid= false;
+            {
+                UserNameValid = false;
                 Error = true;
                 ErrorMessage = "Username Missing";
                 return;
@@ -128,10 +130,11 @@ namespace YocailApp.ViewModel
             }
 
             Error = false;
-            ErrorMessage= string.Empty;
+            ErrorMessage = string.Empty;
         }
 
-        private async void OnLogin() {
+        private async void OnLogin()
+        {
             ValidateForm();
             if (!Error)
             {
@@ -148,13 +151,13 @@ namespace YocailApp.ViewModel
                         JsonSerializerOptions l = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true };
                         var loginresult = JsonSerializer.Deserialize<LoginReturnDTO>(result, l);
                         AccessSecureStorage.SetAuthToken(loginresult.Token);
-                        await AccessSecureStorage.WriteAsync(Utility.CurrentMemberKey, JsonSerializer.Serialize(loginresult.Member));
+                        AccessSecureStorage.SetCurrentMember(JsonSerializer.Serialize(loginresult.Member));
 
                         Utility.ClearCachedData();
 
                         Application.Current.MainPage = new AppShell();
                     }
-                    else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         Error = true;
                         ErrorMessage = AppRes.UserNotFoundTxt;
@@ -175,9 +178,13 @@ namespace YocailApp.ViewModel
                 {
 
                 }
-                finally { Loading = false;
+                finally
+                {
+                    Loading = false;
                 }
             }
         }
+
+        
     }
 }

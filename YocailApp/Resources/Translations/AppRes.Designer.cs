@@ -61,6 +61,60 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Actions.
+        /// </summary>
+        internal static string ActionTxt {
+            get {
+                return ResourceManager.GetString("ActionTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string CancelTxt {
+            get {
+                return ResourceManager.GetString("CancelTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please Confirm!.
+        /// </summary>
+        internal static string ConfirmTxt {
+            get {
+                return ResourceManager.GetString("ConfirmTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You want to delete this?.
+        /// </summary>
+        internal static string DeleteConfirmTxt {
+            get {
+                return ResourceManager.GetString("DeleteConfirmTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        internal static string DeleteTxt {
+            get {
+                return ResourceManager.GetString("DeleteTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        internal static string EditTxt {
+            get {
+                return ResourceManager.GetString("EditTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to process request..
         /// </summary>
         internal static string GenericServerErrorTxt {
@@ -79,11 +133,38 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No Internet Conectivity..
+        /// </summary>
+        internal static string NoInternetMsg {
+            get {
+                return ResourceManager.GetString("NoInternetMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        internal static string NoTxt {
+            get {
+                return ResourceManager.GetString("NoTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
         internal static string PasswordPh {
             get {
                 return ResourceManager.GetString("PasswordPh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report.
+        /// </summary>
+        internal static string ReportTxt {
+            get {
+                return ResourceManager.GetString("ReportTxt", resourceCulture);
             }
         }
         
@@ -120,6 +201,15 @@ namespace YocailApp.Resources.Translations {
         internal static string UserNotFoundTxt {
             get {
                 return ResourceManager.GetString("UserNotFoundTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        internal static string YesTxt {
+            get {
+                return ResourceManager.GetString("YesTxt", resourceCulture);
             }
         }
     }

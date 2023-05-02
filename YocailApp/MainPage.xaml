@@ -7,9 +7,10 @@
     <ContentPage.BindingContext>
         <local:MainPageVM />
     </ContentPage.BindingContext>
-    <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-        <RefreshView IsRefreshing="{Binding Loading}" Command="{Binding RefreshCommand}">
-            <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="FeedPostCollectionView" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+    <ScrollView>
+        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+            <CollectionView  ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="FeedPostCollectionView" HorizontalOptions="FillAndExpand" 
+                            VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />

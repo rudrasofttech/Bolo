@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
+using YocailApp.Resources.Translations;
 using YocailApp.ViewModel;
 
 namespace YocailApp
@@ -15,19 +17,24 @@ namespace YocailApp
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            (BindingContext as MainPageVM).CurrentMember = JsonSerializer.Deserialize<MemberModel>(await AccessSecureStorage.ReadAsync(Utility.CurrentMemberKey)
+            (BindingContext as MainPageVM).CurrentMember = JsonSerializer.Deserialize<MemberModel>(AccessSecureStorage.GetCurrentMember()
                 , new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
             (BindingContext as MainPageVM).LoadFeedFromCache();
             if (!(BindingContext as MainPageVM).HasCacheData)
             {
-                (BindingContext as MainPageVM).Loading = true;
+                await (BindingContext as MainPageVM).LoadData();
             }
-            
         }
 
-        private async void PostCV_HamburgerMenuClicked(PostModel sender)
+        private async void PostCV_HamburgerMenuClicked(PostVM sender)
         {
-            string action = await DisplayActionSheet("ActionSheet: Send to?", "Cancel", null, "Email", "Twitter", "Facebook");
+            var actions = new List<string>();
+            if(sender.IsOwner)
+            {
+                actions.Add(AppRes.EditTxt);
+            }
+            actions.Add(AppRes.ReportTxt);
+            string action = await DisplayActionSheet(AppRes.ActionTxt, AppRes.CancelTxt, sender.IsOwner ? AppRes.DeleteTxt : string.Empty, buttons: actions.ToArray());
             Debug.WriteLine("Action: " + action);
         }
     }

@@ -245,9 +245,10 @@ namespace Bolo.Controllers
                     if (reaction != null)
                     {
                         _context.Reactions.Remove(reaction);
+                        await _context.SaveChangesAsync();
                         mp.ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID);
                         await _context.SaveChangesAsync();
-                        return Ok(new { HasReacted = false, ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID) });
+                        return Ok(new { ID = id, HasReacted = false, ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID) });
                     }
                     else
                     {
@@ -258,6 +259,7 @@ namespace Bolo.Controllers
                             Reaction = PostReactionType.Like,
                             ReactionDate = DateTime.UtcNow
                         });
+                        await _context.SaveChangesAsync();
                         mp.ReactionCount = _context.Reactions.Count(t => t.Post.ID == mp.ID);
                         await _context.SaveChangesAsync();
                         try
@@ -461,6 +463,7 @@ namespace Bolo.Controllers
                     Post = post
                 };
                 _context.Comments.Add(mc);
+                await _context.SaveChangesAsync();
                 post.CommentCount = _context.Comments.Count(t => t.Post.ID == post.ID);
                 await _context.SaveChangesAsync();
                 try

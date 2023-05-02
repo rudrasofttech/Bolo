@@ -1,3 +1,5 @@
+using YocailApp.ViewModel;
+
 namespace YocailApp;
 
 public partial class LoginPage : ContentPage

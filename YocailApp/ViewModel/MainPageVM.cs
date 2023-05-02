@@ -15,11 +15,13 @@ namespace YocailApp.ViewModel
 
         string feeddatapath = Utility.FeedDataFilePath;
 
-        public ObservableCollection<PostVM> _posts ;
-        public ObservableCollection<PostVM> Posts { get => _posts;
+        public ObservableCollection<PostVM> _posts;
+        public ObservableCollection<PostVM> Posts
+        {
+            get => _posts;
             set
             {
-                if(_posts != value)
+                if (_posts != value)
                 {
                     _posts = value;
                     OnPropertyChanged();
@@ -44,22 +46,24 @@ namespace YocailApp.ViewModel
         {
             LoadMoreCommand = new Command(async () =>
             {
-                if (CurrentPage < (TotalPages - 1))
+                if (HasMorePages)
                 {
-                    CurrentPage++;
+                    CurrentPage = CurrentPage + 1;
+                    await LoadData();
                 }
-                await LoadData();
             });
 
             RefreshCommand = new Command(async () =>
             {
+                IsRefreshing= true;
                 CurrentPage = 0;
                 TotalRecords = 0;
-                PageSize = 30;
                 if (Posts != null)
                     Posts.Clear();
                 await LoadData();
+                IsRefreshing= false;
             });
+
         }
 
         public async Task LoadData()
@@ -80,11 +84,12 @@ namespace YocailApp.ViewModel
                     TotalRecords = data.Total;
                     PageSize = data.PageSize;
                     Posts ??= new ObservableCollection<PostVM>();
-                    foreach(var i in data.Posts)
+                    foreach (var i in data.Posts)
                     {
-                        PostVM apm = new PostVM() { 
-                        Post = i,
-                        IsOwner = i.Owner.ID == CurrentMember.ID
+                        PostVM apm = new PostVM()
+                        {
+                            Post = i,
+                            IsOwner = i.Owner.ID == CurrentMember.ID
                         };
                         Posts.Add(apm);
                     }
@@ -95,6 +100,7 @@ namespace YocailApp.ViewModel
                     using StreamWriter streamWriter = new(outputStream);
                     await streamWriter.WriteAsync(JsonSerializer.Serialize(new PostsPaged() { Current = CurrentPage, PageSize = PageSize, Total = TotalRecords, Posts = list }));
                     OnPropertyChanged("PostsPaged");
+                    OnPropertyChanged("HasMorePages");
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
