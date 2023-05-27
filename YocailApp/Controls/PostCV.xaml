@@ -9,7 +9,7 @@
             <toolkit:BoolToObjectConverter x:Key="BoolToSourceConverter" TrueObject="heartfill.svg" FalseObject="heart.svg" />
         </ResourceDictionary>
     </ContentView.Resources>
-    <VerticalStackLayout x:Name="PostVerticalLayout" HorizontalOptions="FillAndExpand" Margin="0,30,0,0" >
+    <VerticalStackLayout x:Name="PostVerticalLayout" HorizontalOptions="FillAndExpand" Margin="0,5,0,20" >
         <Grid RowDefinitions="*" Margin="5,5,5,15" ColumnDefinitions="60,*,30">
             <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Margin="5" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
                 <Image Source="{Binding Post.Owner.PicPathConverted}" WidthRequest="45" HeightRequest="45"/>
@@ -60,6 +60,6 @@
             <ImageButton IsVisible="{Binding Post.AllowShare}" Source="share.svg" Grid.Column="4" HeightRequest="27"></ImageButton>
         </Grid>
         <controls:ExpandableLabel x:Name="ExpDescribeLabel" BindingContext="{Binding Post.Describe}" />
-        
+        <BoxView HeightRequest="1" Color="{StaticResource Border}" HorizontalOptions="Fill"/>
     </VerticalStackLayout>
 </ContentView>

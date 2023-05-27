@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              xmlns:controls="clr-namespace:YocailApp.Controls"
-             x:Class="YocailApp.MainPage">
+             x:Class="YocailApp.MainPage" Title="Home">
     <ContentPage.BindingContext>
         <local:MainPageVM />
     </ContentPage.BindingContext>
@@ -13,7 +13,10 @@
                             VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
+                        
+                            <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
+                            
+                        
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

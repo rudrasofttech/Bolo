@@ -7,19 +7,19 @@
     #photocontainer {
         width: 100%;
         max-width: 600px;
-        max-height: 600px;
+        /*max-height: 600px;*/
         margin: 0 auto;
         /*background-image: url(images/upload-icon.png);
-        background-position: center;
-        background-size: contain;
-        background-repeat: no-repeat;*/
-        overflow-y: hidden;
-        overflow-x: auto;
-        display: flex;
+                        background-position: center;
+                        background-size: contain;
+                        background-repeat: no-repeat;*/
+        /*overflow-y: hidden;
+        overflow-x: auto;*/
+        /*display: flex;
         flex-direction: row;
         justify-content: flex-start;
-        position:center;
-        cursor:pointer;
+        position: relative;*/
+        cursor: pointer;
     }
 
         #photocontainer .photobox {
@@ -40,7 +40,7 @@
             <div class="wizard mt-1" id="wizard">
                 <div class="step active bg-white pb-3" id="step1">
                     <div class="container-xl py-1 maxwidth">
-                        <div class="row my-2">
+                        <div class="row my-2" >
                             <div class="col">
                                 <button type="button" id="uploadbtn" class="btn btn-primary d-none px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
                                 <button id="changesizebtn" type="button" class="btn btn-primary hasphotos  px-3 me-2 d-none" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
@@ -53,14 +53,14 @@
                     </div>
                     <div class="text-center mt-5" id="initbtncont">
                         <button class="btn btn-primary btn-lg" style="width:200px" type="button" onclick="if(photos.length === 0){ $('#uploadbtn')[0].click();}"><i class="bi bi-cloud-arrow-up  fs-1"></i></button>
-                        <p class="mt-3">Click to upload pictures. You can choose multiple pictures. <br/>
-                            फोटो अपलोड करें, आप एक से अधिक फोटो अपलोड कर सकते है। </p>
+                        <p class="mt-3">
+                            Click to upload pictures. You can choose multiple pictures. <br />
+                            फोटो अपलोड करें, आप एक से अधिक फोटो अपलोड कर सकते है।
+                        </p>
                     </div>
-                    <div id="photocontainer">
-                        
+                    <div id="photocontainer" class="text-center">
                     </div>
-                    <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
-
+                    <input type="file" id="photofiles" class="d-none" onchange="processFiles(event);" />
                 </div>
                 <div class="step" id="step2">
                     <div class="container-xl bg-white mt-2 py-1">
@@ -100,6 +100,7 @@
     </div>
 </div>
 <div id="videocontainer"></div>
+
 @section scripts{
     @*<environment include="Development">
         <script type="text/babel">
@@ -109,41 +110,51 @@
             );
         </script>
     </environment>*@
+    
     <script src="~/libs/fabric.min.js"></script>
     <script>
         var photos = [];
         class UserPhoto {
-            constructor(_index, _img) {
+            constructor(_index, _img, _adjustcanvassizetoimage) {
                 this.index = _index;
                 this.container = "#photocontainer";
                 this.canvas = null;
+                this.adjustcanvassizetoimage = _adjustcanvassizetoimage;
                 this.img = _img;
                 this.imgInst = null;
                 this.size = "contain"; //"contain" | "covers"
             }
 
             prepare() {
-                let width = $(this.container).width() <= 600 ? $(this.container).width() - 2 : 600;//document.documentElement.clientWidth <= 500 ? (document.documentElement.clientWidth - 5) : 500;
-                let height = width;
-                $(this.container).height(height + "px");
-                $(this.container).append('<div class="photobox border"><canvas id="canvas' + this.index + '"></canvas></div>');
-                this.canvas = new fabric.Canvas('canvas' + this.index);
-                this.canvas.backgroundColor = "white";
-                this.canvas.setDimensions({ width: width, height: height });
-                this.imgInst = new fabric.Image(this.img, {
-                    angle: 0, padding: 0, cornersize: 0
-                });
+                if (!this.adjustcanvassizetoimage) {
+                    let width = $(this.container).width() <= 600 ? $(this.container).width() - 2 : 600;
+                    let height = width;
+                    //if (this.adjustcanvassizetoimage) {
+                    //    width = this.img.width; height = this.img.height;
+                    //}
+                    $(this.container).height(height + "px");
+                    $(this.container).append('<div class="photobox border"><canvas id="canvas' + this.index + '"></canvas></div>');
+                    this.canvas = new fabric.Canvas('canvas' + this.index);
+                    this.canvas.backgroundColor = "white";
+                    this.canvas.setDimensions({ width: width, height: height });
+                    this.imgInst = new fabric.Image(this.img, {
+                        angle: 0, padding: 0, cornersize: 0
+                    });
 
-                this.changeImageSize();
-                //console.log(this.imgInst.width + " " + this.imgInst.height);
-                //this.canvas.setDimensions({ width: this.imgInst.width, height: this.imgInst.height });
-                this.addImage();
+                    this.changeImageSize();
+                    this.addImage();
+                } else {
+                    $(this.container + " .targetimg").removeClass("d-none");
+                }
             }
 
             addImage() {
                 this.imgInst.hasControls = false;
-                //this.imgInst.lockMovementX = true;
-                //this.imgInst.lockMovementY = true;
+                if (this.adjustcanvassizetoimage) {
+                    this.imgInst.lockMovementX = true;
+                    this.imgInst.lockMovementY = true;
+                }
+
                 this.canvas.centerObject(this.imgInst);
                 this.canvas.add(this.imgInst);
             }
@@ -182,7 +193,11 @@
             }
 
             extractImage() {
-                $("#photohdn" + this.index).val(this.canvas.toDataURL("image/png"));
+                if (!this.adjustcanvassizetoimage) {
+                    $("#photohdn" + this.index).val(this.canvas.toDataURL("image/png"));
+                } else {
+                    $("#photohdn" + this.index).val($(this.container + " .targetimg").attr("src"));
+                }
             }
         }
 
@@ -209,21 +224,36 @@
             if (e.target.files.length > 0) {
                 $("#photocontainer").removeClass("d-none");
             }
+            if (e.target.files.length > 1) {
+                $("#photocontainer").addClass("d-flex flex-row");
+            }
+            if (e.target.files.length == 1) {
+                $("#photocontainer").css("max-height", "auto");
+            }
+
             for (var k = 0; k < e.target.files.length; k++) {
                 var fileReader = new FileReader();
-                fileReader.onload = function (e) {
-                    $("#photocontainer").append("<img class='targetimg d-none' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event)' />")
+
+                if (e.target.files.length > 1) {
+                    fileReader.onload = function (e) {
+                        $("#photocontainer").append("<img class='targetimg d-none' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, false)' />");
+                    }
+                } else {
+                    fileReader.onload = function (e) {
+                        $("#photocontainer").append("<img class='targetimg img-fluid ' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, true)' />");
+                    }
                 }
+
                 fileReader.readAsDataURL(e.target.files[k]);
             }
 
             $(".hasphotos").removeClass("d-none");
         }
 
-        function loadImage(e) {
+        function loadImage(e, adjustcanvastoimagedimension) {
             if (photos.length < parseInt("@Model.Photos.Count", 10)) {
                 var index = $(e.target).attr("data-index");
-                var up = new UserPhoto(index, document.getElementById("image" + index));
+                var up = new UserPhoto(index, document.getElementById("image" + index), adjustcanvastoimagedimension);
                 up.prepare();
                 photos.push(up);
             }
@@ -258,8 +288,6 @@
                 $("#photodescriptiontxt").attr("rows", newlines);
             }
         }
-
-
     </script>
 }
 

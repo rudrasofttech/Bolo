@@ -1023,7 +1023,7 @@ class MemberPost extends React.Component {
             <a href={'//' + window.location.host + '/profile?un=' + p.owner.userName} className="fs-6 fw-bold pointer d-inline-block text-dark text-decoration-none">
                 {p.owner.userName}
             </a>;
-        let owner = <table className="w-100 mb-3" cellPadding="0" cellSpacing="0">
+        let owner = <table className="w-100 mb-2" cellPadding="0" cellSpacing="0">
             <tbody>
                 <tr>
                     <td width="45px" valign="top">
@@ -1031,9 +1031,9 @@ class MemberPost extends React.Component {
                     </td>
                     <td className="ps-2" valign="top">
                         {ownerlink}
-                        <div style={{ fontSize: "0.67rem" }}>
+                        <span className="d-block" style={{ fontSize: "0.67rem", lineHeight:"10px" }}>
                             <DateLabel value={p.postDate} />
-                        </div>
+                        </span>
                     </td>
                     <td width="40px">
                         <button className="btn btn-link text-dark" onClick={() => { this.setState({ showModal: 'post' /*showpostoptions: true*/ }) }}><i className="bi bi-three-dots"></i></button>
@@ -1093,13 +1093,13 @@ class MemberPost extends React.Component {
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="mb-4 pb-1 bg-white rounded-3">
+        return <div id={this.state.post.id} className="mb-3 border-bottom pb-1">
             {owner}
             {postshtml}
-            <div className="mt-1 text-center">
+            <div className="text-center">
                 {reactionhtml}{reactionCountHtml} {commentBtn}{commentCountHtml} {shareBtn}
             </div>
-            <ExpandableTextLabel cssclass="m-3 text-center" text={describe === null ? "" : describe} maxlength={200} />
+            <ExpandableTextLabel cssclass="text-center" text={describe === null ? "" : describe} maxlength={200} />
             {likemodal}
             {commentbox}
             {this.renderPostOptions()}
@@ -2481,7 +2481,7 @@ class PhotoCarousel extends React.Component {
                     <span className="carousel-control-next-icon" aria-hidden="true"></span>
                     <span className="visually-hidden">Next</span>
                 </button>
-            </div><div className="text-center p-2">
+            </div><div className="text-center">
                 {items1}
             </div></React.Fragment>;
     }
@@ -3287,7 +3287,7 @@ class ManageProfile extends React.Component {
             let message = this.state.message !== "" ? <div className={'text-center noMargin noRadius alert alert-' + this.state.bsstyle} role="alert">
                 {this.state.message}
             </div> : null;
-            let pic = this.state.myself.pic !== "" ? <React.Fragment><img src={this.state.myself.pic} className=" mx-auto d-block img-fluid" alt="" style={{ maxWidth: "200px" }} />
+            let pic = this.state.myself.pic !== "" ? <React.Fragment><img src={"//" + location.host + "/" + this.state.myself.pic} className=" mx-auto d-block img-fluid" alt="" style={{ maxWidth: "200px" }} />
                 <button type="button" className="btn btn-sm btn-secondary m-1" onClick={this.removeProfilePicture}>Remove</button></React.Fragment> : <img src="/images/nopic.jpg" className=" mx-auto d-block img-fluid" alt="" style={{ maxWidth: "200px" }} />;
             return <React.Fragment>
                 <div className="container py-5">

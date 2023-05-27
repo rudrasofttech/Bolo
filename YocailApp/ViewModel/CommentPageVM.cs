@@ -102,6 +102,7 @@ namespace YocailApp.ViewModel
                         IsOwner = true
                     };
                     Comments.Insert(0, apm);
+                    CommentDraft = string.Empty;
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {

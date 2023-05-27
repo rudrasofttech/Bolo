@@ -4,8 +4,10 @@ using YocailApp.ViewModel;
 
 namespace YocailApp;
 
+
 public partial class CommentsPage : ContentPage
 {
+    
     public CommentsPage()
     {
         InitializeComponent();

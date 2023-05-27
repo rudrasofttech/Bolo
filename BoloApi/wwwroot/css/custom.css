@@ -9,7 +9,7 @@ body {
     color: #666;
     font-size: 15px;
     line-height: 27px;
-    background-color: #f0f2f5;
+    background-color: #fff;
     font-family: "Inter", sans-serif;
     text-transform: none;
 }
@@ -899,12 +899,12 @@ code {
 
 @media (min-width: 1400px) {
     .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
-        max-width: 960px;
+        max-width: 900px;
     }
 }
 
 @media (min-width: 1200px) {
     .container, .container-lg, .container-md, .container-sm, .container-xl {
-        max-width: 960px;
+        max-width: 900px;
     }
 }

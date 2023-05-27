@@ -61,6 +61,7 @@
 	  <None Remove="Resources\Images\chevronleft.svg" />
 	  <None Remove="Resources\Images\coffeecup.png" />
 	  <None Remove="Resources\Images\cursorfill.svg" />
+	  <None Remove="Resources\Images\hash.svg" />
 	  <None Remove="Resources\Images\heart.svg" />
 	  <None Remove="Resources\Images\heartfill.svg" />
 	  <None Remove="Resources\Images\home.png" />

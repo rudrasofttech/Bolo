@@ -260,4 +260,100 @@ namespace YocailApp
     {
         public List<CommentDTO> CommentList { get; set; } = new List<CommentDTO>();
     }
+
+    public class HashtagModel
+    {
+        private string _tag;
+        public string Tag
+        {
+            get
+            {
+                return _tag.TrimStart("#".ToCharArray());
+            }
+            set
+            {
+                _tag = value;
+            }
+        }
+        public int PostCount { get; set; }
+    }
+
+    public class SearchResultItem
+    {
+        public MemberSmallModel Member { get; set; }
+        public HashtagModel Hashtag { get; set; }
+    }
+
+    public class SearchResultItemVM
+    {
+        public SearchResultItem Item { get; set;}
+        public bool IsPerson { get
+            {
+                return Item.Member != null;
+            } 
+        }
+        public bool IsHashTag
+        {
+            get
+            {
+                return Item.Member != null;
+            }
+        }
+
+        public string Text
+        {
+            get
+            {
+                if(Item.Member != null)
+                {
+                    return Item.Member.UserName;
+                }else if(Item.Hashtag != null)
+                {
+                    return Item.Hashtag.Tag;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+        }
+
+        public string SubText
+        {
+            get
+            {
+                if (Item.Member != null)
+                {
+                    return Item.Member.Name;
+                }
+                else if (Item.Hashtag != null)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+        }
+
+        public string Pic
+        {
+            get
+            {
+                if (Item.Member != null)
+                {
+                    return Item.Member.PicPathConverted;
+                }
+                else if (Item.Hashtag != null)
+                {
+                    return "hash.svg";
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+        }
+    }
 }

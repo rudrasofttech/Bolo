@@ -24,6 +24,7 @@ namespace YocailApp
             {
                 await (BindingContext as MainPageVM).LoadData();
             }
+            
         }
 
         private async void PostCV_HamburgerMenuClicked(PostVM sender)
