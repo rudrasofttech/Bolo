@@ -60,6 +60,5 @@
             <ImageButton IsVisible="{Binding Post.AllowShare}" Source="share.svg" Grid.Column="4" HeightRequest="27"></ImageButton>
         </Grid>
         <controls:ExpandableLabel x:Name="ExpDescribeLabel" BindingContext="{Binding Post.Describe}" />
-        <BoxView HeightRequest="1" Color="{StaticResource Border}" HorizontalOptions="Fill"/>
     </VerticalStackLayout>
 </ContentView>

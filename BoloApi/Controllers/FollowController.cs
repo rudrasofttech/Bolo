@@ -105,6 +105,14 @@ namespace Bolo.Controllers
             return BadRequest();
         }
 
+        /// <summary>
+        /// Get followers of target member id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="q"></param>
+        /// <param name="ps"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Follower/{id}")]
         public async Task<FollowerListPaged> GetFollowerAsync(Guid id, [FromQuery] string q = "", [FromQuery] int ps = 20, [FromQuery] int p = 0)
@@ -134,6 +142,47 @@ namespace Bolo.Controllers
                 FollowList = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList()
             };
 
+            return result;
+        }
+
+        [HttpGet]
+        [Route("followerlist")]
+        public async Task<FollowerListPaged> GetFollowersAsync([FromQuery] string q = "", [FromQuery] int ps = 50, [FromQuery] int p = 0)
+        {
+            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+
+            var query = _context.Followers.Include(t => t.Follower).Include(t => t.Following).Where(t => t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Active);
+            if (!string.IsNullOrEmpty(q))
+                query = query.Where(t => t.Follower.UserName.Contains(q) || t.Follower.Name.Contains(q));
+            var list = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList();
+
+            FollowerListPaged result = new FollowerListPaged()
+            {
+                Current = p,
+                Total = query.Count(),
+                PageSize = ps,
+                FollowList = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList()
+            };
+
+            return result;
+        }
+
+        [HttpGet]
+        [Route("followinglist")]
+        public async Task<FollowerListPaged> GetFollowingAsync([FromQuery] string q = "", [FromQuery] int ps = 20, [FromQuery] int p = 0)
+        {
+            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+
+            var query = _context.Followers.Include(t => t.Follower).Include(t => t.Following).Where(t => t.Follower.ID == currentMember.ID);
+            if (!string.IsNullOrEmpty(q))
+                query = query.Where(t => t.Following.UserName.Contains(q) || t.Following.Name.Contains(q));
+            FollowerListPaged result = new FollowerListPaged()
+            {
+                Current = p,
+                Total = query.Count(),
+                PageSize = ps,
+                FollowList = query.Skip(ps * p).Take(ps).Select(t => new MemberFollowerDTO(t)).ToList()
+            };
             return result;
         }
 

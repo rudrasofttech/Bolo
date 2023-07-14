@@ -81,6 +81,12 @@ public partial class PostCV : ContentView
 
     private async void ImageButton_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PushModalAsync(new CommentsPage() { BindingContext = new CommentPageVM() { Post = (BindingContext as PostVM).Post } });
+        
+        var navigationParameter = new Dictionary<string, object>
+    {
+        { "Post", (BindingContext as PostVM).Post }
+    };
+        await Shell.Current.GoToAsync($"///comments", navigationParameter);
+        //await Navigation.PushModalAsync(new CommentsPage() { BindingContext = new CommentPageVM() { Post = (BindingContext as PostVM).Post } });
     }
 }

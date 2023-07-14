@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              x:Class="YocailApp.CommentsPage"
-             Title="Comments" Shell.PresentationMode="Modal">
+             Title="Comments" Shell.PresentationMode="Modal"  Shell.BackgroundColor="White" Shell.TitleColor="Black" Shell.NavBarHasShadow="True" Shell.NavBarIsVisible="False">
     <ContentPage.BindingContext>
         <local:CommentPageVM />
     </ContentPage.BindingContext>

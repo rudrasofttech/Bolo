@@ -1031,7 +1031,7 @@ class MemberPost extends React.Component {
                     </td>
                     <td className="ps-2" valign="top">
                         {ownerlink}
-                        <span className="d-block" style={{ fontSize: "0.67rem", lineHeight:"10px" }}>
+                        <span className="d-block" style={{ fontSize: "0.67rem", lineHeight: "10px" }}>
                             <DateLabel value={p.postDate} />
                         </span>
                     </td>
@@ -1669,18 +1669,20 @@ class MemberPostList extends React.Component {
             for (var k in this.state.posts) {
                 var p = this.state.posts[k];
                 if (p.videoURL !== "") { } else {
-                    items.push(<div className="col" key={p.id}><div className="card h-100  rounded-0 pointer imgbg" style={{ backgroundImage: "url(//" + window.location.host + "/" + p.photos[0].photo + ")" }} >
-                        <img src={"//" + window.location.host + "/" + p.photos[0].photo} className="card-img border-0 rounded-0" style={{ opacity: 0, padding: "1px" }} data-postid={p.id} onClick={(e) => {
-                            this.selectPost(e.target.getAttribute("data-postid"));
-                        }} />
-                    </div></div>);
+                    items.push(<div className="col-4 rounded-0 pointer" >
+                        <div className="imgbg" style={{ backgroundImage: "url(//" + window.location.host + "/" + p.photos[0].photo + ")" }}>
+                            <img src={"//" + window.location.host + "/" + p.photos[0].photo} className="opacity-0 img-fluid" data-postid={p.id} onClick={(e) => {
+                                this.selectPost(e.target.getAttribute("data-postid"));
+                            }} />
+                        </div>
+                    </div>);
                 }
             }
             if (items.length == 0) {
                 items.push(empty);
                 return items;
             }
-            return <div className="row row-cols-3 row-cols-md-4 g-0">{items}</div>;
+            return <div className="row g-0">{items}</div>;
         }
     }
 
@@ -1747,10 +1749,10 @@ class MemberSmallList extends React.Component {
         if (this.props.target === 'reaction') {
             this.url = '//' + window.location.host + '/api/post/reactionlist/' + this.props.postid;
         } else if (this.props.target === 'follower' || this.props.target === 'share') {
-            this.url = '//' + window.location.host + '/api/Follow/Follower/' + this.props.memberid;
+            this.url = '//' + window.location.host + '/api/Follow/followerlist/';
         }
         else if (this.props.target === 'following') {
-            this.url = '//' + window.location.host + '/api/Follow/Following/' + this.props.memberid;
+            this.url = '//' + window.location.host + '/api/Follow/followinglist/';
         }
 
         this.followerRemoved = this.followerRemoved.bind(this);
@@ -2632,7 +2634,6 @@ class Profile extends React.Component {
     }
 
     renderFollowHtml() {
-
         if (this.state.followStatus != null) {
             return <FollowButton member={this.state.member} status={this.state.followStatus} />
         }
@@ -2775,8 +2776,21 @@ class Profile extends React.Component {
                         </div>
                         <div className="row g-0">
                             <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.postCount} Posts</button></div>
-                            <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>{this.state.member.followingCount} Following</button></div>
-                            <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>{this.state.member.followerCount} Followers</button></div>
+                            <div className="col px-0 text-center">
+                                {
+                                    (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
+                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>{this.state.member.followingCount} Following</button> :
+                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.followingCount} Following</button>
+                                }
+                            </div>
+                            <div className="col px-0 text-center">
+                                {
+                                    (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
+                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>{this.state.member.followerCount} Followers</button> :
+                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.followerCount} Followers</button>
+                                }
+
+                            </div>
                         </div>
                         {thought}
                         <p>{this.state.member.bio}</p>
@@ -3336,7 +3350,7 @@ class ManageProfile extends React.Component {
                         </div>
                         <div className="col-md-6">
                             <label htmlFor="securityAnswerTxt" className="form-label fw-bold">Security Answer <span className="text-danger">(Required)</span></label>
-                            <div>Your existing answer is not shown. <button type="button" class="btn btn-primary ms-2 btn-sm" onClick={() => { this.setState({ showSecAnsModal: true }); }}>Change Answer</button></div>
+                            <div>Your existing answer is not shown. <button type="button" className="btn btn-primary ms-2 btn-sm" onClick={() => { this.setState({ showSecAnsModal: true }); }}>Change Answer</button></div>
                         </div>
                     </div>
                     <div className="mb-3">
@@ -3800,7 +3814,7 @@ class RegisterForm extends React.Component {
 
         let formcontents = this.state.showregisterform ?
             <React.Fragment>
-                <div className="float-end"><span class="text-danger">*</span> Required</div>
+                <div className="float-end"><span className="text-danger">*</span> Required</div>
                 <h3 className="mb-2">Register</h3>
                 <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
                     <div className="mb-3">
@@ -3811,7 +3825,7 @@ class RegisterForm extends React.Component {
                                 rdto.userName = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="usernameHelp" />
-                        <div id="usernameHelp" class="form-text">Username should be unique and creative,
+                        <div id="usernameHelp" className="form-text">Username should be unique and creative,
                             it will be your identity on the site.<br />
                             {/*मन चाहा Username चुने, यह Yocail पर आपकी पहचान बनेगा। Username अनोखा और रचनात्मक रखे।*/}
                         </div>
@@ -3823,7 +3837,7 @@ class RegisterForm extends React.Component {
                             rdto.password = e.target.value;
                             this.setState({ registerdto: rdto });
                         }} />
-                        <div id="passwordHelp" class="form-text">Password should be at least 8 characters long, make it difficult to guess.
+                        <div id="passwordHelp" className="form-text">Password should be at least 8 characters long, make it difficult to guess.
                             {/*<br />*/}
                             {/*पासवर्ड कम से कम आठ अक्षर का हो, पासवर्ड कठिन चुने।*/}
                         </div>
@@ -3836,7 +3850,7 @@ class RegisterForm extends React.Component {
                                 rdto.securityQuestion = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="securityquestionHelp" />
-                        <div id="securityquestionHelp" class="form-text">In case you forget your password, we will ask you this security question. Choose your security question wisely.
+                        <div id="securityquestionHelp" className="form-text">In case you forget your password, we will ask you this security question. Choose your security question wisely.
                             {/*<br />*/}
                             {/*पासवर्ड भूल जाने पर यही security question आप से पूछा जाएगा। Security question ऐसा रखे जिसका उत्तर सिर्फ आपको पता हो।*/}
                         </div>
@@ -3849,7 +3863,7 @@ class RegisterForm extends React.Component {
                                 rdto.securityAnswer = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="securitypasswordHelp" />
-                        <div id="securitypasswordHelp" class="form-text">You will be allowed to reset your password only if you provide this security answer.
+                        <div id="securitypasswordHelp" className="form-text">You will be allowed to reset your password only if you provide this security answer.
                             {/*<br />*/}
                             {/*आप को अपना पासवॉर्ड तभी बदलने दिया जाएगा जब आपका security question उत्तर इस से मेल खाएगा।*/}
                         </div>
@@ -4307,7 +4321,7 @@ class ForgotPassword extends React.Component {
                         <div className="mb-3">
                             <label className="form-label">Security Answer</label>
                             <input type="text" maxLength="300" required className="form-control" value={this.state.securityAnswer} onChange={(e) => { this.setState({ securityAnswer: e.target.value }) }} />
-                            <div class="form-text">Your new password will set only if your security answer matches with our records.</div>
+                            <div className="form-text">Your new password will set only if your security answer matches with our records.</div>
                         </div>
                         <div className="mb-3">
                             <label className="form-label">New Password</label>
@@ -4397,8 +4411,8 @@ class AddVideo extends React.Component {
             if (response.status === 200) {
                 this.setState({ loading: false });
                 location.href = "//" + location.host;
-            } else if(response.status === 413) {
-                this.setState({loading : false, bssytle:'error', message:"Video file too large."})
+            } else if (response.status === 413) {
+                this.setState({ loading: false, bssytle: 'error', message: "Video file too large." })
             }
         })
     }
@@ -4425,8 +4439,8 @@ class AddVideo extends React.Component {
                         <div className="my-1">
                             {
                                 this.state.play ?
-                                <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.pause(); this.setState({ play: false }); }}><i className="bi bi-pause-fill"></i></button> :
-                                <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.play(); this.setState({ play: true }); }}><i className="bi bi-play-fill"></i></button>
+                                    <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.pause(); this.setState({ play: false }); }}><i className="bi bi-pause-fill"></i></button> :
+                                    <button type="button" className="btn btn-light btn-sm me-2" onClick={() => { this.videotag.play(); this.setState({ play: true }); }}><i className="bi bi-play-fill"></i></button>
                             }
                             {
                                 this.state.muted ?
@@ -4437,27 +4451,116 @@ class AddVideo extends React.Component {
                         null}
                 </div>
             </div>
-            <div class="mb-3">
-                <textarea value={this.state.describe} onChange={(e) => { this.setState({ describe: e.target.value }) }} class="form-control border-0 border-bottom" rows="7" placeholder="Add some description to your video..." maxlength="7000"></textarea>
+            <div className="mb-3">
+                <textarea value={this.state.describe} onChange={(e) => { this.setState({ describe: e.target.value }) }} className="form-control border-0 border-bottom" rows="7" placeholder="Add some description to your video..." maxlength="7000"></textarea>
             </div>
-            <div class="mb-3 ps-3">
-                <div class="form-check form-switch">
+            <div className="mb-3 ps-3">
+                <div className="form-check form-switch">
                     {this.state.allowComment ?
-                        <input class="form-check-input" type="checkbox" role="switch" checked onChange={(e) => { this.setState({ allowComment: false }) }} /> :
-                        <input class="form-check-input" type="checkbox" role="switch" onChange={(e) => { this.setState({ allowComment: true }) }} />}
-                    <label class="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
+                        <input className="form-check-input" type="checkbox" role="switch" checked onChange={(e) => { this.setState({ allowComment: false }) }} /> :
+                        <input className="form-check-input" type="checkbox" role="switch" onChange={(e) => { this.setState({ allowComment: true }) }} />}
+                    <label className="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
                 </div>
             </div>
-            <div class="ps-3">
-                <div class="form-check form-switch">
+            <div className="ps-3">
+                <div className="form-check form-switch">
                     {this.state.allowShare ?
-                        <input class="form-check-input" type="checkbox" role="switch" checked onChange={() => { this.setState({ allowShare: false }); }} /> :
-                        <input class="form-check-input" type="checkbox" role="switch" onChange={() => { this.setState({ allowShare: true }); }} />}
-                    <label class="form-check-label" for="allowsharechk">Allow Sharing of Post</label>
+                        <input className="form-check-input" type="checkbox" role="switch" checked onChange={() => { this.setState({ allowShare: false }); }} /> :
+                        <input className="form-check-input" type="checkbox" role="switch" onChange={() => { this.setState({ allowShare: true }); }} />}
+                    <label className="form-check-label" for="allowsharechk">Allow Sharing of Post</label>
                 </div>
             </div>
             <div><button type="button" className="btn btn-primary" onClick={this.saveData}>Save</button></div>
         </div>
+    }
+}
+
+class NotificationList extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            list: []
+        };
+    }
+    componentDidMount() {
+        this.getNotifications();
+    }
+
+    getNotifications = () => {
+        fetch("//" + location.host + "/api/notification", {
+            method: 'get',
+            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+        }).then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    console.log(data.notifications);
+                    this.setState({ list: data.notifications });
+                });
+            }
+        });
+    }
+
+    addReceivedNotification = (n) => {
+        let l = this.state.list;
+        l.unshift(n);
+        this.setState({ list: l });
+    }
+
+    onNotificationClick = (id) => {
+        fetch("//" + location.host + "/api/notification/setseen/" + id, {
+            method: 'get',
+            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+        }).then((data) => {
+            if (data.status === 200) {
+                let url = "";
+                for (var k in this.state.list) {
+                    if (this.state.list[k].id == id) {
+                        this.state.list[k].seen = true;
+                        url = this.state.list[k].url;
+                        break;
+                    }
+                }
+                this.setState({ list: this.state.list }, () => { location.href = this.getURL(url); });
+            }
+        });
+
+    }
+
+    getURL = (p) => {
+        if (p.startsWith("https://") || p.startsWith("http://") || p.startsWith("//") || p.startsWith("data:")) {
+            return p;
+        } else {
+            return '//' + location.host + '/' + p;
+        }
+    }
+
+    render() {
+        let items = [];
+        for (let k in this.state.list) {
+            let n = this.state.list[k];
+            items.push(<div className='row g-1 mb-2 pointer' key={k}>
+                <div className='col-1'>
+                    <img src={this.getURL(n.pic)} className="img-fluid rounded-1" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
+                </div>
+                <div className='col'>
+                    <p className={"m-0 p-0 " + (!n.seen ? "fw-bold" : "")}>{n.title}</p>
+                    {n.type === 4 ? <span className="text-primary fw-bold fs-12">Follow Request</span> : null}
+                    <span className="fs-12">{dayjs(n.createDate).format("DD-MMM-YYYY")}</span>
+                </div>
+                {n.pic2 !== "" ? <div className='col-1'>
+                    <img src={this.getURL(n.pic2)} className="img-fluid rounded-1" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
+                </div> : null}
+            </div>);
+        }
+        return <React.Fragment>{items}</React.Fragment>;
     }
 }
 

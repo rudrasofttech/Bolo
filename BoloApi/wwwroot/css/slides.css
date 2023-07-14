@@ -1,0 +1,87 @@
+.rst-slides
+{
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.rst-slides .rst-slide
+{
+    display: none;
+    width:100%;
+}
+
+.rstslidenavpanel
+{
+    top: 0px;
+    left: 50%;
+    margin-left:-45px;
+    position: absolute;
+    min-width: 30px;
+    max-width: 200px;
+    height: 30px;
+    border: 0px solid #777777;
+    border-top: none;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    opacity:0.8;
+    display:inline-block;
+    box-shadow: 0px 0px 10px #D4D4D4;
+}
+
+.rstslidenextbtn
+{
+    width: 35px;
+    height: 30px;
+    padding-right: 0px;
+    margin: 0px;
+    background-image: url('http://www.rudrasofttech.com/res/img/navigation_buttons.png');
+    background-repeat: no-repeat;
+    background-position: -33px 0;
+    border: none;
+    border-left: 1px solid #777777;
+    background-color: #000;
+    border-bottom-right-radius: 10px;
+    cursor: pointer;
+}
+
+.rstslideprevbtn
+{
+    width: 35px;
+    height: 30px;
+    margin: 0px;
+    background-image: url('http://www.rudrasofttech.com/res/img/navigation_buttons.png');
+    background-repeat: no-repeat;
+    border: none;
+    background-position: 5px 0;
+    background-color: #000;
+    border-right: 1px solid #777777;
+    border-bottom-left-radius: 10px;
+    cursor: pointer;
+}
+
+.rstslideplaybtn
+{
+    width: 30px;
+    height: 30px;
+    margin: 0px;
+    background-image: url('http://www.rudrasofttech.com/res/img/navigation_buttons.png');
+    background-repeat: no-repeat;
+    border: none;
+    background-position: 0 -30px;
+    background-color: #000;
+    cursor: pointer;
+}
+
+.rstslidepausebtn
+{
+    width: 30px;
+    height: 30px;
+    margin: 0px;
+    background-color: transparent;
+    background-image: url('http://www.rudrasofttech.com/res/img/navigation_buttons.png');
+    background-repeat: no-repeat;
+    border: none;
+    background-position: -30px -30px;
+    background-color: #000;
+    cursor: pointer;
+}

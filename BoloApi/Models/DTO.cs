@@ -186,7 +186,7 @@ namespace Bolo.Models
             City = string.IsNullOrEmpty(m.City) ? "" : m.City;
             ThoughtStatus = string.IsNullOrEmpty(m.ThoughtStatus) ? "" : m.ThoughtStatus;
             Phone = "";
-            Email = "";
+            Email = m.Email;
             SecurityQuestion = m.SecurityQuestion;
             Status = m.Status;
         }
@@ -426,6 +426,7 @@ namespace Bolo.Models
     {
         public Guid ID { get; set; }
         public string Pic { get; set; } = string.Empty;
+        public string Pic2 { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string URL { get; set; } = string.Empty;
@@ -458,9 +459,10 @@ namespace Bolo.Models
                 Source = new MemberDTO(n.Source);
 
             if (n.Type == MemberNotificationType.NewPost || n.Type == MemberNotificationType.PostReaction
-                || n.Type == MemberNotificationType.PostComment || n.Type == MemberNotificationType.FollowRequest)
+                || n.Type == MemberNotificationType.PostComment || n.Type == MemberNotificationType.FollowRequest || n.Type == MemberNotificationType.SharePost)
                 Pic = string.IsNullOrEmpty(n.Source.Pic) ? "images/nopic.jpg" : n.Source.Pic;
-
+            if (n.Type == MemberNotificationType.SharePost || n.Type == MemberNotificationType.NewPost)
+                Pic2 = n.Post.Photos[0].Photo;
             if (n.Type == MemberNotificationType.NewPost)
             {
                 Title = string.Format("New post by {0}", string.IsNullOrEmpty(n.Source.Name) ? n.Source.UserName : n.Source.Name);
@@ -479,6 +481,11 @@ namespace Bolo.Models
             {
                 Title = $"{n.Source.Name} wants to follow you.";
                 URL = $"profile?un={n.Source.UserName}";
+            }
+            else if (n.Type == MemberNotificationType.SharePost)
+            {
+                Title = $"{n.Source.Name} shared a post with you.";
+                URL = $"post/{n.Post.PublicID}";
             }
         }
     }

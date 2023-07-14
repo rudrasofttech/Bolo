@@ -20,6 +20,8 @@ else if (Model != null)
                 <th></th>
                 <th>Name</th>
                 <th>User Name</th>
+                <th>Email</th>
+                <th>Visibility</th>
                 <th>Last Pulse</th>
                 <th>Status</th>
                 <th></th>
@@ -41,7 +43,17 @@ else if (Model != null)
                         }
                     </td>
                     <td valign="middle">@m.Name</td>
-                    <td valign="middle">@m.UserName</td>
+                    <td valign="middle"><a href="https://www.yocail.com/profile?un=@m.UserName" target="_blank">@m.UserName</a></td>
+                    <td valign="middle">@m.Email</td>
+                    <td valign="middle">
+                        @if(m.Visibility == MemberProfileVisibility.Public)
+                        {
+                            <span>Public</span>
+                        }else if(m.Visibility == MemberProfileVisibility.Private)
+                        {
+                            <span>Private</span>
+                        }
+                    </td>
                     <td valign="middle">@m.LastPulse</td>
                     <td valign="middle">
                         @if (m.Status == RecordStatus.Inactive)

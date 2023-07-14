@@ -140,7 +140,6 @@
             </div>
         </div>
     </div>
-
     <script src="~/libs/dayjs/dayjs.min.js"></script>
     <script src="~/libs/dayjs/plugin/utc.min.js"></script>
     <script src="~/libs/signalr.min.js"></script>
@@ -174,10 +173,10 @@
 
         document.getElementById('NotificationModal').addEventListener('shown.bs.modal', event => {
             console.log("shown.bs.modal");
-            sgrkr.setSeenAllNotification();
+            //sgrkr.setSeenAllNotification();
         });
         $(document).ready(function () {
-            sgrkr.getNotifications();
+            //sgrkr.getNotifications();
 
         });
     </script>
@@ -191,16 +190,21 @@
     @RenderSection("scripts", false)
     <environment include="Development">
         <script type="text/babel">
-            ReactDOM.render(
-            <Search/>,
-            document.getElementById('search')
-            );
+            ReactDOM.render(<Search/>, document.getElementById('search'));
+            var nlistcomp =  ReactDOM.render(<NotificationList />, document.getElementById('notificationscont'));
+            document.querySelector("body").addEventListener(newNotificationGCEvent, (e) => {
+            nlistcomp.addReceivedNotification(e.detail);
+        });
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
         <script>
             "use strict";
             ReactDOM.render(React.createElement(Search, {}), document.getElementById('search'));
+            var nlistcomp = ReactDOM.render(React.createElement(NotificationList, null), document.getElementById('notificationscont'));
+document.querySelector("body").addEventListener(newNotificationGCEvent, e => {
+  nlistcomp.addReceivedNotification(e.detail);
+});
         </script>
     </environment>
     <script>

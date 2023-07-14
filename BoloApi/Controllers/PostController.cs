@@ -128,7 +128,8 @@ namespace Bolo.Controllers
                     Posts = posts
                 };
                 return Ok(model);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, "Error: " + ex.Message);
             }
@@ -282,8 +283,8 @@ namespace Bolo.Controllers
         }
 
         [HttpGet]
-        [Route("share/{id}")]
-        public ActionResult Share(Guid id, [FromQuery] Guid uid)
+        [Route("share/{postid}")]
+        public ActionResult Share(Guid postid, [FromQuery] Guid uid)
         {
             try
             {
@@ -291,15 +292,15 @@ namespace Bolo.Controllers
                 var targetmember = _context.Members.FirstOrDefault(t => t.PublicID == uid);
                 if (targetmember == null)
                     return BadRequest(new { error = "Could not find the person to share post." });
-                var post = _context.Posts.FirstOrDefault(t => t.PublicID == id);
+                var post = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Include(t => t.Modifier).FirstOrDefault(t => t.PublicID == postid);
                 if (post == null)
                     return BadRequest(new { error = "Could not find the post." });
 
-
-                post.ShareCount = post.ShareCount + 1;
                 try
                 {
                     nhelper.SaveNotification(targetmember, "Post shared", false, MemberNotificationType.SharePost, post, currentmember, null);
+                    post.ShareCount = post.ShareCount + 1;
+                    _context.SaveChanges();
                 }
                 catch (Exception)
                 {
@@ -337,7 +338,7 @@ namespace Bolo.Controllers
                 };
                 foreach (string s in value.Photos.Where(t => !string.IsNullOrEmpty(t)))
                 {
-                    string substr = s.Substring(s.IndexOf(";base64,") + 8, s.Length - (s.IndexOf(";base64,") + 8));
+                    string substr = s[(s.IndexOf(";base64,") + 8)..];
                     byte[] data = System.Convert.FromBase64String(substr);
                     string filename = string.Format("{0}.jpg", Guid.NewGuid().ToString());
                     string webRootPath = _webHostEnvironment.WebRootPath;
@@ -438,7 +439,8 @@ namespace Bolo.Controllers
                 {
                     return BadRequest(new { error = "Video should not be more than 20MB in size" });
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { error = "Unable to process your request. " + ex.Message });
             }

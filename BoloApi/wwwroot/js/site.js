@@ -102,10 +102,10 @@ class SiteGeneralWorker {
             headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
         });
 
-        document.querySelector("body").addEventListener(newNotificationGCEvent, (e) => {
-            this.notifications.push(e.detail);
-            this.renderNotifications();
-        })
+        //document.querySelector("body").addEventListener(newNotificationGCEvent, (e) => {
+        //    this.notifications.push(e.detail);
+        //    this.renderNotifications();
+        //})
 
         document.querySelector("body").addEventListener(notifyPresenceGCEvent, (e) => {
             this.updatePulseDate(e.detail.userid);
@@ -169,19 +169,19 @@ class SiteGeneralWorker {
         });
     }
 
-    getNotifications() {
-        fetch("//" + location.host + "/api/notification", {
-            method: 'get',
-            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
-        }).then(response => {
-            if (response.status === 200) {
-                response.json().then(data => {
-                    this.notifications = data.notifications;
-                    this.renderNotifications();
-                });
-            }
-        });
-    }
+    //getNotifications() {
+    //    fetch("//" + location.host + "/api/notification", {
+    //        method: 'get',
+    //        headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+    //    }).then(response => {
+    //        if (response.status === 200) {
+    //            response.json().then(data => {
+    //                this.notifications = data.notifications;
+    //                this.renderNotifications();
+    //            });
+    //        }
+    //    });
+    //}
 
     sendSubscriptionData(sub) {
         var frm = new FormData();
@@ -244,73 +244,74 @@ class SiteGeneralWorker {
         $.get(this.pulseurl);
     }
 
-    setSeenAllNotification() {
-        fetch("//" + location.host + "/api/notification/setseenall", {
-            method: 'get',
-            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
-        }).then((data) => {
-            if (data.status === 200) {
-                for (var k in this.notifications) {
-                    this.notifications[k].seen = true;
-                }
-                this.renderNotifications();
-            }
-        });
-    }
+    //setSeenAllNotification() {
+    //    fetch("//" + location.host + "/api/notification/setseenall", {
+    //        method: 'get',
+    //        headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+    //    }).then((data) => {
+    //        if (data.status === 200) {
+    //            for (var k in this.notifications) {
+    //                this.notifications[k].seen = true;
+    //            }
+    //            this.renderNotifications();
+    //        }
+    //    });
+    //}
 
-    onNotificationClick(n) {
-        fetch("//" + location.host + "/api/notification/setseen/" + n.id, {
-            method: 'get',
-            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
-        }).then((data) => {
-            if (data.status === 200) {
-                for (var k in this.notifications) {
-                    if (this.notifications[k].id == n.id)
-                        this.notifications[k].seen = true;
-                }
-                this.renderNotifications();
-                location.href = this.getURL(n.url);
-            }
-        });
+//    onNotificationClick(n) {
+//        fetch("//" + location.host + "/api/notification/setseen/" + n.id, {
+//            method: 'get',
+//            headers: { "Authorization": localStorage.getItem('token') !== null ? 'Bearer ' + localStorage.getItem('token') : '' }
+//        }).then((data) => {
+//            if (data.status === 200) {
+//                for (var k in this.notifications) {
+//                    if (this.notifications[k].id == n.id)
+//                        this.notifications[k].seen = true;
+//                }
+//                this.renderNotifications();
+//                location.href = this.getURL(n.url);
+//            }
+//        });
 
-    }
+//    }
 
-    renderNotifications() {
-        let count = this.notifications.filter(t => !t.seen).length;
-        if (count > 0) {
-            $(".notificationcountcnt").append('<span style="top:8px; font-size:13px;" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger">' + count + ' <span class="visually-hidden">unread messages</span></span>');
-            $(".notificationcount").html(count);
-        }
-        else {
-            $(".notificationcountcnt").find(".rounded-pill").remove();
-            $(".notificationcount").html("");
-        }
+//    renderNotifications() {
+//        return;
+//        let count = this.notifications.filter(t => !t.seen).length;
+//        if (count > 0) {
+//            $(".notificationcountcnt").append('<span style="top:8px; font-size:13px;" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger">' + count + ' <span class="visually-hidden">unread messages</span></span>');
+//            $(".notificationcount").html(count);
+//        }
+//        else {
+//            $(".notificationcountcnt").find(".rounded-pill").remove();
+//            $(".notificationcount").html("");
+//        }
 
-        if (this.notifications.length > 0) {
-            bind(document.querySelector("#notificationscont"))`
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-<tbody>
-${this.notifications.map(n => this.renderNotificationItem(n))}
-</tbody>
-</table>
-`;
-        }
-    }
+//        if (this.notifications.length > 0) {
+//            bind(document.querySelector("#notificationscont"))`
+//<table border="0" cellspacing="0" cellpadding="0" width="100%">
+//<tbody>
+//${this.notifications.map(n => this.renderNotificationItem(n))}
+//</tbody>
+//</table>
+//`;
+//        }
+//    }
 
-    renderNotificationItem(n) {
-        //console.log(n);
-        return wire(n)`<tr class="pointer" onclick=${(e) => { this.onNotificationClick(n); }}>
-<td width="50px" valign="middle" align="right" class="p-1">
-<img src=${this.getURL(n.pic)} class="img-fluid rounded-1" />
-</td>
-<td valign="middle" class="p-1">
-<p class="m-0 p-0">${n.title}</p>
-${n.seen ? "" : wire()`<span class="badge bg-primary fs-12">New</span>`}
-${n.type === 4 ? wire()`<span class="text-primary fw-bold fs-12">Follow Request</span>` : "" }
-<span class="fs-12">${dayjs(n.createDate).format("DD-MMM-YYYY")}</span>
-</td>
-</tr>`
-    }
+//    renderNotificationItem(n) {
+//        //console.log(n);
+//        return wire(n)`<tr class="pointer" onclick=${(e) => { this.onNotificationClick(n); }}>
+//<td width="50px" valign="middle" align="right" class="p-1">
+//<img src=${this.getURL(n.pic)} class="img-fluid rounded-1" />
+//</td>
+//<td valign="middle" class="p-1">
+//<p class="m-0 p-0">${n.title}</p>
+//${n.seen ? "" : wire()`<span class="badge bg-primary fs-12">New</span>`}
+//${n.type === 4 ? wire()`<span class="text-primary fw-bold fs-12">Follow Request</span>` : "" }
+//<span class="fs-12">${dayjs(n.createDate).format("DD-MMM-YYYY")}</span>
+//</td>
+//</tr>`
+//    }
 
     getURL(p) {
         if (p.startsWith("https://") || p.startsWith("http://") || p.startsWith("//") || p.startsWith("data:")) {

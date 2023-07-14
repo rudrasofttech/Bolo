@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.SearchPage"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
+             xmlns:controls="clr-namespace:YocailApp.Controls"
              xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
              Title="Search">
     <ContentPage.BindingContext>
@@ -36,15 +37,10 @@
         <ScrollView x:Name="ExploreScrollView" Padding="0" IsVisible="{Binding ShowExploreResult}">
             <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
                 <CollectionView ItemsLayout="VerticalGrid, 3" ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
-                            VerticalOptions="FillAndExpand" RemainingItemsThreshold="3" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                            VerticalOptions="FillAndExpand"  RemainingItemsThreshold="3" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame CornerRadius="0" BorderColor="White" Margin="0" Padding="0,0,1,1" MaximumWidthRequest="200" MaximumHeightRequest="200" MinimumHeightRequest="130" MinimumWidthRequest="130" >
-                                <Image
-                       Source="{Binding FirstPhoto}"
-                       Aspect="AspectFill" />
-                            </Frame>
-                            
+                            <controls:PostPreviewCV BindingContext="{Binding this}"  />
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

@@ -4,22 +4,30 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:YocailApp"
+    
     Shell.FlyoutBehavior="Disabled" Title="" NavBarIsVisible="False">
     <TabBar>
-        <Tab Icon="home.png">
-            <ShellContent Title="Home" ContentTemplate="{DataTemplate local:MainPage}" />
+        <Tab Route="home" Icon="home.png">
+            <ShellContent Title="Home" Route="main">
+                <local:MainPage />
+            </ShellContent>
+            
         </Tab>
         <Tab Icon="search.png"  >
-            <ShellContent Title="Search" ContentTemplate="{DataTemplate local:SearchPage}" />
+            <ShellContent Title="Search" Route="search">
+                <local:SearchPage />
+            </ShellContent>
         </Tab>
-        <Tab Icon="coffeecup.png">
+        <!--<Tab Icon="coffeecup.png">
             <ShellContent Title="Explore" ContentTemplate="{DataTemplate local:DiscoverPage}" />
-        </Tab>
+        </Tab>-->
         <Tab Icon="plussquare.png" >
-            <ShellContent Title="Add Post" ContentTemplate="{DataTemplate local:AddPostPage}" />
+            <ShellContent Title="Add Post" Route="addpost" ContentTemplate="{DataTemplate local:AddPostPage}" />
         </Tab>
         <Tab Icon="personsquare.png" >
-            <ShellContent Title="Profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
+            <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
         </Tab>
     </TabBar>
+    <ShellContent Title="Post" Route="post" ContentTemplate="{DataTemplate local:PostPage}" />
+    <ShellContent Title="Comments" Route="comments" ContentTemplate="{DataTemplate local:CommentsPage}" />
 </Shell>

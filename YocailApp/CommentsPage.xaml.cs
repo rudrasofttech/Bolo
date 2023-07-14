@@ -5,23 +5,36 @@ using YocailApp.ViewModel;
 namespace YocailApp;
 
 
+[QueryProperty(nameof(Post), "Post")]
 public partial class CommentsPage : ContentPage
 {
-    
+    PostModel post;
+    public PostModel Post
+    {
+        get => post;
+        set
+        {
+            post = value;
+            OnPropertyChanged();
+        }
+    }
+
     public CommentsPage()
     {
         InitializeComponent();
+        
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        BindingContext = new CommentPageVM() { Post = Post };
         await (BindingContext as CommentPageVM).LoadData();
     }
 
     private async void BackButton_Clicked(object sender, EventArgs e)
     {
-        await Navigation.PopModalAsync();
+        await Shell.Current.GoToAsync("//home/main");
     }
 
     private async void ImageButton_Clicked(object sender, EventArgs e)

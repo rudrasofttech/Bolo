@@ -23,13 +23,13 @@ namespace Bolo.Helper
             _hubContext = hub;
         }
 
-        public async void SetSeen(Guid id, Member m)
+        public void SetSeen(Guid id, Member m)
         {
             var n = _context.Notifications.FirstOrDefault(t => t.ID == id && t.Target.ID == m.ID);
             if(n != null)
             {
                 n.Seen = true;
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
         }
 
@@ -111,7 +111,7 @@ namespace Bolo.Helper
         {
             List<Notification> result = new List<Notification>();
             result.AddRange(_context.Notifications
-                .Include(t => t.Source).Include(t => t.Post).Include(t => t.Post.Photos).Include(t => t.Comment)
+                .Include(t => t.Source).Include(t => t.Post).Include(t => t.Post.Owner).Include(t => t.Post.Photos).Include(t => t.Comment)
                 .Include(t => t.Target).Where(t => t.Target.ID == TargetUser.ID).OrderByDescending(t => t.CreateDate).ToList());
             return result;
         }

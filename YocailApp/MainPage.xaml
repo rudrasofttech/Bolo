@@ -13,10 +13,7 @@
                             VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        
-                            <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
-                            
-                        
+                        <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
