@@ -285,9 +285,9 @@ namespace Bolo.Controllers
             if (take > 100) take = 100;
             if (take < 1) take = 1;
             var currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
-            var followers = _context.Followers.Where(t => t.Following.ID == currentMember.ID).Select(t => t.Follower.ID).ToList();
+            var followings = _context.Followers.Where(t => t.Follower.ID == currentMember.ID).Select(t => t.Following.ID).ToList();
 
-            var query = _context.PopularPublicAccountViews.Where(t => t.ID != currentMember.ID);
+            var query = _context.PopularPublicAccountViews.Where(t => t.ID != currentMember.ID && !followings.Contains(t.ID));
             if (!string.IsNullOrEmpty(currentMember.Country))
                 query = query.Where(t => t.Country.ToLower() == currentMember.Country.ToLower());
 

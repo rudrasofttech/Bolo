@@ -100,12 +100,6 @@ namespace Bolo.Controllers
             return View();
         }
 
-        [Route("ignored")]
-        public IActionResult Ignored()
-        {
-            return View();
-        }
-
         [Route("post/{id}")]
         public IActionResult Post(Guid id)
         {

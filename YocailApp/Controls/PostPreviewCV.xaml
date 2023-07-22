@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.Controls.PostPreviewCV" x:Name="this">
     <StackLayout>
-        <Frame CornerRadius="0" BorderColor="White" Margin="0" Padding="0,0,1,1" MaximumWidthRequest="200" MaximumHeightRequest="200" MinimumHeightRequest="130" MinimumWidthRequest="130" >
-            <Image Source="{Binding FirstPhoto}" Aspect="AspectFill">
+        <Frame CornerRadius="0" BorderColor="White" Margin="0" Padding="0,0,1,1"  WidthRequest="150" HeightRequest="150" IsClippedToBounds="True">
+            <Image Source="{Binding FirstPhoto}" VerticalOptions="Center" HorizontalOptions="Center" Aspect="AspectFill" WidthRequest="150" HeightRequest="150">
                 <Image.GestureRecognizers>
                     <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="TapGestureRecognizer_Tapped" />
                 </Image.GestureRecognizers>

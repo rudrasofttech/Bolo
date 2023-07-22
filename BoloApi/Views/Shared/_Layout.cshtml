@@ -39,68 +39,63 @@
     </environment>
     @RenderSection("head", false)
 </head>
-<body>
+<body class="bg-light">
     <div class="container-lg p-0 sticky-top" style="height:61px">
-        <div class="row g-0 border border-top-0">
-            <div class="col bg-white">
-                <table cellpadding="5" cellspacing="0" style="width:100%">
-                    <tbody>
-                        <tr>
-                            <td align="center" valign="middle">
-                                <a href="javascript:void(0)" class="text-dark loggedmenuitem d-none mx-2 fs-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
-                            </td>
-                            <td align="center" valign="middle">
-                                <a class="text-dark mx-2 fs-4 loggedmenuitem d-none" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
-                            </td>
-                            <td align="center" width="70%" style="max-width:70%">
-                                <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold"><img src="~/images/yocail.png" class="img-fluid" style="max-height:40px;" alt="Yocail logo" /></a>
-                            </td>
+        <table cellpadding="5" cellspacing="0" class="bg-white w-100 border rounded-bottom border-top-0">
+            <tbody>
+                <tr>
+                    <td align="left" width="70%" style="max-width:70%">
+                        <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold"><img src="~/images/yocail.png" class="img-fluid" style="max-height:40px;" alt="Yocail logo" /></a>
+                    </td>
+                    <td align="center" valign="middle">
+                        <a href="javascript:void(0)" class="text-dark loggedmenuitem d-none mx-2 fs-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
+                    </td>
+                    <td align="center" valign="middle">
+                        <a class="text-dark mx-2 fs-4 loggedmenuitem d-none" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
+                    </td>
+                    <td align="center" valign="middle">
+                        <a class="text-dark loggedmenuitem d-none mx-2 fs-4" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
+                    </td>
 
-                            <td align="center" valign="middle">
-                                <a class="text-dark loggedmenuitem d-none mx-2 fs-4" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
-                            </td>
+                    <td align="center" valign="middle">
+                        <div class="dropdown loggedmenuitem d-none">
+                            <a class="btn btn-link text-dark fs-4 text-decoration-none notificationcountcnt position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
+                                <script>
+                                    try {
+                                        var member = JSON.parse(localStorage.getItem("myself"));
+                                        if (member.pic !== "") {
+                                            document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon rounded-3' />");
+                                        } else {
+                                            document.write('<i class="bi bi-person-square"></i>');
+                                        }
+                                    } catch (err) {
+                                        document.write('<i class="bi bi-person-square"></i>');
+                                    }
+                                </script>
+                            </a>
 
-                            <td align="center" valign="middle">
-                                <div class="dropdown loggedmenuitem d-none">
-                                    <a class="btn btn-link text-dark fs-4 text-decoration-none notificationcountcnt position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
-                                        <script>
-                                            try {
-                                                var member = JSON.parse(localStorage.getItem("myself"));
-                                                if (member.pic !== "") {
-                                                    document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon    rounded' />");
-                                                } else {
-                                                    document.write('<i class="bi bi-person-square"></i>');
-                                                }
-                                            } catch (err) {
-                                                document.write('<i class="bi bi-person-square"></i>');
-                                            }
-                                        </script>
-                                    </a>
-
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal"><i class="bi bi-bell"></i> Notifications <span class="notificationcount badge rounded-pill bg-danger"></span></a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/ignored")"><i class="bi bi-sign-stop"></i> Ignored</a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item fs-6 my-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal"><i class="bi bi-bell"></i> Notifications <span class="notificationcount badge rounded-pill bg-danger"></span></a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i class="bi bi-sign-stop"></i> Ignored</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         @RenderSection("toolbar", false)
     </div>
-    <div id="root" class="container-lg p-0" style="min-height: 500px;">
+    <div id="root" class="container-lg py-2" style="min-height: 500px;">
         @RenderBody()
     </div>
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
@@ -127,6 +122,19 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="ignoredMembersModal" tabindex="-1" aria-labelledby="ignoredMembersModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="ignoredMembersModalLabel">Ignored Members</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="ignoredcont">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="SearchModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -190,11 +198,12 @@
     @RenderSection("scripts", false)
     <environment include="Development">
         <script type="text/babel">
-            ReactDOM.render(<Search/>, document.getElementById('search'));
-            var nlistcomp =  ReactDOM.render(<NotificationList />, document.getElementById('notificationscont'));
-            document.querySelector("body").addEventListener(newNotificationGCEvent, (e) => {
-            nlistcomp.addReceivedNotification(e.detail);
-        });
+                ReactDOM.render(<Search/>, document.getElementById('search'));
+                var nlistcomp =  ReactDOM.render(<NotificationList />, document.getElementById('notificationscont'));
+                document.querySelector("body").addEventListener(newNotificationGCEvent, (e) => {
+                nlistcomp.addReceivedNotification(e.detail);
+            });
+            ReactDOM.render(<IgnoredUsers  />, document.getElementById('ignoredcont'));
         </script>
     </environment>
     <environment include="Staging,Production" exclude="Development">
@@ -202,16 +211,17 @@
             "use strict";
             ReactDOM.render(React.createElement(Search, {}), document.getElementById('search'));
             var nlistcomp = ReactDOM.render(React.createElement(NotificationList, null), document.getElementById('notificationscont'));
-document.querySelector("body").addEventListener(newNotificationGCEvent, e => {
-  nlistcomp.addReceivedNotification(e.detail);
-});
+            document.querySelector("body").addEventListener(newNotificationGCEvent, e => {
+                nlistcomp.addReceivedNotification(e.detail);
+            });
+            ReactDOM.render(React.createElement(IgnoredUsers, {}), document.getElementById('ignoredcont'));
         </script>
     </environment>
     <script>
-        $(document).ready(function () { 
-            if(window.localStorage.getItem("token") !== null){
+        $(document).ready(function () {
+            if (window.localStorage.getItem("token") !== null) {
                 $(".loggedmenuitem").removeClass("d-none");
-            }else{
+            } else {
                 $(".loggedmenuitem").addClass("d-none");
             }
         });

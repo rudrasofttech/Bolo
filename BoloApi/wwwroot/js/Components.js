@@ -64,8 +64,8 @@
     }
     render() {
         if (!this.state.loggedin) {
-            return <div className="row mt-1 g-0 bg-white">
-                <div className="col-lg-6 offset-lg-3 mt-5">
+            return <div className="row">
+                <div className="col-md-6 offset-md-3">
                     <RegisterForm beginWithRegister={false} onLogin={() => {
                         this.setState({
                             loggedin: localStorage.getItem("token") === null ? false : true,
@@ -81,7 +81,7 @@
             temp.push(<table key={this.state.items[k].id} className="w-100 mb-2 border-bottom" cellPadding="0" cellSpacing="0">
                 <tbody>
                     <tr>
-                        <td width="35px" className="p-1" align="center" valign="middle">
+                        <td width="45px" className="p-1" align="center" valign="middle">
                             <MemberPicSmall member={this.state.items[k]} />
                         </td>
                         <td>
@@ -107,10 +107,7 @@
                 </tbody>
             </table>)
         }
-        return <div className="bg-white px-2">
-            <h3 className="text-center">Ignored Members</h3>
-            {temp}
-        </div>;
+        return <div>{temp}</div>;
 
     }
 }
@@ -495,8 +492,8 @@ class Home extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row bg-white g-0">
-                <div className="col-lg-6 offset-lg-3 p-3 pt-5 ">
+            return <div className="row">
+                <div className="col-md-6 offset-md-3">
                     <RegisterForm beginWithRegister={false} onLogin={() => {
                         this.setState({
                             loggedin: localStorage.getItem("token") === null ? false : true,
@@ -507,12 +504,12 @@ class Home extends React.Component {
             </div>;
         }
 
-        return <div className="row mt-1 g-0">
+        return <div className="row">
             <div className="col-lg-8">
                 <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
             </div>
             <div className="col-lg-4">
-                <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-2">
+                <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="p-2">
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -556,47 +553,10 @@ class Search extends React.Component {
                     this.setState({ loggedin: false, loading: false });
                 } else if (response.status === 200) {
                     response.json().then(data => {
-                        console.log(data);
+                        //console.log(data);
                         this.setState({
                             loggedin: true, loading: false, items: data
                         }, () => { });
-                    });
-                }
-            });
-    }
-
-    explore() {
-        let url = '//' + window.location.host + '/api/search/explore?p=' + this.state.p;
-
-        fetch(url, {
-            method: 'get',
-            headers: {
-                'Authorization': 'Bearer ' + this.state.token
-            }
-        })
-            .then(response => {
-                if (response.status === 401) {
-                    localStorage.removeItem("token");
-                    this.setState({ loggedin: false, loading: false });
-                } else if (response.status === 200) {
-                    response.json().then(data => {
-                        console.log(data);
-                        var temp = this.state.eitems;
-                        for (var k in data.posts) {
-                            if (!temp.has(data.posts[k].id)) {
-                                temp.set(data.posts[k].id, data.posts[k]);
-                            }
-                        }
-                        this.setState({
-                            loading: false,
-                            emodel: {
-                                current: data.current,
-                                pageSize: data.pageSize,
-                                total: data.total,
-                                totalPages: data.totalPages
-                            },
-                            eposts: temp
-                        });
                     });
                 }
             });
@@ -649,7 +609,7 @@ class Search extends React.Component {
             {loading}
             <div className="row mx-0">
                 <div className="col p-0">
-                    <input type="text" className="form-control" value={this.state.q} onChange={(e) => { this.setState({ q: e.target.value }); }} placeholder="Search People, Topics, Hashtags" maxLength="150" onKeyUp={(e) => {
+                    <input type="text" className="form-control" value={this.state.q} onChange={(e) => { this.setState({ q: e.target.value }, () => { this.search(); }); }} placeholder="Search People, Topics, Hashtags" maxLength="150" onKeyUp={(e) => {
                         if (e.keyCode === 13) {
                             this.search();
                         }
@@ -708,8 +668,8 @@ class Post extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row mt-1 g-0 bg-white">
-                <div className="col-lg-6 offset-lg-3 mt-5">
+            return <div className="row">
+                <div className="col-md-6 offset-md-3">
                     <RegisterForm beginWithRegister={false} onLogin={() => {
                         this.setState({
                             loggedin: localStorage.getItem("token") === null ? false : true,
@@ -1093,7 +1053,7 @@ class MemberPost extends React.Component {
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="mb-3 border-bottom pb-1">
+        return <div id={this.state.post.id} className="mb-2 border rounded-3 bg-white p-2 p-md-3 memberpost">
             {owner}
             {postshtml}
             <div className="text-center">
@@ -1663,18 +1623,19 @@ class MemberPostList extends React.Component {
             if (items.length == 0) {
                 items.push(empty);
             }
-            return items;
+            return <div>{items}</div>;
         } else if (this.state.viewMode === 1) {
             let items = [];
             for (var k in this.state.posts) {
                 var p = this.state.posts[k];
                 if (p.videoURL !== "") { } else {
-                    items.push(<div className="col-4 rounded-0 pointer" >
-                        <div className="imgbg" style={{ backgroundImage: "url(//" + window.location.host + "/" + p.photos[0].photo + ")" }}>
-                            <img src={"//" + window.location.host + "/" + p.photos[0].photo} className="opacity-0 img-fluid" data-postid={p.id} onClick={(e) => {
-                                this.selectPost(e.target.getAttribute("data-postid"));
-                            }} />
-                        </div>
+                    items.push(<div className="col pointer">
+                        <div className="card border">
+                            <div className="imgbg rounded-3" style={{ backgroundImage: "url(//" + window.location.host + "/" + p.photos[0].photo + ")" }}>
+                                <img src={"//" + window.location.host + "/" + p.photos[0].photo} className="opacity-0 img-fluid" data-postid={p.id} onClick={(e) => {
+                                    this.selectPost(e.target.getAttribute("data-postid"));
+                                }} />
+                            </div></div>
                     </div>);
                 }
             }
@@ -1682,14 +1643,14 @@ class MemberPostList extends React.Component {
                 items.push(empty);
                 return items;
             }
-            return <div className="row g-0">{items}</div>;
+            return <div className="row row-cols-3 g-2">{items}</div>;
         }
     }
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row mt-1 g-0 bg-white">
-                <div className="col-lg-6 offset-lg-3 mt-5">
+            return <div className="row">
+                <div className="col-md-6 offset-md-3">
                     <RegisterForm beginWithRegister={false} onLogin={() => {
                         this.setState({
                             loggedin: localStorage.getItem("token") === null ? false : true,
@@ -1717,9 +1678,9 @@ class MemberPostList extends React.Component {
         }
         var viewmodetabhtml = null;
         if (this.state.viewModeAllowed && this.state.posts.length > 0) {
-            viewmodetabhtml = <nav className="nav nav-pills mb-2">
-                <a onClick={() => { this.setState({ viewMode: 1 }); }} className={this.state.viewMode === 1 ? "nav-link fs-4 active bg-white text-success me-2" : "nav-link fs-4 bg-white text-dark me-2"}><i className="bi bi-grid-3x3-gap-fill"></i></a>
-                <a onClick={() => { this.setState({ viewMode: 2 }); }} className={this.state.viewMode === 2 ? "nav-link fs-4 active bg-white text-success me-2" : "nav-link fs-4 bg-white text-dark me-2"}><i className="bi bi-view-list"></i></a>
+            viewmodetabhtml = <nav className="nav nav-pills">
+                <a onClick={() => { this.setState({ viewMode: 1 }); }} className={this.state.viewMode === 1 ? "nav-link fs-4 active bg-white text-success border rounded-3 me-2" : "nav-link fs-4 bg-white border rounded-3 text-dark me-2"}><i className="bi bi-grid-3x3-gap-fill"></i></a>
+                <a onClick={() => { this.setState({ viewMode: 2 }); }} className={this.state.viewMode === 2 ? "nav-link fs-4 active bg-white text-success border rounded-3 me-2" : "nav-link fs-4 bg-white border rounded-3 text-dark me-2"}><i className="bi bi-view-list"></i></a>
             </nav>;
         }
         return <React.Fragment>
@@ -1976,9 +1937,9 @@ class MemberPicSmall extends React.Component {
 
     render() {
         var memberpic = this.state.member.pic !== "" ? <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0">
-            <img src={'//' + window.location.host + "/" + this.state.member.pic} className="d-inline-Ignore img-fluid pointer rounded-1 owner-thumb-small" alt="" /></a>
+            <img src={'//' + window.location.host + "/" + this.state.member.pic} className="d-inline-Ignore img-fluid pointer rounded-3 owner-thumb-small" alt="" /></a>
             : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0 text-secondary">
-                <img src={'//' + location.host + '/images/nopic.jpg'} alt="No Pic" className="d-inline-block img-fluid pointer rounded-1 owner-thumb-small" /></a>;
+                <img src={'//' + location.host + '/images/nopic.jpg'} alt="No Pic" className="d-inline-block img-fluid pointer rounded-3 owner-thumb-small" /></a>;
 
 
         return <React.Fragment>{memberpic}</React.Fragment>;
@@ -2100,7 +2061,7 @@ class FollowButton extends React.Component {
                 followbtn = <button type="button" className="btn btn-light" onClick={this.unFollow}>Requested</button>;
             }
         } else if (this.state.loading === true) {
-            followbtn = <button type="button" className="btn btn-light" disabled >Working...</button>;
+            followbtn = null;
         }
 
         return <React.Fragment>{followbtn}</React.Fragment>;
@@ -2709,8 +2670,8 @@ class Profile extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row mt-1 g-0 bg-white">
-                <div className="col-lg-6 offset-lg-3 mt-5">
+            return <div className="row">
+                <div className="col-md-6 offset-md-3">
                     <RegisterForm beginWithRegister={false} onLogin={() => {
                         this.setState({
                             loggedin: localStorage.getItem("token") === null ? false : true,
@@ -2758,57 +2719,45 @@ class Profile extends React.Component {
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <div className="row g-0">
-                <div className="col">
-                    <div className="pt-2 bg-white border-bottom mb-1">
-                        <div className="row g-0">
-                            <div className="col-5 p-1 col-md-3 text-end">
-                                {pic}
+            me = <div>
+                <div className="row">
+                    <div className="col-lg-5">
+                        <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="text-center mb-2 p-2 border bg-white rounded-3">
+                            {pic}
+                            <div className="row">
+                                <div className="col-4">
+                                    <button type="button" className="btn btn-link text-dark text-decoration-none">Posts <br />{this.state.member.postCount}</button></div>
+                                <div className="col-4">
+                                    {
+                                        (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
+                                            <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>Following <br />{this.state.member.followingCount}</button> :
+                                            <button type="button" className="btn btn-link text-dark text-decoration-none">Following <br />{this.state.member.followingCount}</button>
+                                    }
+                                </div>
+                                <div className="col-4">
+                                    {
+                                        (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
+                                            <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>Followers <br />{this.state.member.followerCount}</button> :
+                                            <button type="button" className="btn btn-link text-dark text-decoration-none">Followers <br />{this.state.member.followerCount}</button>
+                                    }
+                                </div>
                             </div>
-                            <div className="col-7 col-md-9 p-1">
-                                <div className="fs-6 p-1 ms-2 fw-bold">@{this.state.member.userName}</div>
-                                {name}
-                                {settings}
-                                {followhtml}
-                                {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
-                                {this.renderRequestApproval()}
-                            </div>
-                        </div>
-                        <div className="row g-0">
-                            <div className="col px-0 text-center"><button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.postCount} Posts</button></div>
-                            <div className="col px-0 text-center">
-                                {
-                                    (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
-                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>{this.state.member.followingCount} Following</button> :
-                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.followingCount} Following</button>
-                                }
-                            </div>
-                            <div className="col px-0 text-center">
-                                {
-                                    (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
-                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>{this.state.member.followerCount} Followers</button> :
-                                        <button type="button" className="btn btn-link text-dark fw-bold text-decoration-none">{this.state.member.followerCount} Followers</button>
-                                }
-
-                            </div>
-                        </div>
-                        {thought}
-                        <p>{this.state.member.bio}</p>
-                    </div>
-                    <div className="row mt-1 g-0">
-                        <div className="col-lg-8">
-                            <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
-                        </div>
-                        <div className="col-lg-4">
-                            <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-2">
-                                <SendInvite />
-                                <SuggestedAccounts />
-                            </div>
+                            {name}
+                            <div className="p-1 ms-2">@{this.state.member.userName}</div>
+                            {settings}
+                            {followhtml}
+                            {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
+                            {this.renderRequestApproval()}
+                            {thought}
+                            <p>{this.state.member.bio}</p>
                         </div>
                     </div>
+                    <div className="col-lg-7">
+                        <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
+                    </div>
 
-                    {followlist}
                 </div>
+                {followlist}
             </div>;
         }
 
@@ -3761,15 +3710,14 @@ class RegisterForm extends React.Component {
 
     renderLoginForm() {
         if (!this.state.showForgotPassword) {
-            return <div><h3>Login</h3>
+            return <div className="border rounded-3 bg-white p-3">
+                <h3>Login</h3>
                 <form onSubmit={this.handleLogin}>
-                    <div className="mb-3">
-                        <label>Username</label>
-                        <input type="text" className="form-control" required name="userName" value={this.state.logindto.userName} onChange={(e) => { this.setState({ logindto: { userName: e.target.value, password: this.state.logindto.password } }) }} />
+                    <div className="my-3">
+                        <input type="text" placeholder="Username or Email" className="form-control" required name="userName" value={this.state.logindto.userName} onChange={(e) => { this.setState({ logindto: { userName: e.target.value, password: this.state.logindto.password } }) }} />
                     </div>
-                    <div className="mb-3">
-                        <label>Password</label>
-                        <input className="form-control" required name="password" type="password" onChange={(e) => { this.setState({ logindto: { userName: this.state.logindto.userName, password: e.target.value } }) }} />
+                    <div className="my-3">
+                        <input className="form-control" required placeholder="Password" name="password" type="password" onChange={(e) => { this.setState({ logindto: { userName: this.state.logindto.userName, password: e.target.value } }) }} />
                     </div>
                     <div className="row">
                         <div className="col-4">
@@ -3784,7 +3732,7 @@ class RegisterForm extends React.Component {
                     </div>
                 </form></div>;
         } else {
-            return <div>
+            return <div className="p-2">
                 <ForgotPassword />
                 <p className="my-2 text-center border-top py-2">
                     <button type="button" onClick={() => { this.setState({ showForgotPassword: false }); }} className="btn btn-link text-dark">Try Login Again</button>
@@ -3812,8 +3760,8 @@ class RegisterForm extends React.Component {
             this.renderOTPForm()
             : this.renderLoginForm();
 
-        let formcontents = this.state.showregisterform ?
-            <React.Fragment>
+        let formcontents = this.state.showregisterform ? <React.Fragment>
+            <div className="border rounded-3 bg-white p-3">
                 <div className="float-end"><span className="text-danger">*</span> Required</div>
                 <h3 className="mb-2">Register</h3>
                 <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
@@ -3882,11 +3830,13 @@ class RegisterForm extends React.Component {
                         <span className="visually-hidden">Loading...</span>
                     </div> : "Register"}</button>
                 </form>
-                <p className="text-center mt-2">
-                    Already a Member! <a onClick={this.handleLoginClickHere} className="link-success">Login Here</a> </p>
                 {messagecontent}
                 {loading}
-            </React.Fragment> :
+            </div>
+            <p className="text-center my-3">
+                Already a Member! <a onClick={this.handleLoginClickHere} className="link-success">Login Here</a>
+            </p>
+        </React.Fragment> :
             <React.Fragment>
                 {logincontents}
                 <p className="text-center mt-3 p-3 border-top">
@@ -4210,7 +4160,7 @@ class SuggestedAccounts extends React.Component {
         if (items.length > 0) {
             return <React.Fragment>
                 <div className="row mb-1 mt-2">
-                    <div className="col-7 fw-bold">Popular Accounts</div>
+                    <div className="col-7 fw-bold">Suggested Accounts</div>
                     <div className="col text-end"><button type="button" className="btn btn-light d-none btn-sm">See all</button></div>
                 </div>
                 <ul className="list-group list-group-flush">
@@ -4253,6 +4203,7 @@ class ForgotPassword extends React.Component {
             .then(response => {
                 if (response.status === 200) {
                     response.json().then(data => {
+                        console.log(data);
                         this.setState({ loading: false, securityQuestion: data.securityQuestion, bsstyle: '', message: '' });
                     });
                 } else {
@@ -4296,7 +4247,7 @@ class ForgotPassword extends React.Component {
     };
 
     render() {
-        return <div>
+        return <div className="bg-white border p-3 rounded-3">
             <h3>Forgot Password</h3>
             <p>Provide your username or email address, you will be asked with security question.</p>
             <form onSubmit={(e) => { e.preventDefault(); this.loadSecurityQuestion(); }}>
@@ -4320,7 +4271,7 @@ class ForgotPassword extends React.Component {
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Security Answer</label>
-                            <input type="text" maxLength="300" required className="form-control" value={this.state.securityAnswer} onChange={(e) => { this.setState({ securityAnswer: e.target.value }) }} />
+                            <input type="text" maxLength="300" className="form-control" value={this.state.securityAnswer} onChange={(e) => { this.setState({ securityAnswer: e.target.value }) }} />
                             <div className="form-text">Your new password will set only if your security answer matches with our records.</div>
                         </div>
                         <div className="mb-3">

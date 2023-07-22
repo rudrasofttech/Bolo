@@ -329,8 +329,8 @@ namespace Bolo.Controllers
         [Route("validatesecurityanswer")]
         public ActionResult ValidateSecurityAnswer([FromForm] string username, [FromForm] string question, [FromForm] string answer, [FromForm] string password)
         {
-            if (string.IsNullOrEmpty(answer))
-                return BadRequest(new { error = "Security Answer missing." });
+            //if (string.IsNullOrEmpty(answer))
+            //    return BadRequest(new { error = "Security Answer missing." });
             if (string.IsNullOrEmpty(question))
                 return BadRequest(new { error = "Security Question missing." });
             if (string.IsNullOrEmpty(username))

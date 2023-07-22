@@ -40,7 +40,7 @@ namespace Bolo.Controllers
         public List<SearchResultItem> Get([FromQuery]string q = "")
         {
             List<SearchResultItem> result = new List<SearchResultItem>();
-            if (!string.IsNullOrEmpty(q) && q.Length > 1)
+            if (!string.IsNullOrEmpty(q) && q.Length > 0)
             {
                var tags = _context.HashTags.Where(t => t.Tag.StartsWith("#" + q))
                     .GroupBy(t => t.Tag)
@@ -50,7 +50,7 @@ namespace Bolo.Controllers
                 foreach(var ht in tags)
                     result.Add(new SearchResultItem() { Hashtag = ht });
 
-                var members = _context.Members.Where(t => t.UserName.StartsWith(q) || t.Name.StartsWith(q))
+                var members = _context.Members.Where(t => t.UserName.Contains(q) || t.Name.Contains(q))
                     .Select(t => new MemberSmallDTO(t)).Take(50);
                 foreach (var m in members)
                     result.Add(new SearchResultItem() { Member = m });
