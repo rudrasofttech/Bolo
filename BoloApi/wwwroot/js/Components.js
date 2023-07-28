@@ -509,7 +509,53 @@ class Home extends React.Component {
                 <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
             </div>
             <div className="col-lg-4">
-                <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="p-2">
+                <AskPushNotification />
+                <div className="p-2 rightsidebar">
+                    <SendInvite />
+                    <SuggestedAccounts />
+                </div>
+            </div>
+        </div>;
+    }
+}
+
+class Explore extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: null, loggedin: loggedin,
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"), search: this.props.search !== "" ? this.props.search : "userfeed"
+        };
+    }
+
+    render() {
+        if (!this.state.loggedin) {
+            return <div className="row">
+                <div className="col-md-6 offset-md-3">
+                    <RegisterForm beginWithRegister={false} onLogin={() => {
+                        this.setState({
+                            loggedin: localStorage.getItem("token") === null ? false : true,
+                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                        })
+                    }} /></div>
+            </div>;
+        }
+
+        return <div className="row">
+            <div className="col-lg-8">
+                <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
+            </div>
+            <div className="col-lg-4">
+                <AskPushNotification />
+                <div className="p-2 rightsidebar">
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -685,7 +731,8 @@ class Post extends React.Component {
                     <MemberPost post={this.state.post} ondelete={(id) => { this.setState({ post: null }) }} onIgnoredMember={userid => { }} />
                 </div>
                 <div className="col-lg-4">
-                    <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-1">
+                    <div className="p-2 rightsidebar">
+                        <AskPushNotification />
                         <SendInvite />
                         <SuggestedAccounts />
                     </div>
@@ -694,10 +741,11 @@ class Post extends React.Component {
         } else {
             return <div className="row mt-1 g-0">
                 <div className="col-lg-8">
-                    {!this.state.loading ? <p>No post found.</p> : ""}
+                    {!this.state.loading ? <h1>Incorrect Data, No Post Found.</h1> : ""}
                 </div>
                 <div className="col-lg-4">
-                    <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="ps-1">
+                    <div className="p-2 rightsidebar">
+                        <AskPushNotification />
                         <SendInvite />
                         <SuggestedAccounts />
                     </div>
@@ -1678,7 +1726,7 @@ class MemberPostList extends React.Component {
         }
         var viewmodetabhtml = null;
         if (this.state.viewModeAllowed && this.state.posts.length > 0) {
-            viewmodetabhtml = <nav className="nav nav-pills">
+            viewmodetabhtml = <nav className="nav nav-pills m-1">
                 <a onClick={() => { this.setState({ viewMode: 1 }); }} className={this.state.viewMode === 1 ? "nav-link fs-4 active bg-white text-success border rounded-3 me-2" : "nav-link fs-4 bg-white border rounded-3 text-dark me-2"}><i className="bi bi-grid-3x3-gap-fill"></i></a>
                 <a onClick={() => { this.setState({ viewMode: 2 }); }} className={this.state.viewMode === 2 ? "nav-link fs-4 active bg-white text-success border rounded-3 me-2" : "nav-link fs-4 bg-white border rounded-3 text-dark me-2"}><i className="bi bi-view-list"></i></a>
             </nav>;
@@ -2722,35 +2770,41 @@ class Profile extends React.Component {
             me = <div>
                 <div className="row">
                     <div className="col-lg-5">
-                        <div style={{ position: "-webkit-sticky", position: "sticky", top: "63px" }} className="text-center mb-2 p-2 border bg-white rounded-3">
-                            {pic}
-                            <div className="row">
-                                <div className="col-4">
-                                    <button type="button" className="btn btn-link text-dark text-decoration-none">Posts <br />{this.state.member.postCount}</button></div>
-                                <div className="col-4">
-                                    {
-                                        (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
-                                            <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>Following <br />{this.state.member.followingCount}</button> :
-                                            <button type="button" className="btn btn-link text-dark text-decoration-none">Following <br />{this.state.member.followingCount}</button>
-                                    }
+                        <div className="rightsidebar">
+                            <div className="text-center mb-2 p-2 border bg-white rounded-3">
+                                {pic}
+                                <div className="row">
+                                    <div className="col-4">
+                                        <button type="button" className="btn btn-link text-dark text-decoration-none">Posts <br />{this.state.member.postCount}</button></div>
+                                    <div className="col-4">
+                                        {
+                                            (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
+                                                <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>Following <br />{this.state.member.followingCount}</button> :
+                                                <button type="button" className="btn btn-link text-dark text-decoration-none">Following <br />{this.state.member.followingCount}</button>
+                                        }
+                                    </div>
+                                    <div className="col-4">
+                                        {
+                                            (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
+                                                <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>Followers <br />{this.state.member.followerCount}</button> :
+                                                <button type="button" className="btn btn-link text-dark text-decoration-none">Followers <br />{this.state.member.followerCount}</button>
+                                        }
+                                    </div>
                                 </div>
-                                <div className="col-4">
-                                    {
-                                        (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
-                                            <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>Followers <br />{this.state.member.followerCount}</button> :
-                                            <button type="button" className="btn btn-link text-dark text-decoration-none">Followers <br />{this.state.member.followerCount}</button>
-                                    }
-                                </div>
+                                {name}
+                                <div className="p-1 ms-2">@{this.state.member.userName}</div>
+                                {settings}
+                                {followhtml}
+                                {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
+                                {this.renderRequestApproval()}
+                                {thought}
+                                <p>{this.state.member.bio}</p>
                             </div>
-                            {name}
-                            <div className="p-1 ms-2">@{this.state.member.userName}</div>
-                            {settings}
-                            {followhtml}
-                            {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
-                            {this.renderRequestApproval()}
-                            {thought}
-                            <p>{this.state.member.bio}</p>
+                            <AskPushNotification />
+                            <SendInvite />
+                            <SuggestedAccounts />
                         </div>
+
                     </div>
                     <div className="col-lg-7">
                         <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
@@ -4452,8 +4506,7 @@ class NotificationList extends React.Component {
         }).then(response => {
             if (response.status === 200) {
                 response.json().then(data => {
-                    console.log(data.notifications);
-                    this.setState({ list: data.notifications });
+                    this.setState({ list: data.notifications }, () => { this.updateUnseenNotificationCount() });
                 });
             }
         });
@@ -4462,7 +4515,19 @@ class NotificationList extends React.Component {
     addReceivedNotification = (n) => {
         let l = this.state.list;
         l.unshift(n);
-        this.setState({ list: l });
+        this.setState({ list: l }, () => { this.updateUnseenNotificationCount() });
+    }
+
+    updateUnseenNotificationCount = () => {
+        let count = this.state.list.filter(t => !t.seen).length;
+        if (count > 0) {
+            $(".notificationcountcnt").append('<span style="top:8px; font-size:13px;" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger">' + count + ' <span class="visually-hidden">unread messages</span></span>');
+            $(".notificationcount").html(count);
+        }
+        else {
+            $(".notificationcountcnt").find(".rounded-pill").remove();
+            $(".notificationcount").html("");
+        }
     }
 
     onNotificationClick = (id) => {
@@ -4502,7 +4567,7 @@ class NotificationList extends React.Component {
                     <img src={this.getURL(n.pic)} className="img-fluid rounded-1" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
                 </div>
                 <div className='col'>
-                    <p className={"m-0 p-0 " + (!n.seen ? "fw-bold" : "")}>{n.title}</p>
+                    <p data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} className={"m-0 p-0 " + (!n.seen ? "fw-bold" : "")}>{n.title}</p>
                     {n.type === 4 ? <span className="text-primary fw-bold fs-12">Follow Request</span> : null}
                     <span className="fs-12">{dayjs(n.createDate).format("DD-MMM-YYYY")}</span>
                 </div>
@@ -4512,6 +4577,147 @@ class NotificationList extends React.Component {
             </div>);
         }
         return <React.Fragment>{items}</React.Fragment>;
+    }
+}
+
+class AskPushNotification extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+        this.reg = null;
+        this.state = {
+            loading: false, loggedin: loggedin, bsstyle: '', message: '',
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            permission: "", showModal: true, mode: "none"
+        };
+    }
+    componentDidMount() {
+        this.registerServiceWorker();
+    }
+
+    registerServiceWorker = () => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration()
+                .then((reg) => {
+                    this.reg = reg;
+                    if (Notification.permission === "granted") {
+                        this.setState({ permission: Notification.permission }, this.getSubscription);
+                    } else if (Notification.permission === "blocked" || Notification.permission === "denied") {
+                        this.setState({ mode: "blocked" });
+                    } else {
+                        this.setState({ mode: "ask" });
+                    }
+                });
+        } else {
+            this.setState({ mode: "nosupport" });
+        }
+    }
+
+    getSubscription = () => {
+        this.reg.pushManager.getSubscription().then((sub) => {
+            if (sub === null) {
+                this.reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: "BASWJ1rjpkuNXNGWd0eJ49ZO5y2jCIwU-XdfVqomefHFa1YrgKiYPncNtezdkNIhtloySBXcnWQbWrdYW4e7-p8"
+                }).then((sub) => {
+                    this.sendSubscriptionData(sub);
+                }).catch(function (e) {
+                    console.error("Unable to subscribe to push", e);
+                    this.setState({ mode: "ask", bsstyle: 'error', message: "Unable to subscribe to push. Try again." });
+                });
+            } else {
+                this.sendSubscriptionData(sub);
+            }
+        });
+    }
+
+    arrayBufferToBase64(buffer) {
+        var binary = '';
+        var bytes = new Uint8Array(buffer);
+        var len = bytes.byteLength;
+        for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
+
+    sendSubscriptionData = (sub) => {
+        var frm = new FormData();
+        frm.append("endpoint", sub.endpoint);
+        frm.append("p256dh", this.arrayBufferToBase64(sub.getKey("p256dh")));
+        frm.append("auth", this.arrayBufferToBase64(sub.getKey("auth")));
+        fetch("//" + location.host + "/api/Members/subscribenotification", {
+            method: 'post',
+            body: frm,
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(data => {
+            this.setState({ mode: "done" });
+        }).catch(err => {
+            this.setState({ mode: "ask", bsstyle: 'error', message: "Unable to contact server. No internet connection." });
+        });
+    }
+
+    requestNotificationAccess = () => {
+        Notification.requestPermission().then((status) => {
+            if (status == "granted") {
+                this.setState({ permission: status, noSupport: null }, this.getSubscription);
+            } else if (status === "blocked" || status === "denied") {
+                this.setState({ permission: status, mode: "ask" });
+            } else {
+                this.setState({ permission: "", mode: "ask" });
+            }
+        });
+    }
+
+    renderModal = (message) => {
+        return <React.Fragment><div className="modal d-block" tabIndex="-1">
+            <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h1 className="modal-title fs-5">Get Yocail Notifications</h1>
+                        <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: false }); }}></button>
+                    </div>
+                    <div className="modal-body">
+                        {message !== "" ? <div className="my-1 fw-bold">{message}</div> : null}
+                        <button onClick={this.requestNotificationAccess} className="btn btn-success my-2">Allow Notification</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div className="modal-backdrop fade show"></div>
+        </React.Fragment>;
+
+    };
+
+    render() {
+        if (this.state.mode === "nosupport" || this.state.mode === "done") {
+            return <React.Fragment></React.Fragment>;
+        }
+        let message = "Remain up to date with latest comments, reactions and content.";
+        if (this.state.permission === "blocked") {
+            message = "You have blocked the notification.";
+        } else if (this.state.permission === "denied") {
+            message = "Notification permission is denied. Please allow yocail browser notifications.";
+        }
+        if (this.state.mode === "ask") {
+            if (this.state.showModal) {
+                return <React.Fragment>{this.renderModal(message)}</React.Fragment>
+            } else {
+                return <div className="p-1 border rounded-3 mb-2 bg-white">
+                    <div className="text-center">
+                        <div className="my-1">{message}</div>
+                        <button onClick={this.requestNotificationAccess} className="btn btn-success my-2">Allow Notification</button>
+                    </div>
+                </div>;
+            }
+        }
+        return <React.Fragment></React.Fragment>;
     }
 }
 

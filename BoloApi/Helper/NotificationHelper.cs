@@ -3,6 +3,7 @@ using Bolo.Hubs;
 using Bolo.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,13 @@ namespace Bolo.Helper
     public class NotificationHelper
     {
         private readonly BoloContext _context;
+        private readonly IConfiguration _config;
         private readonly IHubContext<UniversalHub> _hubContext;
 
         public Member TargetUser { get; set; }
-        public NotificationHelper(BoloContext context, IHubContext<UniversalHub> hub)
+        public NotificationHelper(BoloContext context, IHubContext<UniversalHub> hub, IConfiguration config)
         {
+            _config= config;
             _context = context;
             _hubContext = hub;
         }
@@ -65,45 +68,51 @@ namespace Bolo.Helper
         public async void PushWebNotification(Notification n)
         {
             await _hubContext.Clients.User(n.Target.PublicID.ToString()).SendAsync("NewNotification", new NotificationSmallDTO(n));
-            //if (!accWorker.IsUserOnline(n.NotifyTo))
+            MemberDTO mdto = new MemberDTO(n.Target);
+            if (mdto.Activity != ActivityStatus.Online)
             {
-                //bool shouldSave;
+                bool shouldSave;
                 //get end points saved in database for the target user
-                //var query = _context.PushNotificationWebApps.Where(t => t.User.ID == n.Target.ID).ToList();
-                //foreach (var pnwa in query)
-                //{
-                //    shouldSave = false;
-                //    PushSubscription subs = new PushSubscription(pnwa.Endpoint, pnwa.P256dh, pnwa.Auth);
-                //    var subject = _config["VAPIDsubject"];
-                //    var publicKey = _config["VAPIDpublicKey"];
-                //    var privateKey = _config["VAPIDprivateKey"];
-                //    var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
+                var query = _context.PushNotificationWebApps.Where(t => t.User.ID == n.Target.ID).ToList();
+                foreach (var pnwa in query)
+                {
+                    shouldSave = false;
+                    PushSubscription subs = new PushSubscription(pnwa.Endpoint, pnwa.P256dh, pnwa.Auth);
+                    var subject = _config["VAPIDsubject"];
+                    var publicKey = _config["VAPIDpublicKey"];
+                    var privateKey = _config["VAPIDprivateKey"];
+                    var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
 
-                //    var webPushClient = new WebPushClient();
-                //    try
-                //    {
-                //        n.NotifyTo.Pic = string.Empty;
-                //        //try to send notification to client browsers.
-                //        webPushClient.SendNotification(subs, System.Text.Json.JsonSerializer.Serialize(n), vapidDetails);
-                //    }
-                //    catch (WebPush.WebPushException wex)
-                //    {
-                //        if (wex.StatusCode == System.Net.HttpStatusCode.Gone)
-                //        {
-                //            _context.PushNotificationWebApps.Remove(pnwa);
-                //            shouldSave = true;
-                //        }
-                //    }
-                //    catch (Exception exception)
-                //    {
-                //        throw exception;
-                //    }
-                //    finally
-                //    {
-                //        if (shouldSave)
-                //            _context.SaveChanges();
-                //    }
-                //}
+                    var webPushClient = new WebPushClient();
+                    try
+                    {
+                        NotificationSmallDTO ndto = new NotificationSmallDTO(n);
+                        BrowserPushNotifyDTO b = new BrowserPushNotifyDTO() { 
+                            Photo = ndto.Pic,
+                            Text = ndto.Title,
+                            URL = ndto.URL
+                        };
+                        //try to send notification to client browsers.
+                        webPushClient.SendNotification(subs, System.Text.Json.JsonSerializer.Serialize(b), vapidDetails);
+                    }
+                    catch (WebPush.WebPushException wex)
+                    {
+                        if (wex.StatusCode == System.Net.HttpStatusCode.Gone)
+                        {
+                            _context.PushNotificationWebApps.Remove(pnwa);
+                            shouldSave = true;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        throw exception;
+                    }
+                    finally
+                    {
+                        if (shouldSave)
+                            _context.SaveChanges();
+                    }
+                }
             }
         }
 

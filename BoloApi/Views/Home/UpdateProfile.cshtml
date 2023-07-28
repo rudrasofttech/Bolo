@@ -3,8 +3,6 @@
     ViewData["Title"] = "Update Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-
 @section scripts{
     <script src="~/libs/fabric.min.js"></script>
     <script src="~/libs/hammer.min.js"></script>
@@ -21,7 +19,7 @@
         <script src="~/js/compiled/ManageProfile.js"></script>
         <script>
             "use strict";
-            ReactDOM.render( /*#__PURE__*/React.createElement(ManageProfile, null), document.getElementById('root'));
+            ReactDOM.render(React.createElement(ManageProfile, null), document.getElementById('root'));
         </script>
     </environment>
 }

@@ -24,6 +24,7 @@ else if (Model != null)
                 <th>Visibility</th>
                 <th>Last Pulse</th>
                 <th>Status</th>
+                <th>Email Verified</th>
                 <th></th>
             </tr>
         </thead>
@@ -46,10 +47,11 @@ else if (Model != null)
                     <td valign="middle"><a href="https://www.yocail.com/profile?un=@m.UserName" target="_blank">@m.UserName</a></td>
                     <td valign="middle">@m.Email</td>
                     <td valign="middle">
-                        @if(m.Visibility == MemberProfileVisibility.Public)
+                        @if (m.Visibility == MemberProfileVisibility.Public)
                         {
                             <span>Public</span>
-                        }else if(m.Visibility == MemberProfileVisibility.Private)
+                        }
+                        else if (m.Visibility == MemberProfileVisibility.Private)
                         {
                             <span>Private</span>
                         }
@@ -58,39 +60,36 @@ else if (Model != null)
                     <td valign="middle">
                         @if (m.Status == RecordStatus.Inactive)
                         {
-                            <span class="text-danger">Inactive</span>
-                        }
-                        else if (m.Status == RecordStatus.Active)
-                        {
-                            <span class="text-success">Active</span>
-                        }
-                        else if (m.Status == RecordStatus.Unverified)
-                        {
-                            <span>Unverified</span>
-                        }
-                        else if (m.Status == RecordStatus.Deleted)
-                        {
-                            <span>Deleted</span>
-                        }
-                    </td>
-                    <td>
-                        @if (m.Status == RecordStatus.Inactive)
-                        {
+                            <div><span class="text-danger">Inactive</span></div>
                             <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
                         }
                         else if (m.Status == RecordStatus.Active)
                         {
+                            <div><span class="text-success">Active</span></div>
                             <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Inactive);}">Set Inactive</button>
                         }
                         else if (m.Status == RecordStatus.Unverified)
                         {
+                            <div><span>Unverified</span></div>
                             <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
                         }
                         else if (m.Status == RecordStatus.Deleted)
                         {
+                            <div><span>Deleted</span></div>
                             <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
                         }
                     </td>
+                    @*<td>
+                        @if (m.IsEmailVerified)
+                        {
+                            <span>Yes</span>
+                        }
+                        else
+                        {
+                            <div><span>No</span></div>
+                            <button type="button" class="btn btn-light btn-sm" @onclick="async () => {await this.SendVerificationEmail(m);}">Send Email</button>
+                        }
+                    </td>*@
                 </tr>
             }
         </tbody>
@@ -102,11 +101,11 @@ else if (Model != null)
                 <div class="col-12">
                     <div class="input-group">
                         <InputNumber max="@Model.TotalPages" min="0" class="form-control" @bind-Value="CurrentPage" />
-                        <div class="input-group-text">of @Model.TotalPages Pages</div>
+                        <div class="input-group-text">of @Model.TotalPages Pages (@Model.Total Rows)</div>
                     </div>
                 </div>
                 <div class="col-12">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">Load</button>
                 </div>
             </EditForm>
         </div>
@@ -125,7 +124,7 @@ else if (Model != null)
     private MemberListPaged? Model;
     public string Keywords { get; set; } = string.Empty;
     public int CurrentPage { get; set; } = 1;
-    public int PageSize { get; set; } = 100;
+    public int PageSize { get; set; } = 30;
     public bool Loading { get; set; }
     public string Error { get; set; } = string.Empty;
     public string Success { get; set; } = string.Empty;
@@ -181,6 +180,30 @@ else if (Model != null)
             Loading = false;
             StateHasChanged();
         }
+    }
 
+    public async Task SendVerificationEmail(MemberDTO m)
+    {
+        try
+        {
+            Loading = true;
+            Http.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse("Bearer " + await lss.GetSessionValueAsync("token"));
+            var resp = await Http.GetAsync($"api/members/sendemailverification/{m.ID}");
+            var data = await resp.Content.ReadFromJsonAsync<Tuple<bool, string>>();
+            if (data != null && data.Item1 == false)
+                Error = data.Item2;
+            else
+                Error = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Error = ex.Message;
+        }
+        finally
+        {
+            Loading = false;
+            StateHasChanged();
+        }
     }
 }

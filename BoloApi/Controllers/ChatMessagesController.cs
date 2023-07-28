@@ -14,6 +14,8 @@ using Bolo.Hubs;
 using System.IO;
 using Bolo.Helper;
 using Microsoft.Extensions.Configuration;
+using BoloWeb.Helper;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Bolo.Controllers
 {
@@ -25,11 +27,14 @@ namespace Bolo.Controllers
         private readonly BoloContext _context;
         private readonly IConfiguration _config;
         private readonly IHubContext<PersonChatHub> _hubContext;
-        public ChatMessagesController(BoloContext context, IConfiguration config, IHubContext<PersonChatHub> hubContext)
+        private readonly EmailHelper emailWorker;
+
+        public ChatMessagesController(BoloContext context, IConfiguration config, IHubContext<PersonChatHub> hubContext, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _hubContext = hubContext;
             _config = config;
+            emailWorker = new EmailHelper(config, webHostEnvironment);
         }
 
         // GET: api/ChatMessages
@@ -196,8 +201,8 @@ namespace Bolo.Controllers
                         {
                             string email = System.IO.File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
                             email = email.Replace("{sender}", sender.Name).Replace("{message}", cm.Message);
-                            EmailUtility eu = new EmailUtility(_config);
-                            eu.SendEmail(receiver.Email, receiver.Name, sender.Email, sender.Name, String.Format("{0} sent a message on Waarta.", sender.Name), email);
+                            
+                            await emailWorker.SendEmailAsync(receiver.Name, receiver.Email,String.Format("{0} sent a message on Waarta.", sender.Name), email, "", sender.Name, sender.Email);
                         }
                     }
                     return Ok(new ChatMessageDTO(cm));

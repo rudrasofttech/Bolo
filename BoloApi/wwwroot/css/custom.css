@@ -49,8 +49,6 @@ input[type="button"], input[type="submit"] {
     text-transform: none;
 }
 
-
-
 /* Headlines */
 h1,
 h2,
@@ -116,6 +114,12 @@ a {
     margin:0 auto;
 }
 @media screen and (min-width: 900px) {
+    .rightsidebar {
+        position: "-webkit-sticky";
+        position: "sticky";
+        top: "63px"
+    }
+
     .imgbg {
         
         max-height: 200px;

@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Home\ForgotPassword.cshtml" />
+    <Content Remove="Views\Home\Query.cshtml" />
     <Content Remove="wwwroot\images\nopic.jpg" />
     <Content Remove="wwwroot\js\compiled\Meeting.js" />
     <Content Remove="wwwroot\js\compiled\NavMenu.js" />
@@ -34,7 +36,6 @@
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.34" />
     <PackageReference Include="HtmlAgilityPack.CssSelectors" Version="1.0.2" />
-    <PackageReference Include="MailKit" Version="2.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.5" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
@@ -48,6 +49,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="SendGrid" Version="9.28.1" />
     <PackageReference Include="WebPush" Version="1.0.12" />
   </ItemGroup>
 

@@ -1,28 +1,19 @@
-﻿
-@{
-    ViewData["Title"] = "Discover";
+﻿@{
+    ViewData["Title"] = "Explore";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-    <div id="explorecont">
-
-    </div>
-
 @section scripts{
-
-        <environment include="Development">
-            <script type="text/babel">
+    <environment include="Development">
+        <script type="text/babel">
                 ReactDOM.render(
-                <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />,
-            document.getElementById('explorecont')
+                <Explore />,
+            document.getElementById('root')
                 );
-            </script>
-        </environment>
-        <environment include="Staging,Production" exclude="Development">
-            <script>
-                ReactDOM.render( React.createElement(MemberPostList, {
-                search: "explore", viewMode: 1, viewModeAllowed: true
-}), document.getElementById('explorecont'));
-            </script>
-        </environment>
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script>
+            ReactDOM.render(React.createElement(Explore, null), document.getElementById('root'));
+        </script>
+    </environment>
 }

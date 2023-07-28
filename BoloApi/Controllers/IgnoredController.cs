@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +22,10 @@ namespace BoloWeb.Controllers
         private readonly BoloContext _context;
         private readonly NotificationHelper nhelper;
 
-        public IgnoredController(BoloContext context, IHubContext<UniversalHub> uhub)
+        public IgnoredController(BoloContext context, IHubContext<UniversalHub> uhub, IConfiguration config)
         {
             _context = context;
-            nhelper = new NotificationHelper(context, uhub);
+            nhelper = new NotificationHelper(context, uhub, config);
         }
 
         [HttpGet]

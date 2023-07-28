@@ -10,12 +10,12 @@ self.addEventListener('push', function (e) {
     }
 
     var options = {
-        body: body.NotificationText,
-        icon: body.PhotoURL,
+        body: body.Text,
+        icon: body.Photo,
         vibrate: [100, 50, 100],
         data: {
             dateOfArrival: Date.now(),
-            url: body.CampaignURL
+            url: body.URL
         },
         actions: [
             {
@@ -29,7 +29,7 @@ self.addEventListener('push', function (e) {
         ]
     };
     e.waitUntil(
-        self.registration.showNotification("Waarta Notification", options)
+        self.registration.showNotification("Yocail Notification", options)
     );
 });
 

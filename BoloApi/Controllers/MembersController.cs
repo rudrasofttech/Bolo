@@ -22,6 +22,7 @@ using System.Drawing.Imaging;
 using NetTopologySuite.Triangulate.QuadEdge;
 using Microsoft.AspNetCore.Hosting;
 using Org.BouncyCastle.Crypto.Parameters;
+using BoloWeb.Helper;
 
 namespace Bolo.Controllers
 {
@@ -34,12 +35,14 @@ namespace Bolo.Controllers
         private readonly IConfiguration _config;
         private readonly IHubContext<PersonChatHub> _hubContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly EmailHelper emailWorker;
         public MembersController(BoloContext context, IConfiguration config, IHubContext<PersonChatHub> hubContext, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _config = config;
             _hubContext = hubContext;
             _webHostEnvironment = webHostEnvironment;
+            emailWorker = new EmailHelper(config, _webHostEnvironment);
         }
 
         //[HttpGet()]
@@ -237,8 +240,6 @@ namespace Bolo.Controllers
                 return StatusCode(500, new { error = "Unable to process request. " + ex.Message });
             }
         }
-
-
 
         // GET: api/Members
         [HttpGet]
@@ -893,10 +894,13 @@ namespace Bolo.Controllers
             };
             _context.Members.Add(m);
             await _context.SaveChangesAsync();
-            //if (!string.IsNullOrEmpty(model.Email))
+            //try
             //{
-            //    EmailUtility eu = new EmailUtility(_config);
-            //    eu.SendEmail(model.Email, "", "contact@bolo.com", "", "Bolo OTP", string.Format("You passcode is: {0}", OTP));
+            //    await emailWorker.SendVerificationEmailAsync(m.UserName, m.Email, $"https://www.yocail.com/home/emailverify/{m.PublicID}");
+            //}
+            //catch (Exception)
+            //{
+
             //}
             //if (!string.IsNullOrEmpty(model.Phone))
             //{
@@ -1094,6 +1098,8 @@ namespace Bolo.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [Route("SubscribeNotification")]
         public async Task<ActionResult> SubscribeNotification([FromForm] string endpoint, [FromForm] string p256dh, [FromForm] string auth)
         {
             var user = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
@@ -1134,6 +1140,22 @@ namespace Bolo.Controllers
         public ActionResult Count([FromQuery] RecordStatus status)
         {
             return Ok(new { count = _context.Members.Count(t => t.Status == status) });
+        }
+
+        [HttpGet]
+        [Route("sendemailverification/{id}")]
+        public async Task<ActionResult<Tuple<bool, string>>> SendEmailVerification(Guid id)
+        {
+            var m = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == id);
+            if (m == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                var result = await emailWorker.SendVerificationEmailAsync(m.UserName, m.Email, $"https://www.yocail.com/home/emailverify/{m.PublicID}");
+                return Ok(result);
+            }
         }
 
         private bool MemberExists(int id)

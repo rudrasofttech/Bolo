@@ -156,6 +156,8 @@ namespace Bolo.Models
         public string EmptyFields { get; set; } = string.Empty;
         public DateTime LastPulse { get; set; }
         public RecordStatus Status { get; set; }
+        public bool IsEmailVerified { get; set; }
+
         public MemberDTO()
         {
             ID = Guid.Empty;
@@ -189,6 +191,7 @@ namespace Bolo.Models
             Email = m.Email;
             SecurityQuestion = m.SecurityQuestion;
             Status = m.Status;
+            IsEmailVerified= m.IsEmailVerified;
         }
     }
 
@@ -240,7 +243,6 @@ namespace Bolo.Models
         [Required]
         public IFormFile Video { get; set; }
     }
-
 
     public class PostPhotoDTO
     {
@@ -470,12 +472,12 @@ namespace Bolo.Models
             }
             else if (n.Type == MemberNotificationType.PostComment)
             {
-                Title = string.Format("{0} commented on your post.", string.IsNullOrEmpty(n.Source.Name) ? n.Source.UserName : n.Source.Name);
+                Title = string.Format("{0} commented on your post.", string.IsNullOrEmpty(n.Target.Name) ? n.Target.UserName : n.Target.Name);
                 URL = $"post/{n.Post.PublicID}?c={n.Comment.ID}";
             }
             else if (n.Type == MemberNotificationType.PostReaction)
             {
-                Title = string.Format("{0} reacted to your post.", string.IsNullOrEmpty(n.Source.Name) ? n.Source.UserName : n.Source.Name);
+                Title = string.Format("{0} reacted to your post.", string.IsNullOrEmpty(n.Target.Name) ? n.Target.UserName : n.Target.Name);
                 URL = $"post/{n.Post.PublicID}";
             }else if(n.Type == MemberNotificationType.FollowRequest)
             {
@@ -488,5 +490,12 @@ namespace Bolo.Models
                 URL = $"post/{n.Post.PublicID}";
             }
         }
+    }
+
+    public class BrowserPushNotifyDTO
+    {
+        public string Text { get; set; }
+        public string Photo { get; set; }
+        public string URL { get; set; }
     }
 }

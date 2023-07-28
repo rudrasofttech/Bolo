@@ -96,7 +96,7 @@ namespace Bolo.Admin.Models
         public RecordStatus Status { get; set; }
         public int ProfileCompletePercent { get; set; }
         public string EmptyFields { get; set; } = string.Empty;
-
+        public bool IsEmailVerified { get; set; }
         public DateTime LastPulse { get; set; }
         public MemberDTO()
         {

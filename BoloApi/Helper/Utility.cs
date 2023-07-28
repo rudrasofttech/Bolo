@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MailKit.Net.Smtp;
-using MimeKit;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Diagnostics;
@@ -88,48 +86,6 @@ namespace Bolo.Helper
                 // Close and clean up the StreamReader sr.Close();
             }
             return result;
-        }
-    }
-
-    public class EmailUtility
-    {
-        private readonly IConfiguration _config;
-        public EmailUtility(IConfiguration config)
-        {
-            _config = config;
-        }
-
-        public void SendEmail(string toemail, string toname, string fromemail, string fromname, string Subject, string Body)
-        {
-            try
-            {
-                MimeMessage message = new MimeMessage();
-
-                MailboxAddress from = new MailboxAddress(fromname, fromemail);
-                message.From.Add(from);
-
-                MailboxAddress to = new MailboxAddress(toname, toemail);
-                message.To.Add(to);
-                message.ReplyTo.Add(from);
-                message.Subject = Subject;
-                BodyBuilder bodyBuilder = new BodyBuilder
-                {
-                    HtmlBody = Body,
-                    TextBody = Body
-                };
-                //bodyBuilder.Attachments.Add(env.WebRootPath + "\\file.png");
-                message.Body = bodyBuilder.ToMessageBody();
-                using SmtpClient client = new SmtpClient();
-                client.Connect(_config["EmailSetting:Smtp:Host"], Int32.Parse(_config["EmailSetting:Smtp:Port"]), true);
-                client.Authenticate(_config["EmailSetting:Smtp:Username"], _config["EmailSetting:Smtp:Password"]);
-                client.Send(message);
-                client.Disconnect(true);
-                client.Dispose();
-            }
-            catch (Exception)
-            {
-                
-            }
         }
     }
 }

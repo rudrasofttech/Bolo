@@ -29,7 +29,7 @@ namespace BoloWeb.Controllers
             _context = context;
             _config = config;
             _hubContext = hubContext;
-            nhelper = new NotificationHelper(context, hubContext);
+            nhelper = new NotificationHelper(context, hubContext, config);
         }
 
         [HttpGet]

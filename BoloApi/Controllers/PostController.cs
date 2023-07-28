@@ -37,7 +37,7 @@ namespace Bolo.Controllers
             _context = context;
             _config = config;
             _webHostEnvironment = webHostEnvironment;
-            nhelper = new NotificationHelper(context, uhub);
+            nhelper = new NotificationHelper(context, uhub, config);
         }
 
         [HttpGet("{id}")]

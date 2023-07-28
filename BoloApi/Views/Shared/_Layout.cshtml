@@ -73,13 +73,14 @@
                                     }
                                 </script>
                             </a>
-
                             <ul class="dropdown-menu">
                                 <li>
                                     <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal"><i class="bi bi-bell"></i> Notifications <span class="notificationcount badge rounded-pill bg-danger"></span></a>
+                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal">
+                                        <i class="bi bi-bell"></i> Notifications 
+                                        <span class="notificationcount badge rounded-pill bg-danger"></span></a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i class="bi bi-sign-stop"></i> Ignored</a>
@@ -134,7 +135,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="SearchModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -178,15 +178,6 @@
         if (localStorage.getItem("token") !== null) {
             sgrkr.showNotificationPermissionModal();
         }
-
-        document.getElementById('NotificationModal').addEventListener('shown.bs.modal', event => {
-            console.log("shown.bs.modal");
-            //sgrkr.setSeenAllNotification();
-        });
-        $(document).ready(function () {
-            //sgrkr.getNotifications();
-
-        });
     </script>
     <environment include="Development">
         <script type="text/babel" src="~/js/Components.js"></script>
@@ -232,8 +223,6 @@
                 navigator.serviceWorker.register('@Url.Content("~/serviceWorker.js")');
             });
         }
-
-
     </script>
 </body>
 </html>

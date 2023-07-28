@@ -6,11 +6,11 @@ using Bolo.Data;
 using Bolo.Helper;
 using Bolo.Hubs;
 using Bolo.Models;
-using MailKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,10 +24,10 @@ namespace Bolo.Controllers
         private readonly BoloContext _context;
         private readonly NotificationHelper nhelper;
 
-        public FollowController(BoloContext context, IHubContext<UniversalHub> uhub)
+        public FollowController(BoloContext context, IHubContext<UniversalHub> uhub, IConfiguration config)
         {
             _context = context;
-            nhelper = new NotificationHelper(context, uhub);
+            nhelper = new NotificationHelper(context, uhub, config);
         }
 
         [HttpGet]
