@@ -460,11 +460,15 @@ namespace Bolo.Models
             if (n.Source != null)
                 Source = new MemberDTO(n.Source);
 
-            if (n.Type == MemberNotificationType.NewPost || n.Type == MemberNotificationType.PostReaction
+            if (n.Type == MemberNotificationType.PostReaction
                 || n.Type == MemberNotificationType.PostComment || n.Type == MemberNotificationType.FollowRequest || n.Type == MemberNotificationType.SharePost)
                 Pic = string.IsNullOrEmpty(n.Source.Pic) ? "images/nopic.jpg" : n.Source.Pic;
+
             if (n.Type == MemberNotificationType.SharePost || n.Type == MemberNotificationType.NewPost)
-                Pic2 = n.Post.Photos[0].Photo;
+            {
+                Pic = n.Post.Photos[0].Photo;
+                Pic2 = string.IsNullOrEmpty(n.Source.Pic) ? "images/nopic.jpg" : n.Source.Pic;
+            }
             if (n.Type == MemberNotificationType.NewPost)
             {
                 Title = string.Format("New post by {0}", string.IsNullOrEmpty(n.Source.Name) ? n.Source.UserName : n.Source.Name);
@@ -497,5 +501,62 @@ namespace Bolo.Models
         public string Text { get; set; }
         public string Photo { get; set; }
         public string URL { get; set; }
+    }
+
+    public class IP2LocationResult
+    {
+        private string _response = string.Empty;
+        public string Response
+        {
+            get
+            {
+                return _response;
+            }
+            set
+            {
+                _response = value.Trim("-".ToCharArray());
+            }
+        }
+
+        private string _countrycode = string.Empty;
+        public string Country_Code
+        {
+            get { return _countrycode; }
+            set
+            {
+                _countrycode = value.Trim("-".ToCharArray());
+            }
+        }
+
+        private string _countryname = string.Empty;
+        public string Country_Name
+        {
+            get { return _countryname; }
+            set
+            {
+                _countryname = value.Trim("-".ToCharArray());
+            }
+        }
+
+        private string _regionname = string.Empty;
+        public string Region_Name
+        {
+            get { return _regionname; }
+            set
+            {
+                _regionname = value.Trim("-".ToCharArray());
+            }
+        }
+
+        private string _cityname = string.Empty;
+        public string City_Name
+        {
+            get { return _cityname; }
+            set
+            {
+                _cityname = value.Trim("-".ToCharArray());
+            }
+        }
+        public int Credits_Consumed { get; set; }
     }
 }

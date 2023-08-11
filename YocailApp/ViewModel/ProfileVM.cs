@@ -47,5 +47,8 @@ namespace YocailApp.ViewModel
             }
         }
         public string ThoughtStatus { get { return CurrentMember.ThoughtStatus; } }
+
+        public string Bio { get { return CurrentMember.Bio; } }
+        public bool BioVisible { get { return !string.IsNullOrEmpty(CurrentMember.Bio); } }
     }
 }

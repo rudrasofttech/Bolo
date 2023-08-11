@@ -510,7 +510,7 @@ class Home extends React.Component {
             </div>
             <div className="col-lg-4">
                 <AskPushNotification />
-                <div className="p-2 rightsidebar">
+                <div className="p-2" style={{ top:"63px", position: "-webkit-sticky", position:"sticky"} }>
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -555,7 +555,7 @@ class Explore extends React.Component {
             </div>
             <div className="col-lg-4">
                 <AskPushNotification />
-                <div className="p-2 rightsidebar">
+                <div className="p-2 rightsidebar" style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -1708,7 +1708,7 @@ class MemberPostList extends React.Component {
                     }} /></div>
             </div>;
         }
-        var html = (this.state.loading === false) ? this.renderPosts() : null;
+        var html = this.renderPosts(); //(this.state.loading === false) ? this.renderPosts() : null;
         var loadmore = null;
 
         let loading = null;
@@ -1719,9 +1719,7 @@ class MemberPostList extends React.Component {
         }
         if (this.state.model !== null) {
             if ((this.state.model.current + 1) < this.state.model.totalPages) {
-                loadmore = <div className="text-center bg-white p-3">
-                    <button className="btn btn-light" onClick={() => { this.setState({ p: this.state.model.current + 1 }, () => { this.loadFeed(false); }) }}>Load More</button>
-                </div>;
+                loadmore = <div className="text-center"><button className="btn btn-light" onClick={() => { this.setState({ p: this.state.model.current + 1 }, () => { this.loadFeed(false); }) }}>Load More</button></div>;
             }
         }
         var viewmodetabhtml = null;
@@ -1896,7 +1894,7 @@ class MemberSmallList extends React.Component {
             {this.state.loading ? <p>Loading Data...</p> : null}
         </div>;
     }
-}
+} 
 
 class MemberSmallRow extends React.Component {
     constructor(props) {
@@ -2770,7 +2768,7 @@ class Profile extends React.Component {
             me = <div>
                 <div className="row">
                     <div className="col-lg-5">
-                        <div className="rightsidebar">
+                        <div style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
                             <div className="text-center mb-2 p-2 border bg-white rounded-3">
                                 {pic}
                                 <div className="row">
@@ -2804,12 +2802,10 @@ class Profile extends React.Component {
                             <SendInvite />
                             <SuggestedAccounts />
                         </div>
-
                     </div>
                     <div className="col-lg-7">
                         <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
                     </div>
-
                 </div>
                 {followlist}
             </div>;
@@ -4562,8 +4558,8 @@ class NotificationList extends React.Component {
         let items = [];
         for (let k in this.state.list) {
             let n = this.state.list[k];
-            items.push(<div className='row g-1 mb-2 pointer' key={k}>
-                <div className='col-1'>
+            items.push(<div className='row g-1 mb-2 border-bottom pointer' key={k}>
+                <div className='col-2'>
                     <img src={this.getURL(n.pic)} className="img-fluid rounded-1" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
                 </div>
                 <div className='col'>
@@ -4571,7 +4567,7 @@ class NotificationList extends React.Component {
                     {n.type === 4 ? <span className="text-primary fw-bold fs-12">Follow Request</span> : null}
                     <span className="fs-12">{dayjs(n.createDate).format("DD-MMM-YYYY")}</span>
                 </div>
-                {n.pic2 !== "" ? <div className='col-1'>
+                {n.pic2 !== "" ? <div className='col-2'>
                     <img src={this.getURL(n.pic2)} className="img-fluid rounded-1" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
                 </div> : null}
             </div>);
@@ -4592,11 +4588,12 @@ class AskPushNotification extends React.Component {
             loading: false, loggedin: loggedin, bsstyle: '', message: '',
             myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
-            permission: "", showModal: true, mode: "none"
+            permission: "", showModal: false, mode: "none"
         };
     }
     componentDidMount() {
         this.registerServiceWorker();
+
     }
 
     registerServiceWorker = () => {
@@ -4609,7 +4606,11 @@ class AskPushNotification extends React.Component {
                     } else if (Notification.permission === "blocked" || Notification.permission === "denied") {
                         this.setState({ mode: "blocked" });
                     } else {
-                        this.setState({ mode: "ask" });
+                        this.setState({ mode: "ask" }, () => {
+                            setTimeout(() => {
+                                this.setState({ showModal: true });
+                            }, 10000);
+                        });
                     }
                 });
         } else {
@@ -4677,7 +4678,7 @@ class AskPushNotification extends React.Component {
 
     renderModal = (message) => {
         return <React.Fragment><div className="modal d-block" tabIndex="-1">
-            <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h1 className="modal-title fs-5">Get Yocail Notifications</h1>
@@ -6534,9 +6535,9 @@ class SendInvite extends React.Component {
         }
         this.textarea = null;
         let myself = localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself"));
-        let inviteText = "Check this new website I found, http://yocail.com\r\n\r\nYou can post your pictures here, connect with people.";
+        let inviteText = "Check this new website I found, https://yocail.com\r\n\r\nYou can post your pictures here, connect with people.";
         if (myself !== null)
-            inviteText = inviteText + "\r\n\r\nMy profile on Yocail is http://yocail.com/profile?un=" + myself.userName;
+            inviteText = inviteText + "\r\n\r\nMy profile on Yocail is https://yocail.com/profile?un=" + myself.userName;
         this.state = {
             loading: false, loggedin: loggedin, success: '', error: '',
             token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),

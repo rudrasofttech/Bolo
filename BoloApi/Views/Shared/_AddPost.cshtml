@@ -1,0 +1,303 @@
+﻿@model Bolo.Models.PostPhotoDTO
+@{
+    Guid temp = Guid.NewGuid();
+}
+<link href="~/css/slides.css" rel="stylesheet" />
+<style>
+    #photocontainer {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        cursor: pointer;
+    }
+
+        #photocontainer .photobox {
+        }
+
+    .wizard .step {
+        display: none;
+    }
+
+        .wizard .step.active {
+            display: block;
+        }
+</style>
+<div class="row g-0">
+    <div class="col ">
+        <form id="photoform" onsubmit="return savePhoto();">
+            <div class="wizard mt-1" id="wizard">
+                <div class="step active bg-white pb-3" id="step1">
+                    <div class="container-xl py-1 maxwidth">
+                        <div class="row my-2">
+                            <div class="col">
+                                <button type="button" id="uploadbtn" class="btn btn-primary d-none px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
+                                <button id="changesizebtn" type="button" class="btn btn-primary hasphotos  px-3 me-2 d-none" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
+                                @*<input type="range" value="0" min="-10" max="10" onchange="changeScale();" id="scalerange" class="form-range hasphotos py-2" style="max-width:150px;" disabled />*@
+                            </div>
+                            <div class="col text-end">
+                                <button type="button" style="width:105px" id="nextwizardstepbtn" class="btn btn-primary  d-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center my-5" id="initbtncont">
+                        <button class="btn btn-primary btn-lg" style="width:200px" type="button" onclick="if(photos.length === 0){ $('#uploadbtn')[0].click();}"><i class="bi bi-cloud-arrow-up  fs-1"></i></button>
+                        <p class="mt-3">
+                            Click to upload pictures. You can choose multiple pictures. <br />
+                            फोटो अपलोड करें, आप एक से अधिक फोटो अपलोड कर सकते है।
+                        </p>
+                    </div>
+                    <div id="photocontainer" class="text-center">
+                    </div>
+                    <div class="hasphotos d-none text-center">
+                        <button type="button" class="btn btn-light m-1" id="prevslide">Prev</button><button class="btn btn-light m-1" type="button" id="nextslide">Next</button>
+                    </div>
+                    <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
+                </div>
+                <div class="step" id="step2">
+                    <div class="container-xl bg-white mt-2 py-1">
+                        <div class="row my-2">
+                            <div class="col">
+                                <button type="button" class="btn btn-primary" style="width:105px" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
+                            </div>
+                            <div class="col text-end">
+                                <button type="submit" style="width:105px" class="btn btn-primary mx-2">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" bg-white pb-3">
+                        <div class="mb-3">
+                            <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000" onkeydown="adjustDescriptionTextareaHeight();"></textarea>
+                        </div>
+                        <div class="mb-3 ps-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="AcceptComment" class="form-check-input" type="checkbox" role="switch" id="acceptcommentchk" value="true" />
+                                <label class="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
+                            </div>
+                        </div>
+                        <div class="ps-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="AllowShare" class="form-check-input" type="checkbox" role="switch" id="allowsharechk" value="true" />
+                                <label class="form-check-label" for="allowsharechk">Allow Sharing of Post</label>
+                            </div>
+                        </div>
+                    </div>
+                    @for (int i = 0; i < Model.Photos.Count; i++)
+                    {
+                        <input name="Photos[@i]" id="@Html.Raw("photohdn" + i)" value="@Model.Photos[i]" type="hidden" />
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="~/libs/fabric.min.js"></script>
+<script src="~/libs/jquery-ui.min.js"></script>
+<script src="~/libs/swipe.js"></script>
+<script src="~/libs/slides.js"></script>
+<script>
+    var photos = [];
+    var filescount = 0;
+    class UserPhoto {
+        constructor(_index, _img, _adjustcanvassizetoimage) {
+            this.index = _index;
+            this.container = "#photocontainer";
+            this.canvas = null;
+            this.adjustcanvassizetoimage = _adjustcanvassizetoimage;
+            this.img = _img;
+            this.imgInst = null;
+            this.size = "contain"; //"contain" | "covers"
+        }
+
+        prepare() {
+            if (!this.adjustcanvassizetoimage) {
+                let width = $(this.container).width() <= 500 ? $(this.container).width() - 2 : 500;
+                let height = width;
+                //if (this.adjustcanvassizetoimage) {
+                //    width = this.img.width; height = this.img.height;
+                //}
+                $(this.container).height(height + "px");
+                $(this.container).append('<div class="rst-slide photobox border"><canvas id="canvas' + this.index + '"></canvas></div>');
+                this.canvas = new fabric.Canvas('canvas' + this.index);
+                this.canvas.backgroundColor = "white";
+                this.canvas.setDimensions({ width: width, height: height });
+                this.imgInst = new fabric.Image(this.img, {
+                    angle: 0, padding: 0, cornersize: 0
+                });
+
+                this.changeImageSize();
+                this.addImage();
+            } else {
+                $(this.container + " .targetimg").removeClass("d-none");
+            }
+        }
+
+        addImage() {
+            this.imgInst.hasControls = false;
+            if (this.adjustcanvassizetoimage) {
+                this.imgInst.lockMovementX = true;
+                this.imgInst.lockMovementY = true;
+            }
+
+            this.canvas.centerObject(this.imgInst);
+            this.canvas.add(this.imgInst);
+        }
+
+        changeImageSize() {
+            //if (this.img.width > this.canvas.width || this.img.height > this.canvas.height)
+            {
+                if (this.size === "contain") {
+                    $("#changesizebtn").html('<i class="bi bi-arrows-angle-expand"></i>');
+
+                    if (this.img.width >= this.img.height) {
+                        this.imgInst.scaleToWidth(this.canvas.width);
+                    } else if (this.img.height > this.img.width) {
+                        this.imgInst.scaleToHeight(this.canvas.height);
+                    }
+                } else if (this.size === "cover") {
+                    $("#changesizebtn").html('<i class="bi bi-arrows-angle-contract"></i>');
+                    if (this.img.width >= this.img.height) {
+                        this.imgInst.scaleToHeight(this.canvas.height);
+                    } else if (this.img.height > this.img.width) {
+                        this.imgInst.scaleToWidth(this.canvas.width);
+                    }
+                }
+
+                this.canvas.remove(this.imgInst);
+                this.addImage();
+            }
+        }
+
+        changeScale(s) {
+            console.log(s);
+            this.imgInst.scaleY = s;
+            this.imgInst.scaleX = s;
+            this.canvas.remove(this.imgInst);
+            this.addImage();
+        }
+
+        extractImage() {
+            if (!this.adjustcanvassizetoimage) {
+                $("#photohdn" + this.index).val(this.canvas.toDataURL("image/png"));
+            } else {
+                $("#photohdn" + this.index).val($(this.container + " .targetimg").attr("src"));
+            }
+        }
+    }
+
+    function changeImageSize() {
+        for (var k in photos) {
+            photos[k].size = photos[k].size === "contain" ? "cover" : "contain";
+            photos[k].changeImageSize();
+        }
+    }
+
+    function changeScale() {
+        for (var k in photos) {
+            photos[k].changeScale(parseInt($("#scalerange").val(), 10));
+        }
+
+    }
+
+    function processFiles(e) {
+        $('#initbtncont').addClass('d-none');
+        $("#photocontainer").html("");
+        photos = [];
+        if (photos.length >= parseInt("@Model.Photos.Count", 10))
+            return;
+        if (e.target.files.length > 0) {
+            $("#photocontainer").removeClass("d-none");
+        }
+        if (e.target.files.length > 1) {
+            $("#photocontainer").addClass("rst-slides");
+        }
+        if (e.target.files.length == 1) {
+            $("#photocontainer").css("max-height", "auto");
+        }
+        filescount = e.target.files.length;
+
+        for (var k = 0; k < e.target.files.length; k++) {
+            var fileReader = new FileReader();
+
+            if (e.target.files.length > 1) {
+                fileReader.onload = function (e) {
+                    $("#photocontainer").append("<img class='targetimg d-none' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, false)' />");
+                }
+            } else {
+                fileReader.onload = function (e) {
+                    $("#photocontainer").append("<img class='targetimg img-fluid ' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, true)' />");
+                }
+            }
+            fileReader.readAsDataURL(e.target.files[k]);
+        }
+    }
+
+    function loadImage(e, adjustcanvastoimagedimension) {
+        if (photos.length < parseInt("@Model.Photos.Count", 10)) {
+            var index = $(e.target).attr("data-index");
+            var up = new UserPhoto(index, document.getElementById("image" + index), adjustcanvastoimagedimension);
+            up.prepare();
+            photos.push(up);
+            if (photos.length == filescount) {
+                $("#nextwizardstepbtn").removeClass("d-none")
+                if (filescount > 1) {
+                    $(".hasphotos").removeClass("d-none");
+                }
+                $("#photocontainer").slides({
+                    Circular: false, AutoPlay: false,
+                    NextHandle: $("#nextslide"),
+                    PrevHandle: $("#prevslide"),
+                    NextShowAnimate: {
+                        Effect: 'fade',
+                        Props: { direction: 'left' },
+                        Interval: 0
+                    },
+                    NextHideAnimate: {
+                        Effect: 'slide',
+                        Props: { direction: 'right' },
+                        Interval: 0
+                    },
+                    PrevHideAnimate: {
+                        Effect: 'slide',
+                        Props: { direction: 'left' },
+                        Interval: 0
+                    },
+                    PrevShowAnimate: {
+                        Effect: 'fade',
+                        Props: { direction: 'right' },
+                        Interval: 0
+                    }
+                });
+            }
+        }
+    }
+
+    function savePhoto() {
+        if (photos.length <= 0) {
+            return false;
+        }
+        for (var k in photos) {
+            photos[k].extractImage();
+        }
+        var formData = new FormData(document.getElementById("photoform"));
+        $.ajax({
+            type: "POST",
+            url: "@Url.Content("~/api/Post")",
+            data: $("#photoform").serialize(),
+            dataType: "json",
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
+        }).done(function (data) {
+            location.href = "@Url.Content("~/")"
+        });
+        return false;
+    }
+
+    function adjustDescriptionTextareaHeight() {
+        let val = $("#photodescriptiontxt").val();
+        let newlines = val.split("\n").length;
+        if (newlines < 7) {
+            $("#photodescriptiontxt").attr("rows", "7");
+        } else {
+            $("#photodescriptiontxt").attr("rows", newlines);
+        }
+    }
+</script>

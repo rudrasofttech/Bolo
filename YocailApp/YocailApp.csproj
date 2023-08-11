@@ -49,6 +49,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Controls\PostCarouselCV.xaml.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Remove="Controls\PostCarouselCV.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Fonts\Inter-Bold.ttf" />
 	  <None Remove="Resources\Fonts\Inter-ExtraBold.ttf" />
 	  <None Remove="Resources\Fonts\Inter-ExtraLight.ttf" />
@@ -102,9 +110,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\ExpandableLabel.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Controls\PostCarouselCV.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\PostCV.xaml">

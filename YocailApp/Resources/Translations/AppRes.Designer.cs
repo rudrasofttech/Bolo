@@ -124,11 +124,29 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Less....
+        /// </summary>
+        internal static string LessTxt {
+            get {
+                return ResourceManager.GetString("LessTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Login.
         /// </summary>
         internal static string LoginBtn {
             get {
                 return ResourceManager.GetString("LoginBtn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More....
+        /// </summary>
+        internal static string MoreTxt {
+            get {
+                return ResourceManager.GetString("MoreTxt", resourceCulture);
             }
         }
         

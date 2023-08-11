@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
+             xmlns:controls="clr-namespace:YocailApp.Controls"
              x:Class="YocailApp.ProfilePage" Title="Profile">
     <ContentPage.BindingContext>
         <local:ProfileVM />
@@ -13,12 +14,16 @@
                 <Image Source="{Binding ProfilePic}" Aspect="AspectFit" WidthRequest="100" HeightRequest="100" VerticalOptions="Center" HorizontalOptions="Center" />
             </Frame>
             <StackLayout HeightRequest="5"></StackLayout>
-            <Label Text="{Binding UserName}" HorizontalOptions="Center" FontFamily="InterRegular" FontSize="19" ></Label>
+            <Label Text="{Binding UserName}" HorizontalOptions="Center" FontFamily="Arial" FontSize="19" ></Label>
             <StackLayout HeightRequest="5"></StackLayout>
-            <Label Text="{Binding Name}" IsVisible="{Binding NameVisible}" FontFamily="InterRegular" FontSize="19" FontAttributes="Bold" 
+            <Label Text="{Binding Name}" IsVisible="{Binding NameVisible}" FontFamily="Arial" FontSize="19" FontAttributes="Bold" 
                    HorizontalOptions="Center"></Label>
             <StackLayout HeightRequest="8"></StackLayout>
-            <Label Text="{Binding ThoughtStatus}" IsVisible="{Binding ThoughtStatusVisible}" FontFamily="InterRegular" FontSize="17" HorizontalOptions="Center" ></Label>
+            <Label Text="{Binding ThoughtStatus}" IsVisible="{Binding ThoughtStatusVisible}" FontFamily="Arial" FontSize="17" HorizontalOptions="Center" ></Label>
+            <StackLayout HeightRequest="5"></StackLayout>
+            <StackLayout Padding="10">
+                <controls:ExpandableLabel x:Name="BioLabel" Text="{Binding Bio}" IsVisible="{Binding BioVisible}" />
+            </StackLayout>
             <StackLayout HeightRequest="5"></StackLayout>
         </VerticalStackLayout>
     </ScrollView>

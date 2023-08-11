@@ -138,8 +138,14 @@
   <data name="GenericServerErrorTxt" xml:space="preserve">
     <value>Unable to process request.</value>
   </data>
+  <data name="LessTxt" xml:space="preserve">
+    <value>Less...</value>
+  </data>
   <data name="LoginBtn" xml:space="preserve">
     <value>Login</value>
+  </data>
+  <data name="MoreTxt" xml:space="preserve">
+    <value>More...</value>
   </data>
   <data name="NoInternetMsg" xml:space="preserve">
     <value>No Internet Conectivity.</value>

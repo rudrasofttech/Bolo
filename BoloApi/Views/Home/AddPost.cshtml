@@ -8,23 +8,11 @@
     #photocontainer {
         width: 100%;
         max-width: 500px;
-        /*max-height: 600px;*/
-                                margin: 0 auto;
-        /*background-image: url(images/upload-icon.png);
-                                            background-position: center;
-                                            background-size: contain;
-                                            background-repeat: no-repeat;*/
-        /*overflow-y: hidden;
-                            overflow-x: auto;*/
-        /*display: flex;
-                            flex-direction: row;
-                            justify-content: flex-start;
-                            position: relative;*/
+        margin: 0 auto;
         cursor: pointer;
     }
 
         #photocontainer .photobox {
-            /* display: inline-block;*/
         }
 
     .wizard .step {
@@ -264,7 +252,7 @@
                 photos.push(up);
                 if (photos.length == filescount) {
                     $("#nextwizardstepbtn").removeClass("d-none")
-                    if(filescount > 1){
+                    if (filescount > 1) {
                         $(".hasphotos").removeClass("d-none");
                     }
                     $("#photocontainer").slides({

@@ -40,7 +40,7 @@
     @RenderSection("head", false)
 </head>
 <body class="bg-light">
-    <div class="container-lg p-0 sticky-top" style="height:61px">
+    <div class="container-lg sticky-top" style="height:61px">
         <table cellpadding="5" cellspacing="0" class="bg-white w-100 border rounded-bottom border-top-0">
             <tbody>
                 <tr>
@@ -51,15 +51,21 @@
                         <a href="javascript:void(0)" class="text-dark loggedmenuitem d-none mx-2 fs-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
                     </td>
                     <td align="center" valign="middle">
-                        <a class="text-dark mx-2 fs-4 loggedmenuitem d-none" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-cup-hot"></i></a>
+                        <a class="text-dark mx-2 fs-4 loggedmenuitem d-none" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-globe-central-south-asia"></i></a>
                     </td>
                     <td align="center" valign="middle">
-                        <a class="text-dark loggedmenuitem d-none mx-2 fs-4" href="@Url.Content("~/addpost")" title="Add Post"><i class="bi bi-journal-plus"></i></a>
+                        <a class="text-dark loggedmenuitem d-none mx-2 fs-4" data-bs-toggle="modal" data-bs-target="#addPostModal" title="Add Post"><i class="bi bi-file-plus"></i></a>
                     </td>
-
+                    <td align="center" valign="middle">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#NotificationModal" class="btn btn-link text-dark position-relative fs-4 loggedmenuitem d-none">
+                            <i class="bi bi-bell"></i>
+                            <span style="font-size:0.8rem; top:10px;" class="notificationcount d-none position-absolute start-100 translate-middle badge rounded-pill bg-danger">
+                            </span>
+                        </button>
+                    </td>
                     <td align="center" valign="middle">
                         <div class="dropdown loggedmenuitem d-none">
-                            <a class="btn btn-link text-dark fs-4 text-decoration-none notificationcountcnt position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
+                            <a class="btn btn-link text-dark fs-4 text-decoration-none position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
                                 <script>
                                     try {
                                         var member = JSON.parse(localStorage.getItem("myself"));
@@ -76,11 +82,6 @@
                             <ul class="dropdown-menu">
                                 <li>
                                     <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#NotificationModal">
-                                        <i class="bi bi-bell"></i> Notifications 
-                                        <span class="notificationcount badge rounded-pill bg-danger"></span></a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i class="bi bi-sign-stop"></i> Ignored</a>
@@ -111,7 +112,7 @@
         </div>
     </div>
     <div class="modal fade" id="NotificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title" id="notificationModalLabel"><i class="bi bi-bell"></i> Notifications</h3>
@@ -124,7 +125,7 @@
         </div>
     </div>
     <div class="modal fade" id="ignoredMembersModal" tabindex="-1" aria-labelledby="ignoredMembersModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="ignoredMembersModalLabel">Ignored Members</h1>
@@ -135,8 +136,23 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="addPostModal" tabindex="-1" aria-labelledby="addPostModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-lg-down modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addPostModalLabel">Add Post</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @{
+                        await Html.RenderPartialAsync("_AddPost", new PostPhotoDTO());
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="SearchModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title" id="notificationModalLabel"><i class="bi bi-search"></i> Search</h3>
@@ -209,6 +225,15 @@
         </script>
     </environment>
     <script>
+        const addPostModal = document.getElementById('addPostModal')
+        addPostModal.addEventListener('hidden.bs.modal', event => {
+            $("#photocontainer").html("");
+            photos = [];
+            filescount = 0;
+            $("#nextwizardstepbtn,.hasphotos").addClass("d-none");
+            $('#initbtncont').removeClass('d-none');
+            $('#wizard .step').addClass('active'); $('#wizard #step2').removeClass('active');
+        })
         $(document).ready(function () {
             if (window.localStorage.getItem("token") !== null) {
                 $(".loggedmenuitem").removeClass("d-none");
@@ -216,7 +241,6 @@
                 $(".loggedmenuitem").addClass("d-none");
             }
         });
-        // Check that service workers are supported
         if ('serviceWorker' in navigator) {
             // Use the window load event to keep the page load performant
             window.addEventListener('load', () => {

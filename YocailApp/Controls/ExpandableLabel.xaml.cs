@@ -1,16 +1,39 @@
+using CommunityToolkit.Maui.Views;
+using System.ComponentModel;
 using System.Windows.Input;
+using YocailApp.Resources.Translations;
 
 namespace YocailApp.Controls;
 
 public partial class ExpandableLabel : ContentView
 {
+    public static readonly BindableProperty TextProperty =
+  BindableProperty.Create("Text", typeof(string), typeof(ExpandableLabel), string.Empty);
     public ExpandableLabel()
     {
         InitializeComponent();
         ShowFullCommand = new Command(() =>
         {
-            ShowFull = true;
+            
         });
+    }
+
+    public string Text
+    {
+        get => GetValue(TextProperty).ToString();
+        set => SetValue(TextProperty, value);
+    }
+
+    public string ExpandButtonText
+    {
+        get
+        {
+            if (ShowingFull)
+                return AppRes.LessTxt;
+            else
+                return AppRes.MoreTxt;
+        }
+        set { }
     }
 
     public ICommand ShowFullCommand { get; set; }
@@ -20,11 +43,22 @@ public partial class ExpandableLabel : ContentView
     {
         get
         {
-            return (BindingContext as string).Length > DefaultMaxLength;
+            return Text.Length > DefaultMaxLength;
         }
     }
-
-    public bool ShowFull { get; set; }
+    private bool _showingFull;
+    public bool ShowingFull
+    {
+        get { return _showingFull; }
+        set
+        {
+            if (_showingFull != value)
+            {
+                _showingFull = value;
+                LoadLabel();
+            }
+        }
+    }
 
     protected override void OnBindingContextChanged()
     {
@@ -34,31 +68,44 @@ public partial class ExpandableLabel : ContentView
     }
     public void LoadLabel()
     {
-        string describe = BindingContext as string;
-        var lines = describe.Split('\n');
-        var fs = new FormattedString();
-        foreach (var line in lines)
+        if (ShowingFull)
         {
-            var arr = line.Split(' ');
-            foreach (var s in arr)
+            string describe = Text;
+            var lines = describe.Split('\n');
+            var fs = new FormattedString();
+            foreach (var line in lines)
             {
-                if (s.StartsWith("#"))
+                var arr = line.Split(' ');
+                foreach (var s in arr)
                 {
-                    var lspan = new Span()
+                    if (s.StartsWith("#"))
                     {
-                        TextDecorations = TextDecorations.Underline,
-                        Text = s
-                    };
-                    lspan.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => { }) });
-                    fs.Spans.Add(lspan);
-                    fs.Spans.Add(new Span() { Text = " " });
+                        var lspan = new Span()
+                        {
+                            TextDecorations = TextDecorations.Underline,
+                            Text = s
+                        };
+                        lspan.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => { }) });
+                        fs.Spans.Add(lspan);
+                        fs.Spans.Add(new Span() { Text = " " });
+                    }
+                    else
+                        fs.Spans.Add(new Span() { Text = s + " " });
                 }
-                else
-                    fs.Spans.Add(new Span() { Text = s + " " });
+                fs.Spans.Add(new Span() { Text = "\n" });
             }
-            fs.Spans.Add(new Span() { Text = "\n" });
+            DescribeLabel.FormattedText = fs;
         }
-        DescribeLabel.FormattedText = fs;
+        else
+        {
+            DescribeLabel.Text = Text.Length > 50 ? $"{Text[..50]} ..." : Text;
+            
+        }
 
+    }
+
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        ShowingFull = !ShowingFull;
     }
 }

@@ -869,7 +869,13 @@ namespace Bolo.Controllers
             //{
             //    return BadRequest(new { error = "Phone already exist, please use another phone." });
             //}
-
+            IP2LocationResult locData = new IP2LocationResult();
+            try
+            {
+                IPLocationWorker iplWorker = new IPLocationWorker(_config);
+                locData = await iplWorker.GetLocationAsync(Request.HttpContext.Connection.RemoteIpAddress.ToString());
+            }
+            catch { }
             Member m = new Member()
             {
                 Status = RecordStatus.Active,
@@ -882,12 +888,13 @@ namespace Bolo.Controllers
                 Activity = ActivityStatus.Online,
                 Bio = string.Empty,
                 UserName = model.UserName,
-                City = string.Empty,
+                City = locData.City_Name,
                 LastPulse = DateTime.UtcNow,
                 Pic = string.Empty,
                 ThoughtStatus = string.Empty,
                 Visibility = MemberProfileVisibility.Public,
-                State = string.Empty,
+                State = locData.Region_Name,
+                Country= locData.Country_Name,
                 SecurityAnswer = EncryptionHelper.CalculateSHA256(model.SecurityAnswer.ToLower().Trim()),
                 SecurityQuestion = model.SecurityQuestion,
                 IsEmailVerified = false
