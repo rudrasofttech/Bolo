@@ -286,7 +286,7 @@ class App extends React.Component {
                 </td>);
             }
 
-            return <div className="container-xl px-0 fixed-top bg-light maxwidth border border-top-0">
+            return <div className="container-xl px-0 fixed-top bg-light maxwidth border-top-0">
                 <table cellPadding="5" cellSpacing="0" width="100%" className="my-1">
                     <tbody>
                         <tr>
@@ -492,16 +492,13 @@ class Home extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row">
-                <div className="col-md-6 offset-md-3">
-                    <RegisterForm beginWithRegister={false} onLogin={() => {
-                        this.setState({
-                            loggedin: localStorage.getItem("token") === null ? false : true,
-                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                        })
-                    }} /></div>
-            </div>;
+            return <RegisterForm beginWithRegister={false} onLogin={() => {
+                this.setState({
+                    loggedin: localStorage.getItem("token") === null ? false : true,
+                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                })
+            }} />;
         }
 
         return <div className="row">
@@ -510,7 +507,7 @@ class Home extends React.Component {
             </div>
             <div className="col-lg-4">
                 <AskPushNotification />
-                <div className="p-2" style={{ top:"63px", position: "-webkit-sticky", position:"sticky"} }>
+                <div style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -537,16 +534,13 @@ class Explore extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row">
-                <div className="col-md-6 offset-md-3">
-                    <RegisterForm beginWithRegister={false} onLogin={() => {
-                        this.setState({
-                            loggedin: localStorage.getItem("token") === null ? false : true,
-                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                        })
-                    }} /></div>
-            </div>;
+            return <RegisterForm beginWithRegister={false} onLogin={() => {
+                this.setState({
+                    loggedin: localStorage.getItem("token") === null ? false : true,
+                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                })
+            }} />;
         }
 
         return <div className="row">
@@ -555,7 +549,7 @@ class Explore extends React.Component {
             </div>
             <div className="col-lg-4">
                 <AskPushNotification />
-                <div className="p-2 rightsidebar" style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
+                <div style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
@@ -1101,7 +1095,7 @@ class MemberPost extends React.Component {
                 </div>
             </div>
         }
-        return <div id={this.state.post.id} className="mb-2 border rounded-3 bg-white p-2 p-md-3 memberpost">
+        return <div id={this.state.post.id} className="mb-2  rounded-3 bg-white p-2 p-md-3 memberpost">
             {owner}
             {postshtml}
             <div className="text-center">
@@ -1446,37 +1440,21 @@ class MemberComment extends React.Component {
             var p = this.state.comments.commentList[k];
             var ownedCommentMenu = null;
             if (this.state.myself.id === p.postedBy.id) {
-                ownedCommentMenu = <React.Fragment>
-                    <button data-id={p.id} onClick={(e) => { this.setState({ commentiddel: parseInt(e.target.getAttribute("data-id"), 10) }) }} className="btn btn-light" type="button"><i data-id={p.id} className="bi bi-trash"></i></button>
-                </React.Fragment>;
+                ownedCommentMenu = <button data-id={p.id} onClick={(e) => { this.setState({ commentiddel: parseInt(e.target.getAttribute("data-id"), 10) }) }} className="btn btn-link text-dark btn-sm mx-2" type="button"><i data-id={p.id} className="bi bi-trash"></i></button>;
             }
-            items.push(<table key={p.id} cellPadding="0" cellSpacing="0" width="100%" border="0">
-                <tbody>
-                    <tr>
-                        <td width="35" className="p-1" valign="middle">
-                            <MemberPicSmall member={p.postedBy} />
-                        </td>
-                        <td valign="middle" className="px-2">
-                            <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName} className="fs-6 fw-bold pointer d-inline-block text-decoration-none">
-                                {p.postedBy.userName}
-                            </a><br />
-                            <span className="fs-12 text-secondary"><DateLabel value={p.postDate} /></span>
-
-                        </td>
-                        <td width="40" valign="middle" align="center">{ownedCommentMenu}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="px-2" colSpan="3">
-                            <React.Fragment>
-                                {p.comment.split('\n').map((item, key) => {
-                                    return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
-                                })}
-                            </React.Fragment>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>);
+            items.push(<div key={p.id} className="border-bottom p-1">
+                <span className="float-start p-1 pe-2"><MemberPicSmall member={p.postedBy} /></span>
+                <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName}
+                    className="fs-6 fw-bold pointer d-inline-block text-decoration-none me-2">
+                    {p.postedBy.userName}
+                </a>
+                {p.comment.split('\n').map((item, key) => {
+                    return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
+                })}
+                <div className="mb-2 pb-1">
+                    <span className="fs-12 text-secondary"><DateLabel value={p.postDate} /></span> {ownedCommentMenu}
+                </div>
+            </div>);
         }
         let confirmdelete = null;
         if (this.state.commentiddel > 0) {
@@ -1484,8 +1462,8 @@ class MemberComment extends React.Component {
                 ok={() => { this.removeComment(); }} cancel={() => { this.setState({ commentiddel: 0 }); }} />;
         }
 
-        return <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
-            <div className="modal-dialog modal-xl modal-dialog-scrollable">
+        return <React.Fragment><div className="modal fade show" style={{ display: "block" }} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1">
+            <div className="modal-dialog modal-lg    modal-dialog-scrollable">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Comments</h5>
@@ -1511,7 +1489,9 @@ class MemberComment extends React.Component {
                     </div>
                 </div>
             </div>
-        </div>;
+        </div>
+            <div className="modal-backdrop fade show"></div>
+        </React.Fragment>;
     }
 }
 
@@ -1678,7 +1658,7 @@ class MemberPostList extends React.Component {
                 var p = this.state.posts[k];
                 if (p.videoURL !== "") { } else {
                     items.push(<div className="col pointer">
-                        <div className="card border">
+                        <div className="card border-0">
                             <div className="imgbg rounded-3" style={{ backgroundImage: "url(//" + window.location.host + "/" + p.photos[0].photo + ")" }}>
                                 <img src={"//" + window.location.host + "/" + p.photos[0].photo} className="opacity-0 img-fluid" data-postid={p.id} onClick={(e) => {
                                     this.selectPost(e.target.getAttribute("data-postid"));
@@ -1725,8 +1705,8 @@ class MemberPostList extends React.Component {
         var viewmodetabhtml = null;
         if (this.state.viewModeAllowed && this.state.posts.length > 0) {
             viewmodetabhtml = <nav className="nav nav-pills m-1">
-                <a onClick={() => { this.setState({ viewMode: 1 }); }} className={this.state.viewMode === 1 ? "nav-link fs-4 active bg-white text-success border rounded-3 me-2" : "nav-link fs-4 bg-white border rounded-3 text-dark me-2"}><i className="bi bi-grid-3x3-gap-fill"></i></a>
-                <a onClick={() => { this.setState({ viewMode: 2 }); }} className={this.state.viewMode === 2 ? "nav-link fs-4 active bg-white text-success border rounded-3 me-2" : "nav-link fs-4 bg-white border rounded-3 text-dark me-2"}><i className="bi bi-view-list"></i></a>
+                <a onClick={() => { this.setState({ viewMode: 1 }); }} className={this.state.viewMode === 1 ? "nav-link fs-4 active bg-white text-success  rounded-3 me-2" : "nav-link fs-4 bg-white rounded-3 text-dark me-2"}><i className="bi bi-grid-3x3-gap-fill"></i></a>
+                <a onClick={() => { this.setState({ viewMode: 2 }); }} className={this.state.viewMode === 2 ? "nav-link fs-4 active bg-white text-success  rounded-3 me-2" : "nav-link fs-4 bg-white rounded-3 text-dark me-2"}><i className="bi bi-view-list"></i></a>
             </nav>;
         }
         return <React.Fragment>
@@ -1894,7 +1874,7 @@ class MemberSmallList extends React.Component {
             {this.state.loading ? <p>Loading Data...</p> : null}
         </div>;
     }
-} 
+}
 
 class MemberSmallRow extends React.Component {
     constructor(props) {
@@ -2716,17 +2696,13 @@ class Profile extends React.Component {
 
     render() {
         if (!this.state.loggedin) {
-            return <div className="row">
-                <div className="col-md-6 offset-md-3">
-                    <RegisterForm beginWithRegister={false} onLogin={() => {
-                        this.setState({
-                            loggedin: localStorage.getItem("token") === null ? false : true,
-                            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
-                            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
-                        })
-                    }} />
-                </div>
-            </div>;
+            return <RegisterForm beginWithRegister={false} onLogin={() => {
+                this.setState({
+                    loggedin: localStorage.getItem("token") === null ? false : true,
+                    myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+                    token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token")
+                })
+            }} />;
         }
 
         if (this.state.showSettings) {
@@ -2769,7 +2745,7 @@ class Profile extends React.Component {
                 <div className="row">
                     <div className="col-lg-5">
                         <div style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
-                            <div className="text-center mb-2 p-2 border bg-white rounded-3">
+                            <div className="text-center mb-2 p-2  bg-white rounded-3">
                                 {pic}
                                 <div className="row">
                                     <div className="col-4">
@@ -2798,10 +2774,8 @@ class Profile extends React.Component {
                                 {thought}
                                 <p>{this.state.member.bio}</p>
                             </div>
-                            <AskPushNotification />
-                            <SendInvite />
-                            <SuggestedAccounts />
                         </div>
+                        <AskPushNotification />
                     </div>
                     <div className="col-lg-7">
                         <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
@@ -3661,6 +3635,11 @@ class RegisterForm extends React.Component {
         this.handleLoginClickHere = this.handleLoginClickHere.bind(this);
     }
 
+    componentDidMount() {
+        document.getElementById("mainmenubar").style.display = "none";
+        document.title = "Yocail - login or signup";
+    }
+
     handleLogin(e) {
         e.preventDefault();
 
@@ -3760,7 +3739,7 @@ class RegisterForm extends React.Component {
 
     renderLoginForm() {
         if (!this.state.showForgotPassword) {
-            return <div className="border rounded-3 bg-white p-3">
+            return <React.Fragment>
                 <h3>Login</h3>
                 <form onSubmit={this.handleLogin}>
                     <div className="my-3">
@@ -3780,7 +3759,8 @@ class RegisterForm extends React.Component {
                             <button type="button" onClick={() => { this.setState({ showForgotPassword: true }); }} className="btn btn-link text-dark">Forgot Password?</button>
                         </div>
                     </div>
-                </form></div>;
+                </form>
+            </React.Fragment>;
         } else {
             return <div className="p-2">
                 <ForgotPassword />
@@ -3811,47 +3791,50 @@ class RegisterForm extends React.Component {
             : this.renderLoginForm();
 
         let formcontents = this.state.showregisterform ? <React.Fragment>
-            <div className="border rounded-3 bg-white p-3">
+            <div className=" rounded-3 bg-white p-3 mt-3">
                 <div className="float-end"><span className="text-danger">*</span> Required</div>
                 <h3 className="mb-2">Register</h3>
                 <form autoComplete="off" onSubmit={this.handleRegisterSubmit}>
                     <div className="mb-3">
                         <label className="fw-bold">Username <span className="text-danger">*</span></label>
-                        <input type="text" className="form-control" minLength="3" maxLength="30" required name="username" value={this.state.registerdto.userName}
+                        <input type="text" className="form-control" minLength="3"
+                            maxLength="30" required name="username"
+                            value={this.state.registerdto.userName}
+                            placeholder="Unique username"
                             onChange={(e) => {
                                 let rdto = this.state.registerdto;
                                 rdto.userName = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="usernameHelp" />
-                        <div id="usernameHelp" className="form-text">Username should be unique and creative,
-                            it will be your identity on the site.<br />
-                            {/*मन चाहा Username चुने, यह Yocail पर आपकी पहचान बनेगा। Username अनोखा और रचनात्मक रखे।*/}
-                        </div>
                     </div>
                     <div className="mb-3">
                         <label className="fw-bold">Password <span className="text-danger">*</span></label>
-                        <input className="form-control" minLength="8" required name="password" type="password" onChange={(e) => {
-                            let rdto = this.state.registerdto;
-                            rdto.password = e.target.value;
-                            this.setState({ registerdto: rdto });
-                        }} />
-                        <div id="passwordHelp" className="form-text">Password should be at least 8 characters long, make it difficult to guess.
-                            {/*<br />*/}
-                            {/*पासवर्ड कम से कम आठ अक्षर का हो, पासवर्ड कठिन चुने।*/}
-                        </div>
+                        <input className="form-control" minLength="8" required name="password"
+                            type="password" onChange={(e) => {
+                                let rdto = this.state.registerdto;
+                                rdto.password = e.target.value;
+                                this.setState({ registerdto: rdto });
+                            }}
+                            placeholder="Minimum 8 Characters"
+                        />
                     </div>
                     <div className="mb-3">
                         <label className="fw-bold">Security Question <span className="text-danger">*</span></label>
-                        <input type="text" className="form-control" minLength="10" required maxlength="300" name="securityQuestion" value={this.state.registerdto.securityQuestion}
+                        <input list="sqlist" type="text" className="form-control" minLength="10" required maxlength="300" name="securityQuestion" value={this.state.registerdto.securityQuestion}
                             onChange={(e) => {
                                 let rdto = this.state.registerdto;
                                 rdto.securityQuestion = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="securityquestionHelp" />
-                        <div id="securityquestionHelp" className="form-text">In case you forget your password, we will ask you this security question. Choose your security question wisely.
-                            {/*<br />*/}
-                            {/*पासवर्ड भूल जाने पर यही security question आप से पूछा जाएगा। Security question ऐसा रखे जिसका उत्तर सिर्फ आपको पता हो।*/}
-                        </div>
+                        <datalist id="sqlist">
+                            <option value="What is the name of your first friend?" />
+                            <option value="What was the make and model of your first car?" />
+                            <option value="In what city did your parents meet?" />
+                            <option value="What is your birth place?" />
+                            <option value="What is your favourite place to visit?" />
+                            <option value="What was the name of the first school you remember attending?" />
+                        </datalist>
+                        <div id="securityquestionHelp" className="form-text">This is required to reset forgotten password.</div>
                     </div>
                     <div className="mb-3">
                         <label className="fw-bold">Security Answer <span className="text-danger">*</span></label>
@@ -3861,10 +3844,7 @@ class RegisterForm extends React.Component {
                                 rdto.securityAnswer = e.target.value;
                                 this.setState({ registerdto: rdto });
                             }} aria-describedby="securitypasswordHelp" />
-                        <div id="securitypasswordHelp" className="form-text">You will be allowed to reset your password only if you provide this security answer.
-                            {/*<br />*/}
-                            {/*आप को अपना पासवॉर्ड तभी बदलने दिया जाएगा जब आपका security question उत्तर इस से मेल खाएगा।*/}
-                        </div>
+                        <div id="securitypasswordHelp" className="form-text">Correct answer to your security question.</div>
                     </div>
                     <div className="mb-3">
                         <label className="fw-bold">Email <span className="text-danger">*</span></label>
@@ -3887,16 +3867,25 @@ class RegisterForm extends React.Component {
                 Already a Member! <a onClick={this.handleLoginClickHere} className="link-success">Login Here</a>
             </p>
         </React.Fragment> :
-            <React.Fragment>
-                {logincontents}
-                <p className="text-center mt-3 p-3 border-top">
-                    Register for FREE <a onClick={this.handleRegisterClickHere} className="link-success">Click Here</a></p>
+            <div className=" rounded-3 bg-white p-3">
+                {this.renderLoginForm()}
+                <div className="text-center mt-3 p-3 border-top">
+                    <a onClick={this.handleRegisterClickHere} className="btn btn-success btn-lg my-2">Create Your Free Account</a>
+                </div>
                 {messagecontent}
                 {loading}
-            </React.Fragment>;
-        return <React.Fragment>
-            {formcontents}
-        </React.Fragment>;
+            </div>;
+        return <div className="row justify-items-center align-items-center" style={{ height: "500px" }}>
+            <div className="col-md-6 mb-3">
+                <div className="p-2 d-md-inline-block  rounded-3 bg-white text-center">
+                    <img src={"//" + location.host + "/images/yocail.png"} className="img-fluid m-2" alt="Logo" /> <br />
+                    <h3 className="d-none d-md-block">Share pictures with your friends and family on Yocail.</h3>
+                </div>
+            </div>
+            <div className="col-md-6">
+                {formcontents}
+            </div>
+        </div>;
     }
 }
 
@@ -4297,7 +4286,7 @@ class ForgotPassword extends React.Component {
     };
 
     render() {
-        return <div className="bg-white border p-3 rounded-3">
+        return <div className="bg-white p-3 rounded-3">
             <h3>Forgot Password</h3>
             <p>Provide your username or email address, you will be asked with security question.</p>
             <form onSubmit={(e) => { e.preventDefault(); this.loadSecurityQuestion(); }}>
@@ -4710,7 +4699,7 @@ class AskPushNotification extends React.Component {
             if (this.state.showModal) {
                 return <React.Fragment>{this.renderModal(message)}</React.Fragment>
             } else {
-                return <div className="p-1 border rounded-3 mb-2 bg-white">
+                return <div className="p-1 rounded-3 mb-2 bg-white">
                     <div className="text-center">
                         <div className="my-1">{message}</div>
                         <button onClick={this.requestNotificationAccess} className="btn btn-success my-2">Allow Notification</button>
@@ -6596,7 +6585,7 @@ class SendInvite extends React.Component {
 
         if (this.state.loggedin) {
             return <React.Fragment>
-                <div className="text-center mb-2 p-2 rounded-2 bg-white">
+                <div className="text-center p-2 rounded-2 bg-white">
                     <div className="my-1">Invite your friends and build your followers.</div>
                     <button onClick={() => { this.setState({ showModal: true }); }} type="button" className="btn btn-outline-dark my-2"><i className="bi bi-heart-fill text-danger"></i> Tell a Friend</button>
                 </div>
