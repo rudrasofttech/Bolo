@@ -503,6 +503,7 @@ class Home extends React.Component {
 
         return <div className="row">
             <div className="col-lg-8">
+                {this.state.search.indexOf("#") > -1 ? <HashTagDetail search={this.state.search} /> : null}
                 <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
             </div>
             <div className="col-lg-4">
@@ -513,6 +514,88 @@ class Home extends React.Component {
                 </div>
             </div>
         </div>;
+    }
+}
+
+class HashTagDetail extends React.Component {
+    constructor(props) {
+        super(props);
+
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+
+        this.state = {
+            loading: null, loggedin: loggedin,
+            myself: localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself")),
+            bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            search: this.props.search, totalPosts: null, followed: null
+        };
+    }
+
+    componentDidMount() {
+        this.fetchDetail();
+    }
+
+    fetchDetail() {
+        fetch("//" + window.location.host + "/api/post/hashtagpostcount?q=" + encodeURIComponent(this.state.search), {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        })
+            .then(resp => {
+                if (resp.status === 200) {
+                    resp.json().then(d => {
+                        this.setState({ totalPosts: d.postCount, followed: d.followed })
+                    });
+                }
+            });
+    }
+
+    follow = () => {
+        fetch("//" + window.location.host + "/api/follow/FollowHashtag?q=" + encodeURIComponent(this.state.search), {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        })
+            .then(resp => {
+                if (resp.status === 200) {
+                    this.setState({ followed: true });
+                }
+            });
+    }
+
+    unfollow = () => {
+        fetch("//" + window.location.host + "/api/follow/UnfollowHashtag?q=" + encodeURIComponent(this.state.search), {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        })
+            .then(resp => {
+                if (resp.status === 200) {
+                    this.setState({ followed: false });
+                }
+            });
+    }
+
+    render() {
+        return <div className=" bg-white rounded-3 mb-2 p-2">
+            <div className="row align-items-center">
+                <div className="col text-end">
+                    <h4 className="fs-6 fw-bold">{this.state.search} </h4>
+                    {this.state.totalPosts != null ? <div className="fw-bold">{this.state.totalPosts} posts</div> : null}
+                </div>
+                <div className="col">
+                    {this.state.followed != null ?
+                        this.state.followed ? <button type="button" className="btn btn-primary" onClick={this.unfollow}>Unfollow</button> : <button type="button" className="btn btn-primary" onClick={this.follow}>Follow</button>
+                        : null}
+                </div>
+            </div></div>;
     }
 }
 
@@ -1631,9 +1714,8 @@ class MemberPostList extends React.Component {
 
     renderPosts() {
         let empty = <div key={0}>
-            <div className="text-center fs-3 pt-5">
+            <div className="text-center fs-3 py-5 bg-white rounded-3">
                 <i className="bi bi-emoji-dizzy me-2"></i><h2>Nothing to see here</h2>
-                <p>You can start by Posting Photos or Following People</p>
             </div>
         </div>;
         if (this.state.viewMode === 2) {
@@ -1648,7 +1730,7 @@ class MemberPostList extends React.Component {
                     }} />);
                 }
             }
-            if (items.length == 0) {
+            if (items.length == 0 && !this.state.loading) {
                 items.push(empty);
             }
             return <div>{items}</div>;
@@ -1667,7 +1749,7 @@ class MemberPostList extends React.Component {
                     </div>);
                 }
             }
-            if (items.length == 0) {
+            if (items.length == 0 && !this.state.loading) {
                 items.push(empty);
                 return items;
             }
@@ -1746,7 +1828,7 @@ class MemberSmallList extends React.Component {
     }
 
     componentDidMount() {
-        this.loadFeed();
+        this.loadFeed(true);
     }
 
     followerRemoved(id) {
@@ -1760,9 +1842,27 @@ class MemberSmallList extends React.Component {
         this.setState({ followList: items });
     }
 
-    loadFeed() {
+    hashTagRemove = (tag) => {
+        fetch('//' + window.location.host + '/api/Follow/UnfollowHashtag?q=' + encodeURIComponent(tag), {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    this.setState({ loggedin: false, loading: false });
+                } else if (response.status === 200) {
+                    let items = this.state.followList.filter(t => t.tag !== tag);
+                    this.setState({ followList: items });
+                }
+            });
+    }
+
+    loadFeed = (fresh) => {
         this.setState({ loading: true });
-        fetch(this.url + "?q=" + this.state.q + "&p=" + this.state.p, {
+        fetch(this.url + "?q=" + encodeURIComponent(this.state.q) + "&p=" + this.state.p, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + this.state.token
@@ -1774,15 +1874,15 @@ class MemberSmallList extends React.Component {
                     this.setState({ loggedin: false, loading: false });
                 } else if (response.status === 200) {
                     response.json().then(data => {
-                        console.log(data);
+                        //console.log(data);
                         if (this.props.target === 'reaction') {
-                            console.log(data);
-                            var temp = this.state.reactions;
+                            //console.log(data);
+                            var temp = fresh ? [] : this.state.reactions;
                             for (var k in data.reactions) {
                                 temp.push(data.reactions[k]);
                             }
                             this.setState({
-                                loggedin: true, loading: false,
+                                loading: false,
                                 model: {
                                     current: data.current,
                                     pageSize: data.pageSize,
@@ -1792,12 +1892,12 @@ class MemberSmallList extends React.Component {
                                 reactions: temp
                             });
                         } else if (this.props.target === 'follower' || this.props.target === 'following' || this.props.target === "share") {
-                            var temp = this.state.followList;
+                            var temp = fresh ? [] : this.state.followList;
                             for (var k in data.followList) {
                                 temp.push(data.followList[k]);
                             }
                             this.setState({
-                                loggedin: true, loading: false,
+                                loading: false,
                                 model: {
                                     current: data.current,
                                     pageSize: data.pageSize,
@@ -1846,10 +1946,23 @@ class MemberSmallList extends React.Component {
             return <React.Fragment>{items}</React.Fragment>;
         }
         else if (this.props.target === 'following') {
-            var items = [];
-            for (var k in this.state.followList) {
-                var p = this.state.followList[k];
+            let items = [];
+            for (let k in this.state.followList) {
+                let p = this.state.followList[k];
                 if (p.tag !== null && p.tag !== "") {
+                    let h = <table key={p.id}  className="w-100 mb-1" cellSpacing="0" cellPadding="0">
+                        <tbody>
+                            <tr>
+                                <td><a href={"//" + location.host + "/?q=" + encodeURIComponent(p.tag)} class="text-dark text-decoration-none">{p.tag}</a></td>
+                                <td width="100px" align="right">
+                                    <button data-tag={p.tag} type="button" className="btn btn-light"
+                                        onClick={(e) => { this.hashTagRemove(e.target.getAttribute("data-tag")); } }
+                                    >Unfollow</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>;
+                    items.push(h);
                 } else {
                     items.push(<MemberSmallRow key={p.following.id} member={p.following} status={p.status} />);
                 }
@@ -1863,12 +1976,23 @@ class MemberSmallList extends React.Component {
         if (this.state.model !== null) {
             if ((this.state.model.current + 1) < this.state.model.totalPages) {
                 loadmore = <div className="text-center bg-white p-3">
-                    <button className="btn btn-light" onClick={() => { this.setState({ p: this.state.model.current + 1 }, () => { this.loadFeed(); }) }}>Load More</button>
+                    <button className="btn btn-light" onClick={() => { this.setState({ p: this.state.model.current + 1 }, () => { this.loadFeed(false); }) }}>Load More</button>
                 </div>;
             }
         }
 
         return <div style={{ minHeight: "50vh" }}>
+            <div className="row align-items-center mb-2">
+                <div className="col"><input type="text" placeholder="Search keywords..." className="form-control" value={this.state.q}
+                    onChange={(e) => {
+                        this.setState({ q: e.target.value, p: 0 }, () => { if (this.state.q === "") { this.loadFeed(true); } })
+                    }} /></div>
+                <div className="col-2">
+                    <button type="button" className="btn btn-light" onClick={() => { this.loadFeed(true); }}>
+                        <i className="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
             {this.renderPosts()}
             {loadmore}
             {this.state.loading ? <p>Loading Data...</p> : null}
@@ -4596,15 +4720,40 @@ class AskPushNotification extends React.Component {
                         this.setState({ mode: "blocked" });
                     } else {
                         this.setState({ mode: "ask" }, () => {
-                            setTimeout(() => {
-                                this.setState({ showModal: true });
-                            }, 10000);
+                            let lanopmd = localStorage.getItem("lastasknotpermissionmodaldate") == null ? null : Date.parse(localStorage.getItem("lastasknotpermissionmodaldate"));
+                            if (lanopmd === null || this.getDateDiff(Date.now(), lanopmd, "hours") > 1) {
+                                setTimeout(() => {
+                                    this.setState({ showModal: true }, () => {
+                                        localStorage.setItem("lastasknotpermissionmodaldate", Date.now());
+                                    });
+                                }, 10000);
+                            }
                         });
                     }
                 });
         } else {
             this.setState({ mode: "nosupport" });
         }
+    }
+
+    getDateDiff = (tar, src, difftype) => {
+        /* difftype = milliseconds | days | hours | minutes | seconds*/
+        //const date1 = new Date('7/13/2010');
+        //const date2 = new Date('12/15/2010');
+        const diffTime = Math.abs(tar - src);
+        //const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (difftype === "milliseconds")
+            return diffTime;
+        else if (difftype === "days")
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        else if (difftype === "hours")
+            return Math.ceil(diffTime / (1000 * 60 * 60));
+        else if (difftype === "minutes")
+            return Math.ceil(diffTime / (1000 * 60));
+        else if (difftype === "seconds")
+            return Math.ceil(diffTime / 1000);
+        else
+            return diffTime;
     }
 
     getSubscription = () => {

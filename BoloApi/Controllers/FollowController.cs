@@ -175,7 +175,7 @@ namespace Bolo.Controllers
 
             var query = _context.Followers.Include(t => t.Follower).Include(t => t.Following).Where(t => t.Follower.ID == currentMember.ID);
             if (!string.IsNullOrEmpty(q))
-                query = query.Where(t => t.Following.UserName.Contains(q) || t.Following.Name.Contains(q));
+                query = query.Where(t => (t.Following != null && (t.Following.UserName.Contains(q) || t.Following.Name.Contains(q))) || t.Tag.Contains(q));
             FollowerListPaged result = new FollowerListPaged()
             {
                 Current = p,
@@ -285,7 +285,7 @@ namespace Bolo.Controllers
             if (take > 100) take = 100;
             if (take < 1) take = 1;
             var currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
-            var followings = _context.Followers.Where(t => t.Follower.ID == currentMember.ID).Select(t => t.Following.ID).ToList();
+            var followings = _context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Following != null).Select(t => t.Following.ID).ToList();
 
             var query = _context.PopularPublicAccountViews.Where(t => t.ID != currentMember.ID && !followings.Contains(t.ID));
             if (!string.IsNullOrEmpty(currentMember.Country))
@@ -317,6 +317,41 @@ namespace Bolo.Controllers
                 });
             }
             return result;
+        }
+
+        [HttpGet]
+        [Route("FollowHashtag")]
+        public MemberFollowerDTO FollowHashtag(string q)
+        {
+            var currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+
+            var hf = _context.Followers.FirstOrDefault(t => t.Tag.ToLower() == q.ToLower() && t.Follower.ID == currentMember.ID);
+            if (hf == null)
+            {
+                hf = new MemberFollower()
+                {
+                    FollowedDate = DateTime.UtcNow,
+                    Follower = currentMember,
+                    Following = null,
+                    Status = FollowerStatus.Active,
+                    Tag = q
+                };
+                _context.Followers.Add(hf);
+                _context.SaveChanges();
+                return new MemberFollowerDTO(hf);
+            }
+
+            return new MemberFollowerDTO(hf);
+        }
+
+        [HttpGet]
+        [Route("UnfollowHashtag")]
+        public void UnfollowHashtag(string q)
+        {
+            var currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+            var hf = _context.Followers.FirstOrDefault(t => t.Tag.ToLower() == q.ToLower() && t.Follower.ID == currentMember.ID);
+            _context.Followers.Remove(hf);
+            _context.SaveChanges();
         }
     }
 }

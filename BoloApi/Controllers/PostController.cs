@@ -163,6 +163,18 @@ namespace Bolo.Controllers
             return model;
         }
 
+        [HttpGet]
+        [Route("hashtagpostcount")]
+        public ActionResult HashtagPostcount([FromQuery] string q)
+        {
+            Member currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+            int c = _context.HashTags.Include(t => t.Post).Where(t => t.Tag.ToLower() == q.ToLower()).Select(t => t.Post).Count();
+
+            bool b = _context.Followers.Any(t => t.Tag.ToLower() == q.ToLower() && t.Follower.ID == currentMember.ID);
+
+            return Ok(new { PostCount = c, Followed = b });
+        }
+
         /// <summary>
         /// get post based on whats trending and what users likes
         /// </summary>

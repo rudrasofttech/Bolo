@@ -118,12 +118,17 @@ namespace Bolo.Models
         public MemberSmallDTO Following { get; set; }
         public FollowerStatus Status { get; set; }
 
+        public bool IsHashtag { get {
+                return (!string.IsNullOrEmpty(Tag) && Following == null);
+            } }
+
         public MemberFollowerDTO() { }
         public MemberFollowerDTO(MemberFollower mf)
         {
             FollowedDate = mf.FollowedDate;
             Tag = mf.Tag;
             Follower = new MemberSmallDTO(mf.Follower);
+            if(mf.Following != null)
             Following = new MemberSmallDTO(mf.Following);
             Status = mf.Status;
         }

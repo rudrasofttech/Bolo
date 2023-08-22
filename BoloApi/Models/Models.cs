@@ -172,8 +172,6 @@ namespace Bolo.Models
     //    public string SecretCode { get; set; }
     //    public DateTime CreateDate { get; set; }
     //}
-
-
     public class MemberRole
     {
         public int ID { get; set; }
