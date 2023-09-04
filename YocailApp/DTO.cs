@@ -120,17 +120,19 @@ namespace YocailApp
         public string EmptyFields { get; set; } = string.Empty;
         public DateTime LastPulse { get; set; }
         public RecordStatus Status { get; set; }
+        public string PicFormedURL { get;set; } = string.Empty;
+
         public MemberModel()
         {
             ID = Guid.Empty;
             Name = string.Empty;
             UserName = string.Empty;
-            Bio = "";
-            Pic = "";
-            Country = "";
-            State = "";
-            City = "";
-            ThoughtStatus = "";
+            Bio = string.Empty;
+            Pic = string.Empty;
+            Country = string.Empty;
+            State = string.Empty;
+            City = string.Empty;
+            ThoughtStatus = string.Empty;
         }
     }
 
@@ -146,7 +148,7 @@ namespace YocailApp
             {
                 if (!string.IsNullOrEmpty(Pic))
                 {
-                    if(!Pic.ToLower().StartsWith("http://") && !Pic.ToLower().StartsWith("https://"))
+                    if (!Pic.ToLower().StartsWith("http://") && !Pic.ToLower().StartsWith("https://"))
                     {
                         return $"https://www.yocail.com/{Pic}";
                     }
@@ -156,7 +158,7 @@ namespace YocailApp
                 {
                     return "nopic.png";
                 }
-                
+
             }
         }
         /// <summary>
@@ -207,7 +209,7 @@ namespace YocailApp
         {
             get
             {
-                if(!Photo.ToLower().StartsWith("http://") && !Photo.ToLower().StartsWith("https://"))
+                if (!Photo.ToLower().StartsWith("http://") && !Photo.ToLower().StartsWith("https://"))
                 {
                     return $"https://www.yocail.com/{Photo}";
                 }
@@ -240,7 +242,7 @@ namespace YocailApp
         {
             get
             {
-                if(PostDate.ToLocalTime().Year == DateTime.Now.Year && PostDate.ToLocalTime().Month == DateTime.Now.Month && PostDate.ToLocalTime().Day == DateTime.Now.Day)
+                if (PostDate.ToLocalTime().Year == DateTime.Now.Year && PostDate.ToLocalTime().Month == DateTime.Now.Month && PostDate.ToLocalTime().Day == DateTime.Now.Day)
                 {
                     return PostDate.ToLocalTime().ToString("t");
                 }
@@ -248,7 +250,7 @@ namespace YocailApp
                 {
                     return PostDate.ToLocalTime().ToString("d MMM yy");
                 }
-                
+
             }
         }
         public MemberSmallModel PostedBy { get; set; }
@@ -286,17 +288,19 @@ namespace YocailApp
 
     public class SearchResultItemVM
     {
-        public SearchResultItem Item { get; set;}
-        public bool IsPerson { get
+        public SearchResultItem Item { get; set; }
+        public bool IsPerson
+        {
+            get
             {
                 return Item.Member != null;
-            } 
+            }
         }
         public bool IsHashTag
         {
             get
             {
-                return Item.Member != null;
+                return Item.Hashtag != null;
             }
         }
 
@@ -304,17 +308,17 @@ namespace YocailApp
         {
             get
             {
-                if(Item.Member != null)
+                if (IsPerson)
                 {
                     return Item.Member.UserName;
-                }else if(Item.Hashtag != null)
+                }
+                if (IsHashTag)
                 {
                     return Item.Hashtag.Tag;
                 }
-                else
-                {
-                    return string.Empty;
-                }
+
+                return string.Empty;
+
             }
         }
 
@@ -322,18 +326,11 @@ namespace YocailApp
         {
             get
             {
-                if (Item.Member != null)
+                if (IsPerson)
                 {
                     return Item.Member.Name;
                 }
-                else if (Item.Hashtag != null)
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    return string.Empty;
-                }
+                return string.Empty;
             }
         }
 
@@ -341,18 +338,15 @@ namespace YocailApp
         {
             get
             {
-                if (Item.Member != null)
+                if (IsPerson)
                 {
                     return Item.Member.PicPathConverted;
                 }
-                else if (Item.Hashtag != null)
+                if (IsHashTag)
                 {
                     return "hash.svg";
                 }
-                else
-                {
-                    return string.Empty;
-                }
+                return string.Empty;
             }
         }
     }

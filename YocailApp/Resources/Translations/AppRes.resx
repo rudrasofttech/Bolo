@@ -162,6 +162,9 @@
   <data name="RequiredTxt" xml:space="preserve">
     <value>*</value>
   </data>
+  <data name="SearchBarPH" xml:space="preserve">
+    <value>Search People and #tag</value>
+  </data>
   <data name="UserLoginBadRequestTxt" xml:space="preserve">
     <value>Unable to process login request.</value>
   </data>

@@ -2,49 +2,35 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.SearchPage"
+             xmlns:res="clr-namespace:YocailApp.Resources.Translations"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              xmlns:controls="clr-namespace:YocailApp.Controls"
              xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
-             Title="Search">
+             Title="Search" Shell.PresentationMode="Animated" >
     <ContentPage.BindingContext>
         <local:SearchPageVM />
     </ContentPage.BindingContext>
     <VerticalStackLayout>
-        <SearchBar x:Name="SearchBar" Text="{Binding Keywords, Mode=TwoWay}"  SearchCommand="{Binding SearchCommand}" ios:SearchBar.SearchBarStyle="Minimal" HorizontalOptions="FillAndExpand" Placeholder="Search People and Hashtag" />
-        <ScrollView x:Name="SearchScrollView" Padding="10,0" IsVisible="{Binding ShowSearchResult}">
-            <CollectionView ItemsSource="{Binding SearchResults, Mode=TwoWay}" x:Name="SearchCollectionView" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-                <CollectionView.HeaderTemplate>
-                    <DataTemplate>
-                        <ActivityIndicator IsVisible="{Binding Loading}" Margin="10"></ActivityIndicator>
-                    </DataTemplate>
-                </CollectionView.HeaderTemplate>
+        <Grid ColumnDefinitions="*,40" Padding="15,10,15,0">
+            <Entry Grid.Column="0" x:Name="SearchBar" FontSize="Body" Placeholder="{x:Static res:AppRes.SearchBarPH }" Text="{Binding Keywords, Mode=TwoWay}" HorizontalOptions="Fill" />
+            <ImageButton Grid.Column="1" Source="search.png" HeightRequest="35" Padding="3" HorizontalOptions="Center" VerticalOptions="Center" Command="{Binding SearchCommand}"/>
+        </Grid>
+        <ActivityIndicator IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}"></ActivityIndicator>
+        <ScrollView Padding="15,0,15,15">
+            <CollectionView ItemsSource="{Binding SearchResults, Mode=TwoWay}" x:Name="SearchCollectionView" 
+                            HorizontalOptions="Fill" VerticalOptions="StartAndExpand">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout>
-                            <Grid ColumnDefinitions="50,*" Padding="5,15">
-                                <Frame BorderColor="Transparent" CornerRadius="5" Padding="0" Margin="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
-                                    <Image Source="{Binding Pic}" WidthRequest="45" HeightRequest="45"/>
-                                </Frame>
-                                <Label Text="{Binding Text}" Padding="10,0" FontSize="18" FontAttributes="Bold" Grid.Column="1" HorizontalOptions="StartAndExpand" VerticalOptions="Center">
-                                </Label>
-                            </Grid>
-                            <BoxView HeightRequest="1" Color="{StaticResource Border}" HorizontalOptions="Fill"/>
-                        </StackLayout>
+                        <Grid ColumnDefinitions="35,*" Padding="10">
+                            <Frame BorderColor="Transparent" CornerRadius="5" Padding="0" Margin="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
+                                <Image Source="{Binding Pic}" MaximumWidthRequest="35" MaximumHeightRequest="35"/>
+                            </Frame>
+                            <Label Text="{Binding Text}" Padding="10,0" FontSize="Body" FontAttributes="None" Grid.Column="1" HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                            </Label>
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </ScrollView>
-        <ScrollView x:Name="ExploreScrollView" Padding="0" IsVisible="{Binding ShowExploreResult}">
-            <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
-                <CollectionView ItemsLayout="VerticalGrid, 3" ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
-                            VerticalOptions="FillAndExpand"  RemainingItemsThreshold="3" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <controls:PostPreviewCV BindingContext="{Binding this}"  />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </RefreshView>
         </ScrollView>
     </VerticalStackLayout>
 </ContentPage>

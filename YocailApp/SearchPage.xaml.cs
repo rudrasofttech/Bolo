@@ -10,17 +10,15 @@ public partial class SearchPage : ContentPage
 		
 	}
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await (BindingContext as SearchPageVM).LoadExploreData();
+        
         (BindingContext as SearchPageVM).SearchCompleted += SearchPage_SearchCompleted;
     }
 
     private void SearchPage_SearchCompleted()
     {
-        SearchBar.Unfocus();
-        SearchScrollView.Focus();
     }
 
     //private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
@@ -34,3 +32,4 @@ public partial class SearchPage : ContentPage
         //SearchScrollView.IsVisible = true;
     }
 }
+

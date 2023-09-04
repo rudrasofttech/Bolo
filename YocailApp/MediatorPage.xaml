@@ -2,12 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.MediatorPage"
-             xmlns:local="clr-namespace:YocailApp.ViewModel"
              Title="">
-    <ContentPage.BindingContext>
-        <local:BaseVM />
-    </ContentPage.BindingContext>
-    
-        <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" IsRunning="{Binding Loading ,Mode=TwoWay}" />
-    
+    <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" IsRunning="{Binding Loading ,Mode=TwoWay}" />
 </ContentPage>

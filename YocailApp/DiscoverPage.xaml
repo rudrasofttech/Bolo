@@ -2,11 +2,31 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.DiscoverPage"
-             Title="Discover">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:local="clr-namespace:YocailApp.ViewModel"
+             xmlns:controls="clr-namespace:YocailApp.Controls"
+             Title="Discover" NavigationPage.HasNavigationBar="False">
+    <ContentPage.BindingContext>
+        <local:DiscoverPageVM />
+    </ContentPage.BindingContext>
+    <ScrollView>
+        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+            <StackLayout>
+                <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
+        VerticalOptions="FillAndExpand"  RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="3" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <!--<controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />-->
+                            <controls:PostPreviewCV BindingContext="{Binding this}"  />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
+                                   IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />
+            </StackLayout>
+        </RefreshView>
+    </ScrollView>
+
 </ContentPage>

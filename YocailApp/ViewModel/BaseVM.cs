@@ -110,8 +110,13 @@ namespace YocailApp.ViewModel
 
         public BaseVM()
         {
-            CurrentMember = JsonSerializer.Deserialize<MemberModel>(AccessSecureStorage.GetCurrentMember()
-                , new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            string temp = AccessSecureStorage.GetCurrentMember();
+            if (!string.IsNullOrEmpty(temp))
+            {
+                CurrentMember = JsonSerializer.Deserialize<MemberModel>(AccessSecureStorage.GetCurrentMember()
+                    , new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            }
+
         }
     }
 
@@ -161,15 +166,16 @@ namespace YocailApp.ViewModel
             }
         }
 
-        public int PageSize { get; set; } = 4;
+        public int PageSize { get; set; } = 42;
 
         public ICommand LoadMoreCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
         public ICommand ItemThresholdReachedCommand { get; set; }
 
-        public CollectionBaseVM(): base() { 
-        
+        public CollectionBaseVM() : base()
+        {
+
         }
-        
+
     }
 }

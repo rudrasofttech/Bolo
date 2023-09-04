@@ -5,10 +5,11 @@ using YocailApp.ViewModel;
 namespace YocailApp;
 
 
-[QueryProperty(nameof(Post), "Post")]
+//[QueryProperty(nameof(Post), "Post")]
 public partial class CommentsPage : ContentPage
 {
     PostModel post;
+    
     public PostModel Post
     {
         get => post;
@@ -22,15 +23,8 @@ public partial class CommentsPage : ContentPage
     public CommentsPage()
     {
         InitializeComponent();
-        
     }
-
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-        BindingContext = new CommentPageVM() { Post = Post };
-        await (BindingContext as CommentPageVM).LoadData();
-    }
+   
 
     private async void BackButton_Clicked(object sender, EventArgs e)
     {

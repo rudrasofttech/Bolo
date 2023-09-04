@@ -196,6 +196,15 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search People and #tag.
+        /// </summary>
+        internal static string SearchBarPH {
+            get {
+                return ResourceManager.GetString("SearchBarPH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to process login request..
         /// </summary>
         internal static string UserLoginBadRequestTxt {

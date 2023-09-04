@@ -163,6 +163,19 @@ namespace Bolo.Models
         public RecordStatus Status { get; set; }
         public bool IsEmailVerified { get; set; }
 
+        public string PicFormedURL { get {
+                if (string.IsNullOrEmpty(Pic))
+                    return string.Empty;
+                else if(Pic.ToLower().StartsWith("http://") || Pic.ToLower().StartsWith("https://") || Pic.ToLower().StartsWith("data"))
+                {
+                    return Pic;
+                }
+                else
+                {
+                    return $"https://www.yocail.com/{Pic}";
+                }
+            } }
+
         public MemberDTO()
         {
             ID = Guid.Empty;

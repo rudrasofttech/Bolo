@@ -69,13 +69,14 @@
 	  <None Remove="Resources\Images\chevronleft.svg" />
 	  <None Remove="Resources\Images\coffeecup.png" />
 	  <None Remove="Resources\Images\cursorfill.svg" />
+	  <None Remove="Resources\Images\globe.png" />
 	  <None Remove="Resources\Images\hash.svg" />
 	  <None Remove="Resources\Images\heart.svg" />
 	  <None Remove="Resources\Images\heartfill.svg" />
-	  <None Remove="Resources\Images\home.png" />
+	  <None Remove="Resources\Images\housesolid.png" />
 	  <None Remove="Resources\Images\icon192.png" />
 	  <None Remove="Resources\Images\personsquare.png" />
-	  <None Remove="Resources\Images\plussquare.png" />
+	  <None Remove="Resources\Images\plussolid.png" />
 	  <None Remove="Resources\Images\search.png" />
 	  <None Remove="Resources\Images\share.svg" />
 	  <None Remove="Resources\Images\threedotsvertical.svg" />
@@ -122,6 +123,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MainTabPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="MediatorPage.xaml">

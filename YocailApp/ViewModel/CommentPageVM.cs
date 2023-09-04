@@ -14,10 +14,11 @@ using YocailApp.Resources.Translations;
 
 namespace YocailApp.ViewModel
 {
-    public class CommentPageVM : CollectionBaseVM
+    public class CommentPageVM : CollectionBaseVM, IQueryAttributable
     {
         public PostModel Post { get; set; }
-        public ObservableCollection<CommentVM> _comments;
+
+        private ObservableCollection<CommentVM> _comments;
         public ObservableCollection<CommentVM> Comments
         {
             get => _comments;
@@ -48,9 +49,10 @@ namespace YocailApp.ViewModel
             }
         }
 
-        public CommentPageVM() : base()
+        public CommentPageVM() : base() 
         {
             PageSize = 50;
+            
             LoadMoreCommand = new Command(async () =>
             {
                 if (HasMorePages)
@@ -217,6 +219,15 @@ namespace YocailApp.ViewModel
             {
                 Loading = false;
             }
+        }
+
+        public async void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            Post = query["Post"] as PostModel;
+            //since this is fresh load clear collection
+            Comments?.Clear();
+
+            await LoadData();
         }
     }
 }

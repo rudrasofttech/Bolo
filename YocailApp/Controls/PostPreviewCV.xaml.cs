@@ -11,6 +11,6 @@ public partial class PostPreviewCV : ContentView
 
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        await Navigation.PushAsync(new PostPage() { BindingContext = (BindingContext as PostVM) });
+        //await Navigation.PushAsync(new PostPage() { BindingContext = (BindingContext as PostVM) });
     }
 }

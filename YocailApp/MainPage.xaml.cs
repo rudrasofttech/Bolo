@@ -38,5 +38,10 @@ namespace YocailApp
             string action = await DisplayActionSheet(AppRes.ActionTxt, AppRes.CancelTxt, sender.IsOwner ? AppRes.DeleteTxt : string.Empty, buttons: actions.ToArray());
             Debug.WriteLine("Action: " + action);
         }
+
+        private void ScrollView_Scrolled(object sender, ScrolledEventArgs e)
+        {
+            
+        }
     }
 }

@@ -1734,7 +1734,8 @@ class MemberPostList extends React.Component {
                 items.push(empty);
             }
             return <div>{items}</div>;
-        } else if (this.state.viewMode === 1) {
+        }
+        else if (this.state.viewMode === 1) {
             let items = [];
             for (var k in this.state.posts) {
                 var p = this.state.posts[k];
@@ -1745,7 +1746,8 @@ class MemberPostList extends React.Component {
                                 <img src={"//" + window.location.host + "/" + p.photos[0].photo} className="opacity-0 img-fluid" data-postid={p.id} onClick={(e) => {
                                     this.selectPost(e.target.getAttribute("data-postid"));
                                 }} />
-                            </div></div>
+                            </div>
+                        </div>
                     </div>);
                 }
             }
@@ -1753,7 +1755,7 @@ class MemberPostList extends React.Component {
                 items.push(empty);
                 return items;
             }
-            return <div className="row row-cols-3 g-2">{items}</div>;
+            return <div className="row row-cols-3 g-4">{items}</div>;
         }
     }
 

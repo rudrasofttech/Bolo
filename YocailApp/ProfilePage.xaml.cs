@@ -1,3 +1,5 @@
+using YocailApp.ViewModel;
+
 namespace YocailApp;
 
 public partial class ProfilePage : ContentPage
@@ -6,4 +8,11 @@ public partial class ProfilePage : ContentPage
 	{
 		InitializeComponent();
 	}
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        
+        await (BindingContext as ProfileVM).LoadData();
+    }
 }

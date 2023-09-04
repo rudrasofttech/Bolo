@@ -9,6 +9,7 @@ public partial class MediatorPage : ContentPage
 	public MediatorPage()
 	{
 		InitializeComponent();
+        BindingContext = new BaseVM();
 	}
 
     protected override async void OnAppearing()

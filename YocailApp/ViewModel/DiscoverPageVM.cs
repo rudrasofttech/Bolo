@@ -6,16 +6,15 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using YocailApp.Resources.Translations;
 
 namespace YocailApp.ViewModel
 {
-    public class MainPageVM : CollectionBaseVM
+
+
+    public class DiscoverPageVM : CollectionBaseVM
     {
-
-        string feeddatapath = Utility.FeedDataFilePath;
-
-        public ObservableCollection<PostVM> _posts;
+        
+        public ObservableCollection<PostVM> _posts = new ObservableCollection<PostVM>();
         public ObservableCollection<PostVM> Posts
         {
             get => _posts;
@@ -29,44 +28,30 @@ namespace YocailApp.ViewModel
             }
         }
 
-        bool _hasCacheData;
-        public bool HasCacheData
+        public DiscoverPageVM()
         {
-            get => _hasCacheData; set
-            {
-                if (_hasCacheData != value)
-                {
-                    _hasCacheData = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public MainPageVM()
-        {
+            
             LoadMoreCommand = new Command(async () =>
             {
                 if (HasMorePages)
                 {
                     CurrentPage = CurrentPage + 1;
-                    await LoadData();
+                    await LoadExploreData();
                 }
             });
 
             RefreshCommand = new Command(async () =>
             {
-                IsRefreshing= true;
+                IsRefreshing = true;
                 CurrentPage = 0;
                 TotalRecords = 0;
-                if (Posts != null)
-                    Posts.Clear();
-                await LoadData();
-                IsRefreshing= false;
+                Posts?.Clear();
+                await LoadExploreData();
+                IsRefreshing = false;
             });
-
         }
 
-        public async Task LoadData()
+        public async Task LoadExploreData()
         {
             Loading = true;
             try
@@ -86,7 +71,7 @@ namespace YocailApp.ViewModel
                     Posts ??= new ObservableCollection<PostVM>();
                     foreach (var i in data.Posts)
                     {
-                        PostVM apm = new PostVM()
+                        var apm = new PostVM()
                         {
                             Post = i,
                             IsOwner = i.Owner.ID == CurrentMember.ID
@@ -94,11 +79,6 @@ namespace YocailApp.ViewModel
                         Posts.Add(apm);
                     }
 
-                    var list = new List<PostModel>();
-                    list.AddRange(Posts.Select(t => t.Post).ToList());
-                    using FileStream outputStream = System.IO.File.OpenWrite(feeddatapath);
-                    using StreamWriter streamWriter = new(outputStream);
-                    await streamWriter.WriteAsync(JsonSerializer.Serialize(new PostsPaged() { Current = CurrentPage, PageSize = PageSize, Total = TotalRecords, Posts = list }));
                     OnPropertyChanged("Posts");
                     OnPropertyChanged("HasMorePages");
                 }
@@ -122,41 +102,6 @@ namespace YocailApp.ViewModel
             {
                 Loading = false;
             }
-        }
-
-        public void LoadFeedFromCache()
-        {
-            try
-            {
-                if (System.IO.File.Exists(feeddatapath))
-                {
-                    using Stream fileStream = System.IO.File.OpenRead(feeddatapath);
-                    using var reader = new StreamReader(fileStream);
-                    var c = reader.ReadToEnd();
-                    JsonSerializerOptions l = new() { PropertyNameCaseInsensitive = true };
-                    var data = JsonSerializer.Deserialize<PostsPaged>(c, l);
-                    CurrentPage = data.Current;
-                    TotalRecords = data.Total;
-                    PageSize = data.PageSize;
-                    Posts ??= new ObservableCollection<PostVM>();
-                    foreach (var i in data.Posts)
-                    {
-                        PostVM apm = new PostVM()
-                        {
-                            Post = i,
-                            IsOwner = i.Owner.ID == CurrentMember.ID
-                        };
-                        Posts.Add(apm);
-                    }
-                    _hasCacheData = true;
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex.Message);
-            }
-            _hasCacheData = false;
         }
     }
 }

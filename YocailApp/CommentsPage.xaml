@@ -3,48 +3,44 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              x:Class="YocailApp.CommentsPage"
-             Title="Comments" Shell.PresentationMode="Modal"  Shell.BackgroundColor="White" Shell.TitleColor="Black" Shell.NavBarHasShadow="True" Shell.NavBarIsVisible="False">
+             Title="Comments" Shell.PresentationMode="Animated" 
+             Shell.TitleColor="Black" Shell.BackgroundColor="White"  Shell.NavBarHasShadow="True" Shell.NavBarIsVisible="True">
     <ContentPage.BindingContext>
         <local:CommentPageVM />
     </ContentPage.BindingContext>
-    <Grid RowDefinitions="45,*,Auto" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-        <StackLayout Grid.Row="0">
-            <Grid ColumnDefinitions="50,*,50" Margin="0,7,0,7">
-                <ImageButton HorizontalOptions="Center" VerticalOptions="Center" x:Name="BackButton" Source="chevronleft.svg" 
-                        Padding="4"  Grid.Row="0" Grid.Column="0" Clicked="BackButton_Clicked"></ImageButton>
-                <Label Grid.Row="0" Grid.Column="1" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" Text="Comments"></Label>
-            </Grid>
-            <Border HeightRequest="1"></Border>
-        </StackLayout>
-
-        <ScrollView Grid.Row="1" Padding="0,10,0,10">
-            <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
-                <CollectionView  ItemsSource="{Binding Comments, Mode=TwoWay}" x:Name="CommentsCollectionView" HorizontalOptions="FillAndExpand" 
+    <Grid RowDefinitions="*,Auto" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <ScrollView Grid.Row="0" Padding="0" Margin="0">
+            <StackLayout>
+                <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />
+                <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" Padding="0" Margin="0">
+                    <CollectionView  ItemsSource="{Binding Comments, Mode=TwoWay}" x:Name="CommentsCollectionView" HorizontalOptions="FillAndExpand" 
                             VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" 
                                  RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <StackLayout Padding="10" Margin="0,0,15,0">
-                                <Grid ColumnDefinitions="55,*,30">
-                                    <Frame BorderColor="Transparent" VerticalOptions="Start" CornerRadius="0" Padding="0" Margin="0,5,5,5" Grid.Row="0" Grid.Column="0" >
-                                        <Image Source="{Binding Comment.PostedBy.PicPathConverted}" WidthRequest="40" HeightRequest="40"/>
-                                    </Frame>
-                                    <StackLayout Grid.Column="1">
-                                        <Label Text="{Binding Comment.PostedBy.UserName}" VerticalOptions="Center" FontFamily="InterSemiBold" FontSize="16" Padding="5"></Label>
-                                        <Label Text="{Binding Comment.PostDateDisplay}" VerticalOptions="Center" FontAttributes="Bold" FontFamily="InterLight" FontSize="12" Padding="5,0,0,0"></Label>
-                                    </StackLayout>
-                                    <StackLayout Grid.Column="2" VerticalOptions="Center">
-                                        <ImageButton Source="threedotsvertical.svg" HeightRequest="20" CommandParameter="{Binding}" Clicked="ImageButton_Clicked" />
-                                    </StackLayout>
-                                </Grid>
-                                <Label Text="{Binding Comment.Comment}" FontSize="16" LineBreakMode="WordWrap"></Label>
-                            </StackLayout>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </RefreshView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <StackLayout Padding="0" Margin="0,0,15,0">
+                                    <Grid ColumnDefinitions="35,*,30" Margin="15,0,15,0" Padding="0">
+                                        <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Margin="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
+                                            <Image Source="{Binding Comment.PostedBy.PicPathConverted}" WidthRequest="35" HeightRequest="35"/>
+                                        </Frame>
+                                        <StackLayout Grid.Column="1" Padding="10,0,0,0" HorizontalOptions="FillAndExpand">
+                                            <Label Text="{Binding Comment.PostedBy.UserName}" VerticalOptions="Center" FontFamily="InterSemiBold" FontSize="Header"></Label>
+                                            <Label Text="{Binding Comment.PostDateDisplay}" VerticalOptions="Center"  FontFamily="InterLight" FontSize="Micro" Padding="0"></Label>
+                                        </StackLayout>
+                                        <StackLayout Grid.Column="2" VerticalOptions="Center">
+                                            <ImageButton Source="threedotsvertical.svg" HeightRequest="20" CommandParameter="{Binding}" Clicked="ImageButton_Clicked" />
+                                        </StackLayout>
+                                    </Grid>
+                                    <Label Text="{Binding Comment.Comment}" FontSize="Body" Padding="15,5,15,5" LineBreakMode="WordWrap"></Label>
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </RefreshView>
+            </StackLayout>
+
         </ScrollView>
-        <StackLayout Grid.Row="2">
+        <StackLayout Grid.Row="1">
             <Border>
                 <Grid ColumnDefinitions="*,50" Padding="10">
                     <Editor AutoSize="TextChanges" Text="{Binding CommentDraft, Mode=TwoWay}" FontSize="16" MaximumHeightRequest="200" IsTextPredictionEnabled="True" Placeholder="Type your comment" Grid.Column="0" ></Editor>
