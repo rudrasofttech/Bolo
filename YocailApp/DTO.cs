@@ -161,6 +161,14 @@ namespace YocailApp
 
             }
         }
+
+        public bool HasPic
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(Pic);
+            }
+        }
         /// <summary>
         /// Should be true if the member seeing this member info is a follower or not
         /// </summary>

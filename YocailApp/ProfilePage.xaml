@@ -3,24 +3,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              xmlns:controls="clr-namespace:YocailApp.Controls"
-             x:Class="YocailApp.ProfilePage" Title="Profile">
+             x:Class="YocailApp.ProfilePage" Title="{Binding Member.UserName, Mode=TwoWay}" Shell.BackgroundColor="White" Shell.TitleColor="Black" Shell.NavBarIsVisible="True">
     <ContentPage.BindingContext>
         <local:ProfileVM />
     </ContentPage.BindingContext>
     <ScrollView>
         <StackLayout>
-            <Grid ColumnDefinitions="120,*" Margin="5,15,5,15">
-                <Frame Grid.Column="0" VerticalOptions="Start" WidthRequest="80" HeightRequest="80" HorizontalOptions="Center" IsVisible="{Binding ProfilePicVisible}" CornerRadius="10" BorderColor="Transparent" Margin="0,0,0,10">
-                    <Image Source="{Binding Member.PicFormedURL, Mode=TwoWay}" WidthRequest="100" HeightRequest="100" Aspect="AspectFill" />
+            <Grid ColumnDefinitions="Auto,*" Padding="10,0">
+                <Frame Grid.Column="0" VerticalOptions="Start" WidthRequest="130" HeightRequest="130" HorizontalOptions="Center" IsVisible="{Binding ProfilePicVisible}" CornerRadius="10" BorderColor="Transparent" Margin="0,0,0,10">
+                    <Image Source="{Binding Member.PicFormedURL, Mode=TwoWay}" WidthRequest="130" HeightRequest="130" Aspect="AspectFill" />
                 </Frame>
-                <StackLayout Grid.Column="1" VerticalOptions="Start">
+                <StackLayout Grid.Column="1" Padding="10,0,10,0" VerticalOptions="Start">
                     <Label Text="{Binding Member.Name, Mode=TwoWay}" Margin="0,0,0,5" IsVisible="{Binding NameVisible}" FontSize="Default" FontAttributes="Bold"></Label>
-                    <Label Text="{Binding Member.UserName, Mode=TwoWay}" Margin="0,0,0,5" FontSize="Default"></Label>
                     <Label Text="{Binding Member.ThoughtStatus, Mode=TwoWay}" Margin="0,0,0,5" IsVisible="{Binding ThoughtStatusVisible}" FontSize="Default"></Label>
                     <StackLayout Padding="0,0,0,10">
                         <controls:ExpandableLabel x:Name="BioLabel" Text="{Binding Member.Bio}" IsVisible="{Binding BioVisible, Mode=TwoWay}" />
                     </StackLayout>
+                    <Button Text="Manage Profile" x:Name="ManageProfileButton" IsVisible="{Binding ManageProfileButtonVisible}" HorizontalOptions="Start" FontSize="Body" Padding="5" HeightRequest="35"></Button>
                 </StackLayout>
+            </Grid>
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="20,20" Margin="0,0,0,20">
+                <Label Grid.Column="0" Grid.Row="0" FontSize="Body" FontAttributes="Bold" Text="{Binding Member.PostCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Column="0" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Posts" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Column="1" Grid.Row="0" FontSize="Body" FontAttributes="Bold" Text="{Binding Member.FollowerCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Column="1" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Followers" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Column="2" Grid.Row="0" FontSize="Body" FontAttributes="Bold" Text="{Binding Member.FollowingCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Label Grid.Column="2" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Following" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Grid>
             <StackLayout>
                 <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 

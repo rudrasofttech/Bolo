@@ -88,4 +88,9 @@ public partial class PostCV : ContentView
     };
         await Shell.Current.GoToAsync($"///comments", navigationParameter);
     }
+
+    private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync($"///profile?username={(BindingContext as PostVM).Post.Owner.UserName}");
+    }
 }

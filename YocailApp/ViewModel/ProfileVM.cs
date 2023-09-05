@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace YocailApp.ViewModel
 {
-    public class ProfileVM : CollectionBaseVM
+    public class ProfileVM : CollectionBaseVM, IQueryAttributable
     {
-        public string UserName { get; set; } = string.Empty;
+        public string UserName { get; private set; } = string.Empty;
 
         private MemberModel _member = new MemberModel();
         public MemberModel Member
@@ -23,8 +23,18 @@ namespace YocailApp.ViewModel
             {
                 _member = value;
                 OnPropertyChanged();
+                OnPropertyChanged("ProfilePic");
+                OnPropertyChanged("ProfilePicVisible");
+                OnPropertyChanged("NameVisible");
+                OnPropertyChanged("Name");
+                OnPropertyChanged("ThoughtStatusVisible");
+                OnPropertyChanged("ThoughtStatus");
+                OnPropertyChanged("Bio");
+                OnPropertyChanged("BioVisible");
+                OnPropertyChanged("ManageProfileButtonVisible");
             }
         }
+
         public ObservableCollection<PostVM> _posts = new ObservableCollection<PostVM>();
         public ObservableCollection<PostVM> Posts
         {
@@ -38,34 +48,33 @@ namespace YocailApp.ViewModel
                 }
             }
         }
-        public string ProfilePic
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(Member.Pic))
-                {
-                    if (!Member.Pic.ToLower().StartsWith("http://") && !Member.Pic.ToLower().StartsWith("https://"))
-                    {
-                        return $"https://www.yocail.com/{Member.Pic}";
-                    }
-                    return Member.Pic;
-                }
-                else
-                {
-                    return string.Empty;
-                }
-
-            }
-        }
+        
 
         public bool ProfilePicVisible
         {
             get { return !string.IsNullOrEmpty(Member.Pic); }
         }
 
-        public bool NameVisible { get {
+        public bool ManageProfileButtonVisible
+        {
+            get
+            {
+                if (Member == null)
+                    return false;
+                else if (Member.UserName == CurrentMember.UserName)
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        public bool NameVisible
+        {
+            get
+            {
                 return !string.IsNullOrEmpty(Member.Name);
-            } }
+            }
+        }
         public string Name { get { return Member.Name; } }
 
         public bool ThoughtStatusVisible
@@ -82,7 +91,6 @@ namespace YocailApp.ViewModel
 
         public ProfileVM()
         {
-
             LoadMoreCommand = new Command(async () =>
             {
                 if (HasMorePages)
@@ -103,13 +111,23 @@ namespace YocailApp.ViewModel
             });
         }
 
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            UserName = query["username"] as string;
+            OnPropertyChanged("UserName");
+        }
+
         public async Task LoadData()
         {
+            if (Member == null || Member.UserName != UserName)
+                Posts?.Clear();
+
             await LoadMemberProfileAsync();
             await LoadExploreData();
         }
 
-        public async Task LoadMemberProfileAsync() {
+        public async Task LoadMemberProfileAsync()
+        {
 
             if (!string.IsNullOrEmpty(UserName))
             {

@@ -23,9 +23,10 @@
             <ShellContent Title="Add Post" Route="addpost" ContentTemplate="{DataTemplate local:AddPostPage}" />
         </Tab>
         <Tab Icon="personsquare.png" >
-            <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
+            <ShellContent Title="Profile" Route="profile?username=" ContentTemplate="{DataTemplate local:ProfilePage}" />
         </Tab>
     </TabBar>
     <ShellContent Title="Post" Route="post" ContentTemplate="{DataTemplate local:PostPage}" />
     <ShellContent Title="Comments" Route="comments" ContentTemplate="{DataTemplate local:CommentsPage}" />
+    <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
 </Shell>

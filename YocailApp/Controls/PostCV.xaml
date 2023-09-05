@@ -10,15 +10,18 @@
         </ResourceDictionary>
     </ContentView.Resources>
     <VerticalStackLayout x:Name="PostVerticalLayout"  HorizontalOptions="FillAndExpand" Margin="0,5,0,20" >
-        <Grid RowDefinitions="*" Margin="15,5,15,5" ColumnDefinitions="45,*,30">
-            <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Margin="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
-                <Image Source="{Binding Post.Owner.PicPathConverted}" WidthRequest="40" HeightRequest="40"/>
-            </Frame>
-            <StackLayout Grid.Row="0" Grid.Column="1" HorizontalOptions="FillAndExpand">
-                <Label Text="{Binding Post.Owner.UserName}" VerticalOptions="Center" FontFamily="InterSemiBold" FontSize="Header" ></Label>
-                <Label Text="{Binding Post.PostDateDisplay}" VerticalOptions="Center" FontFamily="InterLight" FontSize="Micro" Padding="0,0,0,0"></Label>
-            </StackLayout>
-            <ImageButton Grid.Row="0" Grid.Column="2" Source="threedotsvertical.svg" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
+        <Grid Margin="15,5,15,10" ColumnDefinitions="*,30">
+            <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                <Frame IsVisible="{Binding Post.Owner.HasPic}" BorderColor="Transparent" CornerRadius="3" Padding="0" Margin="0,0,5,0" HorizontalOptions="Fill" VerticalOptions="Fill" >
+                    <Image x:Name="ProfilePic" Source="{Binding Post.Owner.PicPathConverted}" WidthRequest="30" HeightRequest="30">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                        </Image.GestureRecognizers>
+                    </Image>
+                </Frame>
+
+                <Label Text="{Binding Post.Owner.UserName,StringFormat='@{0}'}"  VerticalOptions="Center" HorizontalOptions="Center" FontFamily="InterSemiBold" FontSize="Header" ></Label>
+            </HorizontalStackLayout>
         </Grid>
         <StackLayout x:Name="PhotoStackLayout" MinimumHeightRequest="200">
             <!--<Image Aspect="AspectFill" x:Name="SingleImage" IsVisible="{Binding ShowSinglePhoto}" Margin="0"  Source="{Binding FirstPhoto}" 
@@ -40,7 +43,7 @@
                 <TapGestureRecognizer NumberOfTapsRequired="2" Command="{Binding DoubleTapCommand}" />
             </StackLayout.GestureRecognizers>
         </StackLayout>
-        <Grid  RowDefinitions="30" ColumnDefinitions="30,*,30,*,30" Padding="15,5,15,5">
+        <Grid  RowDefinitions="30" ColumnDefinitions="30,*,30,*,30,*, 30" Padding="15,5,15,5">
             <ImageButton Source="{Binding HasReacted, Converter={StaticResource BoolToSourceConverter}}" Grid.Column="0" HeightRequest="20" Command="{Binding DoubleTapCommand}"></ImageButton>
             <Label VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="1" IsVisible="{Binding ShowReactionCount}" FontAttributes="Bold" FontSize="Body">
                 <Label.FormattedText>
@@ -58,9 +61,11 @@
                 </Label.FormattedText>
             </Label>
             <ImageButton IsVisible="{Binding Post.AllowShare}" Source="share.svg" Grid.Column="4" HeightRequest="20"></ImageButton>
+            <ImageButton Grid.Column="6" Source="threedotsvertical.svg" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
         </Grid>
         <StackLayout Padding="15,0,15,5">
             <controls:ExpandableLabel x:Name="ExpDescribeLabel" Text="{Binding Post.Describe}" />
+            <Label Text="{Binding Post.PostDateDisplay}" VerticalOptions="Center" FontFamily="InterLight" FontSize="Micro" Padding="0,0,0,0"></Label>
         </StackLayout>
     </VerticalStackLayout>
 </ContentView>
