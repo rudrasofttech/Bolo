@@ -66,6 +66,7 @@
 	  <None Remove="Resources\Fonts\Inter-SemiBold.ttf" />
 	  <None Remove="Resources\Fonts\Inter-Thin.ttf" />
 	  <None Remove="Resources\Images\chatsquaretext.svg" />
+	  <None Remove="Resources\Images\chevronleft.png" />
 	  <None Remove="Resources\Images\chevronleft.svg" />
 	  <None Remove="Resources\Images\coffeecup.png" />
 	  <None Remove="Resources\Images\cursorfill.svg" />
@@ -111,6 +112,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\ExpandableLabel.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\MemberCard.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\PostCV.xaml">

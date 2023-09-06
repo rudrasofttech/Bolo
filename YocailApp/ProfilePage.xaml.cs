@@ -14,5 +14,8 @@ public partial class ProfilePage : ContentPage
         base.OnAppearing();
         
         await (BindingContext as ProfileVM).LoadData();
+        MemberModel m = (BindingContext as ProfileVM).Member;
+        MemberCard.Member = m;
+        MemberCard.ManageProfileButtonVisible = true;
     }
 }

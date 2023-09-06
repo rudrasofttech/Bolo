@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:YocailApp"
-    Shell.FlyoutBehavior="Disabled" Title="" NavBarIsVisible="False" Shell.TabBarTitleColor="Black" Shell.TabBarForegroundColor="Red">
+    Shell.FlyoutBehavior="Flyout" Title="" NavBarIsVisible="False">
     <TabBar >
         <Tab Route="home" Icon="housesolid.png" >
             <ShellContent Title="Home" Route="main">

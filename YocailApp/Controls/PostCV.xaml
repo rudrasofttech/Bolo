@@ -19,8 +19,11 @@
                         </Image.GestureRecognizers>
                     </Image>
                 </Frame>
-
-                <Label Text="{Binding Post.Owner.UserName,StringFormat='@{0}'}"  VerticalOptions="Center" HorizontalOptions="Center" FontFamily="InterSemiBold" FontSize="Header" ></Label>
+                <Label Text="{Binding Post.Owner.UserName,StringFormat='@{0}'}"  VerticalOptions="Center" HorizontalOptions="Center" FontFamily="InterSemiBold" FontSize="Header" >
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                    </Label.GestureRecognizers>
+                </Label>
             </HorizontalStackLayout>
         </Grid>
         <StackLayout x:Name="PhotoStackLayout" MinimumHeightRequest="200">

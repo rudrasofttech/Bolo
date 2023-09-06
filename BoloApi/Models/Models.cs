@@ -159,7 +159,7 @@ namespace Bolo.Models
         public List<MemberRole> Roles { get; set; }
         [Required]
         [MaxLength(300)]
-        public string  SecurityQuestion{ get; set; }
+        public string SecurityQuestion { get; set; }
         [Required]
         public byte[] SecurityAnswer { get; set; }
         public bool IsEmailVerified { get; set; }
@@ -348,7 +348,7 @@ namespace Bolo.Models
     {
         public int ID { get; set; }
     }
-    public class PopularPublicAccountView 
+    public class PopularPublicAccountView
     {
         public int ID { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -384,9 +384,16 @@ namespace Bolo.Models
         public string State { get; set; } = string.Empty;
 
         public string City { get; set; } = string.Empty;
-        
+
         public string ThoughtStatus { get; set; } = string.Empty;
-public string SecurityQuestion { get; set; }
-       
+        public string SecurityQuestion { get; set; }
+
+    }
+
+    public class PostFeedViewItem
+    {
+        public int ID { get; set; }
+        //public string Tag { get; set; }
+        //public int FollowingID { get; set; }
     }
 }

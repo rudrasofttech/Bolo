@@ -3,13 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              xmlns:controls="clr-namespace:YocailApp.Controls"
-             x:Class="YocailApp.ProfilePage" Title="{Binding Member.UserName, Mode=TwoWay}" Shell.BackgroundColor="White" Shell.TitleColor="Black" Shell.NavBarIsVisible="True">
+             x:Class="YocailApp.ProfilePage" Title="{Binding Member.UserName, Mode=TwoWay}" Shell.NavBarIsVisible="True">
     <ContentPage.BindingContext>
         <local:ProfileVM />
     </ContentPage.BindingContext>
     <ScrollView>
-        <StackLayout>
-            <Grid ColumnDefinitions="Auto,*" Padding="10,0">
+        <StackLayout Padding="0,10">
+            <controls:MemberCard x:Name="MemberCard" />
+            <!--<Grid ColumnDefinitions="Auto,*" Padding="10,0">
                 <Frame Grid.Column="0" VerticalOptions="Start" WidthRequest="130" HeightRequest="130" HorizontalOptions="Center" IsVisible="{Binding ProfilePicVisible}" CornerRadius="10" BorderColor="Transparent" Margin="0,0,0,10">
                     <Image Source="{Binding Member.PicFormedURL, Mode=TwoWay}" WidthRequest="130" HeightRequest="130" Aspect="AspectFill" />
                 </Frame>
@@ -29,7 +30,7 @@
                 <Label Grid.Column="1" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Followers" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Label Grid.Column="2" Grid.Row="0" FontSize="Body" FontAttributes="Bold" Text="{Binding Member.FollowingCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <Label Grid.Column="2" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Following" HorizontalOptions="Center" VerticalOptions="Center"/>
-            </Grid>
+            </Grid>-->
             <StackLayout>
                 <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
 VerticalOptions="FillAndExpand"  RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
@@ -48,4 +49,5 @@ VerticalOptions="FillAndExpand"  RemainingItemsThreshold="2" RemainingItemsThres
         </StackLayout>
 
     </ScrollView>
+    
 </ContentPage>

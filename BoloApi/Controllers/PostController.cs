@@ -210,20 +210,26 @@ namespace Bolo.Controllers
         public async Task<PostsPaged> FeedAsync([FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+
             var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
-            var query = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => true);
-            List<string> tags = new List<string>();
+            var query = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => !ignored.Contains(t.Owner));
+            
             List<Member> MemberList = new List<Member>
             {
                 currentMember
             };
             MemberList.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && t.Status == FollowerStatus.Active && string.IsNullOrEmpty(t.Tag)).Select(t => t.Following).ToList());
+            query = query.Where(t => MemberList.Contains(t.Owner));
+
+            List<string> tags = new List<string>();
             tags.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && !string.IsNullOrEmpty(t.Tag) && t.Following == null).Select(t => t.Tag).ToList());
-            query = query.Where(t => MemberList.Contains(t.Owner)).Where(t => !ignored.Contains(t.Owner));
+            var query2 = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => !ignored.Contains(t.Owner));
             foreach (string tag in tags)
             {
-                query = query.Where(t => t.Describe.Contains(tag));
+                query2 = query2.Where(t => t.Describe.Contains(tag));
             }
+            query = query.Union(query2);            
+
             var list = query.OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps).ToList();
             List<PostDTO> posts = new List<PostDTO>();
             foreach (MemberPost pd in list)

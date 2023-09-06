@@ -23,13 +23,9 @@ namespace YocailApp.ViewModel
             {
                 _member = value;
                 OnPropertyChanged();
-                OnPropertyChanged("ProfilePic");
                 OnPropertyChanged("ProfilePicVisible");
                 OnPropertyChanged("NameVisible");
-                OnPropertyChanged("Name");
                 OnPropertyChanged("ThoughtStatusVisible");
-                OnPropertyChanged("ThoughtStatus");
-                OnPropertyChanged("Bio");
                 OnPropertyChanged("BioVisible");
                 OnPropertyChanged("ManageProfileButtonVisible");
             }
@@ -75,7 +71,6 @@ namespace YocailApp.ViewModel
                 return !string.IsNullOrEmpty(Member.Name);
             }
         }
-        public string Name { get { return Member.Name; } }
 
         public bool ThoughtStatusVisible
         {
@@ -84,9 +79,7 @@ namespace YocailApp.ViewModel
                 return !string.IsNullOrEmpty(Member.ThoughtStatus);
             }
         }
-        public string ThoughtStatus { get { return Member.ThoughtStatus; } }
 
-        public string Bio { get { return Member.Bio; } }
         public bool BioVisible { get { return !string.IsNullOrEmpty(Member.Bio); } }
 
         public ProfileVM()
