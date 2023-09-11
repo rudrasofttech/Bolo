@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Bolo.Data;
 using Bolo.Models;
@@ -37,17 +38,17 @@ namespace Bolo.Controllers
         //}
 
         [HttpGet]
-        public List<SearchResultItem> Get([FromQuery]string q = "")
+        public List<SearchResultItem> Get([FromQuery] string q = "")
         {
             List<SearchResultItem> result = new List<SearchResultItem>();
-            if (!string.IsNullOrEmpty(q) && q.Length > 0)
+            if (!string.IsNullOrEmpty(q) && q.Length > 3)
             {
-               var tags = _context.HashTags.Where(t => t.Tag.StartsWith("#" + q))
-                    .GroupBy(t => t.Tag)
-                    .Select(t => new HashtagDTO() { Tag = t.Key, PostCount = t.Count() })
-                    .OrderByDescending(t => t.PostCount).Take(50);
+                var tags = _context.HashTags.Where(t => t.Tag.StartsWith("#" + q))
+                     .GroupBy(t => t.Tag)
+                     .Select(t => new HashtagDTO() { Tag = t.Key, PostCount = t.Count() })
+                     .OrderByDescending(t => t.PostCount).Take(50);
 
-                foreach(var ht in tags)
+                foreach (var ht in tags)
                     result.Add(new SearchResultItem() { Hashtag = ht });
 
                 var members = _context.Members.Where(t => t.UserName.Contains(q) || t.Name.Contains(q))
@@ -55,10 +56,19 @@ namespace Bolo.Controllers
                 foreach (var m in members)
                     result.Add(new SearchResultItem() { Member = m });
 
+                _context.SearchKeywords.Add(new SearchKeyword()
+                {
+                    CreateDate = DateTime.UtcNow,
+                    ID = Guid.NewGuid(),
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString(),
+                    Text = q,
+                    ResultCount = result.Count()
+                });
+                _context.SaveChanges();
             }
             return result;
         }
 
-        
+
     }
 }

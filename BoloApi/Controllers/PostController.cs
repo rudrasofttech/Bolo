@@ -207,7 +207,7 @@ namespace Bolo.Controllers
         //get signed in user feed
         [HttpGet]
         [Route("feed")]
-        public async Task<PostsPaged> FeedAsync([FromQuery] int ps = 20, [FromQuery] int p = 0)
+        public async Task<PostsPaged> FeedAsync([FromQuery] int ps = 36, [FromQuery] int p = 0)
         {
             Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
 
@@ -223,13 +223,15 @@ namespace Bolo.Controllers
 
             List<string> tags = new List<string>();
             tags.AddRange(_context.Followers.Where(t => t.Follower.ID == currentMember.ID && !string.IsNullOrEmpty(t.Tag) && t.Following == null).Select(t => t.Tag).ToList());
-            var query2 = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => !ignored.Contains(t.Owner));
-            foreach (string tag in tags)
+            if (tags.Count > 0)
             {
-                query2 = query2.Where(t => t.Describe.Contains(tag));
+                var query2 = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => !ignored.Contains(t.Owner));
+                foreach (string tag in tags)
+                {
+                    query2 = query2.Where(t => t.Describe.Contains(tag));
+                }
+                query = query.Union(query2);
             }
-            query = query.Union(query2);            
-
             var list = query.OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps).ToList();
             List<PostDTO> posts = new List<PostDTO>();
             foreach (MemberPost pd in list)

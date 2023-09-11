@@ -222,6 +222,17 @@ namespace Bolo.Models
         public string Description { get; set; }
     }
 
+    public class SearchKeyword
+    {
+        public Guid ID { get; set; }
+        [MaxLength(100)]
+        public string Text { get; set; }
+        public DateTime CreateDate { get; set; }
+        [MaxLength(20)]
+        public string IPAddress { get; set; }
+        public int ResultCount { get; set; }
+    }
+
     public class MemberFollower
     {
         public int ID { get; set; }
