@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              xmlns:controls="clr-namespace:YocailApp.Controls"
-             x:Class="YocailApp.ProfilePage" Title="{Binding Member.UserName, Mode=TwoWay}" Shell.NavBarIsVisible="True">
+             x:Class="YocailApp.ProfilePage" Title="{Binding Member.UserName, Mode=TwoWay}">
     <ContentPage.BindingContext>
         <local:ProfileVM />
     </ContentPage.BindingContext>

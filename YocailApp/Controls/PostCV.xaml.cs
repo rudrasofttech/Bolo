@@ -82,15 +82,17 @@ public partial class PostCV : ContentView
     private async void ImageButton_Clicked(object sender, EventArgs e)
     {
         
-        var navigationParameter = new Dictionary<string, object>
-    {
-        { "Post", (BindingContext as PostVM).Post }
-    };
-        await Shell.Current.GoToAsync($"///comments", navigationParameter);
+    //    var navigationParameter = new Dictionary<string, object>
+    //{
+    //    { "Post", (BindingContext as PostVM).Post }
+    //};
+        //await Shell.Current.GoToAsync($"///comments", navigationParameter);
+        await Navigation.PushAsync(new CommentsPage((BindingContext as PostVM).Post));
     }
 
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        await Shell.Current.GoToAsync($"///profile?username={(BindingContext as PostVM).Post.Owner.UserName}");
+        //await Shell.Current.GoToAsync($"///member?username={(BindingContext as PostVM).Post.Owner.UserName}");
+        await Navigation.PushAsync(new MemberPage((BindingContext as PostVM).Post.Owner.UserName));
     }
 }

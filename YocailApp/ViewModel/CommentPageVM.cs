@@ -14,7 +14,7 @@ using YocailApp.Resources.Translations;
 
 namespace YocailApp.ViewModel
 {
-    public class CommentPageVM : CollectionBaseVM, IQueryAttributable
+    public class CommentPageVM : CollectionBaseVM
     {
         public PostModel Post { get; set; }
 
@@ -182,7 +182,7 @@ namespace YocailApp.ViewModel
 
         public async void DeleteComment(CommentVM obj)
         {
-            Loading = true;
+            //Loading = true;
             try
             {
                 var client = await Utility.SharedClientAsync();
@@ -217,17 +217,17 @@ namespace YocailApp.ViewModel
             }
             finally
             {
-                Loading = false;
+                //Loading = false;
             }
         }
 
-        public async void ApplyQueryAttributes(IDictionary<string, object> query)
-        {
-            Post = query["Post"] as PostModel;
-            //since this is fresh load clear collection
-            Comments?.Clear();
+        //public async void ApplyQueryAttributes(IDictionary<string, object> query)
+        //{
+        //    Post = query["Post"] as PostModel;
+        //    //since this is fresh load clear collection
+        //    Comments?.Clear();
 
-            await LoadData();
-        }
+        //    await LoadData();
+        //}
     }
 }

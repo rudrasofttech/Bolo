@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace YocailApp.ViewModel
 {
-    public class ProfileVM : CollectionBaseVM, IQueryAttributable
+    public class ProfileVM : CollectionBaseVM
     {
-        public string UserName { get; private set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
 
         private MemberModel _member = new MemberModel();
         public MemberModel Member
@@ -104,15 +104,18 @@ namespace YocailApp.ViewModel
             });
         }
 
-        public void ApplyQueryAttributes(IDictionary<string, object> query)
-        {
-            UserName = query["username"] as string;
-            OnPropertyChanged("UserName");
-        }
+        //public async void ApplyQueryAttributes(IDictionary<string, object> query)
+        //{
+        //    UserName = query["username"] as string;
+        //    if (UserName == "1")
+        //        UserName = string.Empty;
+        //    OnPropertyChanged("UserName");
+        //    await LoadData();
+        //}
 
         public async Task LoadData()
         {
-            if (Member == null || Member.UserName != UserName)
+            //if (Member == null || Member.UserName != UserName)
                 Posts?.Clear();
 
             await LoadMemberProfileAsync();

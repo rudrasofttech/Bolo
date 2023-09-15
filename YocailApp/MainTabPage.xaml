@@ -3,21 +3,30 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
             xmlns:local="clr-namespace:YocailApp"
             x:Class="YocailApp.MainTabPage" xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
-            android:TabbedPage.ToolbarPlacement="Bottom">
-    <NavigationPage Title="Home">
-        
+            android:TabbedPage.ToolbarPlacement="Bottom" android:TabbedPage.IsSwipePagingEnabled="False">
+    <NavigationPage Title="" IconImageSource="housesolid.png">
         <x:Arguments>
             <local:MainPage />
         </x:Arguments>
     </NavigationPage>
-    <NavigationPage Title="Search">
+    <NavigationPage Title="" IconImageSource="search.png">
         <x:Arguments>
             <local:SearchPage />
         </x:Arguments>
     </NavigationPage>
-    <NavigationPage Title="Explore">
+    <NavigationPage Title="" IconImageSource="globe.png">
         <x:Arguments>
             <local:DiscoverPage />
+        </x:Arguments>
+    </NavigationPage>
+    <NavigationPage Title="" IconImageSource="plussolid.png">
+        <x:Arguments>
+            <local:AddPostPage />
+        </x:Arguments>
+    </NavigationPage>
+    <NavigationPage Title="" IconImageSource="personsquare.png">
+        <x:Arguments>
+            <local:ProfilePage />
         </x:Arguments>
     </NavigationPage>
 </TabbedPage>

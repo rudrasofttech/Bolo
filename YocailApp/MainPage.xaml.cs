@@ -12,20 +12,22 @@ namespace YocailApp
         public MainPage()
         {
             InitializeComponent();
+            Loaded += MainPage_Loaded;
         }
 
-        protected override async void OnAppearing()
+        private async void MainPage_Loaded(object sender, EventArgs e)
         {
-            base.OnAppearing();
             (BindingContext as MainPageVM).CurrentMember = JsonSerializer.Deserialize<MemberModel>(AccessSecureStorage.GetCurrentMember()
                 , new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-            (BindingContext as MainPageVM).LoadFeedFromCache();
-            if (!(BindingContext as MainPageVM).HasCacheData)
+            //(BindingContext as MainPageVM).LoadFeedFromCache();
+            //if (!(BindingContext as MainPageVM).HasCacheData)
+            if ((BindingContext as MainPageVM).Posts.Count == 0)
             {
                 await (BindingContext as MainPageVM).LoadData();
             }
-            
         }
+
+        
 
         private async void PostCV_HamburgerMenuClicked(PostVM sender)
         {

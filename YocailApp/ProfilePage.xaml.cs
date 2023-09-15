@@ -7,13 +7,15 @@ public partial class ProfilePage : ContentPage
 	public ProfilePage()
 	{
 		InitializeComponent();
+        Loaded += ProfilePage_Loaded;
 	}
 
-    protected override async void OnAppearing()
+    private async void ProfilePage_Loaded(object sender, EventArgs e)
     {
-        base.OnAppearing();
-        
-        await (BindingContext as ProfileVM).LoadData();
+        if (string.IsNullOrEmpty((BindingContext as ProfileVM).UserName))
+        {
+            await (BindingContext as ProfileVM).LoadData();
+        }
         MemberModel m = (BindingContext as ProfileVM).Member;
         MemberCard.Member = m;
         MemberCard.ManageProfileButtonVisible = true;

@@ -2,14 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
+             xmlns:controls="clr-namespace:YocailApp.Controls"
              x:Class="YocailApp.CommentsPage"
-             Title="Comments" Shell.PresentationMode="Animated" 
-             Shell.TitleColor="Black" Shell.BackgroundColor="White"  Shell.NavBarHasShadow="True" Shell.NavBarIsVisible="True">
+             Title="Comments" Shell.NavBarIsVisible="True">
     <ContentPage.BindingContext>
         <local:CommentPageVM />
     </ContentPage.BindingContext>
     <Grid RowDefinitions="*,Auto" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-        <ScrollView Grid.Row="0" Padding="0" Margin="0">
+        <ScrollView Grid.Row="0" Padding="5" Margin="0">
             <StackLayout>
                 <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />
                 <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" Padding="0" Margin="0">
@@ -18,35 +18,42 @@
                                  RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <StackLayout Padding="0" Margin="0,0,15,0">
-                                    <Grid ColumnDefinitions="35,*,30" Margin="15,0,15,0" Padding="0">
-                                        <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Margin="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
-                                            <Image Source="{Binding Comment.PostedBy.PicPathConverted}" WidthRequest="35" HeightRequest="35"/>
-                                        </Frame>
-                                        <StackLayout Grid.Column="1" Padding="10,0,0,0" HorizontalOptions="FillAndExpand">
-                                            <Label Text="{Binding Comment.PostedBy.UserName}" VerticalOptions="Center" FontFamily="InterSemiBold" FontSize="Header"></Label>
-                                            <Label Text="{Binding Comment.PostDateDisplay}" VerticalOptions="Center"  FontFamily="InterLight" FontSize="Micro" Padding="0"></Label>
-                                        </StackLayout>
-                                        <StackLayout Grid.Column="2" VerticalOptions="Center">
-                                            <ImageButton Source="threedotsvertical.svg" HeightRequest="20" CommandParameter="{Binding}" Clicked="ImageButton_Clicked" />
-                                        </StackLayout>
-                                    </Grid>
-                                    <Label Text="{Binding Comment.Comment}" FontSize="Body" Padding="15,5,15,5" LineBreakMode="WordWrap"></Label>
-                                </StackLayout>
+                                <SwipeView >
+                                    <StackLayout Padding="0" Margin="0,0,0,20">
+                                        <Grid ColumnDefinitions="30,*" Margin="5,5,5,0" Padding="0">
+                                            <Frame BorderColor="Transparent" WidthRequest="30" HeightRequest="30" CornerRadius="3" Padding="0" Margin="0" Grid.Row="0" Grid.Column="0" HorizontalOptions="Fill" VerticalOptions="Fill" >
+                                                <controls:MemberPicView BindingContext="{Binding Comment.PostedBy}" />
+                                            </Frame>
+                                            <StackLayout Grid.Column="1" Padding="10,0,0,0" HorizontalOptions="FillAndExpand">
+                                                <Frame HorizontalOptions="Start" VerticalOptions="Start" Margin="0" Padding="0" BorderColor="Transparent">
+                                                    <controls:MembernameView BindingContext="{Binding Comment.PostedBy}" />
+                                                </Frame>
+                                                <Label Text="{Binding Comment.PostDateDisplay}" VerticalOptions="Center"  FontFamily="InterLight" FontSize="Micro" Padding="0"></Label>
+                                            </StackLayout>
+                                            
+                                        </Grid>
+                                        <Label Text="{Binding Comment.Comment}" FontSize="Default" Padding="5" LineBreakMode="WordWrap"></Label>
+                                    </StackLayout>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems>
+                                            <SwipeItemView Invoked="SwipeItemView_Invoked" CommandParameter="{Binding}">
+                                                <Image Source="trash3.png" HeightRequest="25" WidthRequest="25" />
+                                            </SwipeItemView>
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+                                </SwipeView>
+
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </RefreshView>
             </StackLayout>
-
         </ScrollView>
         <StackLayout Grid.Row="1">
-            <Border>
-                <Grid ColumnDefinitions="*,50" Padding="10">
-                    <Editor AutoSize="TextChanges" Text="{Binding CommentDraft, Mode=TwoWay}" FontSize="16" MaximumHeightRequest="200" IsTextPredictionEnabled="True" Placeholder="Type your comment" Grid.Column="0" ></Editor>
-                    <ImageButton Source="cursorfill.svg" Command="{Binding PostCommentCommand}" Padding="5" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center"></ImageButton>
-                </Grid>
-            </Border>
+            <Grid ColumnDefinitions="*,50" Padding="5">
+                <Entry ClearButtonVisibility="WhileEditing" Keyboard="Chat" Text="{Binding CommentDraft, Mode=TwoWay}" FontSize="Default" IsSpellCheckEnabled="True" IsTextPredictionEnabled="True" Placeholder="Type your comment" Grid.Column="0" ></Entry>
+                <ImageButton Source="cursorfill.svg" Command="{Binding PostCommentCommand}" Padding="5" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center"></ImageButton>
+            </Grid>
         </StackLayout>
     </Grid>
 </ContentPage>

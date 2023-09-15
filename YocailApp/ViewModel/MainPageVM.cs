@@ -15,7 +15,7 @@ namespace YocailApp.ViewModel
 
         string feeddatapath = Utility.FeedDataFilePath;
 
-        public ObservableCollection<PostVM> _posts;
+        private ObservableCollection<PostVM> _posts = new ObservableCollection<PostVM>();
         public ObservableCollection<PostVM> Posts
         {
             get => _posts;

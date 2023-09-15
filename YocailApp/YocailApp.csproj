@@ -81,6 +81,7 @@
 	  <None Remove="Resources\Images\search.png" />
 	  <None Remove="Resources\Images\share.svg" />
 	  <None Remove="Resources\Images\threedotsvertical.svg" />
+	  <None Remove="Resources\Images\trash3.png" />
 	  <None Remove="Resources\Images\trash3.svg" />
 	</ItemGroup>
 
@@ -117,6 +118,12 @@
 	  <MauiXaml Update="Controls\MemberCard.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\MembernameView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\MemberPicView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\PostCV.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -136,6 +143,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="CommentsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MemberPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="PostPage.xaml">

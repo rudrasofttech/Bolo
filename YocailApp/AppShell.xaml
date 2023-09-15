@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:YocailApp"
-    Shell.FlyoutBehavior="Flyout" Title="" NavBarIsVisible="False">
+    Shell.FlyoutBehavior="Disabled" Title="" NavBarIsVisible="False">
     <TabBar >
         <Tab Route="home" Icon="housesolid.png" >
             <ShellContent Title="Home" Route="main">
@@ -23,10 +23,10 @@
             <ShellContent Title="Add Post" Route="addpost" ContentTemplate="{DataTemplate local:AddPostPage}" />
         </Tab>
         <Tab Icon="personsquare.png" >
-            <ShellContent Title="Profile" Route="profile?username=" ContentTemplate="{DataTemplate local:ProfilePage}" />
+            <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
         </Tab>
     </TabBar>
-    <ShellContent Title="Post" Route="post" ContentTemplate="{DataTemplate local:PostPage}" />
-    <ShellContent Title="Comments" Route="comments" ContentTemplate="{DataTemplate local:CommentsPage}" />
-    <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
+    <!--<ShellContent Title="Post" Route="post" ContentTemplate="{DataTemplate local:PostPage}" />-->
+    <!--<ShellContent Title="Comments" Route="comments" ContentTemplate="{DataTemplate local:CommentsPage}" />-->
+    <!--<ShellContent Title="Profile" Route="member" ContentTemplate="{DataTemplate local:MemberPage}" />-->
 </Shell>
