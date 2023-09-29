@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:local="clr-namespace:YocailApp.ViewModel"
+             xmlns:res="clr-namespace:YocailApp.Resources.Translations"
+             x:Class="YocailApp.RegisterPage"
+             Title="Register">
+    <ContentPage.BindingContext>
+        <local:RegisterPageVM />
+    </ContentPage.BindingContext>
+    <VerticalStackLayout Padding="15" HorizontalOptions="Fill" VerticalOptions="Start">
+        <Image Source="logo.png" WidthRequest="100" Margin="0,20,0,30" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Frame Padding="20" Background="#F9F9F9" CornerRadius="20" BorderColor="Transparent">
+            <VerticalStackLayout>
+                <Label Text="Let's Get You Started" TextTransform="Uppercase"></Label>
+                <Label Text="Create an Account" Margin="0,5,0,20" Style="{StaticResource HeadingLabel}"></Label>
+                <Frame HasShadow="True" BackgroundColor="White" Padding="15,0">
+                    <Grid ColumnDefinitions="15,*">
+                        <Image Source="personfill.svg" Grid.Column="0" WidthRequest="15" HeightRequest="15"/>
+                        <Entry MaxLength="50" HorizontalOptions="FillAndExpand" Grid.Column="1" Placeholder="{x:Static res:AppRes.UsernamePh }"  Text="{Binding UserName, Mode=TwoWay}">
+                            <Entry.Behaviors>
+                                <toolkit:TextValidationBehavior 
+InvalidStyle="{StaticResource InvalidEntryStyle}"
+ValidStyle="{StaticResource ValidEntryStyle}"
+Flags="ValidateOnValueChanged"
+MinimumLength="1"
+MaximumLength="200" />
+                                <toolkit:RequiredStringValidationBehavior InvalidStyle="{StaticResource InvalidEntryStyle}"
+ValidStyle="{StaticResource ValidEntryStyle}" Flags="ValidateOnAttaching"></toolkit:RequiredStringValidationBehavior>
+                            </Entry.Behaviors>
+                        </Entry>
+                    </Grid>
+                </Frame>
+                <Frame HasShadow="True" Margin="0,10,0,0"  BackgroundColor="White" Padding="15,0">
+                    <Grid ColumnDefinitions="15,*">
+                        <Image Source="lockfill.svg" Grid.Column="0" WidthRequest="15" HeightRequest="15"/>
+                        <Entry IsPassword="True" Grid.Column="1" Placeholder="{x:Static res:AppRes.PasswordPh }" Text="{Binding Password, Mode=TwoWay}" />
+                    </Grid>
+                </Frame>
+                <Frame HasShadow="True" Margin="0,10,0,0" BackgroundColor="White" Padding="15,0">
+                    <Grid ColumnDefinitions="15,*">
+                        <Image Source="envelopefill.svg" Grid.Column="0" WidthRequest="15" HeightRequest="15"/>
+                        <Entry Keyboard="Email" MaxLength="200" HorizontalOptions="FillAndExpand" Grid.Column="1" Placeholder="Email"  Text="{Binding Email, Mode=TwoWay}">
+                            <Entry.Behaviors>
+                                <toolkit:EmailValidationBehavior  Flags="ValidateOnValueChanged" InvalidStyle="{StaticResource InvalidEntryStyle}"
+ValidStyle="{StaticResource ValidEntryStyle}" MaximumLength="200"></toolkit:EmailValidationBehavior>
+                            </Entry.Behaviors>
+                        </Entry>
+                    </Grid>
+                </Frame>
+                <Frame HasShadow="True" Margin="0,10,0,0" BackgroundColor="White" Padding="15,0">
+                    <Grid ColumnDefinitions="15,*">
+                        <Image Source="shield.svg" Grid.Column="0" WidthRequest="15" HeightRequest="15"/>
+                        <Entry HorizontalOptions="FillAndExpand" Grid.Column="1" Placeholder="Security Question"  Text="{Binding SecurityQuestion, Mode=TwoWay}">
+                            <Entry.Behaviors>
+                                <toolkit:RequiredStringValidationBehavior InvalidStyle="{StaticResource InvalidEntryStyle}"
+ValidStyle="{StaticResource ValidEntryStyle}" Flags="ValidateOnValueChanged"></toolkit:RequiredStringValidationBehavior>
+                            </Entry.Behaviors>
+                        </Entry>
+                    </Grid>
+                </Frame>
+                <Frame HasShadow="True" Margin="0,10,0,0" BackgroundColor="White" Padding="15,0">
+                    <Grid ColumnDefinitions="15,*">
+                        <Image Source="shieldcheck.svg" Grid.Column="0" WidthRequest="15" HeightRequest="15"/>
+                        <Entry HorizontalOptions="FillAndExpand" Grid.Column="1" Placeholder="Security Password"  Text="{Binding SecurityPassword, Mode=TwoWay}">
+                            <Entry.Behaviors>
+                                <toolkit:RequiredStringValidationBehavior InvalidStyle="{StaticResource InvalidEntryStyle}"
+ValidStyle="{StaticResource ValidEntryStyle}" Flags="ValidateOnValueChanged"></toolkit:RequiredStringValidationBehavior>
+                            </Entry.Behaviors>
+                        </Entry>
+                    </Grid>
+                </Frame>
+                <Button Text="Register" IsEnabled="{Binding RegisterBtnEnabled}" FontFamily="PoppinsBold" Margin="0,10,0,0" Command="{Binding RegisterCommand}"></Button>
+                <HorizontalStackLayout Margin="0,25,0,0" HorizontalOptions="Center">
+                    <Label Text="Already have an account? " TextColor="#212121" FontSize="13"></Label>
+                    <Label Text="LOGIN HERE" FontAttributes="Bold" TextColor="#212121" FontSize="13">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped">
+                            </TapGestureRecognizer>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Frame>
+        <ActivityIndicator HorizontalOptions="Center" IsRunning="{Binding Loading ,Mode=TwoWay}" />
+    </VerticalStackLayout>
+</ContentPage>

@@ -9,29 +9,49 @@
     <ContentPage.BindingContext>
         <local:LoginPageVM />
     </ContentPage.BindingContext>
-    <VerticalStackLayout Padding="10" HorizontalOptions="Fill" VerticalOptions="Center">
-        <Image Source="icon192.png" WidthRequest="100" Margin="10" HorizontalOptions="Center" VerticalOptions="Center" />
-        <VerticalStackLayout Padding="10">
-            <Entry Placeholder="{x:Static res:AppRes.UsernamePh }" Text="{Binding UserName, Mode=TwoWay}" MaximumWidthRequest="300">
-                <Entry.Behaviors>
-                    <toolkit:TextValidationBehavior 
-                InvalidStyle="{StaticResource InvalidEntryStyle}"
-                ValidStyle="{StaticResource ValidEntryStyle}"
-                Flags="ValidateOnValueChanged"
-                MinimumLength="1"
-                MaximumLength="200" />
-                </Entry.Behaviors>
-            </Entry>
-            <StackLayout HeightRequest="30"></StackLayout>
-            <Entry  IsPassword="True" Placeholder="{x:Static res:AppRes.PasswordPh }" Text="{Binding Password, Mode=TwoWay}" MaximumWidthRequest="300" />
-            <StackLayout HeightRequest="30"></StackLayout>
-            <Button Text="{x:Static res:AppRes.LoginBtn }" x:Name="LoginName" Command="{Binding SubmitLoginCommand}" MaximumWidthRequest="300"></Button>
-            <StackLayout HeightRequest="10"></StackLayout>
-            <StackLayout Margin="5" MinimumHeightRequest="30">
-                <Label HorizontalOptions="CenterAndExpand" IsVisible="{Binding Error, Mode=TwoWay}" Style="{StaticResource InvalidLabel}" VerticalOptions="Center" Text="{Binding ErrorMessage, Mode=TwoWay}"></Label>
-            </StackLayout>
-            <ActivityIndicator HorizontalOptions="Center" IsRunning="{Binding Loading ,Mode=TwoWay}" />
-            
-        </VerticalStackLayout>
+    <VerticalStackLayout Padding="15" HorizontalOptions="Fill" VerticalOptions="Start">
+        <Image Source="logo.png" WidthRequest="130" Margin="0,20,0,30" HorizontalOptions="Center" VerticalOptions="Center" />
+        <Frame Padding="20" Background="#F9F9F9" CornerRadius="20" BorderColor="Transparent">
+            <VerticalStackLayout>
+                <Label Text="Login" Margin="0,0,0,20" Style="{StaticResource HeadingLabel}"></Label>
+                <Frame HasShadow="True" BackgroundColor="White" Padding="15,0">
+                    <Grid ColumnDefinitions="15,*">
+                        <Image Source="personfill.svg" Grid.Column="0" WidthRequest="15" HeightRequest="15"/>
+                        <Entry HorizontalOptions="FillAndExpand" Grid.Column="1" Placeholder="{x:Static res:AppRes.UsernamePh }"  Text="{Binding UserName, Mode=TwoWay}">
+                            <Entry.Behaviors>
+                                <toolkit:TextValidationBehavior 
+InvalidStyle="{StaticResource InvalidEntryStyle}"
+ValidStyle="{StaticResource ValidEntryStyle}"
+Flags="ValidateOnValueChanged"
+MinimumLength="1"
+MaximumLength="200" />
+                            </Entry.Behaviors>
+                        </Entry>
+                    </Grid>
+                </Frame>
+                <Frame HasShadow="True" Margin="0,30,0,0"  BackgroundColor="White" Padding="15,0">
+                    <Grid ColumnDefinitions="15,*">
+                        <Image Source="lockfill.svg" Grid.Column="0" WidthRequest="15" HeightRequest="15"/>
+                        <Entry IsPassword="True" Grid.Column="1" Placeholder="{x:Static res:AppRes.PasswordPh }" Text="{Binding Password, Mode=TwoWay}" />
+                    </Grid>
+                </Frame>
+                <Label Text="Forgot Password?" TextColor="#7BAAF9" FontSize="13" Margin="0,10,0,10" FontAttributes="Bold" HorizontalOptions="End">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1"></TapGestureRecognizer>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Button Text="{x:Static res:AppRes.LoginBtn }" IsEnabled="{Binding LoginBtnEnabled}" FontFamily="PoppinsBold" x:Name="LoginName" Command="{Binding SubmitLoginCommand}"></Button>
+                <HorizontalStackLayout Margin="0,25,0,0" HorizontalOptions="Center">
+                    <Label Text="Don't have an account? " TextColor="#212121" FontSize="13"></Label>
+                    <Label Text="SIGN UP HERE" FontAttributes="Bold" TextColor="#212121" FontSize="13">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped">
+                            </TapGestureRecognizer>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Frame>
+        <ActivityIndicator HorizontalOptions="Center" IsRunning="{Binding Loading ,Mode=TwoWay}" />
     </VerticalStackLayout>
 </ContentPage>

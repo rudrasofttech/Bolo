@@ -61,4 +61,9 @@ public partial class MemberCard : ContentView
 	{
 		InitializeComponent();
 	}
+
+    private void ManageProfileButton_Clicked(object sender, EventArgs e)
+    {
+        
+    }
 }

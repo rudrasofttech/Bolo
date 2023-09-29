@@ -22,17 +22,17 @@
                 }
             }
         }
-        protected override bool OnBackButtonPressed()
-        {
-            if (Uri.Count > 0)
-            {
-                Shell.Current.GoToAsync(Uri.Pop());
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        //protected override bool OnBackButtonPressed()
+        //{
+        //    if (Uri.Count > 0)
+        //    {
+        //        Shell.Current.GoToAsync(Uri.Pop());
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
     }
 }

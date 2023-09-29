@@ -30,13 +30,12 @@
                                                 </Frame>
                                                 <Label Text="{Binding Comment.PostDateDisplay}" VerticalOptions="Center"  FontFamily="InterLight" FontSize="Micro" Padding="0"></Label>
                                             </StackLayout>
-                                            
                                         </Grid>
                                         <Label Text="{Binding Comment.Comment}" FontSize="Default" Padding="5" LineBreakMode="WordWrap"></Label>
                                     </StackLayout>
                                     <SwipeView.RightItems>
-                                        <SwipeItems>
-                                            <SwipeItemView Invoked="SwipeItemView_Invoked" CommandParameter="{Binding}">
+                                        <SwipeItems Mode="Reveal">
+                                            <SwipeItemView Invoked="SwipeItemView_Invoked" IsVisible="{Binding IsOwner}" CommandParameter="{Binding}">
                                                 <Image Source="trash3.png" HeightRequest="25" WidthRequest="25" />
                                             </SwipeItemView>
                                         </SwipeItems>
@@ -52,7 +51,7 @@
         <StackLayout Grid.Row="1">
             <Grid ColumnDefinitions="*,50" Padding="5">
                 <Entry ClearButtonVisibility="WhileEditing" Keyboard="Chat" Text="{Binding CommentDraft, Mode=TwoWay}" FontSize="Default" IsSpellCheckEnabled="True" IsTextPredictionEnabled="True" Placeholder="Type your comment" Grid.Column="0" ></Entry>
-                <ImageButton Source="cursorfill.svg" Command="{Binding PostCommentCommand}" Padding="5" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center"></ImageButton>
+                <ImageButton IsVisible="{Binding PostButtonEnabled, Mode=TwoWay}" Source="cursorfill.svg" Command="{Binding PostCommentCommand}" Padding="5" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center"></ImageButton>
             </Grid>
         </StackLayout>
     </Grid>

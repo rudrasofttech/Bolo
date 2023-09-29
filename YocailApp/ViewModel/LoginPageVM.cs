@@ -103,6 +103,13 @@ namespace YocailApp.ViewModel
             }
         }
 
+        private bool _loginBtnEnabled = true;
+        public bool LoginBtnEnabled
+        {
+            get { return _loginBtnEnabled; }
+            set { _loginBtnEnabled = value; OnPropertyChanged(); }
+        }
+
         public ICommand SubmitLoginCommand { get; private set; }
 
         public LoginPageVM()
@@ -110,14 +117,14 @@ namespace YocailApp.ViewModel
             SubmitLoginCommand = new Command(this.OnLogin);
         }
 
-        private void ValidateForm()
+        private async void ValidateForm()
         {
             UserNameValid = true;
             if (string.IsNullOrEmpty(UserName))
             {
                 UserNameValid = false;
                 Error = true;
-                ErrorMessage = "Username Missing";
+                await Utility.ShowToast("Username Missing");
                 return;
             }
             PasswordValid = true;
@@ -125,7 +132,7 @@ namespace YocailApp.ViewModel
             {
                 PasswordValid = false;
                 Error = true;
-                ErrorMessage = "Password Missing";
+                await Utility.ShowToast("Password Missing");
                 return;
             }
 
@@ -139,6 +146,7 @@ namespace YocailApp.ViewModel
             if (!Error)
             {
                 Loading = true;
+                LoginBtnEnabled = false;
                 try
                 {
                     var client = await Utility.SharedClientAsync();
@@ -160,17 +168,17 @@ namespace YocailApp.ViewModel
                     else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         Error = true;
-                        ErrorMessage = AppRes.UserNotFoundTxt;
+                        await Utility.ShowToast(AppRes.UserNotFoundTxt);
                     }
                     else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     {
                         Error = true;
-                        ErrorMessage = AppRes.UserLoginBadRequestTxt;
+                        await Utility.ShowToast(AppRes.UserLoginBadRequestTxt);
                     }
                     else
                     {
                         Error = true;
-                        ErrorMessage = AppRes.UserLoginBadRequestTxt;
+                        await Utility.ShowToast(AppRes.UserLoginBadRequestTxt);
                         Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
                     }
                 }
@@ -181,6 +189,7 @@ namespace YocailApp.ViewModel
                 finally
                 {
                     Loading = false;
+                    LoginBtnEnabled = true;
                 }
             }
         }

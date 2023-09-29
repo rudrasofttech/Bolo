@@ -358,4 +358,32 @@ namespace YocailApp
             }
         }
     }
+
+    public class RegisterDTO
+    {
+        [MaxLength(50)]
+        [Required]
+        public string UserName { get; set; } = string.Empty;
+        [MinLength(8)]
+        [Required]
+        public string Password { get; set; } = string.Empty;
+
+        [MaxLength(250)]
+        public string Email { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(300)]
+        public string SecurityQuestion { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public string SecurityAnswer { get; set; }
+        //[MaxLength(4)]
+        //public string Country { get; set; } = string.Empty;
+        //[MaxLength(15)]
+        //public string Phone { get; set; }
+    }
+
+    public class ErrorResultDTO
+    {
+        public string Error { get; set; } = string.Empty;
+    }
 }

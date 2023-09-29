@@ -8,40 +8,64 @@
         <local:ProfileVM />
     </ContentPage.BindingContext>
     <ScrollView>
-        <StackLayout Padding="0,10">
-            <controls:MemberCard x:Name="MemberCard" />
-            <!--<Grid ColumnDefinitions="Auto,*" Padding="10,0">
-                <Frame Grid.Column="0" VerticalOptions="Start" WidthRequest="130" HeightRequest="130" HorizontalOptions="Center" IsVisible="{Binding ProfilePicVisible}" CornerRadius="10" BorderColor="Transparent" Margin="0,0,0,10">
-                    <Image Source="{Binding Member.PicFormedURL, Mode=TwoWay}" WidthRequest="130" HeightRequest="130" Aspect="AspectFill" />
-                </Frame>
-                <StackLayout Grid.Column="1" Padding="10,0,10,0" VerticalOptions="Start">
-                    <Label Text="{Binding Member.Name, Mode=TwoWay}" Margin="0,0,0,5" IsVisible="{Binding NameVisible}" FontSize="Default" FontAttributes="Bold"></Label>
-                    <Label Text="{Binding Member.ThoughtStatus, Mode=TwoWay}" Margin="0,0,0,5" IsVisible="{Binding ThoughtStatusVisible}" FontSize="Default"></Label>
-                    <StackLayout Padding="0,0,0,10">
-                        <controls:ExpandableLabel x:Name="BioLabel" Text="{Binding Member.Bio}" IsVisible="{Binding BioVisible, Mode=TwoWay}" />
+        <StackLayout>
+            <Frame CornerRadius="10" Padding="5, 15" BorderColor="LightGray" Margin="10">
+                <StackLayout>
+                    <Frame VerticalOptions="Start" Padding="0" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" CornerRadius="50" BorderColor="Transparent" Margin="0,0,0,10">
+                        <Image Source="{Binding ProfilePic, Mode=TwoWay}" Aspect="Fill" />
+                    </Frame>
+                    <Label Text="{Binding Member.UserName, Mode=TwoWay}" HorizontalOptions="Center" Padding="0" Margin="0,5,0,0" TextColor="Black" FontSize="16" FontFamily="PoppinsBold" FontAttributes="Bold"></Label>
+                    <Label Text="{Binding Member.Name, Mode=TwoWay}" HorizontalOptions="Center" IsVisible="{Binding NameVisible}" FontSize="12" TextColor="#616161" FontFamily="Poppins"></Label>
+                    <Label Text="{Binding Member.ThoughtStatus, Mode=TwoWay}" HorizontalOptions="Center" Margin="0,0,0,5" IsVisible="{Binding ThoughtStatusVisible}" FontSize="13" TextColor="#616161"></Label>
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="20,20" Margin="0,5,0,5">
+                        <Label Grid.Column="0" Grid.Row="0" FontSize="14" FontAttributes="Bold" Text="{Binding Member.PostCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label Grid.Column="0" Grid.Row="1" FontSize="14" Text="Posts" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Grid.Row="0" FontSize="14" FontAttributes="Bold" Text="{Binding Member.FollowerCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Grid.Row="1" FontSize="14" Text="Followers" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Grid.Row="0" FontSize="14" FontAttributes="Bold" Text="{Binding Member.FollowingCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Grid.Row="1" FontSize="14" Text="Following" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Grid>
+                    <StackLayout Padding="0,0,0,10" IsVisible="{Binding BioVisible, Mode=TwoWay}">
+                        <controls:ExpandableLabel x:Name="BioLabel" Text="{Binding Member.Bio}" HorizontalOptions="Center" />
                     </StackLayout>
-                    <Button Text="Manage Profile" x:Name="ManageProfileButton" IsVisible="{Binding ManageProfileButtonVisible}" HorizontalOptions="Start" FontSize="Body" Padding="5" HeightRequest="35"></Button>
+                    <HorizontalStackLayout HorizontalOptions="Center">
+                        <Button Text="Edit Profile" HeightRequest="40" FontAttributes="Bold" x:Name="ManageProfileButton" Clicked="ManageProfileButton_Clicked" WidthRequest="100" HorizontalOptions="Center"></Button>
+                        <Frame CornerRadius="20" Margin="10,0,0,0" HeightRequest="40" WidthRequest="40" Padding="10" Background="{StaticResource Primary}">
+                            <Image Source="list.svg" />
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"></TapGestureRecognizer>
+                            </Frame.GestureRecognizers>
+                        </Frame>
+                    </HorizontalStackLayout>
+                    
                 </StackLayout>
-            </Grid>
-            <Grid ColumnDefinitions="*,*,*" RowDefinitions="20,20" Margin="0,0,0,20">
-                <Label Grid.Column="0" Grid.Row="0" FontSize="Body" FontAttributes="Bold" Text="{Binding Member.PostCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <Label Grid.Column="0" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Posts" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <Label Grid.Column="1" Grid.Row="0" FontSize="Body" FontAttributes="Bold" Text="{Binding Member.FollowerCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <Label Grid.Column="1" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Followers" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <Label Grid.Column="2" Grid.Row="0" FontSize="Body" FontAttributes="Bold" Text="{Binding Member.FollowingCount}" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <Label Grid.Column="2" Grid.Row="1" FontSize="Body" FontAttributes="Bold" Text="Following" HorizontalOptions="Center" VerticalOptions="Center"/>
-            </Grid>-->
+            </Frame>
             <StackLayout>
-                <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
+                <StackLayout IsVisible="{Binding EmptyTextVisible}" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="NOTHING TO SEE HERE" Style="{StaticResource HeadingLabel}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
+                    <Label Padding="10" Text="Add some photos now." FontFamily="Poppins" HorizontalOptions="Fill" HorizontalTextAlignment="Center"></Label>
+                </StackLayout>
+                <CollectionView IsVisible="{Binding HasData, Mode=OneWay}" ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
 VerticalOptions="FillAndExpand"  RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="3" />
+                        <GridItemsLayout Orientation="Vertical" Span="2" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <controls:PostPreviewCV BindingContext="{Binding this}"  />
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <ContentView>
+                            <StackLayout HorizontalOptions="CenterAndExpand"
+                             VerticalOptions="CenterAndExpand">
+                                <Label Text="No posts here. Add some photos."
+                           
+                           HorizontalOptions="Fill"
+                           HorizontalTextAlignment="Center" />
+                            </StackLayout>
+                        </ContentView>
+                    </CollectionView.EmptyView>
                 </CollectionView>
                 <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
                            IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />

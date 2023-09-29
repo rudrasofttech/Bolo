@@ -29,6 +29,30 @@ namespace YocailApp.ViewModel
             }
         }
 
+        public bool _emptyTextVisible = false;
+        public bool EmptyTextVisible
+        {
+            get => _emptyTextVisible;
+            set
+            {
+                if (_emptyTextVisible != value)
+                {
+                    _emptyTextVisible = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool HasData
+        {
+            get
+            {
+                if (Loading) return false;
+                else
+                    return Posts.Any();
+            }
+        }
+
         bool _hasCacheData;
         public bool HasCacheData
         {
@@ -69,10 +93,11 @@ namespace YocailApp.ViewModel
         public async Task LoadData()
         {
             Loading = true;
+            EmptyTextVisible = false;
             try
             {
                 var client = await Utility.SharedClientAsync();
-                using HttpResponseMessage response = await client.GetAsync($"api/post/explore?ps={PageSize}&p={CurrentPage}");
+                using HttpResponseMessage response = await client.GetAsync($"api/post/feed?ps={PageSize}&p={CurrentPage}");
                 if (response.IsSuccessStatusCode)
                 {
                     HttpContent content = response.Content;
@@ -93,9 +118,10 @@ namespace YocailApp.ViewModel
                         };
                         Posts.Add(apm);
                     }
-
+                    EmptyTextVisible = !Posts.Any();
                     var list = new List<PostModel>();
                     list.AddRange(Posts.Select(t => t.Post).ToList());
+
                     using FileStream outputStream = System.IO.File.OpenWrite(feeddatapath);
                     using StreamWriter streamWriter = new(outputStream);
                     await streamWriter.WriteAsync(JsonSerializer.Serialize(new PostsPaged() { Current = CurrentPage, PageSize = PageSize, Total = TotalRecords, Posts = list }));

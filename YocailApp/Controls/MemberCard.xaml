@@ -14,7 +14,7 @@
                 <StackLayout Padding="0,0,0,10">
                     <controls:ExpandableLabel x:Name="BioLabel" Text="{Binding Member.Bio}" IsVisible="{Binding BioVisible, Mode=TwoWay}" />
                 </StackLayout>
-                <Button Text="Manage Profile" x:Name="ManageProfileButton" IsVisible="{Binding ManageProfileButtonVisible}" HorizontalOptions="Start" FontSize="Body" Padding="5" HeightRequest="35"></Button>
+                <Button Text="Manage Profile" Clicked="ManageProfileButton_Clicked" x:Name="ManageProfileButton" IsVisible="{Binding ManageProfileButtonVisible}" HorizontalOptions="Start" FontSize="Body" Padding="5" HeightRequest="35"></Button>
             </StackLayout>
         </Grid>
         <Grid ColumnDefinitions="*,*,*" RowDefinitions="20,20" Margin="0,0,0,20">

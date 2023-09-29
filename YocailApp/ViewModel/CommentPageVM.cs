@@ -32,6 +32,23 @@ namespace YocailApp.ViewModel
             }
         }
 
+        private bool _canPostComment = true;
+        public bool CanPostComment
+        {
+            get
+            {
+                return _canPostComment;
+            }
+            set
+            {
+                if (_canPostComment != value)
+                {
+                    _canPostComment = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ICommand DeleteCommand { get; set; }
         public ICommand PostCommentCommand { get; set; }
 
@@ -67,8 +84,7 @@ namespace YocailApp.ViewModel
                 IsRefreshing = true;
                 CurrentPage = 0;
                 TotalRecords = 0;
-                if (Comments != null)
-                    Comments.Clear();
+                Comments?.Clear();
                 await LoadData();
                 IsRefreshing = false;
             });
@@ -82,15 +98,23 @@ namespace YocailApp.ViewModel
                 await Utility.ShowToast(AppRes.NoInternetMsg);
                 return;
             }
+            if (string.IsNullOrEmpty(CommentDraft))
+            {
+                await Utility.ShowToast(AppRes.NoCommentToPostMessage);
+                return;
+            }
 
             Loading = true;
+            CanPostComment = false;
             try
             {
                 var client = await Utility.SharedClientAsync();
                 //using StringContent jsonContent = new(JsonSerializer.Serialize(new PostCommentDTO() { PostId = Post.ID, Comment = CommentDraft }), Encoding.UTF8, "application/json");
-                var formcontent = new MultipartFormDataContent();
-                formcontent.Add(new StringContent(Post.ID.ToString()), "PostId");
-                formcontent.Add(new StringContent(CommentDraft), "Comment");
+                var formcontent = new MultipartFormDataContent
+                {
+                    { new StringContent(Post.ID.ToString()), "PostId" },
+                    { new StringContent(CommentDraft), "Comment" }
+                };
                 using HttpResponseMessage response = await client.PostAsync("api/Post/addcomment", formcontent);
                 if (response.IsSuccessStatusCode)
                 {
@@ -105,6 +129,7 @@ namespace YocailApp.ViewModel
                     };
                     Comments.Insert(0, apm);
                     CommentDraft = string.Empty;
+                    await Utility.ShowToast(AppRes.CommentSavedMessage);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -114,18 +139,18 @@ namespace YocailApp.ViewModel
                 {
                     Error = true;
                     ErrorMessage = "";
-
                     Console.WriteLine("{0} ({1})", (int)response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error loading comments");
+                Console.WriteLine("Error saving comments");
                 Console.WriteLine(ex.Message);
             }
             finally
             {
                 Loading = false;
+                CanPostComment = true;
             }
         }
 
@@ -182,7 +207,6 @@ namespace YocailApp.ViewModel
 
         public async void DeleteComment(CommentVM obj)
         {
-            //Loading = true;
             try
             {
                 var client = await Utility.SharedClientAsync();
@@ -194,6 +218,7 @@ namespace YocailApp.ViewModel
                     {
                         IsRefreshing= true;
                     }
+                    await Utility.ShowToast(AppRes.CommentDeletedMessage);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -215,19 +240,6 @@ namespace YocailApp.ViewModel
                 await Utility.ShowToast(ErrorMessage);
                 Console.WriteLine(ex.Message);
             }
-            finally
-            {
-                //Loading = false;
-            }
         }
-
-        //public async void ApplyQueryAttributes(IDictionary<string, object> query)
-        //{
-        //    Post = query["Post"] as PostModel;
-        //    //since this is fresh load clear collection
-        //    Comments?.Clear();
-
-        //    await LoadData();
-        //}
     }
 }

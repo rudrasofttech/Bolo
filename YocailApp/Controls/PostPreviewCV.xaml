@@ -2,8 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.Controls.PostPreviewCV" x:Name="this">
-    <Frame BorderColor="Transparent" HeightRequest="120" Padding="1" IsClippedToBounds="True">
-        <Image Source="{Binding FirstPhoto}" HorizontalOptions="FillAndExpand" WidthRequest="116" VerticalOptions="FillAndExpand" Aspect="AspectFill" >
+    <Frame BorderColor="Transparent" CornerRadius="0" Padding="0" Margin="10,5" MaximumHeightRequest="170" IsClippedToBounds="True">
+        <Image Source="{Binding FirstPhoto}" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Aspect="Fill" >
             <Image.GestureRecognizers>
                 <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="TapGestureRecognizer_Tapped" />
             </Image.GestureRecognizers>

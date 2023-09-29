@@ -35,7 +35,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#ffffff" BaseSize="154,88" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#ffffff" BaseSize="154,88" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -57,29 +57,46 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Fonts\Inter-Bold.ttf" />
-	  <None Remove="Resources\Fonts\Inter-ExtraBold.ttf" />
-	  <None Remove="Resources\Fonts\Inter-ExtraLight.ttf" />
-	  <None Remove="Resources\Fonts\Inter-Light.ttf" />
-	  <None Remove="Resources\Fonts\Inter-Medium.ttf" />
-	  <None Remove="Resources\Fonts\Inter-Regular.ttf" />
-	  <None Remove="Resources\Fonts\Inter-SemiBold.ttf" />
-	  <None Remove="Resources\Fonts\Inter-Thin.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-Black.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-BlackItalic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-Bold.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-BoldItalic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-ExtraBold.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-ExtraBoldItalic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-ExtraLight.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-ExtraLightItalic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-Italic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-Light.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-LightItalic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-Medium.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-MediumItalic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-Regular.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-SemiBold.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-SemiBoldItalic.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-Thin.ttf" />
+	  <None Remove="Resources\Fonts\Poppins-ThinItalic.ttf" />
 	  <None Remove="Resources\Images\chatsquaretext.svg" />
 	  <None Remove="Resources\Images\chevronleft.png" />
 	  <None Remove="Resources\Images\chevronleft.svg" />
 	  <None Remove="Resources\Images\coffeecup.png" />
 	  <None Remove="Resources\Images\cursorfill.svg" />
+	  <None Remove="Resources\Images\envelopefill.svg" />
 	  <None Remove="Resources\Images\globe.png" />
 	  <None Remove="Resources\Images\hash.svg" />
 	  <None Remove="Resources\Images\heart.svg" />
 	  <None Remove="Resources\Images\heartfill.svg" />
 	  <None Remove="Resources\Images\housesolid.png" />
 	  <None Remove="Resources\Images\icon192.png" />
+	  <None Remove="Resources\Images\list.svg" />
+	  <None Remove="Resources\Images\lockfill.svg" />
+	  <None Remove="Resources\Images\logo.png" />
+	  <None Remove="Resources\Images\personfill.svg" />
 	  <None Remove="Resources\Images\personsquare.png" />
 	  <None Remove="Resources\Images\plussolid.png" />
 	  <None Remove="Resources\Images\search.png" />
 	  <None Remove="Resources\Images\share.svg" />
+	  <None Remove="Resources\Images\shield.svg" />
+	  <None Remove="Resources\Images\shieldcheck.svg" />
 	  <None Remove="Resources\Images\threedotsvertical.svg" />
 	  <None Remove="Resources\Images\trash3.png" />
 	  <None Remove="Resources\Images\trash3.svg" />
@@ -133,6 +150,12 @@
 	  <MauiXaml Update="DiscoverPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="EditProfilePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="ForgotPasswordPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="LoginPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -152,6 +175,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="ProfilePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="RegisterPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="SearchPage.xaml">

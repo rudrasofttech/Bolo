@@ -33,12 +33,6 @@ public partial class CommentsPage : ContentPage
         await (BindingContext as CommentPageVM).LoadData();
     }
 
-
-    //private async void BackButton_Clicked(object sender, EventArgs e)
-    //{
-    //    await Shell.Current.GoToAsync("//home/main");
-    //}
-
     private async void ImageButton_Clicked(object sender, EventArgs e)
     {
         var cvm = (sender as ImageButton).CommandParameter as CommentVM;

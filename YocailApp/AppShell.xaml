@@ -26,6 +26,7 @@
             <ShellContent Title="Profile" Route="profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
         </Tab>
     </TabBar>
+    <!--<ShellContent Title="Edit Profile" Route="editprofile" ContentTemplate="{DataTemplate local:EditProfilePage}" />-->
     <!--<ShellContent Title="Post" Route="post" ContentTemplate="{DataTemplate local:PostPage}" />-->
     <!--<ShellContent Title="Comments" Route="comments" ContentTemplate="{DataTemplate local:CommentsPage}" />-->
     <!--<ShellContent Title="Profile" Route="member" ContentTemplate="{DataTemplate local:MemberPage}" />-->

@@ -3,26 +3,37 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              xmlns:controls="clr-namespace:YocailApp.Controls"
-             x:Class="YocailApp.MainPage" Title="Home" NavigationPage.HasNavigationBar="False">
+             x:Class="YocailApp.MainPage" Title="Yocail">
     
     <ContentPage.BindingContext>
         <local:MainPageVM />
     </ContentPage.BindingContext>
-    <ScrollView x:Name="ScrollViewMain" Scrolled="ScrollView_Scrolled">
-        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
-            <StackLayout>
-                <CollectionView  ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="FeedPostCollectionView" HorizontalOptions="FillAndExpand" 
+    <Grid RowDefinitions="40,*" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <StackLayout Grid.Row="0">
+            <Image Source="logo.png" HeightRequest="35" HorizontalOptions="Center" />
+        </StackLayout>
+        
+        <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" x:Name="ScrollViewMain" Scrolled="ScrollView_Scrolled">
+            <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+                <StackLayout>
+                    <StackLayout IsVisible="{Binding EmptyTextVisible}" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                        <Label Text="NOTHING TO SEE HERE" Style="{StaticResource HeadingLabel}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
+                        <Label Padding="10" Text="We have nothing to show in your feed, may be trying adding some photos or starting following other members." HorizontalOptions="Fill" HorizontalTextAlignment="Center"></Label>
+                    </StackLayout>
+                    <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="FeedPostCollectionView" HorizontalOptions="FillAndExpand" 
                             VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-                <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
                    IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />
-            </StackLayout>
-        </RefreshView>
-    </ScrollView>
+                </StackLayout>
+            </RefreshView>
+        </ScrollView>
+    </Grid>
+    
 
 </ContentPage>

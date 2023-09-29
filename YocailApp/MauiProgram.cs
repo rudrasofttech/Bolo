@@ -13,15 +13,15 @@ namespace YocailApp
                 .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("Inter-Bold.ttf", "InterBold");
-                    fonts.AddFont("Inter-ExtraLight.ttf", "InterExtraLight");
-                    fonts.AddFont("Inter-Light.ttf", "InterLight");
-                    fonts.AddFont("Inter-Medium.ttf", "InterMedium");
-                    fonts.AddFont("Inter-Regular.ttf", "InterRegular");
-                    fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold");
-                    fonts.AddFont("Inter-Thin.ttf", "InterThin");
+                    fonts.AddFont("Poppins-Regular.ttf", "Poppins");
+                    fonts.AddFont("Poppins-Bold.ttf", "PoppinsBold");
+                    fonts.AddFont("Poppins-Black.ttf", "PoppinsBlack");
+                    fonts.AddFont("Poppins-ExtraBold.ttf", "PoppinsExtraBold");
+                    fonts.AddFont("Poppins-ExtraLight.ttf", "PoppinsExtraLight");
+                    fonts.AddFont("Poppins-Light.ttf", "PoppinsLight");
+                    fonts.AddFont("Poppins-Medium.ttf", "PoppinsMedium");
+                    fonts.AddFont("Poppins-SemiBold.ttf", "PoppinsSemiBold");
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("Inter-Light.ttf", "InterLight");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 

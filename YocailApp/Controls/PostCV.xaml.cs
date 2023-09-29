@@ -1,5 +1,7 @@
 
 using Microsoft.Maui.Controls;
+using System.Diagnostics;
+using YocailApp.Resources.Translations;
 using YocailApp.ViewModel;
 
 namespace YocailApp.Controls;

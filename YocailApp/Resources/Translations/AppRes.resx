@@ -123,6 +123,12 @@
   <data name="CancelTxt" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="CommentDeletedMessage" xml:space="preserve">
+    <value>Comment Deleted</value>
+  </data>
+  <data name="CommentSavedMessage" xml:space="preserve">
+    <value>Comment Posted</value>
+  </data>
   <data name="ConfirmTxt" xml:space="preserve">
     <value>Please Confirm!</value>
   </data>
@@ -132,11 +138,20 @@
   <data name="DeleteTxt" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="EditProfileTxt" xml:space="preserve">
+    <value>Edit Profile</value>
+  </data>
   <data name="EditTxt" xml:space="preserve">
     <value>Edit</value>
   </data>
   <data name="GenericServerErrorTxt" xml:space="preserve">
     <value>Unable to process request.</value>
+  </data>
+  <data name="IgnoredMembersTxt" xml:space="preserve">
+    <value>Ignored Members</value>
+  </data>
+  <data name="IgnoreMemberTxt" xml:space="preserve">
+    <value>Ignore Member</value>
   </data>
   <data name="LessTxt" xml:space="preserve">
     <value>Less...</value>
@@ -144,8 +159,14 @@
   <data name="LoginBtn" xml:space="preserve">
     <value>Login</value>
   </data>
+  <data name="LogoutTxt" xml:space="preserve">
+    <value>Logout</value>
+  </data>
   <data name="MoreTxt" xml:space="preserve">
     <value>More...</value>
+  </data>
+  <data name="NoCommentToPostMessage" xml:space="preserve">
+    <value>No comment to post.</value>
   </data>
   <data name="NoInternetMsg" xml:space="preserve">
     <value>No Internet Conectivity.</value>

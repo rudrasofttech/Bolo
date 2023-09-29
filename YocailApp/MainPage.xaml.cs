@@ -35,9 +35,14 @@ namespace YocailApp
             if(sender.IsOwner)
             {
                 actions.Add(AppRes.EditTxt);
+                actions.Add(AppRes.DeleteTxt);
             }
-            actions.Add(AppRes.ReportTxt);
-            string action = await DisplayActionSheet(AppRes.ActionTxt, AppRes.CancelTxt, sender.IsOwner ? AppRes.DeleteTxt : string.Empty, buttons: actions.ToArray());
+            else
+            {
+                actions.Add(AppRes.IgnoreMemberTxt);
+                actions.Add(AppRes.ReportTxt);
+            }
+            string action = await DisplayActionSheet(AppRes.ActionTxt, AppRes.CancelTxt, null, buttons: actions.ToArray());
             Debug.WriteLine("Action: " + action);
         }
 

@@ -30,7 +30,9 @@ namespace YocailApp
 
         public static void RemoveAll()
         {
-            SecureStorage.Default.RemoveAll();
+            //SecureStorage.Default.RemoveAll();
+            System.IO.File.Delete(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "token.txt"));
+            System.IO.File.Delete(System.IO.Path.Combine(FileSystem.Current.CacheDirectory, "currentmember.txt"));
         }
 
         public static void SetAuthToken(string authToken)
@@ -91,11 +93,30 @@ namespace YocailApp
             return hc;
         }
 
-        public static async Task ShowToast(string message, ToastDuration duration = ToastDuration.Short, double fontSize = 14)
+        public static async Task ShowToast(string message, ToastDuration duration = ToastDuration.Short, double fontSize = 13)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             var toast = Toast.Make(message, duration, fontSize);
             await toast.Show(cancellationTokenSource.Token);
+        }
+
+        public static bool IsValidEmail(string email)
+        {
+            var trimmedEmail = email.Trim();
+
+            if (trimmedEmail.EndsWith("."))
+            {
+                return false; // suggested by @TK-421
+            }
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == trimmedEmail;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

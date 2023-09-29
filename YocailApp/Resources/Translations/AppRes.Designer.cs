@@ -79,6 +79,24 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comment Deleted.
+        /// </summary>
+        internal static string CommentDeletedMessage {
+            get {
+                return ResourceManager.GetString("CommentDeletedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comment Posted.
+        /// </summary>
+        internal static string CommentSavedMessage {
+            get {
+                return ResourceManager.GetString("CommentSavedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please Confirm!.
         /// </summary>
         internal static string ConfirmTxt {
@@ -106,6 +124,15 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit Profile.
+        /// </summary>
+        internal static string EditProfileTxt {
+            get {
+                return ResourceManager.GetString("EditProfileTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit.
         /// </summary>
         internal static string EditTxt {
@@ -120,6 +147,24 @@ namespace YocailApp.Resources.Translations {
         internal static string GenericServerErrorTxt {
             get {
                 return ResourceManager.GetString("GenericServerErrorTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignored Members.
+        /// </summary>
+        internal static string IgnoredMembersTxt {
+            get {
+                return ResourceManager.GetString("IgnoredMembersTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore Member.
+        /// </summary>
+        internal static string IgnoreMemberTxt {
+            get {
+                return ResourceManager.GetString("IgnoreMemberTxt", resourceCulture);
             }
         }
         
@@ -142,11 +187,29 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Logout.
+        /// </summary>
+        internal static string LogoutTxt {
+            get {
+                return ResourceManager.GetString("LogoutTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More....
         /// </summary>
         internal static string MoreTxt {
             get {
                 return ResourceManager.GetString("MoreTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No comment to post..
+        /// </summary>
+        internal static string NoCommentToPostMessage {
+            get {
+                return ResourceManager.GetString("NoCommentToPostMessage", resourceCulture);
             }
         }
         

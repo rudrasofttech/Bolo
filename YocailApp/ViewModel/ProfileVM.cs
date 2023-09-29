@@ -44,11 +44,41 @@ namespace YocailApp.ViewModel
                 }
             }
         }
-        
+
+        public bool EmptyTextVisible
+        {
+            get
+            {
+                if (Loading) return false;
+                else
+                    return !Posts.Any();
+            }
+        }
+
+        public bool HasData
+        {
+            get
+            {
+                if (Loading) return false;
+                else
+                    return Posts.Any();
+            }
+        }
 
         public bool ProfilePicVisible
         {
             get { return !string.IsNullOrEmpty(Member.Pic); }
+        }
+
+        public string ProfilePic
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Member.Pic))
+                    return "nopic.png";
+                else
+                    return Member.Pic;
+            }
         }
 
         public bool ManageProfileButtonVisible
@@ -104,20 +134,9 @@ namespace YocailApp.ViewModel
             });
         }
 
-        //public async void ApplyQueryAttributes(IDictionary<string, object> query)
-        //{
-        //    UserName = query["username"] as string;
-        //    if (UserName == "1")
-        //        UserName = string.Empty;
-        //    OnPropertyChanged("UserName");
-        //    await LoadData();
-        //}
-
         public async Task LoadData()
         {
-            //if (Member == null || Member.UserName != UserName)
-                Posts?.Clear();
-
+            Posts?.Clear();
             await LoadMemberProfileAsync();
             await LoadExploreData();
         }
