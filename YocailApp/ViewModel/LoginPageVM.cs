@@ -182,9 +182,13 @@ namespace YocailApp.ViewModel
                         Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
                     }
                 }
-                catch (Exception)
+                catch (System.Net.WebException)
                 {
-
+                    await Utility.ShowToast(AppRes.NoInternetMsg);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
                 }
                 finally
                 {

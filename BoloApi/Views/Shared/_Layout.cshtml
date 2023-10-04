@@ -25,10 +25,15 @@
     <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="~/images/favicon-16x16.png">
     <link rel="manifest" href="@Url.Content("~/manifest.json")" />
-    <link href="~/css/bootstrap.min.css" rel="stylesheet" />
+    @*link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/custom.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> *@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/theme1/css/reset.css">
+    <link rel="stylesheet" href="~/theme1/css/style.css">
+    <link rel="stylesheet" href="~/theme1/css/override.css">
     <link href="~/css/ReactCrop.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <script src="~/libs/jquery-3.6.0.min.js"></script>
     <script src="~/libs/react.development.js"></script>
@@ -39,77 +44,69 @@
     </environment>
     @RenderSection("head", false)
 </head>
-<body class="bg-light">
-    <div class="container-lg sticky-top" style="height:61px" id="mainmenubar">
-        <table cellpadding="5" cellspacing="0" class="bg-white w-100 rounded-bottom border-top-0">
-            <tbody>
-                <tr>
-                    <td align="left" width="70%" style="max-width:70%">
-                        <a href="@Url.Content("~/")" class="text-dark text-decoration-none fs-2 fw-bold"><img src="~/images/yocail.png" class="img-fluid" style="max-height:40px;" alt="Yocail logo" /></a>
-                    </td>
-                    <td align="center" valign="middle">
-                        <a href="javascript:void(0)" class="text-dark loggedmenuitem d-none mx-2 fs-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal"><i class="bi bi-search"></i></a>
-                    </td>
-                    <td align="center" valign="middle">
-                        <a class="text-dark mx-2 fs-4 loggedmenuitem d-none" href="@Url.Content("~/discover")" title="Discover"><i class="bi bi-globe-central-south-asia"></i></a>
-                    </td>
-                    <td align="center" valign="middle">
-                        <a class="text-dark loggedmenuitem d-none mx-2 fs-4" data-bs-toggle="modal" data-bs-target="#addPostModal" title="Add Post"><i class="bi bi-file-plus"></i></a>
-                    </td>
-                    <td align="center" valign="middle">
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#NotificationModal" class="btn btn-link text-dark position-relative fs-4 loggedmenuitem d-none">
-                            <i class="bi bi-bell"></i>
-                            <span style="font-size:0.8rem; top:10px;" class="notificationcount d-none position-absolute start-100 translate-middle badge rounded-pill bg-danger">
-                            </span>
-                        </button>
-                    </td>
-                    <td align="center" valign="middle">
-                        <div class="dropdown loggedmenuitem d-none">
-                            <a class="btn btn-link text-dark fs-4 text-decoration-none position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
-                                <script>
-                                    try {
-                                        var member = JSON.parse(localStorage.getItem("myself"));
-                                        if (member.pic !== "") {
-                                            document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon rounded-3' />");
-                                        } else {
-                                            document.write('<i class="bi bi-person-square"></i>');
-                                        }
-                                    } catch (err) {
+<body class="bg-white">
+    <div class="p-4 py-2 text-center text-md-start" id="mainmenubar">
+        <a href="@Url.Content("~/")">
+            <img src="~/theme1/images/yocail-logo.svg" class="img-fluid logo" alt="Yocail logo" />
+        </a>
+        <div class="menubar bg-white py-3 py-lg-4 d-md-inline-block float-md-end float-none">
+            <div class="row g-0 align-items-center justify-items-center">
+                <div class="col">
+                    <a href="javascript:void(0)" class="loggedmenuitem d-none text-primary fs-3 mx-md-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="loggedmenuitem d-none text-primary fs-3 mx-md-4" href="@Url.Content("~/discover")" title="Discover">
+                        <i class="bi bi-globe-central-south-asia"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="loggedmenuitem d-none text-primary fs-3 mx-md-4" data-bs-toggle="modal" data-bs-target="#addPostModal" title="Add Post">
+                        <i class="bi bi-file-plus"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#NotificationModal" class="position-relative fs-3 mx-md-4 text-primary loggedmenuitem d-none">
+                        <i class="bi bi-bell"></i>
+                        <span style="font-size:0.8rem; top:10px;" class="notificationcount d-none position-absolute start-100 translate-middle badge rounded-pill bg-danger">
+                        </span>
+                    </a>
+                </div>
+                <div class="col">
+                    <div class="dropdown loggedmenuitem d-none">
+                        <a class="text-primary fs-3 mx-md-4 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
+                            <script>
+                                try {
+                                    var member = JSON.parse(localStorage.getItem("myself"));
+                                    if (member.pic !== "")
+                                        document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon rounded-3' />");
+                                    else
                                         document.write('<i class="bi bi-person-square"></i>');
-                                    }
-                                </script>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i class="bi bi-sign-stop"></i> Ignored</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item fs-6 my-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        @RenderSection("toolbar", false)
-    </div>
-    <div id="root" class="container-lg py-2" style="min-height: 500px;">
-        @RenderBody()
-    </div>
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto messageheading">New Message</strong>
-                <small class="messagetime"></small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
+                                } catch (err) {
+                                    document.write('<i class="bi bi-person-square"></i>');
+                                }
+                            </script>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item fs-6 my-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item fs-6 my-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i class="bi bi-sign-stop"></i> Ignored</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item fs-6 my-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
+        @RenderSection("toolbar", false)
+    </div>
+    <div id="root" style="min-height: 500px;">
+        @RenderBody()
     </div>
     <div class="modal fade" id="NotificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down">
@@ -155,7 +152,7 @@
         <div class="modal-dialog modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title" id="notificationModalLabel"><i class="bi bi-search"></i> Search</h3>
+                    <h3 class="modal-title fw-semibold" id="notificationModalLabel"><i class="bi bi-search"></i> Search</h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -173,7 +170,8 @@
     <script src="~/libs/moment.min.js"></script>
     <script src="~/libs/simplepeer.min.js"></script>
     <script src="~/libs/fabric.min.js"></script>
-    <script src="~/libs/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    @* <script src="~/libs/bootstrap.min.js"></script> *@
     <script src="~/js/site.js"></script>
     <script type="text/javascript">
         var sgrkr = new SiteGeneralWorker("@Url.Content("~/api/members/savepulse?s=1")", "@ViewBag.applicationServerKey");

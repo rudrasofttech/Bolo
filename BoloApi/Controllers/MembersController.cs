@@ -399,7 +399,6 @@ namespace Bolo.Controllers
             }
             else
             {
-
                 member.Name = d;
                 member.ModifyDate = DateTime.UtcNow;
                 await _context.SaveChangesAsync();

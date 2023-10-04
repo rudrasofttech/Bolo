@@ -54,7 +54,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\css\custom.css" />
+    <None Include="wwwroot\css\custom-old.css" />
     <None Include="wwwroot\images\nopic.jpg" />
     <None Include="wwwroot\media\get-outta-here.m4r" />
     <None Include="wwwroot\media\get-outta-here.mp3" />
@@ -65,6 +65,17 @@
     <None Include="wwwroot\media\swiftly.m4r" />
     <None Include="wwwroot\media\swiftly.mp3" />
     <None Include="wwwroot\media\swiftly.ogg" />
+    <None Include="wwwroot\theme1\images\banner-image.svg" />
+    <None Include="wwwroot\theme1\images\banner-login.svg" />
+    <None Include="wwwroot\theme1\images\ic-arrow-down.svg" />
+    <None Include="wwwroot\theme1\images\ic-email.svg" />
+    <None Include="wwwroot\theme1\images\ic-facebook.svg" />
+    <None Include="wwwroot\theme1\images\ic-google.svg" />
+    <None Include="wwwroot\theme1\images\ic-lock.svg" />
+    <None Include="wwwroot\theme1\images\ic-shield-yes.svg" />
+    <None Include="wwwroot\theme1\images\ic-shield.svg" />
+    <None Include="wwwroot\theme1\images\ic-user.svg" />
+    <None Include="wwwroot\theme1\images\Yocail-logo.svg" />
   </ItemGroup>
 
   <ItemGroup>

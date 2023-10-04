@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui;
+﻿using Camera.MAUI;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
 namespace YocailApp
@@ -10,6 +11,7 @@ namespace YocailApp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCameraView()
                 .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {

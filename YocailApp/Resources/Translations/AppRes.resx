@@ -120,6 +120,9 @@
   <data name="ActionTxt" xml:space="preserve">
     <value>Actions</value>
   </data>
+  <data name="AddPhotoMsg" xml:space="preserve">
+    <value>Add Photo</value>
+  </data>
   <data name="CancelTxt" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -131,6 +134,9 @@
   </data>
   <data name="ConfirmTxt" xml:space="preserve">
     <value>Please Confirm!</value>
+  </data>
+  <data name="CreatePostHeading" xml:space="preserve">
+    <value>Create New Post</value>
   </data>
   <data name="DeleteConfirmTxt" xml:space="preserve">
     <value>You want to delete this?</value>
@@ -162,6 +168,12 @@
   <data name="LogoutTxt" xml:space="preserve">
     <value>Logout</value>
   </data>
+  <data name="MemberNotFoundMsg" xml:space="preserve">
+    <value>Member Not Found</value>
+  </data>
+  <data name="MobileSaveError" xml:space="preserve">
+    <value>Mobile not updated</value>
+  </data>
   <data name="MoreTxt" xml:space="preserve">
     <value>More...</value>
   </data>
@@ -177,11 +189,50 @@
   <data name="PasswordPh" xml:space="preserve">
     <value>Password</value>
   </data>
+  <data name="RemovePhotoMsg" xml:space="preserve">
+    <value>Remove Photo</value>
+  </data>
   <data name="ReportTxt" xml:space="preserve">
     <value>Report</value>
   </data>
   <data name="RequiredTxt" xml:space="preserve">
     <value>*</value>
+  </data>
+  <data name="SaveBioError" xml:space="preserve">
+    <value>About Me not updated</value>
+  </data>
+  <data name="SaveBioMsg" xml:space="preserve">
+    <value>About Me Updated</value>
+  </data>
+  <data name="SaveBirthYearError" xml:space="preserve">
+    <value>Birth Year not updated</value>
+  </data>
+  <data name="SaveBirthYearMsg" xml:space="preserve">
+    <value>Birth Year Updated</value>
+  </data>
+  <data name="SaveEmailDuplicateError" xml:space="preserve">
+    <value>Email associated with another member, use different email.</value>
+  </data>
+  <data name="SaveEmailError" xml:space="preserve">
+    <value>Email Not Updated</value>
+  </data>
+  <data name="SaveEmailMsg" xml:space="preserve">
+    <value>Email Updated</value>
+  </data>
+  <data name="SaveMobileMsg" xml:space="preserve">
+    <value>Mobile Updated</value>
+  </data>
+  <data name="SaveNameError" xml:space="preserve">
+    <value>Name not updated</value>
+  </data>
+  <data name="SaveNameMsg" xml:space="preserve">
+    <value>Name Updated</value>
+  </data>
+  <data name="SaveThoughtError" xml:space="preserve">
+    <value>One Line Status not updated</value>
+  </data>
+  <data name="SaveThoughtMsg" xml:space="preserve">
+    <value>One Line Status Updated</value>
   </data>
   <data name="SearchBarPH" xml:space="preserve">
     <value>Search People and #tag</value>
