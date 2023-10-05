@@ -78,23 +78,19 @@
 
         let temp = [];
         for (let k in this.state.items) {
-            temp.push(<table key={this.state.items[k].id} className="w-100 mb-2 border-bottom" cellPadding="0" cellSpacing="0">
-                <tbody>
-                    <tr>
-                        <td width="45px" className="p-1" align="center" valign="middle">
-                            <MemberPicSmall member={this.state.items[k]} />
-                        </td>
-                        <td>
-                            <a href={'//' + window.location.host + '/profile?un=' + this.state.items[k].userName} className="text-dark text-decoration-none">
-                                {this.state.items[k].userName}
-                            </a>
-                        </td>
-                        <td width="100px" align="right">
-                            <button className="btn btn-secondary" data-userid={this.state.items[k].id} onClick={(e) => { this.removeMember(e.target.getAttribute("data-userid")) }} type="button">Remove</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>)
+            temp.push(<div key={this.state.items[k].id} className="row g-1 mb-2 border-bottom align-items-center">
+                <div className="col-2">
+                    <MemberPicSmall member={this.state.items[k]} />
+                </div>
+                <div className="col">
+                    <a href={'//' + window.location.host + '/profile?un=' + this.state.items[k].userName} className="text-primary fs-20">
+                        {this.state.items[k].userName}
+                    </a>
+                </div>
+                <div className="col-3 text-end">
+                    <button className="btn btn-secondary" data-userid={this.state.items[k].id} onClick={(e) => { this.removeMember(e.target.getAttribute("data-userid")) }} type="button">Remove</button>
+                </div>
+            </div>);
         }
         if (temp.length === 0) {
             temp.push(<table className="w-100 mb-1" cellPadding="0" cellSpacing="0">
@@ -508,8 +504,8 @@ class Home extends React.Component {
                     <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
                 </div>
                 <div className="col-md-5 d-none d-md-block">
+                    <AskPushNotification />
                     <div className="sticky-column py-3">
-                        <AskPushNotification />
                         <SendInvite />
                         <SuggestedAccounts />
                     </div>
@@ -628,18 +624,19 @@ class Explore extends React.Component {
             }} />;
         }
 
-        return <div className="row">
-            <div className="col-lg-8">
+        return <div className="container-lg my-md-3"><div className="row">
+            <div className="col-md-7 col-12">
                 <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
             </div>
-            <div className="col-lg-4">
+            <div className="col-md-5 d-none d-md-block">
                 <AskPushNotification />
-                <div style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
+                <div className="sticky-column py-3">
+
                     <SendInvite />
                     <SuggestedAccounts />
                 </div>
             </div>
-        </div>;
+        </div></div>;
     }
 }
 
@@ -720,9 +717,9 @@ class Search extends React.Component {
         }
         let loading = null;
         if (this.state.loading) {
-            loading = <div className="progress fixed-bottom" style={{ height: "5px" }}>
-                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
-            </div>
+            loading = <div className="p-2 text-center"><div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div></div>;
         }
         let clearsearchhtml = <div className="col-md-1 col-2 p-0 text-center">
             <button type="button" className="btn btn-light" aria-label="Close" onClick={() => { this.setState({ q: '', items: [] }) }}><i className="bi bi-trash"></i></button>
@@ -731,10 +728,9 @@ class Search extends React.Component {
             clearsearchhtml = null;
         }
         return <React.Fragment>
-            {loading}
-            <div className="row mx-0">
-                <div className="col p-0">
-                    <input type="text" className="form-control" value={this.state.q} onChange={(e) => { this.setState({ q: e.target.value }, () => { this.search(); }); }} placeholder="Search People, Topics, Hashtags" maxLength="150" onKeyUp={(e) => {
+            <div className="row g-1">
+                <div className="col">
+                    <input type="text" className="form-control shadow-none border" value={this.state.q} onChange={(e) => { this.setState({ q: e.target.value }, () => { this.search(); }); }} placeholder="Search People, Topics, Hashtags" maxLength="150" onKeyUp={(e) => {
                         if (e.keyCode === 13) {
                             this.search();
                         }
@@ -742,6 +738,7 @@ class Search extends React.Component {
                 </div>
                 {clearsearchhtml}
             </div>
+            {loading}
             {this.renderSearchResult()}
         </React.Fragment>;
     }
@@ -805,31 +802,35 @@ class Post extends React.Component {
             </div>;
         }
         if (this.state.post !== null) {
-            return <div className="row mt-1 g-0">
-                <div className="col-lg-8">
-                    <MemberPost post={this.state.post} ondelete={(id) => { this.setState({ post: null }) }} onIgnoredMember={userid => { }} />
-                </div>
-                <div className="col-lg-4">
-                    <div className="p-2 rightsidebar">
+            return <div className="container-lg my-md-3">
+                <div className="row">
+                    <div className="col-md-7 col-12">
+                        <MemberPost post={this.state.post} ondelete={(id) => { this.setState({ post: null }) }} onIgnoredMember={userid => { }} />
+                    </div>
+                    <div className="col-md-5 d-none d-md-block">
                         <AskPushNotification />
-                        <SendInvite />
-                        <SuggestedAccounts />
+                        <div className="sticky-column py-3">
+                            <SendInvite />
+                            <SuggestedAccounts />
+                        </div>
                     </div>
                 </div>
             </div>;
         } else {
-            return <div className="row mt-1 g-0">
-                <div className="col-lg-8">
-                    {!this.state.loading ? <h1>Incorrect Data, No Post Found.</h1> : ""}
-                </div>
-                <div className="col-lg-4">
-                    <div className="p-2 rightsidebar">
+            return <div className="container-lg my-md-3">
+                <div className="row">
+                    <div className="col-md-7 col-12">
+                        {!this.state.loading ? <h1>Incorrect Data, No Post Found.</h1> : ""}
+                    </div>
+                    <div className="col-md-5 d-none d-md-block">
                         <AskPushNotification />
-                        <SendInvite />
-                        <SuggestedAccounts />
+                        <div className="sticky-column py-3">
+                            <SendInvite />
+                            <SuggestedAccounts />
+                        </div>
                     </div>
                 </div>
-            </div>;;
+            </div>;
         }
     }
 }
@@ -1094,9 +1095,6 @@ class MemberPost extends React.Component {
 
     renderPostDisplay(p) {
         p.describe = p.describe + " ";
-        
-        
-
         let ownerlink = this.state.hashtag !== '' ? <div className="d-inline-block">
             <a href={'//' + window.location.host + '/post/hastag?ht=' + this.state.hashtag} className="text-primary fw-semibold fs-20">
                 {p.owner.userName}
@@ -1115,9 +1113,7 @@ class MemberPost extends React.Component {
                 </div>
                 <div className="col ps-1">
                     {ownerlink}
-                    <div className="mt-2 fs-6 text-primary">
-                        <DateLabel value={p.postDate} />
-                    </div>
+
                 </div>
                 <div className="col-1 text-end">
                     <button className="btn btn-link text-primary fs-4" onClick={() => { this.setState({ showModal: 'post' /*showpostoptions: true*/ }) }}><i className="bi bi-three-dots"></i></button>
@@ -1185,23 +1181,30 @@ class MemberPost extends React.Component {
         return <div id={this.state.post.id} className="mb-2 bg-white memberpost">
             {owner}
             {postshtml}
-            <div className="text-end">
-                <table className="d-inline-block" cellPadding="0" cellSpacing="0">
-                    <tbody>
-                        <tr>
-                            <td className="p-3 pb-0" align="center" valign="top">
-                                {reactionhtml}
-                            </td>
-                            <td className="p-3 pb-0" align="center" valign="top">{commentBtn}</td>
-                            <td className="p-3 pb-0" align="center" valign="top">{shareBtn}</td>
-                        </tr>
-                        <tr>
-                            <td align="center" valign="top">{reactionCountHtml}</td>
-                            <td align="center" valign="top">{commentCountHtml}</td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div className="row g-1 mt-2">
+                <div className="col">
+                    <div className=" text-secondary" style={{ fontSize: "13px" }}>
+                        <DateLabel value={p.postDate} />
+                    </div>
+                </div>
+                <div className="col text-end">
+                    <table className="d-inline-block" cellPadding="0" cellSpacing="0">
+                        <tbody>
+                            <tr>
+                                <td className="px-3 pb-0" align="center" valign="top">
+                                    {reactionhtml}
+                                </td>
+                                <td className="px-3 pb-0" align="center" valign="top">{commentBtn}</td>
+                                {p.allowShare ? <td className="px-3 pb-0" align="center" valign="top">{shareBtn}</td> : null}
+                            </tr>
+                            <tr>
+                                <td align="center" valign="top">{reactionCountHtml}</td>
+                                <td align="center" valign="top">{commentCountHtml}</td>
+                                {p.allowShare ? <td></td> : null}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div className="p-2 lh-sm">
                 <ExpandableTextLabel cssclass="" text={p.describe === null ? "" : p.describe} maxlength={100} />
@@ -1220,22 +1223,16 @@ class MemberPost extends React.Component {
                     <div className="modal-dialog modal-dialog-scrollable">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h1 className="modal-title fs-5" >Share Post with People</h1>
+                                <h4 className="modal-title text-primary fw-semibold fs-4" >Share</h4>
                                 <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: '' }) }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
                                 <MemberSmallList memberid={this.state.myself.id} target="share" onSelected={(id) => { this.sharePost(id); }}></MemberSmallList>
                             </div>
-                            <div className="modal-footer">
-                                {this.state.loading ? <div className="progress mb-2" style={{ height: "5px" }}>
-                                    <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-                                </div> : null}
-                                {this.state.bsstyle === "success" && this.state.message !== "" ? <div className="text-success text-center my-2">{this.state.message}</div> : null}
-                            </div>
+                            {this.state.bsstyle === "success" && this.state.message !== "" ? <div className="modal-footer"><div className="text-success text-center my-2">{this.state.message}</div></div> : null}
                         </div>
-
                     </div>
-                </div>
+                </div><div className="modal-backdrop fade show"></div>
             </React.Fragment>;
         }
     }
@@ -1247,7 +1244,7 @@ class MemberPost extends React.Component {
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h1 className="modal-title fs-5" >Delete Post</h1>
+                                <h4 className="modal-title text-primary fw-semibold fs-5" >Delete Post</h4>
                                 <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: ''/*showdeletemodal: false, showeditform: false, showpostoptions: false*/ }) }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
@@ -1259,7 +1256,7 @@ class MemberPost extends React.Component {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div><div className="modal-backdrop fade show"></div>
             </React.Fragment>;
         }
     }
@@ -1271,25 +1268,26 @@ class MemberPost extends React.Component {
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h1 className="modal-title fs-5" >Flag Post</h1>
+                                <h4 className="modal-title text-primary fw-semibold fs-5" >Flag Post</h4>
                                 <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: ''/*showdeletemodal: false, showeditform: false, showpostoptions: false, showflagmodal: false*/ }) }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
                                 <ul className="list-group">
                                     <li className="list-group-item">
-                                        <button onClick={() => { this.flagPost(1) }} className="btn btn-light" type="button">Abusive Content</button>
+                                        <a onClick={() => { this.flagPost(1) }} href="javascript:void(0);">Abusive Content</a>
                                     </li>
                                     <li className="list-group-item">
-                                        <button onClick={() => { this.flagPost(2) }} className="btn btn-light" type="button">Spam Content</button>
+                                        <a onClick={() => { this.flagPost(2) }} href="javascript:void(0);">Spam Content</a>
                                     </li>
-                                    <li className="list-group-item"><button onClick={() => { this.flagPost(3) }} className="btn btn-light" type="button">Fake / Misleading</button></li>
-                                    <li className="list-group-item"><button onClick={() => { this.flagPost(4) }} className="btn btn-light" type="button">Nudity</button></li>
-                                    <li className="list-group-item"><button onClick={() => { this.flagPost(5) }} className="btn btn-light" type="button">Promoting Violence</button></li>
+                                    <li className="list-group-item"><a onClick={() => { this.flagPost(3) }} href="javascript:void(0);">Fake / Misleading</a></li>
+                                    <li className="list-group-item"><a onClick={() => { this.flagPost(4) }} href="javascript:void(0);">Nudity</a></li>
+                                    <li className="list-group-item"><a onClick={() => { this.flagPost(5) }} href="javascript:void(0);">Promoting Violence</a></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div className="modal-backdrop fade show"></div>
             </React.Fragment>;
         }
     }
@@ -1545,61 +1543,64 @@ class MemberComment extends React.Component {
             var p = this.state.comments.commentList[k];
             var ownedCommentMenu = null;
             if (this.state.myself.id === p.postedBy.id) {
-                ownedCommentMenu = <button data-id={p.id} onClick={(e) => { this.setState({ commentiddel: parseInt(e.target.getAttribute("data-id"), 10) }) }} className="btn btn-link text-dark btn-sm mx-2" type="button"><i data-id={p.id} className="bi bi-trash"></i></button>;
+                ownedCommentMenu = <button data-id={p.id} onClick={(e) => { this.setState({ commentiddel: parseInt(e.target.getAttribute("data-id"), 10) }) }} className="btn btn-link text-primary btn-sm mx-2" type="button"><i data-id={p.id} className="bi bi-trash"></i></button>;
             }
-            items.push(<div key={p.id} className="border-bottom p-1">
-                <span className="float-start p-1 pe-2"><MemberPicSmall member={p.postedBy} /></span>
-                <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName}
-                    className="fs-6 fw-bold pointer d-inline-block text-decoration-none me-2">
-                    {p.postedBy.userName}
-                </a>
-                {p.comment.split('\n').map((item, key) => {
-                    return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
-                })}
-                <div className="mb-2 pb-1">
-                    <span className="fs-12 text-secondary"><DateLabel value={p.postDate} /></span> {ownedCommentMenu}
+            items.push(<div key={p.id} className="row g-1 border-bottom p-1">
+                <div className="col-2 col-md-1"><MemberPicSmall member={p.postedBy} /></div>
+                <div className="col">
+                    <a href={'//' + window.location.host + '/profile?un=' + p.postedBy.userName}
+                        className="fw-semibold text-primary">
+                        {p.postedBy.userName}
+                    </a>
+                    <div className="lh-base mt-2 mb-1">
+                        {p.comment.split('\n').map((item, key) => {
+                            return <React.Fragment key={key}><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></React.Fragment>
+                        })}</div>
+                    <div className="mb-2 pb-1">
+                        <span className="text-secondary" style={{ fontSize: "12px" }}><DateLabel value={p.postDate} /></span> {ownedCommentMenu}
+                    </div>
                 </div>
             </div>);
         }
         let confirmdelete = null;
         if (this.state.commentiddel > 0) {
-            confirmdelete = <ConfirmBox title="Remove Comment" message="Are you sure you want to remove this comment?"
+            confirmdelete = <ConfirmBox title="" message="Are you sure you want to remove this comment?"
                 ok={() => { this.removeComment(); }} cancel={() => { this.setState({ commentiddel: 0 }); }} />;
         }
 
-        return <React.Fragment><div className="modal fade show" style={{ display: "block" }} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1">
-            <div className="modal-dialog modal-lg    modal-dialog-scrollable">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">Comments</h5>
-                        <button type="button" className="btn-close" onClick={() => { this.props.cancel(); }}></button>
-                    </div>
-                    <div className="modal-body p-1" style={{ minHeight: "300px" }}>
-                        {this.state.loadingComments ? <p>Loading Comments...</p> : items}
-                        {confirmdelete}
-                    </div>
-                    <div className="modal-footer">
-                        <table width="100%" cellPadding="0" cellSpacing="0">
-                            <tbody>
-                                <tr>
-                                    <td valign="middle" align="right">
-                                        <AutoAdjustTextArea htmlattr={{ class: "form-control mb-2", required: "required", placeholder: "Type your comment here...", maxLength: 3000 }} required={true} onChange={(val) => { this.setState({ commenttext: val }) }} value={this.state.commenttext} maxRows={5} minRows={1} />
-                                    </td>
-                                    <td valign="middle" width="58px">
-                                        <button type="button" className="btn btn-link text-decoration-none" onClick={() => { this.addComment(); }}>Post</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+        return <React.Fragment>
+            <div className="modal fade show" style={{ display: "block" }} data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1">
+                <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title fw-semibold">Comments</h5>
+                            <button type="button" className="btn-close" onClick={() => { this.props.cancel(); }}></button>
+                        </div>
+                        <div className="modal-body p-1" style={{ minHeight: "300px" }}>
+                            {this.state.loadingComments ? <p>Loading Comments...</p> : items}
+                            {confirmdelete}
+                        </div>
+                        <div className="modal-footer">
+                            <table className="w-100" cellPadding="0" cellSpacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td valign="middle" align="right">
+                                            <AutoAdjustTextArea htmlattr={{ class: "form-control shadow-none border mb-2", required: "required", placeholder: "Type your comment here...", maxLength: 3000 }} required={true} onChange={(val) => { this.setState({ commenttext: val }) }} value={this.state.commenttext} maxRows={5} minRows={1} />
+                                        </td>
+                                        <td valign="middle" width="58px" className="ps-1">
+                                            <button type="button" className="btn btn-blue" onClick={() => { this.addComment(); }}>Post</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
             <div className="modal-backdrop fade show"></div>
         </React.Fragment>;
     }
 }
-
 class MemberPostList extends React.Component {
     constructor(props) {
         super(props);
@@ -1737,7 +1738,7 @@ class MemberPostList extends React.Component {
     renderPosts() {
         let empty = <div key={0}>
             <div className="text-center fs-3 py-5 bg-white rounded-3">
-                <i className="bi bi-emoji-dizzy me-2"></i><h2>Nothing to see here</h2>
+                <img src={"//" + location.host + "/theme1/images/add-post.svg"} className="img-fluid" style={{ maxWidth: "150px" }} /><h2 className="fw-semibold">Nothing to see here</h2>
             </div>
         </div>;
         if (this.state.viewMode === 2) {
@@ -1777,7 +1778,7 @@ class MemberPostList extends React.Component {
                 items.push(empty);
                 return items;
             }
-            return <div className="row row-cols-3 g-4">{items}</div>;
+            return <div className="row row-cols-2 row-cols-md-3 g-4">{items}</div>;
         }
     }
 
@@ -1799,8 +1800,10 @@ class MemberPostList extends React.Component {
 
         let loading = null;
         if (this.state.loading) {
-            loading = <div className="progress fixed-bottom" style={{ height: "5px" }}>
-                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
+            loading = <div className="text-center p-3">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>;
         }
         if (this.state.model !== null) {
@@ -1810,16 +1813,17 @@ class MemberPostList extends React.Component {
         }
         var viewmodetabhtml = null;
         if (this.state.viewModeAllowed && this.state.posts.length > 0) {
-            viewmodetabhtml = <nav className="nav nav-pills m-1">
-                <a onClick={() => { this.setState({ viewMode: 1 }); }} className={this.state.viewMode === 1 ? "nav-link fs-4 active bg-white text-success  rounded-3 me-2" : "nav-link fs-4 bg-white rounded-3 text-dark me-2"}><i className="bi bi-grid-3x3-gap-fill"></i></a>
-                <a onClick={() => { this.setState({ viewMode: 2 }); }} className={this.state.viewMode === 2 ? "nav-link fs-4 active bg-white text-success  rounded-3 me-2" : "nav-link fs-4 bg-white rounded-3 text-dark me-2"}><i className="bi bi-view-list"></i></a>
+            viewmodetabhtml = <nav className="nav nav-pills justify-content-center m-1">
+                <a onClick={() => { this.setState({ viewMode: 1 }); }} className={this.state.viewMode === 1 ? "nav-link active bg-primary" : "nav-link text-primary"}><i className="bi bi-grid-3x3-gap-fill"></i></a>
+                <a onClick={() => { this.setState({ viewMode: 2 }); }} className={this.state.viewMode === 2 ? "nav-link active bg-primary" : "nav-link text-primary"}><i className="bi bi-view-list"></i></a>
             </nav>;
         }
         return <React.Fragment>
             {viewmodetabhtml}
+            {loading}
             {html}
             {loadmore}
-            {loading}
+
         </React.Fragment>;
     }
 }
@@ -1974,18 +1978,15 @@ class MemberSmallList extends React.Component {
             for (let k in this.state.followList) {
                 let p = this.state.followList[k];
                 if (p.tag !== null && p.tag !== "") {
-                    let h = <table key={p.id} className="w-100 mb-1" cellSpacing="0" cellPadding="0">
-                        <tbody>
-                            <tr>
-                                <td><a href={"//" + location.host + "/?q=" + encodeURIComponent(p.tag)} class="text-dark text-decoration-none">{p.tag}</a></td>
-                                <td width="100px" align="right">
-                                    <button data-tag={p.tag} type="button" className="btn btn-light"
-                                        onClick={(e) => { this.hashTagRemove(e.target.getAttribute("data-tag")); }}
-                                    >Unfollow</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>;
+                    let h = <div key={p.id} style={{ height: "55px" }} className="row g-0 my-2 align-items-center justify-items-center" >
+                        <div className="col">
+                            <a href={"//" + location.host + "/?q=" + encodeURIComponent(p.tag)} class="text-primary text-decoration-none">{p.tag}</a></div>
+                        <div className="col text-end">
+                            <button data-tag={p.tag} type="button" style={{ width: "110px" }} className="btn btn-blue"
+                                onClick={(e) => { this.hashTagRemove(e.target.getAttribute("data-tag")); }}
+                            >Unfollow</button>
+                        </div>
+                    </div>;
                     items.push(h);
                 } else {
                     items.push(<MemberSmallRow key={p.following.id} member={p.following} status={p.status} />);
@@ -2020,7 +2021,7 @@ class MemberSmallList extends React.Component {
                                 {this.state.loading ? <div className="spinner-border spinner-border-sm" role="status">
                                     <span className="visually-hidden">Loading...</span>
                                 </div>
- : <i className="bi bi-search"></i> }
+                                    : <i className="bi bi-search"></i>}
                             </button>
                         </td>
                     </tr>
@@ -2260,13 +2261,14 @@ class ConfirmBox extends React.Component {
 
     render() {
         if (this.state.open) {
-            return <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
+            return <React.Fragment><div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
                 <div className="modal-dialog modal-dialog-centered">
                     <div className="modal-content">
-                        <div className="modal-header">
+                        {this.props.title.length !== 0 ? <div className="modal-header">
                             <h5 className="modal-title">{this.props.title}</h5>
                             <button type="button" className="btn-close" onClick={() => { this.setState({ open: false }, () => { this.props.cancel(); }); }}></button>
-                        </div>
+                        </div> : null}
+
                         <div className="modal-body">
                             <p className="text-center">{this.props.message}</p>
                         </div>
@@ -2275,7 +2277,9 @@ class ConfirmBox extends React.Component {
                         </div>
                     </div>
                 </div>
-            </div>;
+            </div>
+                <div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
         } else {
             return null;
         }
@@ -2287,7 +2291,7 @@ class ExpandableTextLabel extends React.Component {
         super(props);
         let nlcount = this.props.text.split(/\r\n|\r|\n/).length;
         let chcount = this.props.text.length;
-        
+
         this.state = {
             text: this.props.text, expand: !(nlcount > 4 || chcount > this.props.maxlength), showexpand: (nlcount > 4 || chcount > this.props.maxlength),
             maxlength: parseInt(this.props.maxlength, 10),
@@ -2788,30 +2792,32 @@ class Profile extends React.Component {
 
     renderFollowers() {
         if (this.state.showfollowers) {
-            return <div className="modal fade show" style={{ display: "block" }} id="followersModal" tabIndex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="followersModalLabel">Followers</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { this.setState({ showfollowers: false }) }}></button>
-                        </div>
-                        <div className="modal-body">
-                            <MemberSmallList memberid={this.state.member.id} target="follower" />
+            return <React.Fragment>
+                <div className="modal fade show" style={{ display: "block" }} id="followersModal" tabIndex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered  modal-dialog-scrollable">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h4 className="modal-title fw-semibold fs-20" id="followersModalLabel">Followers</h4>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { this.setState({ showfollowers: false }) }}></button>
+                            </div>
+                            <div className="modal-body">
+                                <MemberSmallList memberid={this.state.member.id} target="follower" />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>;
+                </div><div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
         }
         return null;
     }
 
     renderFollowing() {
         if (this.state.showfollowing) {
-            return <div className="modal fade show" style={{ display: "block" }} id="followingModal" tabIndex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered">
+            return <React.Fragment><div className="modal fade show" style={{ display: "block" }} id="followingModal" tabIndex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered  modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="followingModalLabel">Following</h5>
+                            <h4 className="modal-title  fw-semibold fs-20" id="followingModalLabel">Following</h4>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => { this.setState({ showfollowing: false }) }}></button>
                         </div>
                         <div className="modal-body">
@@ -2819,7 +2825,7 @@ class Profile extends React.Component {
                         </div>
                     </div>
                 </div>
-            </div>;
+            </div><div className="modal-backdrop fade show"></div></React.Fragment>;
         }
         return null;
     }
@@ -2887,58 +2893,61 @@ class Profile extends React.Component {
         }
         let me = null, pic = null, settings = null, followhtml = null;
         if (this.state.member !== null) {
-            pic = this.state.member.pic !== "" ? <img src={"//" + window.location.host + "/" + this.state.member.pic} className="img-fluid rounded profile-thumb" alt="" />
-                : <img src="/images/nopic.jpg" className="img-fluid profile-thumb rounded" alt="" />;
-            let name = null, thought = null, email = null, phone = null;
+            pic = this.state.member.pic !== "" ? <img src={"//" + window.location.host + "/" + this.state.member.pic} className="img-fluid rounded-3 profile-thumb mb-2" alt="" />
+                : <img src="/images/nopic.jpg" className="img-fluid profile-thumb rounded-3 mb-2" alt="" />;
+            let name = null, thought = null;
             if (this.state.member.name !== "") {
-                name = <div className="fs-6 p-1 ms-2 fw-bold">{this.state.member.name}</div>;
+                name = <div className="fs-18 text-center text-secondary">{this.state.member.name}</div>;
             }
             if (this.state.member.thoughtStatus !== "") {
                 thought = <p>{this.state.member.thoughtStatus}</p>;
             }
             if (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) {
-                settings = <div className="p-1 ms-2"><a className="text-dark text-decoration-none" onClick={() => { this.setState({ showSettings: true }) }}><i className="bi bi-gear"></i> Settings</a></div>;
+                settings = <div className="p-1 ms-2">
+                    <button type="button" className="btn btn-blue" onClick={() => { this.setState({ showSettings: true }) }}>Edit Profile</button>
+                </div>;
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <div>
+            me = <div className="container-lg my-md-3">
                 <div className="row">
-                    <div className="col-lg-5">
-                        <div style={{ top: "63px", position: "-webkit-sticky", position: "sticky" }}>
-                            <div className="text-center mb-2 p-2  bg-white rounded-3">
+                    <div className="col-md-5 px-md-5">
+                        <div class="sticky-column py-3 ">
+                            <div className="text-center mb-2 p-3 py-2 bg-white rounded-4 border">
                                 {pic}
-                                <div className="row">
+                                <div className="p-1 fs-20 text-center mb-1 fw-bold">@{this.state.member.userName}</div>
+                                {name}
+                                <div>
+                                    <ExpandableTextLabel cssclass="text-jusitfy my-3 lh-sm" text={this.state.member.bio === null ? "" : this.state.member.bio} maxlength={200} />
+                                </div>
+                                <div className="row my-3">
                                     <div className="col-4">
-                                        <button type="button" className="btn btn-link text-dark text-decoration-none">Posts <br />{this.state.member.postCount}</button></div>
+                                        <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"><span className="fw-semibold me-1">{this.state.member.postCount}</span> Posts</button></div>
                                     <div className="col-4">
                                         {
                                             (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
-                                                <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}>Following <br />{this.state.member.followingCount}</button> :
-                                                <button type="button" className="btn btn-link text-dark text-decoration-none">Following <br />{this.state.member.followingCount}</button>
+                                                <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none" onClick={() => { this.setState({ showfollowing: true }) }}><span className="fw-semibold me-1">{this.state.member.followingCount}</span>Following</button> :
+                                                <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"><span className="fw-semibold me-1">{this.state.member.followingCount}</span>Following</button>
                                         }
                                     </div>
                                     <div className="col-4">
                                         {
                                             (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) ?
-                                                <button type="button" className="btn btn-link text-dark text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}>Followers <br />{this.state.member.followerCount}</button> :
-                                                <button type="button" className="btn btn-link text-dark text-decoration-none">Followers <br />{this.state.member.followerCount}</button>
+                                                <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none" onClick={() => { this.setState({ showfollowers: true }) }}><span className="fw-semibold me-1">{this.state.member.followerCount}</span>Followers</button> :
+                                                <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"><span className="fw-semibold me-1">{this.state.member.followerCount}</span>Followers</button>
                                         }
                                     </div>
                                 </div>
-                                {name}
-                                <div className="p-1 ms-2">@{this.state.member.userName}</div>
                                 {settings}
                                 {followhtml}
                                 {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
                                 {this.renderRequestApproval()}
                                 {thought}
-                                <p>{this.state.member.bio}</p>
                             </div>
                         </div>
-                        <AskPushNotification />
                     </div>
-                    <div className="col-lg-7">
-                        <MemberPostList search={this.state.member.userName} viewMode={2} viewModeAllowed="true" />
+                    <div className="col-md-7 col-12">
+                        <MemberPostList search={this.state.member.userName} viewMode={1} viewModeAllowed="true" />
                     </div>
                 </div>
                 {followlist}
@@ -4743,14 +4752,19 @@ class NotificationList extends React.Component {
         let items = [];
         for (let k in this.state.list) {
             let n = this.state.list[k];
-            items.push(<div className='row g-1 mb-2 border-bottom pointer' key={k}>
+            items.push(<div className='row mt-2 mb-3 pointer' key={k}>
                 <div className='col-2'>
-                    <img src={this.getURL(n.pic)} className="img-fluid rounded-1" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
+                    <img src={this.getURL(n.pic)} className="img-fluid rounded-3" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
                 </div>
                 <div className='col'>
-                    <p data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} className={"m-0 p-0 " + (!n.seen ? "fw-bold" : "")}>{n.title}</p>
-                    {n.type === 4 ? <span className="text-primary fw-bold fs-12">Follow Request</span> : null}
-                    <span className="fs-12">{dayjs(n.createDate).format("DD-MMM-YYYY")}</span>
+                    <div data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} className={"mb-2 text-primary " + (!n.seen ? "fw-semibold lh-base" : "lh-base")}>{n.title}</div>
+                    {n.type === 4 ? <span className="text-primary me-2" style={{
+                        fontSize: "13px",
+                        fontWeight: "600"
+                    }}>Follow Request</span> : null}
+                    <span className="text-primary" style={{
+                        fontSize: "13px"
+                    }}>{dayjs(n.createDate).fromNow()}</span>
                 </div>
                 {n.pic2 !== "" ? <div className='col-2'>
                     <img src={this.getURL(n.pic2)} className="img-fluid rounded-1" data-id={n.id} onClick={(e) => { this.onNotificationClick(e.target.getAttribute("data-id")); }} />
@@ -4910,21 +4924,20 @@ class AskPushNotification extends React.Component {
         if (this.state.mode === "nosupport" || this.state.mode === "done") {
             return <React.Fragment></React.Fragment>;
         }
-        let message = "Remain up to date with latest comments, reactions and content.";
+        let message = <React.Fragment>Remain up to date with<br /> latest comments, reactions and content.</React.Fragment>;
         if (this.state.permission === "blocked") {
-            message = "You have blocked the notification.";
+            message = <React.Fragment>You have blocked the notification.</React.Fragment>;
         } else if (this.state.permission === "denied") {
-            message = "Notification permission is denied. Please allow yocail browser notifications.";
+            message = <React.Fragment>Notification permission is denied.<br /> Please allow yocail browser notifications.</React.Fragment>;
         }
         if (this.state.mode === "ask") {
             if (this.state.showModal) {
                 return <React.Fragment>{this.renderModal(message)}</React.Fragment>
             } else {
-                return <div className="p-1 rounded-3 mb-2 bg-white">
-                    <div className="text-center">
-                        <div className="my-1">{message}</div>
-                        <button onClick={this.requestNotificationAccess} className="btn btn-success my-2">Allow Notification</button>
-                    </div>
+                return <div className="p-3 py-2 rounded-4 border my-3 bg-white text-center">
+                    <h4 className="text-primary my-3 fs-24 ff-righteous">Yocail Notifications</h4>
+                    <div className="my-2 lh-sm">{message}</div>
+                    <button type="button" onClick={this.requestNotificationAccess} className="btn btn-blue my-2">Get Notifications</button>
                 </div>;
             }
         }
@@ -6806,7 +6819,7 @@ class SendInvite extends React.Component {
 
         if (this.state.loggedin) {
             return <React.Fragment>
-                <div className="text-center p-3 border rounded-4">
+                <div className="text-center p-3 py-2 border rounded-4">
                     <h4 className="text-primary my-3 fs-24 ff-righteous">Invite a Friend</h4>
                     <div className="my-1 lh-base fs-20 mb-4">Invite your friends and build<br /> your followers.</div>
                     <button onClick={() => { this.setState({ showModal: true }); }} type="button" className="btn btn-blue">Invite <i class="ms-2 bi bi-send-fill"></i></button>
