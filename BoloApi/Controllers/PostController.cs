@@ -385,18 +385,18 @@ namespace Bolo.Controllers
                 }
                 await _context.SaveChangesAsync();
 
-                var followers = _context.Followers.Include(t => t.Follower).Where(t => t.Following.ID == member.ID).ToList();
-                foreach (var f in followers)
-                {
-                    try
-                    {
-                        nhelper.SaveNotification(f.Follower, string.Empty, false, MemberNotificationType.NewPost, p, member, null);
-                    }
-                    catch (Exception)
-                    {
+                //var followers = _context.Followers.Include(t => t.Follower).Where(t => t.Following.ID == member.ID).ToList();
+                //foreach (var f in followers)
+                //{
+                //    try
+                //    {
+                //        nhelper.SaveNotification(f.Follower, string.Empty, false, MemberNotificationType.NewPost, p, member, null);
+                //    }
+                //    catch (Exception)
+                //    {
 
-                    }
-                }
+                //    }
+                //}
                 return Ok(new { success = true });
             }
             catch (Exception ex)
@@ -538,11 +538,17 @@ namespace Bolo.Controllers
                 var comment = _context.Comments.Include(t => t.Post).FirstOrDefault(t => t.ID == id && t.CommentedBy.ID == member.ID);
                 if (comment != null)
                 {
+                    int postid = comment.Post.ID;
                     var notifications = _context.Notifications.Where(t => t.Comment != null && t.Comment.ID == comment.ID);
                     _context.Notifications.RemoveRange(notifications);
                     _context.Comments.Remove(comment);
-                    comment.Post.CommentCount = _context.Comments.Count(t => t.Post.ID == comment.ID);
                     await _context.SaveChangesAsync();
+                    var post = _context.Posts.FirstOrDefault(t => t.ID == postid);
+                    if (post != null)
+                    {
+                        post.CommentCount = _context.Comments.Count(t => t.Post.ID == postid);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 return Ok(new { success = true });
             }

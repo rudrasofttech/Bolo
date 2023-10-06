@@ -11,11 +11,11 @@
     </ContentPage.BindingContext>
     <ScrollView>
         <VerticalStackLayout Padding="20">
-
-            <Frame VerticalOptions="Start" Padding="0" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" CornerRadius="50" BorderColor="Transparent" Margin="0,0,0,20">
+            <Frame VerticalOptions="Start" Padding="0" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" CornerRadius="50" BorderColor="Transparent" Margin="0,0,0,2">
                 <Image Source="{Binding ProfilePic, Mode=TwoWay}" Aspect="Fill" />
             </Frame>
-            <Label FontAttributes="Bold" Margin="0,10,0,0">
+            <Button Text="Edit Photo" WidthRequest="100" HeightRequest="30" Padding="0" Margin="0,0,0,20" Clicked="Button_Clicked"></Button>
+            <Label FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0">
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="User Name " FontFamily="Poppins" FontAttributes="Bold" />
@@ -24,10 +24,10 @@
                 </Label.FormattedText>
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Entry IsReadOnly="True" HeightRequest="45" HorizontalOptions="FillAndExpand" Text="{Binding UserName, Mode=TwoWay}">
+                <Entry IsReadOnly="True" HorizontalTextAlignment="Center" HeightRequest="45" HorizontalOptions="FillAndExpand" Text="{Binding UserName, Mode=TwoWay}">
                 </Entry>
             </Frame>
-            <Label FontAttributes="Bold" Margin="0,20,0,0">
+            <Label FontAttributes="Bold" HorizontalOptions="Center" Margin="0,20,0,0">
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="Name " FontFamily="Poppins" FontAttributes="Bold" />
@@ -36,40 +36,49 @@
                 </Label.FormattedText>
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Entry HorizontalOptions="FillAndExpand" MaxLength="200" Text="{Binding Name, Mode=TwoWay}">
-                    <Entry.Behaviors>
-                        <toolkit:TextValidationBehavior 
-InvalidStyle="{StaticResource InvalidEntryStyle}"
-ValidStyle="{StaticResource ValidEntryStyle}"
-Flags="ValidateOnValueChanged"
-MinimumLength="0"
-MaximumLength="200" />
-                    </Entry.Behaviors>
+                <Entry HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" MaxLength="200" ReturnCommand="{Binding SaveNameCommand}" Text="{Binding Name, Mode=TwoWay}">
                 </Entry>
             </Frame>
-            <Label FontAttributes="Bold" Text="Mobile" Margin="0,20,0,0">
+            <Label FontAttributes="Bold" Text="Mobile" HorizontalOptions="Center" Margin="0,20,0,0">
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Entry Keyboard="Numeric" MaxLength="13" HorizontalOptions="FillAndExpand" Text="{Binding Phone, Mode=TwoWay}">
+                <Entry Keyboard="Numeric" MaxLength="13" HorizontalTextAlignment="Center" ReturnCommand="{Binding SaveMobileCommand}" HorizontalOptions="FillAndExpand" Text="{Binding Phone, Mode=TwoWay}">
                 </Entry>
             </Frame>
-            <Label FontAttributes="Bold" Text="Email" Margin="0,20,0,0">
+            <Label FontAttributes="Bold" Text="Email" HorizontalOptions="Center" Margin="0,20,0,0">
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Entry Keyboard="Email" MaxLength="200" HorizontalOptions="FillAndExpand" Text="{Binding Email, Mode=TwoWay}">
+                <Entry Keyboard="Email" MaxLength="200" ReturnCommand="{Binding SaveEmailCommand}" HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" Text="{Binding Email, Mode=TwoWay}">
                 </Entry>
             </Frame>
-            <Label FontAttributes="Bold" Text="Profile Visibility" Margin="0,20,0,0">
+            <Label FontAttributes="Bold" Text="One Line Status" HorizontalOptions="Center" Margin="0,20,0,0">
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Picker Title="Public or Private" SelectedItem="{Binding Visibility, Mode=TwoWay}"  ItemsSource="{Binding ProfileVisibilities}" HorizontalOptions="FillAndExpand"></Picker>
+                <Entry Keyboard="Text" MaxLength="195" ReturnCommand="{Binding SaveThoughtStatusCommand}" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="Center" Text="{Binding ThoughtStatus, Mode=TwoWay}">
+                </Entry>
             </Frame>
-            <Label FontAttributes="Bold" Text="Year of Birth" Margin="0,20,0,0">
+            <Label FontAttributes="Bold" Text="About Me" HorizontalOptions="Center" Margin="0,20,0,0">
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Picker Title="Select Birth Year" SelectedItem="{Binding BirthYear, Mode=TwoWay}"  ItemsSource="{Binding Years}" HorizontalOptions="FillAndExpand"></Picker>
+                <Editor AutoSize="TextChanges" Keyboard="Text" Placeholder="Write something about yourself." MaxLength="950" HorizontalTextAlignment="Center" HorizontalOptions="FillAndExpand" Text="{Binding Bio, Mode=TwoWay}">
+                    <Editor.Behaviors>
+                        <toolkit:EventToCommandBehavior EventName="Unfocused" Command="{Binding SaveBioCommand}" />
+                    </Editor.Behaviors>
+                </Editor>
             </Frame>
-            <Label FontAttributes="Bold" Margin="0,20,0,0">
+            <Label FontAttributes="Bold" Text="Profile Visibility" HorizontalOptions="Center" Margin="0,20,0,0">
+            </Label>
+            <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
+                <Picker Title="Public or Private" HorizontalTextAlignment="Center" SelectedItem="{Binding Visibility, Mode=TwoWay}"  ItemsSource="{Binding ProfileVisibilities}" HorizontalOptions="FillAndExpand"></Picker>
+            </Frame>
+            <Label FontAttributes="Bold" Text="Year of Birth" HorizontalOptions="Center" Margin="0,20,0,0">
+            </Label>
+            <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
+                <Picker SelectedIndexChanged="Picker_SelectedIndexChanged" Title="Select Birth Year" HorizontalTextAlignment="Center" SelectedItem="{Binding BirthYear, Mode=OneWay}"  ItemsSource="{Binding Years}" HorizontalOptions="FillAndExpand">
+                    
+                </Picker>
+            </Frame>
+            <Label FontAttributes="Bold" Margin="0,20,0,0" HorizontalOptions="Center">
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="Security Question " FontFamily="Poppins" FontAttributes="Bold" />
@@ -78,7 +87,7 @@ MaximumLength="200" />
                 </Label.FormattedText>
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Editor AutoSize="TextChanges" MaxLength="300" HorizontalOptions="FillAndExpand">
+                <Editor AutoSize="TextChanges" HorizontalTextAlignment="Center" Text="{Binding SecurityQuestion, Mode=TwoWay}" MaxLength="300" HorizontalOptions="FillAndExpand">
                 </Editor>
             </Frame>
         </VerticalStackLayout>

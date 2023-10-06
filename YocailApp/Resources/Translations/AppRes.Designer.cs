@@ -70,6 +70,15 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Photo.
+        /// </summary>
+        internal static string AddPhotoMsg {
+            get {
+                return ResourceManager.GetString("AddPhotoMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string CancelTxt {
@@ -102,6 +111,15 @@ namespace YocailApp.Resources.Translations {
         internal static string ConfirmTxt {
             get {
                 return ResourceManager.GetString("ConfirmTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create New Post.
+        /// </summary>
+        internal static string CreatePostHeading {
+            get {
+                return ResourceManager.GetString("CreatePostHeading", resourceCulture);
             }
         }
         
@@ -196,6 +214,24 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Member Not Found.
+        /// </summary>
+        internal static string MemberNotFoundMsg {
+            get {
+                return ResourceManager.GetString("MemberNotFoundMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mobile not updated.
+        /// </summary>
+        internal static string MobileSaveError {
+            get {
+                return ResourceManager.GetString("MobileSaveError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More....
         /// </summary>
         internal static string MoreTxt {
@@ -241,6 +277,15 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Remove Photo.
+        /// </summary>
+        internal static string RemovePhotoMsg {
+            get {
+                return ResourceManager.GetString("RemovePhotoMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Report.
         /// </summary>
         internal static string ReportTxt {
@@ -255,6 +300,114 @@ namespace YocailApp.Resources.Translations {
         internal static string RequiredTxt {
             get {
                 return ResourceManager.GetString("RequiredTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About Me not updated.
+        /// </summary>
+        internal static string SaveBioError {
+            get {
+                return ResourceManager.GetString("SaveBioError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About Me Updated.
+        /// </summary>
+        internal static string SaveBioMsg {
+            get {
+                return ResourceManager.GetString("SaveBioMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Birth Year not updated.
+        /// </summary>
+        internal static string SaveBirthYearError {
+            get {
+                return ResourceManager.GetString("SaveBirthYearError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Birth Year Updated.
+        /// </summary>
+        internal static string SaveBirthYearMsg {
+            get {
+                return ResourceManager.GetString("SaveBirthYearMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email associated with another member, use different email..
+        /// </summary>
+        internal static string SaveEmailDuplicateError {
+            get {
+                return ResourceManager.GetString("SaveEmailDuplicateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email Not Updated.
+        /// </summary>
+        internal static string SaveEmailError {
+            get {
+                return ResourceManager.GetString("SaveEmailError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email Updated.
+        /// </summary>
+        internal static string SaveEmailMsg {
+            get {
+                return ResourceManager.GetString("SaveEmailMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mobile Updated.
+        /// </summary>
+        internal static string SaveMobileMsg {
+            get {
+                return ResourceManager.GetString("SaveMobileMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name not updated.
+        /// </summary>
+        internal static string SaveNameError {
+            get {
+                return ResourceManager.GetString("SaveNameError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name Updated.
+        /// </summary>
+        internal static string SaveNameMsg {
+            get {
+                return ResourceManager.GetString("SaveNameMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One Line Status not updated.
+        /// </summary>
+        internal static string SaveThoughtError {
+            get {
+                return ResourceManager.GetString("SaveThoughtError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One Line Status Updated.
+        /// </summary>
+        internal static string SaveThoughtMsg {
+            get {
+                return ResourceManager.GetString("SaveThoughtMsg", resourceCulture);
             }
         }
         

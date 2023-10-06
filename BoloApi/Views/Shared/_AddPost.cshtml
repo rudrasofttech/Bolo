@@ -27,46 +27,43 @@
         <form id="photoform" onsubmit="return savePhoto();">
             <div class="wizard mt-1" id="wizard">
                 <div class="step active bg-white pb-3" id="step1">
-                    <div class="container-xl py-1 maxwidth">
-                        <div class="row my-2">
-                            <div class="col">
-                                <button type="button" id="uploadbtn" class="btn btn-primary d-none px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
-                                <button id="changesizebtn" type="button" class="btn btn-primary hasphotos  px-3 me-2 d-none" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
-                                @*<input type="range" value="0" min="-10" max="10" onchange="changeScale();" id="scalerange" class="form-range hasphotos py-2" style="max-width:150px;" disabled />*@
-                            </div>
-                            <div class="col text-end">
-                                <button type="button" style="width:105px" id="nextwizardstepbtn" class="btn btn-primary  d-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
-                            </div>
+                    <div class="row g-1 mb-1">
+                        <div class="col">
+                            <button type="button" id="uploadbtn" class="btn btn-primary d-none px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
+                            <button id="changesizebtn" type="button" class="btn btn-primary hasphotos  px-3 me-2 d-none" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
+                            @*<input type="range" value="0" min="-10" max="10" onchange="changeScale();" id="scalerange" class="form-range hasphotos py-2" style="max-width:150px;" disabled />*@
+                        </div>
+                        <div class="col text-end">
+                            <button type="button" style="width:105px" id="nextwizardstepbtn" class="btn btn-primary  d-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
                         </div>
                     </div>
-                    <div class="text-center my-5" id="initbtncont">
-                        <button class="btn btn-primary btn-lg" style="width:200px" type="button" onclick="if(photos.length === 0){ $('#uploadbtn')[0].click();}"><i class="bi bi-cloud-arrow-up  fs-1"></i></button>
-                        <p class="mt-3">
-                            Click to upload pictures. You can choose multiple pictures. <br />
-                            फोटो अपलोड करें, आप एक से अधिक फोटो अपलोड कर सकते है।
+                    <div class="text-center my-3" id="initbtncont">
+                        <h1 class="mb-3 fs-2 text-primary">Create new post</h1>
+                        <img src="@Url.Content("~/theme1/images/add-post.svg")" class="img-fluid mt-1" />
+                        <p class="my-3 lh-base">
+                            Upload photos and videos here
                         </p>
+                        <button class="btn btn-blue" style="width:130px" type="button" onclick="if(photos.length === 0){ $('#uploadbtn')[0].click();}">Add Photos</button>
                     </div>
                     <div id="photocontainer" class="text-center">
                     </div>
                     <div class="hasphotos d-none text-center">
-                        <button type="button" class="btn btn-light m-1" id="prevslide">Prev</button><button class="btn btn-light m-1" type="button" id="nextslide">Next</button>
+                        <button type="button" class="btn btn-secondary m-1" id="prevslide">Prev</button><button class="btn btn-secondary m-1" type="button" id="nextslide">Next</button>
                     </div>
                     <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
                 </div>
                 <div class="step" id="step2">
-                    <div class="container-xl bg-white mt-2 py-1">
-                        <div class="row my-2">
-                            <div class="col">
-                                <button type="button" class="btn btn-primary" style="width:105px" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
-                            </div>
-                            <div class="col text-end">
-                                <button type="submit" style="width:105px" class="btn btn-primary mx-2">Save</button>
-                            </div>
+                    <div class="row g-1 mb-1">
+                        <div class="col">
+                            <button type="button" class="btn btn-primary" style="width:105px" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
+                        </div>
+                        <div class="col text-end">
+                            <button type="submit" style="width:105px" class="btn btn-primary mx-2">Save</button>
                         </div>
                     </div>
-                    <div class=" bg-white pb-3">
+                    <div class="bg-white pb-3">
                         <div class="mb-3">
-                            <textarea asp-for="Describe" class="form-control border-0 border-bottom" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000" onkeydown="adjustDescriptionTextareaHeight();"></textarea>
+                            <textarea asp-for="Describe" class="form-control border shadow-none" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000" onkeydown="adjustDescriptionTextareaHeight();"></textarea>
                         </div>
                         <div class="mb-3 ps-3">
                             <div class="form-check form-switch">

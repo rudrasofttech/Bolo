@@ -31,7 +31,8 @@
       "destination": "wwwroot/libs/dayjs/",
       "files": [
         "dayjs.min.js",
-        "plugin/utc.min.js"
+        "plugin/utc.min.js",
+        "plugin/relativeTime.min.js"
       ]
     }
   ]
