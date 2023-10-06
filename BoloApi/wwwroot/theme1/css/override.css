@@ -39,10 +39,15 @@
     height:200px;
 }
 .profile-icon {
-    max-height: 30px;
-    max-width: 30px;
+    max-height: 38px;
+    min-height:38px;
+    max-width:38px;
+    max-width: 38px;
 }
-
+.form-label{
+    font-size:15px;
+    font-weight:bold;
+}
 .btn-primary {
     --bs-btn-color: #fff;
     --bs-btn-bg: #30235B;
@@ -58,6 +63,19 @@
     --bs-btn-disabled-color: #fff;
     --bs-btn-disabled-bg: #30235B;
     --bs-btn-disabled-border-color: #30235B;
+}
+
+.border-primary {
+    --bs-border-opacity: 1;
+    border-color: #30235B !important;
+}
+
+.profile-pic-border {
+    border-width: 2px !important;
+    border-style: solid;
+    border-color: #30235B;
+    padding: 2px;
+    border-radius:50% !important;
 }
 
 .carousel-indicators {
@@ -101,7 +119,15 @@
 .fs-20 {
     font-size: 18px !important;
 }
-
+.loader-center {
+    width: 80px;
+    position: fixed;
+    height: 80px;
+    top: 50%;
+    margin-top: -40px;
+    left: 50%;
+    margin-left: -40px;
+}
 #mainmenubar {
     position: fixed;
     right: 0;
@@ -158,15 +184,15 @@
 
 @media (max-width : 768px) {
     body {
-        margin-top: auto;
+        margin-top: 74px;
     }
 
     #mainmenubar {
-        position: static;
+        /*position: static;
         right: auto;
         top: auto;
         left: auto;
-        z-index: auto;
+        z-index: auto;*/
         height: auto;
     }
 

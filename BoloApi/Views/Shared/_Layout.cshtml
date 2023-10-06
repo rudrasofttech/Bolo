@@ -79,12 +79,13 @@
                             <script>
                                 try {
                                     var member = JSON.parse(localStorage.getItem("myself"));
+                                    let icon = "<img src='//" + window.location.host + "/theme1/images/person-fill.svg' class='profile-icon profile-pic-border' />";
                                     if (member.pic !== "")
-                                        document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon rounded-3' />");
+                                        document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon profile-pic-border' />");
                                     else
-                                        document.write('<i class="bi bi-person-square"></i>');
+                                        document.write(icon);
                                 } catch (err) {
-                                    document.write('<i class="bi bi-person-square"></i>');
+                                    document.write(icon);
                                 }
                             </script>
                         </a>
@@ -134,10 +135,10 @@
         </div>
     </div>
     <div class="modal fade" id="addPostModal" tabindex="-1" aria-labelledby="addPostModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen-lg-down modal-xl">
+        <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="addPostModalLabel">Add Post</h1>
+                    <h4 class="modal-title text-primary fw-semibold fs-4" id="addPostModalLabel">Add Post</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

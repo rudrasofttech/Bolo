@@ -497,7 +497,7 @@ class Home extends React.Component {
             }} />;
         }
 
-        return <div className="container-lg my-md-3">
+        return <div className="container-lg my-md-3 my-2">
             <div className="row">
                 <div className="col-md-7 col-12">
                     {this.state.search.indexOf("#") > -1 ? <HashTagDetail search={this.state.search} /> : null}
@@ -624,7 +624,7 @@ class Explore extends React.Component {
             }} />;
         }
 
-        return <div className="container-lg my-md-3"><div className="row">
+        return <div className="container-lg my-md-3 my-2"><div className="row">
             <div className="col-md-7 col-12">
                 <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
             </div>
@@ -690,9 +690,9 @@ class Search extends React.Component {
         for (var k in this.state.items) {
             var p = this.state.items[k];
             if (p.member) {
-                items.push(<li key={i} className="list-group-item border-0 border-bottom p-2"><MemberSmallRow member={p.member} /></li>)
+                items.push(<li key={i} className="list-group-item border-0 p-2"><MemberSmallRow member={p.member} /></li>)
             } else if (p.hashtag) {
-                items.push(<li key={i} className="list-group-item border-0 border-bottom p-2">
+                items.push(<li key={i} className="list-group-item border-0 p-2">
                     <div>
                         <a className="text-dark fw-bold text-decoration-none" href={'//' + window.location.host + '/?q=%23' + p.hashtag.tag}>#{p.hashtag.tag}</a>
                         <div>{p.hashtag.postCount} Posts</div>
@@ -802,7 +802,7 @@ class Post extends React.Component {
             </div>;
         }
         if (this.state.post !== null) {
-            return <div className="container-lg my-md-3">
+            return <div className="container-lg my-md-3 my-2">
                 <div className="row">
                     <div className="col-md-7 col-12">
                         <MemberPost post={this.state.post} ondelete={(id) => { this.setState({ post: null }) }} onIgnoredMember={userid => { }} />
@@ -817,7 +817,7 @@ class Post extends React.Component {
                 </div>
             </div>;
         } else {
-            return <div className="container-lg my-md-3">
+            return <div className="container-lg my-md-3 my-2">
                 <div className="row">
                     <div className="col-md-7 col-12">
                         {!this.state.loading ? <h1>Incorrect Data, No Post Found.</h1> : ""}
@@ -1123,16 +1123,16 @@ class MemberPost extends React.Component {
         let postshtml = null;
 
         if (p.videoURL !== "") {
-            postshtml = <div>
+            postshtml = <div style={{minHeight:"300px"} }>
                 <video src={"//" + location.host + "/" + p.videoURL} className="w-100"></video>
             </div>;
         } else if (p.photos) {
             if (p.photos.length == 1) {
-                postshtml = <div className="text-center">
+                postshtml = <div className="text-center" style={{ minHeight: "300px" }}>
                     <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
-                postshtml = <PhotoCarousel photos={p.photos} postid={p.id} />;
+                postshtml = <div style={{ minHeight: "400px" }}><PhotoCarousel photos={p.photos} postid={p.id} /></div>;
             }
         }
 
@@ -1601,6 +1601,7 @@ class MemberComment extends React.Component {
         </React.Fragment>;
     }
 }
+
 class MemberPostList extends React.Component {
     constructor(props) {
         super(props);
@@ -2119,10 +2120,9 @@ class MemberPicSmall extends React.Component {
 
     render() {
         var memberpic = this.state.member.pic !== "" ? <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0">
-            <img src={'//' + window.location.host + "/" + this.state.member.pic} className="img-fluid pointer rounded-3 owner-thumb-small" alt="" /></a>
+            <img src={'//' + window.location.host + "/" + this.state.member.pic} className="img-fluid pointer profile-pic-border rounded-circle owner-thumb-small" alt="" /></a>
             : <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="border-0 text-secondary">
-                <img src={'//' + location.host + '/images/nopic.jpg'} alt="No Pic" className=" img-fluid pointer rounded-3 owner-thumb-small" /></a>;
-
+                <img src={'//' + location.host + '/theme1/images/person-fill.svg'} alt="No Pic" className=" img-fluid pointer profile-pic-border owner-thumb-small" /></a>;
 
         return <React.Fragment>{memberpic}</React.Fragment>;
     }
@@ -2893,8 +2893,8 @@ class Profile extends React.Component {
         }
         let me = null, pic = null, settings = null, followhtml = null;
         if (this.state.member !== null) {
-            pic = this.state.member.pic !== "" ? <img src={"//" + window.location.host + "/" + this.state.member.pic} className="img-fluid rounded-3 profile-thumb mb-2" alt="" />
-                : <img src="/images/nopic.jpg" className="img-fluid profile-thumb rounded-3 mb-2" alt="" />;
+            pic = this.state.member.pic !== "" ? <img src={"//" + window.location.host + "/" + this.state.member.pic} className="img-fluid profile-pic-border profile-thumb mb-2" alt="" />
+                : <img src="/images/nopic.jpg" className="img-fluid profile-pic-border profile-thumb  mb-2" alt="" />;
             let name = null, thought = null;
             if (this.state.member.name !== "") {
                 name = <div className="fs-18 text-center text-secondary">{this.state.member.name}</div>;
@@ -2909,7 +2909,7 @@ class Profile extends React.Component {
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <div className="container-lg my-md-3">
+            me = <div className="container-lg my-md-3 my-2">
                 <div className="row">
                     <div className="col-md-5 px-md-5">
                         <div class="sticky-column py-3 ">
@@ -3389,12 +3389,12 @@ class ManageProfile extends React.Component {
     renderProfilePicModal() {
         if (this.state.showProfilePicModal) {
             const { crop, profile_pic, src } = this.state;
-            return (
-                <div className="modal  d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            return <React.Fragment>
+                <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title">Profile Picture</h5>
+                                <h4 className="modal-title text-primary fw-semibold">Profile Picture</h4>
                                 <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close" onClick={this.toggleProfilePicModal}>
                                 </button>
                             </div>
@@ -3415,8 +3415,8 @@ class ManageProfile extends React.Component {
                             </div>
                         </div>
                     </div>
-                </div>
-            );
+                </div><div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
         }
         else { return null; }
     }
@@ -3435,16 +3435,17 @@ class ManageProfile extends React.Component {
         for (var i = 1947; i <= 2004; i++) {
             yearitems.push(<option value={i}>{i}</option>);
         }
-        let loading = this.state.loading ? <div className="progress fixed-bottom rounded-0" style={{ height: "5px" }}>
-            <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: '100%' }}></div>
+        let loading = this.state.loading ? <div className="p-4 loader-center border rounded-4 shadow bg-white" style={{width:"80px", position:"fixed", height:"80px", bottom:"155px"} }>
+            <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
         </div> : null;
         if (this.state.loggedin && this.state.myself !== null) {
-
-            let message = this.state.message !== "" ? <div className={'text-center noMargin noRadius alert alert-' + this.state.bsstyle} role="alert">
+            let message = this.state.message !== "" ? <div className={'text-center p-2 text-' + this.state.bsstyle} role="alert">
                 {this.state.message}
             </div> : null;
-            let pic = this.state.myself.pic !== "" ? <React.Fragment><img src={"//" + location.host + "/" + this.state.myself.pic} className=" mx-auto d-block img-fluid" alt="" style={{ maxWidth: "200px" }} />
-                <button type="button" className="btn btn-sm btn-secondary m-1" onClick={this.removeProfilePicture}>Remove</button></React.Fragment> : <img src="/images/nopic.jpg" className=" mx-auto d-block img-fluid" alt="" style={{ maxWidth: "200px" }} />;
+            let pic = this.state.myself.pic !== "" ? <React.Fragment><img src={"//" + location.host + "/" + this.state.myself.pic} className="rounded-circle mx-auto d-block img-fluid" alt="" style={{ maxWidth: "200px" }} />
+                <button type="button" className="btn btn-sm btn-secondary m-1" onClick={this.removeProfilePicture}>Remove</button></React.Fragment> : <img src="/theme1/images/person-fill.svg" className=" mx-auto d-block rounded-circle img-fluid" alt="" style={{ width: "200px" }} />;
             return <React.Fragment>
                 <div className="container py-5">
                     {loading}
@@ -3457,27 +3458,27 @@ class ManageProfile extends React.Component {
                             {this.renderProfilePicModal()}
                         </div>
                         <div className="col-md-6">
-                            <div className="mb-2">
-                                <label htmlFor="channelnametxt" className="form-label fw-bold">Username</label>
-                                <input type="text" id="channelnametxt" readOnly name="userName" placeholder="Unique Channel Name" className="form-control" value={this.state.myself.userName} />
+                            <div className="mb-3">
+                                <label htmlFor="channelnametxt" className="form-label text-primary">Username</label>
+                                <input type="text" id="channelnametxt" readOnly name="userName" placeholder="Unique Channel Name" className="form-control shadow-none border" value={this.state.myself.userName} />
                             </div>
-                            <div className="mb-2">
-                                <label htmlFor="nametxt" className="form-label fw-bold">Name <span className="text-danger">(Required)</span></label>
-                                <input type="text" id="nametxt" name="name" placeholder="Your Name" className="form-control" value={this.state.myself.name} onChange={this.handleChange} onBlur={() => { this.saveData("name", this.state.myself.name) }} />
+                            <div className="mb-3">
+                                <label htmlFor="nametxt" className="form-label text-primary">Name <span className="text-danger">(Required)</span></label>
+                                <input type="text" id="nametxt" name="name" placeholder="Your Name" className="form-control shadow-none border" value={this.state.myself.name} onChange={this.handleChange} onBlur={() => { this.saveData("name", this.state.myself.name) }} />
                             </div>
-                            <div className="mb-2">
-                                <label className="form-label fw-bold">Mobile <span className="text-danger">(Required)</span></label>
-                                <input type="text" name="phone" className="form-control" maxLength="15" value={this.state.myself.phone} onChange={this.handleChange}
+                            <div className="mb-3">
+                                <label className="form-label text-primary">Mobile <span className="text-danger">(Required)</span></label>
+                                <input type="text" name="phone" className="form-control shadow-none border" maxLength="15" value={this.state.myself.phone} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("phone", this.state.myself.phone) }} />
                             </div>
-                            <div className="mb-2">
-                                <label className="form-label fw-bold">Email <span className="text-danger">(Required)</span></label>
-                                <input type="email" name="email" className="form-control" maxLength="250" value={this.state.myself.email} onChange={this.handleChange}
+                            <div className="mb-3">
+                                <label className="form-label text-primary">Email <span className="text-danger">(Required)</span></label>
+                                <input type="email" name="email" className="form-control shadow-none border" maxLength="250" value={this.state.myself.email} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("email", this.state.myself.email) }} />
                             </div>
-                            <div className="mb-2">
-                                <label htmlFor="birthyeartxt" className="form-label fw-bold">Year of Birth</label>
-                                <select id="birthyeartxt" name="birthYear" className="form-select" value={this.state.myself.birthYear} onChange={this.handleChange}
+                            <div className="mb-3">
+                                <label htmlFor="birthyeartxt" className="form-label text-primary">Year of Birth</label>
+                                <select id="birthyeartxt" name="birthYear" className="form-select rounded-4 shadow-none border" value={this.state.myself.birthYear} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("birthYear", this.state.myself.birthYear) }}>
                                     {yearitems}
                                 </select>
@@ -3486,30 +3487,29 @@ class ManageProfile extends React.Component {
                     </div>
                     <div className="row g-1 mb-3">
                         <div className="col-md-6">
-                            <label htmlFor="securityQuesitonTxt" className="form-label fw-bold">Security Question <span className="text-danger">(Required)</span></label>
-                            <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control" maxLength="300" value={this.state.myself.securityQuestion} onChange={this.handleChange}
+                            <label htmlFor="securityQuesitonTxt" className="form-label text-primary">Security Question <span className="text-danger">(Required)</span></label>
+                            <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control shadow-none border" maxLength="300" value={this.state.myself.securityQuestion} onChange={this.handleChange}
                                 onBlur={() => { this.saveData("securityquestion", this.state.myself.securityQuestion) }} />
                         </div>
                         <div className="col-md-6">
-                            <label htmlFor="securityAnswerTxt" className="form-label fw-bold">Security Answer <span className="text-danger">(Required)</span></label>
+                            <label htmlFor="securityAnswerTxt" className="form-label text-primary">Security Answer <span className="text-danger">(Required)</span></label>
                             <div>Your existing answer is not shown. <button type="button" className="btn btn-primary ms-2 btn-sm" onClick={() => { this.setState({ showSecAnsModal: true }); }}>Change Answer</button></div>
                         </div>
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="thoughtStatus" className="form-label fw-bold">One line Introduction</label>
-                        <input type="text" name="thoughtStatus" className="form-control" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange}
+                        <label htmlFor="thoughtStatus" className="form-label text-primary">One line Introduction</label>
+                        <input type="text" name="thoughtStatus" className="form-control shadow-none border" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange}
                             onBlur={() => { this.saveData("thoughtstatus", this.state.myself.thoughtStatus) }} />
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="biotxt" className="form-label fw-bold">About Me</label>
-                        <textarea className="form-control" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} rows="4" placeholder="Write something about yourself."
+                        <label htmlFor="biotxt" className="form-label text-primary">About Me</label>
+                        <textarea className="form-control shadow-none border" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} rows="4" placeholder="Write something about yourself."
                             onBlur={() => { this.saveData("bio", this.state.myself.bio) }}></textarea>
                     </div>
-
                     <div className="row g-1">
                         <div className="col-md-6">
-                            <label htmlFor="visibilityselect" className="form-label fw-bold">Profile Visibility</label>
-                            <select className="form-select" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange}
+                            <label htmlFor="visibilityselect" className="form-label text-primary">Profile Visibility</label>
+                            <select className="form-select rounded-4 shadow-none border" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange}
                                 onBlur={() => { this.saveData("visibility", this.state.myself.visibility) }}>
                                 <option value="0"></option>
                                 <option value="2">Public</option>
@@ -3517,8 +3517,8 @@ class ManageProfile extends React.Component {
                             </select>
                         </div>
                         <div className="col-md-6">
-                            <label htmlFor="countryselect" className="form-label fw-bold">Country</label>
-                            <select className="form-select" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={() => { this.saveData("country", this.state.myself.country) }}>
+                            <label htmlFor="countryselect" className="form-label text-primary">Country</label>
+                            <select className="form-select rounded-4 shadow-none border" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={() => { this.saveData("country", this.state.myself.country) }}>
                                 <option value=""></option>
                                 <option value="AD">Andorra</option>
                                 <option value="AE">United Arab Emirates</option>
@@ -4113,17 +4113,7 @@ class ViewProfile extends React.Component {
         };
     }
 
-    componentDidMount() {
-        //if (localStorage.getItem("token") !== null) {
-        //    this.fetchData(localStorage.getItem("token"));
-        //}
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        //if ((prevState.channel !== this.state.channel || prevState.profileid !== this.state.profileid) && localStorage.getItem("token") !== null) {
-        //    this.fetchData(localStorage.getItem("token"));
-        //}
-    }
+    
 
     static getDerivedStateFromProps(props, state) {
         if (props.channel !== state.channel || props.profileid !== state.profileid || props.profile !== state.profile) {
@@ -4221,14 +4211,12 @@ class ViewProfile extends React.Component {
                 </span>
             }];
             var bio = <p>{this.processString(config)(this.state.profile.bio)}</p>;
-            return (
-                <div className="text-center">
+            return <div className="text-center">
                     {pic}
                     <h4>{this.state.profile.name}</h4>
                     <p>{bio}</p>
                     <p><em>{age} {address}</em></p>
-                </div>
-            );
+                </div>;
         } else {
             return null;
         }
