@@ -19,7 +19,7 @@
     "react-moment": "^0.9.7",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.4.0",
+    "react-scripts": "^5.0.1",
     "reactstrap": "^8.4.1",
     "rimraf": "^2.6.2",
     "simple-peer": "^9.7.0"
