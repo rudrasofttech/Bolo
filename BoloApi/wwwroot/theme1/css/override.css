@@ -20,34 +20,41 @@
     transition: all 0.3s;
     -webkit-transition: all 0.3s;
 }
+
 .btn-danger:hover {
     color: #D23200 !important;
     background-color: #fff !important;
 }
+
 .btn-danger {
     background-color: #D23200 !important;
 }
+
 .profile-thumb {
     max-height: 100px;
-    max-width:100px;
+    max-width: 100px;
 }
+
 .imgbg {
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     overflow: hidden;
-    height:200px;
+    height: 200px;
 }
+
 .profile-icon {
     max-height: 38px;
-    min-height:38px;
-    max-width:38px;
+    min-height: 38px;
+    max-width: 38px;
     max-width: 38px;
 }
-.form-label{
-    font-size:15px;
-    font-weight:bold;
+
+.form-label {
+    font-size: 15px;
+    font-weight: bold;
 }
+
 .btn-primary {
     --bs-btn-color: #fff;
     --bs-btn-bg: #30235B;
@@ -75,7 +82,7 @@
     border-style: solid;
     border-color: #30235B;
     padding: 2px;
-    border-radius:50% !important;
+    border-radius: 50% !important;
 }
 
 .carousel-indicators {
@@ -101,9 +108,11 @@
 .text-danger {
     color: #D23200 !important;
 }
+
 .bg-danger {
     background-color: #D23200 !important;
 }
+
 .bg-primary {
     background-color: #30235B !important;
 }
@@ -119,6 +128,7 @@
 .fs-20 {
     font-size: 18px !important;
 }
+
 .loader-center {
     width: 80px;
     position: fixed;
@@ -128,6 +138,7 @@
     left: 50%;
     margin-left: -40px;
 }
+
 #mainmenubar {
     position: fixed;
     right: 0;
@@ -184,7 +195,7 @@
 
 @media (max-width : 768px) {
     body {
-        margin-top: 74px;
+        margin-top: 58px;
     }
 
     #mainmenubar {
@@ -195,16 +206,21 @@
         z-index: auto;*/
         height: auto;
     }
-
+    .profile-icon {
+        max-height: 28px;
+        min-height: 28px;
+        max-width: 28px;
+        max-width: 28px;
+    }
     .menubar {
-        position: fixed;
-        right: 0;
+        position: -webkit-sticky;
+        position: sticky;
         bottom: 0;
-        left: 0;
-        z-index: 1030;
+        z-index: 1020;
     }
 
+
     .logo {
-        max-height: 50px;
+        max-height: 35px;
     }
 }

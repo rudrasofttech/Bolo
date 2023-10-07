@@ -352,8 +352,8 @@ namespace Bolo.Controllers
                     PostType = MemberPostType.Photo,
                     Status = RecordStatus.Active,
                     VideoURL = string.Empty,
-                    AcceptComment = value.AcceptComment,
-                    AllowShare = value.AllowShare,
+                    AcceptComment = value.AcceptComment ?? false,
+                    AllowShare = value.AllowShare ?? false,
                     PublicID = Guid.NewGuid()
                 };
                 foreach (string s in value.Photos.Where(t => !string.IsNullOrEmpty(t)))
@@ -401,7 +401,7 @@ namespace Bolo.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Unable to process the request. " + ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = $"Unable to process the request. {ex.Message} {ex.StackTrace}" });
             }
         }
 

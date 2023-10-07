@@ -1071,7 +1071,7 @@ class MemberPost extends React.Component {
             }
             return <React.Fragment>
                 <div className="modal d-block" tabIndex="-1">
-                    <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-body">
                                 {editbtn}
@@ -1123,7 +1123,7 @@ class MemberPost extends React.Component {
         let postshtml = null;
 
         if (p.videoURL !== "") {
-            postshtml = <div style={{minHeight:"300px"} }>
+            postshtml = <div style={{ minHeight: "300px" }}>
                 <video src={"//" + location.host + "/" + p.videoURL} className="w-100"></video>
             </div>;
         } else if (p.photos) {
@@ -1194,12 +1194,12 @@ class MemberPost extends React.Component {
                                 <td className="px-3 pb-0" align="center" valign="top">
                                     {reactionhtml}
                                 </td>
-                                <td className="px-3 pb-0" align="center" valign="top">{commentBtn}</td>
+                                {p.acceptComment ? <td className="px-3 pb-0" align="center" valign="top">{commentBtn}</td> : null}
                                 {p.allowShare ? <td className="px-3 pb-0" align="center" valign="top">{shareBtn}</td> : null}
                             </tr>
                             <tr>
                                 <td align="center" valign="top">{reactionCountHtml}</td>
-                                <td align="center" valign="top">{commentCountHtml}</td>
+                                {p.acceptComment ? <td align="center" valign="top">{commentCountHtml}</td> : null}
                                 {p.allowShare ? <td></td> : null}
                             </tr>
                         </tbody>
@@ -1294,34 +1294,35 @@ class MemberPost extends React.Component {
 
     renderEditModal() {
         if (this.state.showModal === "edit") {
-            let loading = this.state.loading ? <div className="progress my-1" style={{ height: "10px" }}>
-                <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }} ></div>
+            let loading = this.state.loading ? <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
             </div> : null;
             let message = this.state.message !== "" && this.state.bsstyle === "danger" ? <div className="alert alert-danger" role="alert">
                 {this.state.message}
             </div> : null;
 
-            return <React.Fragment><div className="modal d-block" tabIndex="-1" aria-hidden="true">
-                <div className="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div className="modal-content">
-                        <div className="modal-body">
-                            <EditPost post={this.state.post} onchange={(describe, ac, as) => {
-                                let p = this.state.post;
-                                p.describe = describe;
-                                p.acceptComment = ac;
-                                p.allowShare = as;
-                                this.setState({ post: p });
-                            }} />
-                            {loading}
-                            {message}
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" onClick={this.editPost}>Save</button>
-                            <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal: ''/*showeditform: false, showpostoptions: false*/ }); }}>Close</button>
+            return <React.Fragment>
+                <div className="modal d-block" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <EditPost post={this.state.post} onchange={(describe, ac, as) => {
+                                    let p = this.state.post;
+                                    p.describe = describe;
+                                    p.acceptComment = ac;
+                                    p.allowShare = as;
+                                    this.setState({ post: p });
+                                }} />
+                                {loading}
+                                {message}
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-primary" onClick={this.editPost}>Save</button>
+                                <button type="button" className="btn btn-secondary" onClick={() => { this.setState({ showModal: ''/*showeditform: false, showpostoptions: false*/ }); }}>Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
                 <div className="modal-backdrop fade show"></div>
             </React.Fragment>;
         }
@@ -1374,7 +1375,7 @@ class EditPost extends React.Component {
             chk2 = <input className="form-check-input" checked type="checkbox" id="allowsharechk" role="switch" onChange={this.allowShareChanged} />;
         return <div>
             <div className="mb-3">
-                <textarea className="form-control border" onChange={(e) => {
+                <textarea className="form-control border shadow-none" onChange={(e) => {
                     this.setState({ describe: e.target.value }, () => { this.props.onchange(this.state.describe, this.state.acceptComment, this.state.allowShare) });
                 }} value={this.state.describe} rows={this.state.rows} placeholder="Add some description to your photo..." maxlength="7000"></textarea>
             </div>
@@ -3435,7 +3436,7 @@ class ManageProfile extends React.Component {
         for (var i = 1947; i <= 2004; i++) {
             yearitems.push(<option value={i}>{i}</option>);
         }
-        let loading = this.state.loading ? <div className="p-4 loader-center border rounded-4 shadow bg-white" style={{width:"80px", position:"fixed", height:"80px", bottom:"155px"} }>
+        let loading = this.state.loading ? <div className="p-4 loader-center border rounded-4 shadow bg-white" style={{ width: "80px", position: "fixed", height: "80px", bottom: "155px" }}>
             <div className="spinner-border" role="status">
                 <span className="visually-hidden">Loading...</span>
             </div>
@@ -3806,6 +3807,7 @@ class RegisterForm extends React.Component {
 
     componentDidMount() {
         document.getElementById("mainmenubar").style.display = "none";
+        document.getElementsByTagName("body")[0].style.marginTop = "0px";
         document.title = "Yocail - login or signup";
     }
 
@@ -4113,7 +4115,7 @@ class ViewProfile extends React.Component {
         };
     }
 
-    
+
 
     static getDerivedStateFromProps(props, state) {
         if (props.channel !== state.channel || props.profileid !== state.profileid || props.profile !== state.profile) {
@@ -4212,11 +4214,11 @@ class ViewProfile extends React.Component {
             }];
             var bio = <p>{this.processString(config)(this.state.profile.bio)}</p>;
             return <div className="text-center">
-                    {pic}
-                    <h4>{this.state.profile.name}</h4>
-                    <p>{bio}</p>
-                    <p><em>{age} {address}</em></p>
-                </div>;
+                {pic}
+                <h4>{this.state.profile.name}</h4>
+                <p>{bio}</p>
+                <p><em>{age} {address}</em></p>
+            </div>;
         } else {
             return null;
         }
@@ -4889,20 +4891,21 @@ class AskPushNotification extends React.Component {
     }
 
     renderModal = (message) => {
-        return <React.Fragment><div className="modal d-block" tabIndex="-1">
-            <div className="modal-dialog">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h1 className="modal-title fs-5">Get Yocail Notifications</h1>
-                        <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: false }); }}></button>
-                    </div>
-                    <div className="modal-body">
-                        {message !== "" ? <div className="my-1 fw-bold">{message}</div> : null}
-                        <button onClick={this.requestNotificationAccess} className="btn btn-success my-2">Allow Notification</button>
+        return <React.Fragment>
+            <div className="modal d-block" tabIndex="-1">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fw-semibold fs-5">Get Yocail Notifications</h1>
+                            <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: false }); }}></button>
+                        </div>
+                        <div className="modal-body">
+                            {message !== "" ? <div className="my-1 lh-sm">{message}</div> : null}
+                            <button onClick={this.requestNotificationAccess} className="btn btn-blue my-2">Allow Notification</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
             <div className="modal-backdrop fade show"></div>
         </React.Fragment>;
 
