@@ -50,7 +50,7 @@
                     <div class="hasphotos d-none text-center">
                         <button type="button" class="btn btn-secondary m-1" id="prevslide">Prev</button><button class="btn btn-secondary m-1" type="button" id="nextslide">Next</button>
                     </div>
-                    <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
+                    <input type="file" id="photofiles" accept="image/*, image/jpg, image/jpeg, image/png, image/gif, image/bmp" multiple class="d-none" onchange="processFiles(event);" />
                 </div>
                 <div class="step" id="step2">
                     <div class="row g-1 mb-1">
@@ -224,6 +224,7 @@
                     $("#photocontainer").append("<img class='targetimg img-fluid ' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, true)' />");
                 }
             }
+            
             fileReader.readAsDataURL(e.target.files[k]);
         }
     }
@@ -285,7 +286,8 @@
         }).done(function (data) {
             location.href = "@Url.Content("~/")"
         }).fail(function (data) {
-            alert(data.error);
+            if (data.responseJSON)
+                alert(data.responseJSON.error);
         });
         return false;
     }
