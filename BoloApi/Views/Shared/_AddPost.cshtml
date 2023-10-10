@@ -50,7 +50,7 @@
                     <div class="hasphotos d-none text-center">
                         <button type="button" class="btn btn-secondary m-1" id="prevslide">Prev</button><button class="btn btn-secondary m-1" type="button" id="nextslide">Next</button>
                     </div>
-                    <input type="file" id="photofiles" multiple class="d-none" onchange="processFiles(event);" />
+                    <input type="file" id="photofiles" accept="image/*, image/jpg, image/jpeg, image/png, image/gif, image/bmp" multiple class="d-none" onchange="processFiles(event);" />
                 </div>
                 <div class="step" id="step2">
                     <div class="row g-1 mb-1">
@@ -67,13 +67,13 @@
                         </div>
                         <div class="mb-3 ps-3">
                             <div class="form-check form-switch">
-                                <input asp-for="AcceptComment" class="form-check-input" type="checkbox" role="switch" id="acceptcommentchk" value="true" />
+                                <input name="AcceptComment" class="form-check-input" type="checkbox" role="switch" id="acceptcommentchk" value="true" @Html.Raw(Model.AcceptComment.HasValue && Model.AcceptComment.Value ? "checked" : "" ) />
                                 <label class="form-check-label" for="acceptcommentchk">Accept Comment On Post</label>
                             </div>
                         </div>
                         <div class="ps-3">
                             <div class="form-check form-switch">
-                                <input asp-for="AllowShare" class="form-check-input" type="checkbox" role="switch" id="allowsharechk" value="true" />
+                                <input name="AllowShare" class="form-check-input" type="checkbox" role="switch" id="allowsharechk" value="true" @Html.Raw(Model.AllowShare.HasValue && Model.AllowShare.Value ? "checked" : "" ) />
                                 <label class="form-check-label" for="allowsharechk">Allow Sharing of Post</label>
                             </div>
                         </div>
@@ -224,6 +224,7 @@
                     $("#photocontainer").append("<img class='targetimg img-fluid ' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, true)' />");
                 }
             }
+            
             fileReader.readAsDataURL(e.target.files[k]);
         }
     }
@@ -284,6 +285,9 @@
             headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
         }).done(function (data) {
             location.href = "@Url.Content("~/")"
+        }).fail(function (data) {
+            if (data.responseJSON)
+                alert(data.responseJSON.error);
         });
         return false;
     }

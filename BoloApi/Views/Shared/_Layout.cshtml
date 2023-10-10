@@ -45,66 +45,77 @@
     @RenderSection("head", false)
 </head>
 <body class="bg-white">
-    <div class="p-4 py-2 text-center text-md-start" id="mainmenubar">
-        <a href="@Url.Content("~/")">
-            <img src="~/theme1/images/yocail-logo.svg" class="img-fluid logo" alt="Yocail logo" />
-        </a>
-        <div class="menubar bg-white py-3 py-lg-4 d-md-inline-block float-md-end float-none">
-            <div class="row g-0 align-items-center justify-items-center">
-                <div class="col">
-                    <a href="javascript:void(0)" class="loggedmenuitem d-none text-primary fs-3 mx-md-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal">
-                        <i class="bi bi-search"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="loggedmenuitem d-none text-primary fs-3 mx-md-4" href="@Url.Content("~/discover")" title="Discover">
-                        <i class="bi bi-globe-central-south-asia"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a class="loggedmenuitem d-none text-primary fs-3 mx-md-4" data-bs-toggle="modal" data-bs-target="#addPostModal" title="Add Post">
-                        <i class="bi bi-file-plus"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#NotificationModal" class="position-relative fs-3 mx-md-4 text-primary loggedmenuitem d-none">
-                        <i class="bi bi-bell"></i>
-                        <span style="font-size:0.8rem; top:10px;" class="notificationcount d-none position-absolute start-100 translate-middle badge rounded-pill bg-danger">
-                        </span>
-                    </a>
-                </div>
-                <div class="col">
-                    <div class="dropdown loggedmenuitem d-none">
-                        <a class="text-primary fs-3 mx-md-4 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
-                            <script>
-                                try {
-                                    var member = JSON.parse(localStorage.getItem("myself"));
-                                    let icon = "<img src='//" + window.location.host + "/theme1/images/person-fill.svg' class='profile-icon profile-pic-border' />";
-                                    if (member.pic !== "")
-                                        document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon profile-pic-border' />");
-                                    else
-                                        document.write(icon);
-                                } catch (err) {
-                                    document.write(icon);
-                                }
-                            </script>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="py-2 border-bottom">
-                                <a class="dropdown-item py-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
-                            </li>
-                            <li class="py-2 border-bottom">
-                                <a class="dropdown-item py-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i class="bi bi-sign-stop"></i> Ignored</a>
-                            </li>
-                            <li class="py-2">
-                                <a class="dropdown-item py-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
-                            </li>
-                        </ul>
+    <div class="container-fluid p-2" id="mainmenubar">
+        <div class="row g-0" >
+            <div class="col-md-3 d-none d-md-block">
+                <a href="@Url.Content("~/")">
+                    <img src="~/theme1/images/yocail-logo.svg" class="img-fluid logo mb-3" alt="Yocail logo" />
+                </a>
+            </div>
+            <div class="col-md-9 text-center text-md-end">
+                <div class="bg-white py-lg-4 d-md-inline-block">
+                    <div class="row g-1 align-items-center justify-items-center">
+                        <div class="col-3 text-start d-md-none">
+                            <a href="@Url.Content("~/")">
+                                <img src="~/theme1/images/yocail-sign-logo.svg" class="img-fluid logo" alt="Yocail logo" />
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="javascript:void(0)" class="loggedmenuitem d-none text-primary fs-4 mx-md-4" title="Search" data-bs-toggle="modal" data-bs-target="#SearchModal">
+                                <i class="bi bi-search"></i>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a class="loggedmenuitem d-none text-primary fs-4 mx-md-4" href="@Url.Content("~/discover")" title="Discover">
+                                <i class="bi bi-globe-central-south-asia"></i>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a class="loggedmenuitem d-none text-primary fs-4 mx-md-4" data-bs-toggle="modal" data-bs-target="#addPostModal" title="Add Post">
+                                <i class="bi bi-file-plus"></i>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#NotificationModal" class="position-relative fs-4 mx-md-4 text-primary loggedmenuitem d-none">
+                                <i class="bi bi-bell"></i>
+                                <span style="font-size:0.8rem; top:10px;" class="notificationcount d-none position-absolute start-100 translate-middle badge rounded-pill bg-danger">
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <div class="dropdown loggedmenuitem d-none me-2">
+                                <a class="text-primary fs-4 mx-md-4 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="profilemenuanchor">
+                                    <script>
+                                        try {
+                                            var member = JSON.parse(localStorage.getItem("myself"));
+                                            let icon = "<img src='//" + window.location.host + "/theme1/images/person-fill.svg' class='profile-icon profile-pic-border' />";
+                                            if (member.pic !== "")
+                                                document.write("<img src='//" + window.location.host + "/" + member.pic + "' class='profile-icon profile-pic-border' />");
+                                            else
+                                                document.write(icon);
+                                        } catch (err) {
+                                            document.write(icon);
+                                        }
+                                    </script>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="py-2 border-bottom">
+                                        <a class="dropdown-item py-1" href="@Url.Content("~/profile/")"><i class="bi bi-person-lines-fill"></i> Profile</a>
+                                    </li>
+                                    <li class="py-2 border-bottom">
+                                        <a class="dropdown-item py-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i class="bi bi-sign-stop"></i> Ignored</a>
+                                    </li>
+                                    <li class="py-2">
+                                        <a class="dropdown-item py-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i class="bi bi-box-arrow-left"></i> Logout</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            @RenderSection("toolbar", false)
         </div>
-        @RenderSection("toolbar", false)
     </div>
     <div id="root" style="min-height: 500px;">
         @RenderBody()
@@ -143,7 +154,7 @@
                 </div>
                 <div class="modal-body">
                     @{
-                        await Html.RenderPartialAsync("_AddPost", new PostPhotoDTO());
+                        await Html.RenderPartialAsync("_AddPost", new PostPhotoDTO() { AcceptComment = true, AllowShare = false });
                     }
                 </div>
             </div>
@@ -165,7 +176,8 @@
     <script src="~/libs/dayjs/dayjs.min.js"></script>
     <script src="~/libs/dayjs/plugin/utc.min.js"></script>
     <script src="~/libs/dayjs/plugin/relativeTime.min.js"></script>
-    <script>dayjs.extend(window.dayjs_plugin_utc);
+    <script>
+        dayjs.extend(window.dayjs_plugin_utc);
         dayjs.extend(window.dayjs_plugin_relativeTime)</script>
     <script src="~/libs/signalr.min.js"></script>
     <script src="~/libs/hyperHtml/min.min.js"></script>

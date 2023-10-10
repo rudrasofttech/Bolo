@@ -266,8 +266,8 @@ namespace Bolo.Models
     {
         [MaxLength(7000)]
         public string Describe { get; set; } = string.Empty;
-        public bool AcceptComment { get; set; } = true;
-        public bool AllowShare { get; set; } = true;
+        public bool? AcceptComment { get; set; }
+        public bool? AllowShare { get; set; }
         public List<string> Photos { get; set; } = new List<string>(10);
 
         public PostPhotoDTO()
