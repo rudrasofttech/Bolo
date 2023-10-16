@@ -91,6 +91,7 @@ namespace YocailApp
     {
         public MemberModel Member { get; set; }
         public string Token { get; set; }
+
     }
 
     public class MemberModel
@@ -120,7 +121,7 @@ namespace YocailApp
         public string EmptyFields { get; set; } = string.Empty;
         public DateTime LastPulse { get; set; }
         public RecordStatus Status { get; set; }
-        public string PicFormedURL { get;set; } = string.Empty;
+        public string PicFormedURL { get; set; } = string.Empty;
 
         public MemberModel()
         {
@@ -386,4 +387,23 @@ namespace YocailApp
     {
         public string Error { get; set; } = string.Empty;
     }
+
+    public class DevicePhoto
+    {
+        public string Size { get; set; } =  string.Empty;
+        public string RelativePath { get; set; } = string.Empty;
+        public string URI { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string DateAdded { get; set; } = string.Empty;
+
+        public DevicePhoto(string uri, string displayName, string dateAdded, string size, string relativePath)
+        {
+            URI = uri;
+            DisplayName = displayName;
+            DateAdded = dateAdded;
+            RelativePath = relativePath;
+            Size = size;
+        }
+    }
+
 }

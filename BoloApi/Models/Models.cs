@@ -165,13 +165,7 @@ namespace Bolo.Models
         public bool IsEmailVerified { get; set; }
     }
 
-    //public class EmailVerification
-    //{
-    //    public int ID { get; set; }
-    //    public Member Member { get; set; }
-    //    public string SecretCode { get; set; }
-    //    public DateTime CreateDate { get; set; }
-    //}
+    
     public class MemberRole
     {
         public int ID { get; set; }

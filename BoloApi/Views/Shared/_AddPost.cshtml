@@ -24,22 +24,22 @@
 </style>
 <div class="row g-0">
     <div class="col ">
-        <form id="photoform" onsubmit="return savePhoto();">
+        <form id="photoform" onsubmit="event.preventDefault(); return savePhoto();">
             <div class="wizard mt-1" id="wizard">
                 <div class="step active bg-white pb-3" id="step1">
-                    <div class="row g-1 mb-1">
-                        <div class="col">
-                            <button type="button" id="uploadbtn" class="btn btn-primary d-none px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
-                            <button id="changesizebtn" type="button" class="btn btn-primary hasphotos  px-3 me-2 d-none" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
-                            @*<input type="range" value="0" min="-10" max="10" onchange="changeScale();" id="scalerange" class="form-range hasphotos py-2" style="max-width:150px;" disabled />*@
-                        </div>
-                        <div class="col text-end">
-                            <button type="button" style="width:105px" id="nextwizardstepbtn" class="btn btn-primary  d-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
-                        </div>
+                    <div class="p-1 text-center mb-1">
+                        <button type="button" id="uploadbtn" class="btn btn-primary d-none px-3 me-2" onclick="$('#photofiles').click();"><i class="bi bi-upload"></i></button>
+                        <button id="changesizebtn" type="button" class="btn btn-primary hasphotos  px-3 me-2 d-none" onclick="changeImageSize()"><i class="bi bi-arrows-angle-expand"></i></button>
+                        @*<input type="range" value="0" min="-10" max="10" onchange="changeScale();" id="scalerange" class="form-range hasphotos py-2" style="max-width:150px;" disabled />*@
+                        <span class="hasphotos px-2 d-none text-center">
+                            <button type="button" class="btn btn-secondary m-1" id="prevslide">Prev</button><button class="btn btn-secondary m-1" type="button" id="nextslide">Next</button>
+                        </span>
+                        <button type="button" style="width:105px" id="nextwizardstepbtn" class="btn btn-primary  d-none" onclick="$('#wizard .step').removeClass('active');$('#wizard #step2').addClass('active');">Next</button>
+
                     </div>
                     <div class="text-center my-3" id="initbtncont">
                         <h1 class="mb-3 fs-2 text-primary">Create new post</h1>
-                        <img src="@Url.Content("~/theme1/images/add-post.svg")" class="img-fluid mt-1" />
+                        <img src="@Url.Content("~/theme1/images/add-post.svg")" class="img-fluid mt-1 pointer" onclick="if(photos.length === 0){ $('#uploadbtn')[0].click();}" />
                         <p class="my-3 lh-base">
                             Upload photos and videos here
                         </p>
@@ -47,23 +47,20 @@
                     </div>
                     <div id="photocontainer" class="text-center">
                     </div>
-                    <div class="hasphotos d-none text-center">
-                        <button type="button" class="btn btn-secondary m-1" id="prevslide">Prev</button><button class="btn btn-secondary m-1" type="button" id="nextslide">Next</button>
-                    </div>
                     <input type="file" id="photofiles" accept="image/*, image/jpg, image/jpeg, image/png, image/gif, image/bmp" multiple class="d-none" onchange="processFiles(event);" />
                 </div>
                 <div class="step" id="step2">
-                    <div class="row g-1 mb-1">
-                        <div class="col">
-                            <button type="button" class="btn btn-primary" style="width:105px" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
-                        </div>
-                        <div class="col text-end">
-                            <button type="submit" style="width:105px" class="btn btn-primary mx-2">Save</button>
-                        </div>
+                    <div class="g-1 mb-1 text-center">
+                       
+                            <button type="button" class="btn btn-primary me-3" style="width:105px" onclick="$('#wizard .step').removeClass('active');$('#wizard #step1').addClass('active');">Prev</button>
+                            <button type="submit" style="width:105px" id="savepostbutton" class="btn btn-primary mx-2">
+                                Save
+                            </button>
+                       
                     </div>
                     <div class="bg-white pb-3">
                         <div class="mb-3">
-                            <textarea asp-for="Describe" class="form-control border shadow-none" id="photodescriptiontxt" rows="7" placeholder="Add some description to your photo..." maxlength="7000" onkeydown="adjustDescriptionTextareaHeight();"></textarea>
+                            <textarea asp-for="Describe" class="form-control border shadow-none" id="photodescriptiontxt" rows="10" placeholder="Add some description to your photo..." maxlength="7000" onkeydown="adjustDescriptionTextareaHeight();"></textarea>
                         </div>
                         <div class="mb-3 ps-3">
                             <div class="form-check form-switch">
@@ -196,8 +193,10 @@
     }
 
     function processFiles(e) {
+        if (e.target.files.length === 0) return;
         $('#initbtncont').addClass('d-none');
         $("#photocontainer").html("");
+        $("#photocontainer").removeClass("d-none");
         photos = [];
         if (photos.length >= parseInt("@Model.Photos.Count", 10))
             return;
@@ -221,10 +220,10 @@
                 }
             } else {
                 fileReader.onload = function (e) {
-                    $("#photocontainer").append("<img class='targetimg img-fluid ' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, true)' />");
+                    $("#photocontainer").append("<img class='targetimg img-fluid ' style='max-height:500px;' id='image" + $("#photocontainer > .targetimg").length + "' data-index='" + $("#photocontainer > .targetimg").length + "' src='" + e.target.result + "' onload='loadImage(event, true)' />");
                 }
             }
-            
+
             fileReader.readAsDataURL(e.target.files[k]);
         }
     }
@@ -276,29 +275,42 @@
         for (var k in photos) {
             photos[k].extractImage();
         }
+        $("#savepostbutton").html('<div class="spinner-border spinner-border-sm" role="status"><span class= "visually-hidden" > Loading...</span></div>');
+        $("#savepostbutton").attr("disabled", "disabled");
         var formData = new FormData(document.getElementById("photoform"));
-        $.ajax({
-            type: "POST",
-            url: "@Url.Content("~/api/Post")",
-            data: $("#photoform").serialize(),
-            dataType: "json",
-            headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
-        }).done(function (data) {
-            location.href = "@Url.Content("~/")"
-        }).fail(function (data) {
-            if (data.responseJSON)
-                alert(data.responseJSON.error);
-        });
-        return false;
+        fetch("@Url.Content("~/api/Post")", { method: "post", body: formData, headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") } })
+            .then(response => {
+                if (response.status === 200) {
+                    location.href = "@Url.Content("~/")";
+                } else if (response.status === 500) {
+                    response.json().then(data => {
+                        alert(data.error);
+                    });
+                }
+                $("#savepostbutton").html('Save');
+                $("#savepostbutton").removeAttr("disabled");
+            });
+        // $.ajax({
+        //     type: "POST",
+        //     url: "@Url.Content("~/api/Post")",
+        //     data: $("#photoform").serialize(),
+        //     dataType: "json",
+        //     headers: { 'Authorization': 'Bearer ' + localStorage.getItem("token") }
+        // }).done(function (data) {
+        //     location.href = "@Url.Content("~/")"
+        // }).fail(function (data) {
+        //     if (data.responseJSON)
+        //         alert(data.responseJSON.error);
+        // });        return false;
     }
 
     function adjustDescriptionTextareaHeight() {
-        let val = $("#photodescriptiontxt").val();
-        let newlines = val.split("\n").length;
-        if (newlines < 7) {
-            $("#photodescriptiontxt").attr("rows", "7");
-        } else {
-            $("#photodescriptiontxt").attr("rows", newlines);
-        }
+        // let val = $("#photodescriptiontxt").val();
+        // let newlines = val.split("\n").length;
+        // if (newlines < 7) {
+        //     $("#photodescriptiontxt").attr("rows", "7");
+        // } else {
+        //     $("#photodescriptiontxt").attr("rows", newlines);
+        // }
     }
 </script>

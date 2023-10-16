@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR;
 using System.IO;
 using BoloWeb.Helper;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Controllers
 {
@@ -78,9 +79,25 @@ namespace Bolo.Controllers
 
         public IActionResult EmailVerify(Guid id)
         {
-            var m = _context.Members.FirstOrDefault(t => t.PublicID == id);
-            m.IsEmailVerified= true;
-            _context.SaveChanges();
+            try
+            {
+                var m = _context.Members.FirstOrDefault(t => t.PublicID == id);
+                if (m != null)
+                {
+                    m.IsEmailVerified = true;
+                    _context.SaveChanges();
+                    ViewBag.IsEmailVerified = true;
+                }
+                else
+                {
+                    ViewBag.Error = "Member not found";
+                    ViewBag.IsEmailVerified = false;
+                }
+            }catch(Exception ex)
+            {
+                ViewBag.Error = $"Unable to process your request. {ex.Message}";
+                ViewBag.IsEmailVerified = false;
+            }
             return View();
         }
 

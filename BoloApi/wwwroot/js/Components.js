@@ -505,8 +505,8 @@ class Home extends React.Component {
                 </div>
                 <div className="col-md-5 d-none d-md-block">
                     <AskPushNotification />
-                    <div className="sticky-column py-3">
-                        <SendInvite />
+                    <SendInvite />
+                    <div className="sticky-column py-2">
                         <SuggestedAccounts />
                     </div>
                 </div>
@@ -624,19 +624,20 @@ class Explore extends React.Component {
             }} />;
         }
 
-        return <div className="container-lg my-md-3 my-2"><div className="row">
-            <div className="col-md-7 col-12">
-                <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
-            </div>
-            <div className="col-md-5 d-none d-md-block">
-                <AskPushNotification />
-                <div className="sticky-column py-3">
-
+        return <div className="container-lg my-md-3 my-2">
+            <div className="row">
+                <div className="col-md-7 col-12">
+                    <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
+                </div>
+                <div className="col-md-5 d-none d-md-block">
+                    <AskPushNotification />
                     <SendInvite />
-                    <SuggestedAccounts />
+                    <div className="sticky-column py-2">
+                        <SuggestedAccounts />
+                    </div>
                 </div>
             </div>
-        </div></div>;
+        </div>;
     }
 }
 
@@ -2901,7 +2902,7 @@ class Profile extends React.Component {
                 name = <div className="fs-18 text-center text-secondary">{this.state.member.name}</div>;
             }
             if (this.state.member.thoughtStatus !== "") {
-                thought = <p>{this.state.member.thoughtStatus}</p>;
+                thought = <div className="my-3 text-secondary" style={{fontSize:"15px"}}>{this.state.member.thoughtStatus}</div>;
             }
             if (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) {
                 settings = <div className="p-1 ms-2">
@@ -2910,18 +2911,19 @@ class Profile extends React.Component {
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <div className="container-lg my-md-3 my-2">
+            me = <div className="container-lg my-lg-3 my-2">
                 <div className="row">
-                    <div className="col-md-5 px-md-5">
+                    <div className="col-md-5 px-lg-5">
                         <div class="sticky-column py-3 ">
                             <div className="text-center mb-2 p-3 py-2 bg-white rounded-4 border">
                                 {pic}
                                 <div className="p-1 fs-20 text-center mb-1 fw-bold">@{this.state.member.userName}</div>
                                 {name}
-                                <div>
-                                    <ExpandableTextLabel cssclass="text-jusitfy my-3 lh-sm" text={this.state.member.bio === null ? "" : this.state.member.bio} maxlength={200} />
+                                {thought}
+                                <div style={{fontSize:"15px"}}>
+                                    <ExpandableTextLabel cssclass="text-jusitfy my-3 lh-base" text={this.state.member.bio === null ? "" : this.state.member.bio} maxlength={200} />
                                 </div>
-                                <div className="row my-3">
+                                <div className="row g-0 my-3">
                                     <div className="col-4">
                                         <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"><span className="fw-semibold me-1">{this.state.member.postCount}</span> Posts</button></div>
                                     <div className="col-4">
@@ -2943,7 +2945,7 @@ class Profile extends React.Component {
                                 {followhtml}
                                 {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
                                 {this.renderRequestApproval()}
-                                {thought}
+                                
                             </div>
                         </div>
                     </div>
@@ -6789,7 +6791,7 @@ class SendInvite extends React.Component {
                                 <button type="button" className="btn-close" onClick={() => { this.setState({ showModal: false }); }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                <textarea ref={(el) => { this.textarea = el; }} rows="7" className="form-control border no-shadow" value={this.state.text}
+                                <textarea ref={(el) => { this.textarea = el; }} rows="7" className="form-control border shadow-none" value={this.state.text}
                                     onChange={(e) => { this.setState({ text: e.target.value }); }}></textarea>
                                 <p className="pt-3 fw-lighter lh-base fs-6 p-2">You can use this text to invite your friends to yocail.<br /> Share this text over whatsapp or email.</p>
                                 {this.state.success !== "" ? <div className="text-success my-1">{this.state.success}</div> : null}

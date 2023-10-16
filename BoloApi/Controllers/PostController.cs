@@ -3,6 +3,7 @@ using Bolo.Helper;
 using Bolo.Hubs;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -364,12 +365,13 @@ namespace Bolo.Controllers
                     string webRootPath = _webHostEnvironment.WebRootPath;
                     string abspath = Path.Combine(webRootPath, "photos", filename);
                     string relpath = string.Format("photos/{0}", filename);
-                    using (var stream = new MemoryStream(data, 0, data.Length))
-                    {
-                        System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
-                        image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    System.IO.File.WriteAllBytes(abspath, data);
+                    //using (var stream = new MemoryStream(data, 0, data.Length))
+                    //{
+                    //    System.Drawing.Image image = System.Drawing.Image.FromStream(stream,true,false);
+                    //    image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
 
-                    }
+                    //}
                     p.Photos.Add(new PostPhoto() { Photo = relpath });
                 }
                 _context.Posts.Add(p);

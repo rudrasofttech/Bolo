@@ -21,9 +21,9 @@
     <meta property="og:title" content="Yocail - Share Photos With Friends" />
     <meta property="og:description" content="" />
     <meta property="og:image" content="@Url.Content("~/images/yocail-photo-represent.jpg")" />
-    <link rel="apple-touch-icon" sizes="180x180" href="~/images/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="~/images/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="~/theme1/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/theme1/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/theme1/images/favicon-16x16.png">
     <link rel="manifest" href="@Url.Content("~/manifest.json")" />
     @*link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/custom.css" rel="stylesheet" />
@@ -146,13 +146,13 @@
         </div>
     </div>
     <div class="modal fade" id="addPostModal" tabindex="-1" aria-labelledby="addPostModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-scrollable modal-xl">
+        <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title text-primary fw-semibold fs-4" id="addPostModalLabel">Add Post</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-2">
                     @{
                         await Html.RenderPartialAsync("_AddPost", new PostPhotoDTO() { AcceptComment = true, AllowShare = false });
                     }
@@ -246,6 +246,7 @@
             filescount = 0;
             $("#nextwizardstepbtn,.hasphotos").addClass("d-none");
             $('#initbtncont').removeClass('d-none');
+            $("#photocontainer").addClass('d-none');
             $('#wizard .step').addClass('active'); $('#wizard #step2').removeClass('active');
         })
         $(document).ready(function () {
