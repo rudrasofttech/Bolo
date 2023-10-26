@@ -2,9 +2,11 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.EditProfilePic"
+             xmlns:controls="clr-namespace:YocailApp.Controls"
              xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
              Title="Profile Photo" Shell.NavBarIsVisible="True" Shell.TabBarIsVisible="False" BackgroundColor="#F9F9F9" >
     <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Start">
-        <cv:CameraView x:Name="cameraView" HeightRequest="400" CamerasLoaded="cameraView_CamerasLoaded" BarcodeDetected="cameraView_BarcodeDetected"/>
+        <controls:DevicePhotosCV  />
+        <!--<cv:CameraView x:Name="cameraView" HeightRequest="400" CamerasLoaded="cameraView_CamerasLoaded" BarcodeDetected="cameraView_BarcodeDetected"/>-->
     </VerticalStackLayout>
 </ContentPage>

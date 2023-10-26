@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace Bolo.Models
@@ -118,9 +119,13 @@ namespace Bolo.Models
         public MemberSmallDTO Following { get; set; }
         public FollowerStatus Status { get; set; }
 
-        public bool IsHashtag { get {
+        public bool IsHashtag
+        {
+            get
+            {
                 return (!string.IsNullOrEmpty(Tag) && Following == null);
-            } }
+            }
+        }
 
         public MemberFollowerDTO() { }
         public MemberFollowerDTO(MemberFollower mf)
@@ -128,8 +133,8 @@ namespace Bolo.Models
             FollowedDate = mf.FollowedDate;
             Tag = mf.Tag;
             Follower = new MemberSmallDTO(mf.Follower);
-            if(mf.Following != null)
-            Following = new MemberSmallDTO(mf.Following);
+            if (mf.Following != null)
+                Following = new MemberSmallDTO(mf.Following);
             Status = mf.Status;
         }
     }
@@ -163,18 +168,22 @@ namespace Bolo.Models
         public RecordStatus Status { get; set; }
         public bool IsEmailVerified { get; set; }
 
-        public string PicFormedURL { get {
+        public List<ProfileEmail> Emails { get; set; } = new List<ProfileEmail>();
+        public List<ProfilePhone> Phones { get; set; } = new List<ProfilePhone>();
+        public List<ProfileLink> Links { get; set; } = new List<ProfileLink> { };
+
+        public string PicFormedURL
+        {
+            get
+            {
                 if (string.IsNullOrEmpty(Pic))
                     return string.Empty;
-                else if(Pic.ToLower().StartsWith("http://") || Pic.ToLower().StartsWith("https://") || Pic.ToLower().StartsWith("data"))
-                {
+                else if (Pic.ToLower().StartsWith("http://") || Pic.ToLower().StartsWith("https://") || Pic.ToLower().StartsWith("data"))
                     return Pic;
-                }
                 else
-                {
                     return $"https://www.yocail.com/{Pic}";
-                }
-            } }
+            }
+        }
 
         public MemberDTO()
         {
@@ -209,7 +218,7 @@ namespace Bolo.Models
             Email = m.Email;
             SecurityQuestion = m.SecurityQuestion;
             Status = m.Status;
-            IsEmailVerified= m.IsEmailVerified;
+            IsEmailVerified = m.IsEmailVerified;
         }
     }
 
@@ -252,7 +261,8 @@ namespace Bolo.Models
         public string Token { get; set; }
     }
 
-    public class PostVideoDTO {
+    public class PostVideoDTO
+    {
         [MaxLength(7000)]
         public string Describe { get; set; } = string.Empty;
         public bool AcceptComment { get; set; } = true;
@@ -336,10 +346,10 @@ namespace Bolo.Models
                 AcceptComment = mp.AcceptComment;
                 VideoURL = mp.VideoURL;
                 AllowShare = mp.AllowShare;
-                ReactionCount= mp.ReactionCount;
-                CommentCount= mp.CommentCount;
-                ShareCount= mp.ShareCount;
-                Rank= mp.Rank;
+                ReactionCount = mp.ReactionCount;
+                CommentCount = mp.CommentCount;
+                ShareCount = mp.ShareCount;
+                Rank = mp.Rank;
             }
         }
     }
@@ -501,7 +511,8 @@ namespace Bolo.Models
             {
                 Title = string.Format("{0} reacted to your post.", string.IsNullOrEmpty(n.Target.Name) ? n.Target.UserName : n.Target.Name);
                 URL = $"post/{n.Post.PublicID}";
-            }else if(n.Type == MemberNotificationType.FollowRequest)
+            }
+            else if (n.Type == MemberNotificationType.FollowRequest)
             {
                 Title = $"{n.Source.Name} wants to follow you.";
                 URL = $"profile?un={n.Source.UserName}";
@@ -576,5 +587,11 @@ namespace Bolo.Models
             }
         }
         public int Credits_Consumed { get; set; }
+    }
+
+    public class CountryItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
     }
 }

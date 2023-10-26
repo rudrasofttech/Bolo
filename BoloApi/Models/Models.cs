@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Bolo.Models
@@ -153,16 +154,47 @@ namespace Bolo.Models
 
         [MaxLength(100)]
         public string City { get; set; } = string.Empty;
+
         [MaxLength(200)]
         public string ThoughtStatus { get; set; } = string.Empty;
 
         public List<MemberRole> Roles { get; set; }
+
         [Required]
         [MaxLength(300)]
         public string SecurityQuestion { get; set; }
+
         [Required]
         public byte[] SecurityAnswer { get; set; }
+
         public bool IsEmailVerified { get; set; }
+
+    }
+
+    public class ProfileEmail
+    {
+        public Guid ID { get; set; } = Guid.NewGuid();
+        public Member Member { get; set; }
+        [MaxLength(500)]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ProfilePhone
+    {
+        public Guid ID { get; set; } = Guid.NewGuid();
+        public Member Member { get; set; }
+        [MaxLength(500)]
+        public string Phone { get; set; }
+    }
+
+    public class ProfileLink
+    {
+        public Guid ID { get; set; } = Guid.NewGuid();
+        public Member Member { get; set; }
+        [MaxLength(300)]
+        public string URL { get; set; } = string.Empty;
+        [MaxLength(200)]
+        public string Name { get; set; } = string.Empty;
     }
 
     

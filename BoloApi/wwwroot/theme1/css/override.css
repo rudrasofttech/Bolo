@@ -51,7 +51,7 @@
 }
 
 .form-label {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: bold;
 }
 
@@ -127,6 +127,18 @@
 
 .fs-20 {
     font-size: 18px !important;
+}
+
+.fs-small {
+    font-size: 13px !important;
+}
+
+.fs-verysmall {
+    font-size: 11px !important;
+}
+
+.text-justify{
+    text-align:justify !important;
 }
 
 .loader-center {

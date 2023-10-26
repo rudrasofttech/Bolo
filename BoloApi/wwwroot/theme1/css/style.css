@@ -43,7 +43,9 @@ img {
         transform: translateY(-15px);
     }
 }
-
+select{
+    font-size:13px !important;
+}
 /* button */
 
 .btn {
@@ -59,6 +61,10 @@ img {
     -o-border-radius: 40px;
     transition: all 0.3s;
     -webkit-transition: all 0.3s;
+}
+
+.btn-link {
+    color: #30235B !important;
 }
 
 .btn-blue {
@@ -221,7 +227,7 @@ img {
     background: #FFF;
     box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.10);
     border: none;
-    font-size: 15px;
+    font-size: 13px;
     min-height: 40px !important;
 }
 

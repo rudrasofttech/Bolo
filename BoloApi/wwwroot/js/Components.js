@@ -2862,6 +2862,45 @@ class Profile extends React.Component {
         }
     }
 
+    renderPhones() {
+        if (this.state.member.phones.length == 0) return null;
+        let items = [];
+        let links = this.state.member.phones;
+        for (let k in links) {
+            let l = links[k];
+            items.push(<li key={k} className="mb-2 text-primary  fs-small">
+                <i className="bi bi-phone-fill"></i> {l.phone}
+            </li>);
+        }
+        return <ul className="list-unstyled">{items}</ul>;
+    }
+
+    renderEmails() {
+        if (this.state.member.emails.length == 0) return null;
+        let items = [];
+        let links = this.state.member.emails;
+        for (let k in links) {
+            let l = links[k];
+            items.push(<li key={k} className="mb-2 text-primary  fs-small">
+                <i className="bi bi-envelope-at-fill"></i> {l.email}
+            </li>);
+        }
+        return <ul className="list-unstyled">{items}</ul>;
+    }
+
+    renderLinks() {
+        if (this.state.member.links.length == 0) return null;
+        let items = [];
+        let links = this.state.member.links;
+        for (let k in links) {
+            let l = links[k];
+            items.push(<li key={k} className="mb-2">
+                <a href={l.url} className="text-primary fs-small" target="_blank"><i className="bi bi-link-45deg"></i> {l.name}</a>
+            </li>);
+        }
+        return <ul className="list-unstyled">{items}</ul>;
+    }
+
     render() {
         if (!this.state.loggedin) {
             return <RegisterForm beginWithRegister={false} onLogin={() => {
@@ -2896,13 +2935,10 @@ class Profile extends React.Component {
         let me = null, pic = null, settings = null, followhtml = null;
         if (this.state.member !== null) {
             pic = this.state.member.pic !== "" ? <img src={"//" + window.location.host + "/" + this.state.member.pic} className="img-fluid profile-pic-border profile-thumb mb-2" alt="" />
-                : <img src="/images/nopic.jpg" className="img-fluid profile-pic-border profile-thumb  mb-2" alt="" />;
-            let name = null, thought = null;
+                : <img src="/theme1/images/person-fill.svg" className="img-fluid profile-pic-border profile-thumb  mb-2" alt="" />;
+            let name = null;
             if (this.state.member.name !== "") {
                 name = <div className="fs-18 text-center text-secondary">{this.state.member.name}</div>;
-            }
-            if (this.state.member.thoughtStatus !== "") {
-                thought = <div className="my-3 text-secondary" style={{fontSize:"15px"}}>{this.state.member.thoughtStatus}</div>;
             }
             if (this.state.myself != null && this.state.member != null && this.state.myself.id == this.state.member.id) {
                 settings = <div className="p-1 ms-2">
@@ -2919,10 +2955,14 @@ class Profile extends React.Component {
                                 {pic}
                                 <div className="p-1 fs-20 text-center mb-1 fw-bold">@{this.state.member.userName}</div>
                                 {name}
-                                {thought}
-                                <div style={{fontSize:"15px"}}>
-                                    <ExpandableTextLabel cssclass="text-jusitfy my-3 lh-base" text={this.state.member.bio === null ? "" : this.state.member.bio} maxlength={200} />
+                                {this.state.member.country !== "" ? <div className="my-3 text-secondary fs-small"><i className="bi bi-globe-central-south-asia"></i> {this.state.member.country}</div> : null }
+                                {this.state.member.thoughtStatus !== "" ? <div className="my-3 text-secondary fs-small">{this.state.member.thoughtStatus}</div> : null}
+                                <div className="fs-small">
+                                    <ExpandableTextLabel cssclass="text-justify my-3 lh-base" text={this.state.member.bio === null ? "" : this.state.member.bio} maxlength={200} />
                                 </div>
+                                {this.renderPhones()}
+                                {this.renderEmails()}
+                                {this.renderLinks()}
                                 <div className="row g-0 my-3">
                                     <div className="col-4">
                                         <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"><span className="fw-semibold me-1">{this.state.member.postCount}</span> Posts</button></div>
@@ -2945,7 +2985,7 @@ class Profile extends React.Component {
                                 {followhtml}
                                 {this.state.member.followRequestCount > 0 && this.state.member.userName == this.state.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { this.setState({ showrequests: true }) }}>{this.state.member.followRequestCount} Follow Request</button></div> : null}
                                 {this.renderRequestApproval()}
-                                
+
                             </div>
                         </div>
                     </div>
@@ -3447,23 +3487,23 @@ class ManageProfile extends React.Component {
             let message = this.state.message !== "" ? <div className={'text-center p-2 text-' + this.state.bsstyle} role="alert">
                 {this.state.message}
             </div> : null;
-            let pic = this.state.myself.pic !== "" ? <React.Fragment><img src={"//" + location.host + "/" + this.state.myself.pic} className="rounded-circle mx-auto d-block img-fluid" alt="" style={{ maxWidth: "200px" }} />
-                <button type="button" className="btn btn-sm btn-secondary m-1" onClick={this.removeProfilePicture}>Remove</button></React.Fragment> : <img src="/theme1/images/person-fill.svg" className=" mx-auto d-block rounded-circle img-fluid" alt="" style={{ width: "200px" }} />;
             return <React.Fragment>
                 <div className="container py-5">
                     {loading}
                     {message}
                     {this.renderSecAnsModal()}
-                    <div className="row align-items-center">
-                        <div className="col-md-6 text-center">
-                            {pic}
-                            <button type="button" className="btn btn-sm btn-secondary m-1" onClick={this.toggleProfilePicModal}>Change</button>
-                            {this.renderProfilePicModal()}
-                        </div>
-                        <div className="col-md-6">
+                    {this.renderProfilePicModal()}
+                    <div className="row">
+                        <div className="col-lg-4">
+                            <h4 className="mb-3 text-primary fw-bold text-center">Personal Information</h4>
+                            <img src={this.state.myself.pic !== "" ? "//" + location.host + "/" + this.state.myself.pic : "/theme1/images/person-fill.svg"} className="rounded-circle mx-auto d-block img-fluid" alt="" style={{ width: "150px" }} />
+                            <div className="text-center">
+                                {this.state.myself.pic !== "" ? <button type="button" className="btn btn-sm btn-link m-1" onClick={this.removeProfilePicture}>Remove</button> : null}
+                                <button type="button" className="btn btn-sm btn-link m-1" onClick={this.toggleProfilePicModal}>Change</button>
+                            </div>
                             <div className="mb-3">
                                 <label htmlFor="channelnametxt" className="form-label text-primary">Username</label>
-                                <input type="text" id="channelnametxt" readOnly name="userName" placeholder="Unique Channel Name" className="form-control shadow-none border" value={this.state.myself.userName} />
+                                <input type="text" id="channelnametxt" disabled readOnly name="userName" placeholder="Unique Channel Name" className="form-control shadow-none border" value={this.state.myself.userName} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="nametxt" className="form-label text-primary">Name <span className="text-danger">(Required)</span></label>
@@ -3473,11 +3513,13 @@ class ManageProfile extends React.Component {
                                 <label className="form-label text-primary">Mobile <span className="text-danger">(Required)</span></label>
                                 <input type="text" name="phone" className="form-control shadow-none border" maxLength="15" value={this.state.myself.phone} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("phone", this.state.myself.phone) }} />
+                                <div className="fs-small text-secondary">Mobile will not be shown on profile.</div>
                             </div>
                             <div className="mb-3">
                                 <label className="form-label text-primary">Email <span className="text-danger">(Required)</span></label>
                                 <input type="email" name="email" className="form-control shadow-none border" maxLength="250" value={this.state.myself.email} onChange={this.handleChange}
                                     onBlur={() => { this.saveData("email", this.state.myself.email) }} />
+                                <div className="fs-small text-secondary">Email will not be shown on profile.</div>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="birthyeartxt" className="form-label text-primary">Year of Birth</label>
@@ -3485,294 +3527,308 @@ class ManageProfile extends React.Component {
                                     onBlur={() => { this.saveData("birthYear", this.state.myself.birthYear) }}>
                                     {yearitems}
                                 </select>
+                                <div className="fs-small text-secondary">Age will not be shown on profile.</div>
                             </div>
                         </div>
-                    </div>
-                    <div className="row g-1 mb-3">
-                        <div className="col-md-6">
-                            <label htmlFor="securityQuesitonTxt" className="form-label text-primary">Security Question <span className="text-danger">(Required)</span></label>
-                            <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control shadow-none border" maxLength="300" value={this.state.myself.securityQuestion} onChange={this.handleChange}
-                                onBlur={() => { this.saveData("securityquestion", this.state.myself.securityQuestion) }} />
+                        <div className="col-lg-4">
+                            <h4 className="mb-3 text-primary fw-bold text-center">Profile Information</h4>
+                            <div className="mb-3">
+                                <label htmlFor="thoughtStatus" className="form-label text-primary">One line Introduction</label>
+                                <input type="text" name="thoughtStatus" className="form-control shadow-none border" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange}
+                                    onBlur={() => { this.saveData("thoughtstatus", this.state.myself.thoughtStatus) }} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="biotxt" className="form-label text-primary">About Me</label>
+                                <textarea className="form-control shadow-none border" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} rows="7" placeholder="Write something about yourself."
+                                    onBlur={() => { this.saveData("bio", this.state.myself.bio) }}></textarea>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="visibilityselect" className="form-label text-primary">Profile Visibility</label>
+                                <select className="form-select rounded-4 shadow-none border" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange}
+                                    onBlur={() => { this.saveData("visibility", this.state.myself.visibility) }}>
+                                    <option value="0"></option>
+                                    <option value="2">Public</option>
+                                    <option value="1">Private</option>
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="countryselect" className="form-label text-primary">Country</label>
+                                <select className="form-select rounded-4 shadow-none border" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={() => { this.saveData("country", this.state.myself.country) }}>
+                                    <option value=""></option>
+                                    <option value="AD">Andorra</option>
+                                    <option value="AE">United Arab Emirates</option>
+                                    <option value="AF">Afghanistan</option>
+                                    <option value="AG">Antigua and Barbuda</option>
+                                    <option value="AI">Anguilla</option>
+                                    <option value="AL">Albania</option>
+                                    <option value="AM">Armenia</option>
+                                    <option value="AO">Angola</option>
+                                    <option value="AQ">Antarctica</option>
+                                    <option value="AR">Argentina</option>
+                                    <option value="AS">American Samoa</option>
+                                    <option value="AT">Austria</option>
+                                    <option value="AU">Australia</option>
+                                    <option value="AW">Aruba</option>
+                                    <option value="AX">Åland Islands</option>
+                                    <option value="AZ">Azerbaijan</option>
+                                    <option value="BA">Bosnia and Herzegovina</option>
+                                    <option value="BB">Barbados</option>
+                                    <option value="BD">Bangladesh</option>
+                                    <option value="BE">Belgium</option>
+                                    <option value="BF">Burkina Faso</option>
+                                    <option value="BG">Bulgaria</option>
+                                    <option value="BH">Bahrain</option>
+                                    <option value="BI">Burundi</option>
+                                    <option value="BJ">Benin</option>
+                                    <option value="BL">Saint Barthélemy</option>
+                                    <option value="BM">Bermuda</option>
+                                    <option value="BN">Brunei Darussalam</option>
+                                    <option value="BO">Bolivia, Plurinational State of</option>
+                                    <option value="BQ">Bonaire, Sint Eustatius and Saba</option>
+                                    <option value="BR">Brazil</option>
+                                    <option value="BS">Bahamas</option>
+                                    <option value="BT">Bhutan</option>
+                                    <option value="BV">Bouvet Island</option>
+                                    <option value="BW">Botswana</option>
+                                    <option value="BY">Belarus</option>
+                                    <option value="BZ">Belize</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="CC">Cocos (Keeling) Islands</option>
+                                    <option value="CD">Congo, the Democratic Republic of the</option>
+                                    <option value="CF">Central African Republic</option>
+                                    <option value="CG">Congo</option>
+                                    <option value="CH">Switzerland</option>
+                                    <option value="CI">Côte d'Ivoire</option>
+                                    <option value="CK">Cook Islands</option>
+                                    <option value="CL">Chile</option>
+                                    <option value="CM">Cameroon</option>
+                                    <option value="CN">China</option>
+                                    <option value="CO">Colombia</option>
+                                    <option value="CR">Costa Rica</option>
+                                    <option value="CU">Cuba</option>
+                                    <option value="CV">Cape Verde</option>
+                                    <option value="CW">Curaçao</option>
+                                    <option value="CX">Christmas Island</option>
+                                    <option value="CY">Cyprus</option>
+                                    <option value="CZ">Czech Republic</option>
+                                    <option value="DE">Germany</option>
+                                    <option value="DJ">Djibouti</option>
+                                    <option value="DK">Denmark</option>
+                                    <option value="DM">Dominica</option>
+                                    <option value="DO">Dominican Republic</option>
+                                    <option value="DZ">Algeria</option>
+                                    <option value="EC">Ecuador</option>
+                                    <option value="EE">Estonia</option>
+                                    <option value="EG">Egypt</option>
+                                    <option value="EH">Western Sahara</option>
+                                    <option value="ER">Eritrea</option>
+                                    <option value="ES">Spain</option>
+                                    <option value="ET">Ethiopia</option>
+                                    <option value="FI">Finland</option>
+                                    <option value="FJ">Fiji</option>
+                                    <option value="FK">Falkland Islands (Malvinas)</option>
+                                    <option value="FM">Micronesia, Federated States of</option>
+                                    <option value="FO">Faroe Islands</option>
+                                    <option value="FR">France</option>
+                                    <option value="GA">Gabon</option>
+                                    <option value="GB">United Kingdom</option>
+                                    <option value="GD">Grenada</option>
+                                    <option value="GE">Georgia</option>
+                                    <option value="GF">French Guiana</option>
+                                    <option value="GG">Guernsey</option>
+                                    <option value="GH">Ghana</option>
+                                    <option value="GI">Gibraltar</option>
+                                    <option value="GL">Greenland</option>
+                                    <option value="GM">Gambia</option>
+                                    <option value="GN">Guinea</option>
+                                    <option value="GP">Guadeloupe</option>
+                                    <option value="GQ">Equatorial Guinea</option>
+                                    <option value="GR">Greece</option>
+                                    <option value="GS">South Georgia and the South Sandwich Islands</option>
+                                    <option value="GT">Guatemala</option>
+                                    <option value="GU">Guam</option>
+                                    <option value="GW">Guinea-Bissau</option>
+                                    <option value="GY">Guyana</option>
+                                    <option value="HK">Hong Kong</option>
+                                    <option value="HM">Heard Island and McDonald Islands</option>
+                                    <option value="HN">Honduras</option>
+                                    <option value="HR">Croatia</option>
+                                    <option value="HT">Haiti</option>
+                                    <option value="HU">Hungary</option>
+                                    <option value="ID">Indonesia</option>
+                                    <option value="IE">Ireland</option>
+                                    <option value="IL">Israel</option>
+                                    <option value="IM">Isle of Man</option>
+                                    <option value="IN">India</option>
+                                    <option value="IO">British Indian Ocean Territory</option>
+                                    <option value="IQ">Iraq</option>
+                                    <option value="IR">Iran, Islamic Republic of</option>
+                                    <option value="IS">Iceland</option>
+                                    <option value="IT">Italy</option>
+                                    <option value="JE">Jersey</option>
+                                    <option value="JM">Jamaica</option>
+                                    <option value="JO">Jordan</option>
+                                    <option value="JP">Japan</option>
+                                    <option value="KE">Kenya</option>
+                                    <option value="KG">Kyrgyzstan</option>
+                                    <option value="KH">Cambodia</option>
+                                    <option value="KI">Kiribati</option>
+                                    <option value="KM">Comoros</option>
+                                    <option value="KN">Saint Kitts and Nevis</option>
+                                    <option value="KP">Korea, Democratic People's Republic of</option>
+                                    <option value="KR">Korea, Republic of</option>
+                                    <option value="KW">Kuwait</option>
+                                    <option value="KY">Cayman Islands</option>
+                                    <option value="KZ">Kazakhstan</option>
+                                    <option value="LA">Lao People's Democratic Republic</option>
+                                    <option value="LB">Lebanon</option>
+                                    <option value="LC">Saint Lucia</option>
+                                    <option value="LI">Liechtenstein</option>
+                                    <option value="LK">Sri Lanka</option>
+                                    <option value="LR">Liberia</option>
+                                    <option value="LS">Lesotho</option>
+                                    <option value="LT">Lithuania</option>
+                                    <option value="LU">Luxembourg</option>
+                                    <option value="LV">Latvia</option>
+                                    <option value="LY">Libya</option>
+                                    <option value="MA">Morocco</option>
+                                    <option value="MC">Monaco</option>
+                                    <option value="MD">Moldova, Republic of</option>
+                                    <option value="ME">Montenegro</option>
+                                    <option value="MF">Saint Martin (French part)</option>
+                                    <option value="MG">Madagascar</option>
+                                    <option value="MH">Marshall Islands</option>
+                                    <option value="MK">Macedonia, the Former Yugoslav Republic of</option>
+                                    <option value="ML">Mali</option>
+                                    <option value="MM">Myanmar</option>
+                                    <option value="MN">Mongolia</option>
+                                    <option value="MO">Macao</option>
+                                    <option value="MP">Northern Mariana Islands</option>
+                                    <option value="MQ">Martinique</option>
+                                    <option value="MR">Mauritania</option>
+                                    <option value="MS">Montserrat</option>
+                                    <option value="MT">Malta</option>
+                                    <option value="MU">Mauritius</option>
+                                    <option value="MV">Maldives</option>
+                                    <option value="MW">Malawi</option>
+                                    <option value="MX">Mexico</option>
+                                    <option value="MY">Malaysia</option>
+                                    <option value="MZ">Mozambique</option>
+                                    <option value="NA">Namibia</option>
+                                    <option value="NC">New Caledonia</option>
+                                    <option value="NE">Niger</option>
+                                    <option value="NF">Norfolk Island</option>
+                                    <option value="NG">Nigeria</option>
+                                    <option value="NI">Nicaragua</option>
+                                    <option value="NL">Netherlands</option>
+                                    <option value="NO">Norway</option>
+                                    <option value="NP">Nepal</option>
+                                    <option value="NR">Nauru</option>
+                                    <option value="NU">Niue</option>
+                                    <option value="NZ">New Zealand</option>
+                                    <option value="OM">Oman</option>
+                                    <option value="PA">Panama</option>
+                                    <option value="PE">Peru</option>
+                                    <option value="PF">French Polynesia</option>
+                                    <option value="PG">Papua New Guinea</option>
+                                    <option value="PH">Philippines</option>
+                                    <option value="PK">Pakistan</option>
+                                    <option value="PL">Poland</option>
+                                    <option value="PM">Saint Pierre and Miquelon</option>
+                                    <option value="PN">Pitcairn</option>
+                                    <option value="PR">Puerto Rico</option>
+                                    <option value="PS">Palestine, State of</option>
+                                    <option value="PT">Portugal</option>
+                                    <option value="PW">Palau</option>
+                                    <option value="PY">Paraguay</option>
+                                    <option value="QA">Qatar</option>
+                                    <option value="RE">Réunion</option>
+                                    <option value="RO">Romania</option>
+                                    <option value="RS">Serbia</option>
+                                    <option value="RU">Russian Federation</option>
+                                    <option value="RW">Rwanda</option>
+                                    <option value="SA">Saudi Arabia</option>
+                                    <option value="SB">Solomon Islands</option>
+                                    <option value="SC">Seychelles</option>
+                                    <option value="SD">Sudan</option>
+                                    <option value="SE">Sweden</option>
+                                    <option value="SG">Singapore</option>
+                                    <option value="SH">Saint Helena, Ascension and Tristan da Cunha</option>
+                                    <option value="SI">Slovenia</option>
+                                    <option value="SJ">Svalbard and Jan Mayen</option>
+                                    <option value="SK">Slovakia</option>
+                                    <option value="SL">Sierra Leone</option>
+                                    <option value="SM">San Marino</option>
+                                    <option value="SN">Senegal</option>
+                                    <option value="SO">Somalia</option>
+                                    <option value="SR">Suriname</option>
+                                    <option value="SS">South Sudan</option>
+                                    <option value="ST">Sao Tome and Principe</option>
+                                    <option value="SV">El Salvador</option>
+                                    <option value="SX">Sint Maarten (Dutch part)</option>
+                                    <option value="SY">Syrian Arab Republic</option>
+                                    <option value="SZ">Swaziland</option>
+                                    <option value="TC">Turks and Caicos Islands</option>
+                                    <option value="TD">Chad</option>
+                                    <option value="TF">French Southern Territories</option>
+                                    <option value="TG">Togo</option>
+                                    <option value="TH">Thailand</option>
+                                    <option value="TJ">Tajikistan</option>
+                                    <option value="TK">Tokelau</option>
+                                    <option value="TL">Timor-Leste</option>
+                                    <option value="TM">Turkmenistan</option>
+                                    <option value="TN">Tunisia</option>
+                                    <option value="TO">Tonga</option>
+                                    <option value="TR">Turkey</option>
+                                    <option value="TT">Trinidad and Tobago</option>
+                                    <option value="TV">Tuvalu</option>
+                                    <option value="TW">Taiwan, Province of China</option>
+                                    <option value="TZ">Tanzania, United Republic of</option>
+                                    <option value="UA">Ukraine</option>
+                                    <option value="UG">Uganda</option>
+                                    <option value="UM">United States Minor Outlying Islands</option>
+                                    <option value="US">United States</option>
+                                    <option value="UY">Uruguay</option>
+                                    <option value="UZ">Uzbekistan</option>
+                                    <option value="VA">Holy See (Vatican City State)</option>
+                                    <option value="VC">Saint Vincent and the Grenadines</option>
+                                    <option value="VE">Venezuela, Bolivarian Republic of</option>
+                                    <option value="VG">Virgin Islands, British</option>
+                                    <option value="VI">Virgin Islands, U.S.</option>
+                                    <option value="VN">Viet Nam</option>
+                                    <option value="VU">Vanuatu</option>
+                                    <option value="WF">Wallis and Futuna</option>
+                                    <option value="WS">Samoa</option>
+                                    <option value="YE">Yemen</option>
+                                    <option value="YT">Mayotte</option>
+                                    <option value="ZA">South Africa</option>
+                                    <option value="ZM">Zambia</option>
+                                    <option value="ZW">Zimbabwe</option>
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="securityQuesitonTxt" className="form-label text-primary">Security Question <span className="text-danger">(Required)</span></label>
+                                <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control shadow-none border" maxLength="300" value={this.state.myself.securityQuestion} onChange={this.handleChange}
+                                    onBlur={() => { this.saveData("securityquestion", this.state.myself.securityQuestion) }} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="securityAnswerTxt" className="form-label text-primary">Security Answer <span className="text-danger">(Required)</span></label>
+                                <div className="mb-2" style={{ fontSize: "13px" }}>Your existing answer is not shown.</div>
+                                <button type="button" className="btn btn-primary ms-2 btn-sm" onClick={() => { this.setState({ showSecAnsModal: true }); }}>Change Answer</button>
+                            </div>
                         </div>
-                        <div className="col-md-6">
-                            <label htmlFor="securityAnswerTxt" className="form-label text-primary">Security Answer <span className="text-danger">(Required)</span></label>
-                            <div>Your existing answer is not shown. <button type="button" className="btn btn-primary ms-2 btn-sm" onClick={() => { this.setState({ showSecAnsModal: true }); }}>Change Answer</button></div>
-                        </div>
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="thoughtStatus" className="form-label text-primary">One line Introduction</label>
-                        <input type="text" name="thoughtStatus" className="form-control shadow-none border" maxLength="195" value={this.state.myself.thoughtStatus} onChange={this.handleChange}
-                            onBlur={() => { this.saveData("thoughtstatus", this.state.myself.thoughtStatus) }} />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="biotxt" className="form-label text-primary">About Me</label>
-                        <textarea className="form-control shadow-none border" id="biotxt" maxLength="950" name="bio" value={this.state.myself.bio} onChange={this.handleChange} rows="4" placeholder="Write something about yourself."
-                            onBlur={() => { this.saveData("bio", this.state.myself.bio) }}></textarea>
-                    </div>
-                    <div className="row g-1">
-                        <div className="col-md-6">
-                            <label htmlFor="visibilityselect" className="form-label text-primary">Profile Visibility</label>
-                            <select className="form-select rounded-4 shadow-none border" id="genderselect" name="visibility" value={this.state.myself.visibility} onChange={this.handleChange}
-                                onBlur={() => { this.saveData("visibility", this.state.myself.visibility) }}>
-                                <option value="0"></option>
-                                <option value="2">Public</option>
-                                <option value="1">Private</option>
-                            </select>
-                        </div>
-                        <div className="col-md-6">
-                            <label htmlFor="countryselect" className="form-label text-primary">Country</label>
-                            <select className="form-select rounded-4 shadow-none border" id="countryselect" name="country" value={this.state.myself.country} onChange={this.handleChange} onBlur={() => { this.saveData("country", this.state.myself.country) }}>
-                                <option value=""></option>
-                                <option value="AD">Andorra</option>
-                                <option value="AE">United Arab Emirates</option>
-                                <option value="AF">Afghanistan</option>
-                                <option value="AG">Antigua and Barbuda</option>
-                                <option value="AI">Anguilla</option>
-                                <option value="AL">Albania</option>
-                                <option value="AM">Armenia</option>
-                                <option value="AO">Angola</option>
-                                <option value="AQ">Antarctica</option>
-                                <option value="AR">Argentina</option>
-                                <option value="AS">American Samoa</option>
-                                <option value="AT">Austria</option>
-                                <option value="AU">Australia</option>
-                                <option value="AW">Aruba</option>
-                                <option value="AX">Åland Islands</option>
-                                <option value="AZ">Azerbaijan</option>
-                                <option value="BA">Bosnia and Herzegovina</option>
-                                <option value="BB">Barbados</option>
-                                <option value="BD">Bangladesh</option>
-                                <option value="BE">Belgium</option>
-                                <option value="BF">Burkina Faso</option>
-                                <option value="BG">Bulgaria</option>
-                                <option value="BH">Bahrain</option>
-                                <option value="BI">Burundi</option>
-                                <option value="BJ">Benin</option>
-                                <option value="BL">Saint Barthélemy</option>
-                                <option value="BM">Bermuda</option>
-                                <option value="BN">Brunei Darussalam</option>
-                                <option value="BO">Bolivia, Plurinational State of</option>
-                                <option value="BQ">Bonaire, Sint Eustatius and Saba</option>
-                                <option value="BR">Brazil</option>
-                                <option value="BS">Bahamas</option>
-                                <option value="BT">Bhutan</option>
-                                <option value="BV">Bouvet Island</option>
-                                <option value="BW">Botswana</option>
-                                <option value="BY">Belarus</option>
-                                <option value="BZ">Belize</option>
-                                <option value="CA">Canada</option>
-                                <option value="CC">Cocos (Keeling) Islands</option>
-                                <option value="CD">Congo, the Democratic Republic of the</option>
-                                <option value="CF">Central African Republic</option>
-                                <option value="CG">Congo</option>
-                                <option value="CH">Switzerland</option>
-                                <option value="CI">Côte d'Ivoire</option>
-                                <option value="CK">Cook Islands</option>
-                                <option value="CL">Chile</option>
-                                <option value="CM">Cameroon</option>
-                                <option value="CN">China</option>
-                                <option value="CO">Colombia</option>
-                                <option value="CR">Costa Rica</option>
-                                <option value="CU">Cuba</option>
-                                <option value="CV">Cape Verde</option>
-                                <option value="CW">Curaçao</option>
-                                <option value="CX">Christmas Island</option>
-                                <option value="CY">Cyprus</option>
-                                <option value="CZ">Czech Republic</option>
-                                <option value="DE">Germany</option>
-                                <option value="DJ">Djibouti</option>
-                                <option value="DK">Denmark</option>
-                                <option value="DM">Dominica</option>
-                                <option value="DO">Dominican Republic</option>
-                                <option value="DZ">Algeria</option>
-                                <option value="EC">Ecuador</option>
-                                <option value="EE">Estonia</option>
-                                <option value="EG">Egypt</option>
-                                <option value="EH">Western Sahara</option>
-                                <option value="ER">Eritrea</option>
-                                <option value="ES">Spain</option>
-                                <option value="ET">Ethiopia</option>
-                                <option value="FI">Finland</option>
-                                <option value="FJ">Fiji</option>
-                                <option value="FK">Falkland Islands (Malvinas)</option>
-                                <option value="FM">Micronesia, Federated States of</option>
-                                <option value="FO">Faroe Islands</option>
-                                <option value="FR">France</option>
-                                <option value="GA">Gabon</option>
-                                <option value="GB">United Kingdom</option>
-                                <option value="GD">Grenada</option>
-                                <option value="GE">Georgia</option>
-                                <option value="GF">French Guiana</option>
-                                <option value="GG">Guernsey</option>
-                                <option value="GH">Ghana</option>
-                                <option value="GI">Gibraltar</option>
-                                <option value="GL">Greenland</option>
-                                <option value="GM">Gambia</option>
-                                <option value="GN">Guinea</option>
-                                <option value="GP">Guadeloupe</option>
-                                <option value="GQ">Equatorial Guinea</option>
-                                <option value="GR">Greece</option>
-                                <option value="GS">South Georgia and the South Sandwich Islands</option>
-                                <option value="GT">Guatemala</option>
-                                <option value="GU">Guam</option>
-                                <option value="GW">Guinea-Bissau</option>
-                                <option value="GY">Guyana</option>
-                                <option value="HK">Hong Kong</option>
-                                <option value="HM">Heard Island and McDonald Islands</option>
-                                <option value="HN">Honduras</option>
-                                <option value="HR">Croatia</option>
-                                <option value="HT">Haiti</option>
-                                <option value="HU">Hungary</option>
-                                <option value="ID">Indonesia</option>
-                                <option value="IE">Ireland</option>
-                                <option value="IL">Israel</option>
-                                <option value="IM">Isle of Man</option>
-                                <option value="IN">India</option>
-                                <option value="IO">British Indian Ocean Territory</option>
-                                <option value="IQ">Iraq</option>
-                                <option value="IR">Iran, Islamic Republic of</option>
-                                <option value="IS">Iceland</option>
-                                <option value="IT">Italy</option>
-                                <option value="JE">Jersey</option>
-                                <option value="JM">Jamaica</option>
-                                <option value="JO">Jordan</option>
-                                <option value="JP">Japan</option>
-                                <option value="KE">Kenya</option>
-                                <option value="KG">Kyrgyzstan</option>
-                                <option value="KH">Cambodia</option>
-                                <option value="KI">Kiribati</option>
-                                <option value="KM">Comoros</option>
-                                <option value="KN">Saint Kitts and Nevis</option>
-                                <option value="KP">Korea, Democratic People's Republic of</option>
-                                <option value="KR">Korea, Republic of</option>
-                                <option value="KW">Kuwait</option>
-                                <option value="KY">Cayman Islands</option>
-                                <option value="KZ">Kazakhstan</option>
-                                <option value="LA">Lao People's Democratic Republic</option>
-                                <option value="LB">Lebanon</option>
-                                <option value="LC">Saint Lucia</option>
-                                <option value="LI">Liechtenstein</option>
-                                <option value="LK">Sri Lanka</option>
-                                <option value="LR">Liberia</option>
-                                <option value="LS">Lesotho</option>
-                                <option value="LT">Lithuania</option>
-                                <option value="LU">Luxembourg</option>
-                                <option value="LV">Latvia</option>
-                                <option value="LY">Libya</option>
-                                <option value="MA">Morocco</option>
-                                <option value="MC">Monaco</option>
-                                <option value="MD">Moldova, Republic of</option>
-                                <option value="ME">Montenegro</option>
-                                <option value="MF">Saint Martin (French part)</option>
-                                <option value="MG">Madagascar</option>
-                                <option value="MH">Marshall Islands</option>
-                                <option value="MK">Macedonia, the Former Yugoslav Republic of</option>
-                                <option value="ML">Mali</option>
-                                <option value="MM">Myanmar</option>
-                                <option value="MN">Mongolia</option>
-                                <option value="MO">Macao</option>
-                                <option value="MP">Northern Mariana Islands</option>
-                                <option value="MQ">Martinique</option>
-                                <option value="MR">Mauritania</option>
-                                <option value="MS">Montserrat</option>
-                                <option value="MT">Malta</option>
-                                <option value="MU">Mauritius</option>
-                                <option value="MV">Maldives</option>
-                                <option value="MW">Malawi</option>
-                                <option value="MX">Mexico</option>
-                                <option value="MY">Malaysia</option>
-                                <option value="MZ">Mozambique</option>
-                                <option value="NA">Namibia</option>
-                                <option value="NC">New Caledonia</option>
-                                <option value="NE">Niger</option>
-                                <option value="NF">Norfolk Island</option>
-                                <option value="NG">Nigeria</option>
-                                <option value="NI">Nicaragua</option>
-                                <option value="NL">Netherlands</option>
-                                <option value="NO">Norway</option>
-                                <option value="NP">Nepal</option>
-                                <option value="NR">Nauru</option>
-                                <option value="NU">Niue</option>
-                                <option value="NZ">New Zealand</option>
-                                <option value="OM">Oman</option>
-                                <option value="PA">Panama</option>
-                                <option value="PE">Peru</option>
-                                <option value="PF">French Polynesia</option>
-                                <option value="PG">Papua New Guinea</option>
-                                <option value="PH">Philippines</option>
-                                <option value="PK">Pakistan</option>
-                                <option value="PL">Poland</option>
-                                <option value="PM">Saint Pierre and Miquelon</option>
-                                <option value="PN">Pitcairn</option>
-                                <option value="PR">Puerto Rico</option>
-                                <option value="PS">Palestine, State of</option>
-                                <option value="PT">Portugal</option>
-                                <option value="PW">Palau</option>
-                                <option value="PY">Paraguay</option>
-                                <option value="QA">Qatar</option>
-                                <option value="RE">Réunion</option>
-                                <option value="RO">Romania</option>
-                                <option value="RS">Serbia</option>
-                                <option value="RU">Russian Federation</option>
-                                <option value="RW">Rwanda</option>
-                                <option value="SA">Saudi Arabia</option>
-                                <option value="SB">Solomon Islands</option>
-                                <option value="SC">Seychelles</option>
-                                <option value="SD">Sudan</option>
-                                <option value="SE">Sweden</option>
-                                <option value="SG">Singapore</option>
-                                <option value="SH">Saint Helena, Ascension and Tristan da Cunha</option>
-                                <option value="SI">Slovenia</option>
-                                <option value="SJ">Svalbard and Jan Mayen</option>
-                                <option value="SK">Slovakia</option>
-                                <option value="SL">Sierra Leone</option>
-                                <option value="SM">San Marino</option>
-                                <option value="SN">Senegal</option>
-                                <option value="SO">Somalia</option>
-                                <option value="SR">Suriname</option>
-                                <option value="SS">South Sudan</option>
-                                <option value="ST">Sao Tome and Principe</option>
-                                <option value="SV">El Salvador</option>
-                                <option value="SX">Sint Maarten (Dutch part)</option>
-                                <option value="SY">Syrian Arab Republic</option>
-                                <option value="SZ">Swaziland</option>
-                                <option value="TC">Turks and Caicos Islands</option>
-                                <option value="TD">Chad</option>
-                                <option value="TF">French Southern Territories</option>
-                                <option value="TG">Togo</option>
-                                <option value="TH">Thailand</option>
-                                <option value="TJ">Tajikistan</option>
-                                <option value="TK">Tokelau</option>
-                                <option value="TL">Timor-Leste</option>
-                                <option value="TM">Turkmenistan</option>
-                                <option value="TN">Tunisia</option>
-                                <option value="TO">Tonga</option>
-                                <option value="TR">Turkey</option>
-                                <option value="TT">Trinidad and Tobago</option>
-                                <option value="TV">Tuvalu</option>
-                                <option value="TW">Taiwan, Province of China</option>
-                                <option value="TZ">Tanzania, United Republic of</option>
-                                <option value="UA">Ukraine</option>
-                                <option value="UG">Uganda</option>
-                                <option value="UM">United States Minor Outlying Islands</option>
-                                <option value="US">United States</option>
-                                <option value="UY">Uruguay</option>
-                                <option value="UZ">Uzbekistan</option>
-                                <option value="VA">Holy See (Vatican City State)</option>
-                                <option value="VC">Saint Vincent and the Grenadines</option>
-                                <option value="VE">Venezuela, Bolivarian Republic of</option>
-                                <option value="VG">Virgin Islands, British</option>
-                                <option value="VI">Virgin Islands, U.S.</option>
-                                <option value="VN">Viet Nam</option>
-                                <option value="VU">Vanuatu</option>
-                                <option value="WF">Wallis and Futuna</option>
-                                <option value="WS">Samoa</option>
-                                <option value="YE">Yemen</option>
-                                <option value="YT">Mayotte</option>
-                                <option value="ZA">South Africa</option>
-                                <option value="ZM">Zambia</option>
-                                <option value="ZW">Zimbabwe</option>
-                            </select>
+                        <div className="col-lg-4">
+                            <h4 className="mb-3 text-primary fw-bold text-center">Display Contact Information</h4>
+                            <div className="lh-base fs-small">Links, Emails and Phone numbers added here will be displayed on profile.</div>
+                            <div className="py-2">
+                                <ManageLinks myself={this.state.myself} />
+                            </div>
+                            <div className="py-2">
+                                <ManageEmails myself={this.state.myself} />
+                            </div>
+                            <div className="py-2">
+                                <ManagePhones myself={this.state.myself} />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3782,6 +3838,434 @@ class ManageProfile extends React.Component {
                 {loading}
             </React.Fragment>;
         }
+    }
+}
+
+class ManageLinks extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+        this.emptyid = '00000000-0000-0000-0000-000000000000';
+        this.state = {
+            loading: false, loggedin: loggedin,
+            myself: this.props.myself, bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            id: this.emptyid, showmodal: false, url: '', name: ''
+        };
+    }
+
+    saveData = () => {
+        const fd = new FormData();
+        fd.set("id", this.state.id);
+        fd.set("url", this.state.url);
+        fd.set("name", this.state.name);
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/Members/savelink', {
+            method: 'post',
+            body: fd,
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    response.json().then(data => {
+                        let ms = this.state.myself;
+                        if (this.state.id === this.emptyid) {
+                            ms.links.push(data);
+                        } else if (this.state.id === this.emptyid) {
+                            for (let k in ms.links) {
+                                if (ms.links[k].id === this.state.id) {
+                                    ms.links[k].url = data.url;
+                                    ms.links[k].name = data.name;
+                                    break;
+                                }
+                            }
+                        }
+                        this.setState({ myself: ms, bsstyle: '', message: '', loading: false, showmodal: false, id: this.emptyid, url: '', name: '' });
+                    });
+                } else {
+                    this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                }
+            });
+    };
+
+    removeData = () => {
+        fetch('//' + window.location.host + '/api/Members/removelink/' + this.state.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    let ms = this.state.myself;
+                    ms.links = ms.links.filter(t => t.id !== this.state.id);
+                    this.setState({ myself: ms, bsstyle: '', message: '', loading: false, showmodal: false, id: this.emptyid, url: '', name: '' });
+                } else {
+                    this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                }
+            });
+    };
+
+    renderModal() {
+        if (this.state.showmodal) {
+            return <React.Fragment>
+                <div className="modal fade d-block show" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5" id="exampleModalLabel">Link</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showmodal: false, id: this.emptyid, url: '', name: '' }) }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <form onSubmit={(e) => { e.preventDefault(); this.saveData(); return false; }}>
+                                    {
+                                        this.state.message !== "" ? <div className={"my-2 text-" + this.state.bsstyle}></div> : null
+                                    }
+                                    <div className="mb-2">
+                                        <label className="form-label text-primary">URL</label>
+                                        <input type="url" name="url" required placeholder="https://www.yocail.com" className="form-control shadow-none border" maxLength="300" value={this.state.url} onChange={(e) => { this.setState({ url: e.target.value }) }} />
+                                    </div>
+                                    <div className="mb-2">
+                                        <label className="form-label text-primary">Text</label>
+                                        <input type="text" name="name" required placeholder="Yocail Profile" className="form-control shadow-none border" maxLength="100" value={this.state.name} onChange={(e) => { this.setState({ name: e.target.value }) }} />
+                                    </div>
+                                    <div className="mb-2">
+                                        <button type="submit" disabled={this.state.loading} className="btn btn-blue">{this.state.loading ? <div className="spinner-border spinner-border-sm" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                            : null} Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div><div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
+        }
+    }
+
+    renderRows() {
+        let addbtn = this.state.myself.links.length < 5 ? <li className="list-group-item">
+            <div className="fs-small my-2 text-center">Add upto 5 links to your profile. <a className="text-primary fw-bold" href="javascript:void(0);"
+                onClick={() => { this.setState({ id: this.emptyid, url: '', name: '', showmodal: true }) }}>Add Link</a></div>
+        </li> : null;
+        let items = [];
+        let links = this.state.myself.links;
+        for (let k in links) {
+            let l = links[k];
+            items.push(<li key={k} className="list-group-item">
+                <table className="w-100" cellPadding={0} cellSpacing={0}>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span className="fs-small fw-semibold">{l.name}</span><br />
+                                <span className="fs-verysmall text-secondary">{l.url}</span>
+                            </td>
+                            <td width="50px" align="center">
+                                <button type="button" className="btn btn-link" data-id={l.id} onClick={(e) => { this.setState({ id: e.target.getAttribute("data-id") }, () => { this.removeData(); }); }}>
+                                    <i className="bi bi-trash" data-id={l.id}></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </li>);
+        }
+        return <ul className="list-group">
+            {items}
+            {addbtn}
+        </ul>;
+    }
+
+    render() {
+        return <div>
+            {this.renderRows()}
+            {this.renderModal()}
+        </div>;
+    }
+}
+
+class ManageEmails extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+        this.emptyid = '00000000-0000-0000-0000-000000000000';
+        this.state = {
+            loading: false, loggedin: loggedin,
+            myself: this.props.myself, bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            id: this.emptyid, showmodal: false, email: ''
+        };
+    }
+
+    saveData = () => {
+        const fd = new FormData();
+        fd.set("id", this.state.id);
+        fd.set("email", this.state.email);
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/members/saveemail', {
+            method: 'post',
+            body: fd,
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    response.json().then(data => {
+                        let ms = this.state.myself;
+                        if (this.state.id === this.emptyid) {
+                            ms.emails.push(data);
+                        } else if (this.state.id === this.emptyid) {
+                            for (let k in ms.emails) {
+                                if (ms.emails[k].id === this.state.id) {
+                                    ms.emails[k].email = data.email;
+                                    break;
+                                }
+                            }
+                        }
+                        this.setState({ myself: ms, bsstyle: '', message: '', loading: false, showmodal: false, id: this.emptyid, email: '' });
+                    });
+                } else {
+                    this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                }
+            });
+    };
+
+    removeData = () => {
+        fetch('//' + window.location.host + '/api/Members/removeemail/' + this.state.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    let ms = this.state.myself;
+                    ms.emails = ms.emails.filter(t => t.id !== this.state.id);
+                    this.setState({ myself: ms, bsstyle: '', message: '', loading: false, showmodal: false, id: this.emptyid, email: '' });
+                } else {
+                    this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                }
+            });
+    };
+
+    renderModal() {
+        if (this.state.showmodal) {
+            return <React.Fragment>
+                <div className="modal fade d-block show" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5" id="exampleModalLabel">Email</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showmodal: false, id: this.emptyid, email: '' }) }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <form onSubmit={(e) => { e.preventDefault(); this.saveData(); return false; }}>
+                                    {
+                                        this.state.message !== "" ? <div className={"my-2 text-" + this.state.bsstyle}></div> : null
+                                    }
+                                    <div className="mb-2">
+                                        <input type="email" name="Email" required placeholder="joe@yocail.com" className="form-control shadow-none border" maxLength="100" value={this.state.email} onChange={(e) => { this.setState({ email: e.target.value }) }} />
+                                    </div>
+                                    <div className="mb-2">
+                                        <button type="submit" disabled={this.state.loading} className="btn btn-blue">{this.state.loading ? <div className="spinner-border spinner-border-sm" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                            : null} Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div><div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
+        }
+    }
+
+    renderRows() {
+        let addbtn = this.state.myself.emails.length < 2 ? <li className="list-group-item">
+            <div className="fs-small my-2 text-center">Add upto 2 emails to your profile. <a className="text-primary fw-bold" href="javascript:void(0);"
+                onClick={() => { this.setState({ id: this.emptyid, email: '', showmodal: true }) }}>Add Emails</a></div>
+        </li> : null;
+        let items = [];
+        let links = this.state.myself.emails;
+        for (let k in links) {
+            let l = links[k];
+            items.push(<li key={k} className="list-group-item">
+                <table className="w-100" cellPadding={0} cellSpacing={0}>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span className="fs-small fw-semibold">{l.email}</span>
+                            </td>
+                            <td width="50px" align="center">
+                                <button type="button" className="btn btn-link" data-id={l.id} onClick={(e) => { this.setState({ id: e.target.getAttribute("data-id") }, () => { this.removeData(); }); }}>
+                                    <i className="bi bi-trash" data-id={l.id}></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </li>);
+        }
+        return <ul className="list-group">
+            {items}
+            {addbtn}
+        </ul>;
+    }
+
+    render() {
+        return <div>
+            {this.renderRows()}
+            {this.renderModal()}
+        </div>;
+    }
+}
+
+class ManagePhones extends React.Component {
+    constructor(props) {
+        super(props);
+        let loggedin = true;
+        if (localStorage.getItem("token") === null) {
+            loggedin = false;
+        }
+        this.emptyid = '00000000-0000-0000-0000-000000000000';
+        this.state = {
+            loading: false, loggedin: loggedin,
+            myself: this.props.myself, bsstyle: '', message: '',
+            token: localStorage.getItem("token") == null ? '' : localStorage.getItem("token"),
+            id: this.emptyid, showmodal: false, phone: ''
+        };
+    }
+
+    saveData = () => {
+        const fd = new FormData();
+        fd.set("id", this.state.id);
+        fd.set("phone", this.state.phone);
+        this.setState({ loading: true });
+        fetch('//' + window.location.host + '/api/members/savephone', {
+            method: 'post',
+            body: fd,
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    response.json().then(data => {
+                        let ms = this.state.myself;
+                        if (this.state.id === this.emptyid) {
+                            ms.phones.push(data);
+                        } else if (this.state.id === this.emptyid) {
+                            for (let k in ms.phones) {
+                                if (ms.phones[k].id === this.state.id) {
+                                    ms.phones[k].phone = data.phone;
+                                    break;
+                                }
+                            }
+                        }
+                        this.setState({ myself: ms, bsstyle: '', message: '', loading: false, showmodal: false, id: this.emptyid, phone: '' });
+                    });
+                } else {
+                    this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                }
+            });
+    };
+
+    removeData = () => {
+        fetch('//' + window.location.host + '/api/Members/removephone/' + this.state.id, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + this.state.token
+            }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    let ms = this.state.myself;
+                    ms.phones = ms.phones.filter(t => t.id !== this.state.id);
+                    this.setState({ myself: ms, bsstyle: '', message: '', loading: false, showmodal: false, id: this.emptyid, phones: '' });
+                } else {
+                    this.setState({ loading: false, message: 'Unable to save data', bsstyle: 'danger' });
+                }
+            });
+    };
+
+    renderModal() {
+        if (this.state.showmodal) {
+            return <React.Fragment>
+                <div className="modal fade d-block show" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5" id="exampleModalLabel">Phone</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showmodal: false, id: this.emptyid, phone: '' }) }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <form onSubmit={(e) => { e.preventDefault(); this.saveData(); return false; }}>
+                                    {
+                                        this.state.message !== "" ? <div className={"my-2 text-" + this.state.bsstyle}></div> : null
+                                    }
+                                    <div className="mb-2">
+                                        <input type="text" name="Phone" required placeholder="9871000222" className="form-control shadow-none border" maxLength="15" value={this.state.phone} onChange={(e) => { this.setState({ phone: e.target.value }) }} />
+                                    </div>
+                                    <div className="mb-2">
+                                        <button type="submit" disabled={this.state.loading} className="btn btn-blue">{this.state.loading ? <div className="spinner-border spinner-border-sm" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                            : null} Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div><div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
+        }
+    }
+
+    renderRows() {
+        let addbtn = this.state.myself.phones.length < 2 ? <li className="list-group-item">
+            <div className="fs-small my-2 text-center">Add upto 2 phone numbers to your profile. <a className="text-primary fw-bold" href="javascript:void(0);"
+                onClick={() => { this.setState({ id: this.emptyid, email: '', showmodal: true }) }}>Add Phone</a></div>
+        </li> : null;
+        let items = [];
+        let links = this.state.myself.phones;
+        for (let k in links) {
+            let l = links[k];
+            items.push(<li key={k} className="list-group-item">
+                <table className="w-100" cellPadding={0} cellSpacing={0}>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span className="fs-small fw-semibold">{l.phone}</span>
+                            </td>
+                            <td width="50px" align="center">
+                                <button type="button" className="btn btn-link" data-id={l.id} onClick={(e) => { this.setState({ id: e.target.getAttribute("data-id") }, () => { this.removeData(); }); }}>
+                                    <i className="bi bi-trash" data-id={l.id}></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </li>);
+        }
+        return <ul className="list-group">
+            {items}
+            {addbtn}
+        </ul>;
+    }
+
+    render() {
+        return <div>
+            {this.renderRows()}
+            {this.renderModal()}
+        </div>;
     }
 }
 

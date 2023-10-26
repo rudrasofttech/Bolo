@@ -23,6 +23,7 @@ using NetTopologySuite.Triangulate.QuadEdge;
 using Microsoft.AspNetCore.Hosting;
 using Org.BouncyCastle.Crypto.Parameters;
 using BoloWeb.Helper;
+using Org.BouncyCastle.Asn1.Misc;
 
 namespace Bolo.Controllers
 {
@@ -155,6 +156,7 @@ namespace Bolo.Controllers
             }
 
             var member = await _context.Members.Include(t => t.Roles).FirstOrDefaultAsync(t => (t.UserName == model.UserName || t.Email == model.UserName) && t.Password == EncryptionHelper.CalculateSHA256(model.Password));
+
             if (member == null)
             {
                 return NotFound(new { error = "Invalid Credentials" });
@@ -163,7 +165,14 @@ namespace Bolo.Controllers
             {
                 member.Status = RecordStatus.Active;
                 await _context.SaveChangesAsync();
-                LoginReturnDTO result = new LoginReturnDTO() { Member = new MemberDTO(member), Token = GenerateJSONWebToken(member) };
+                var mdto = new MemberDTO(member);
+                if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
+                    mdto.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+                if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
+                    mdto.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+                if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
+                    mdto.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+                LoginReturnDTO result = new LoginReturnDTO() { Member = mdto, Token = GenerateJSONWebToken(member) };
                 return result;
             }
         }
@@ -259,6 +268,14 @@ namespace Bolo.Controllers
                     FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
                     PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID)
                 };
+                if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
+                    result.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+                if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
+                    result.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+                if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
+                    result.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+                LocationHelper lh = new LocationHelper();
+                result.Country = lh.GetCountryName(result.Country);
                 return result;
             }
         }
@@ -287,31 +304,245 @@ namespace Bolo.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MemberDTO>> GetMember(string id)
         {
-            Member member = null;
-            if (Guid.TryParse(id, out Guid idguid))
+            try
             {
-                member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == idguid);
+                Member member = null;
+                if (Guid.TryParse(id, out Guid idguid))
+                {
+                    member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == idguid);
+                }
+                else
+                {
+                    member = await _context.Members.FirstOrDefaultAsync(t => t.UserName == id);
+                }
+
+                if (member == null)
+                {
+                    return NotFound();
+                }
+                MemberDTO result = new MemberDTO(member)
+                {
+
+                    Phone = member.Phone,
+                    Email = member.Email,
+                    FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID && t.Status == FollowerStatus.Active),
+                    FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
+                    PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID),
+                    FollowRequestCount = _context.Followers.Count(t => t.Following.ID == member.ID && t.Status == FollowerStatus.Requested)
+                };
+                if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
+                    result.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+                if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
+                    result.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+                if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
+                    result.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+                LocationHelper lh = new LocationHelper();
+                result.Country = lh.GetCountryName(result.Country);
+
+                return result;
+            }catch(Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
             }
+        }
+
+        [HttpGet]
+        [Route("getlinks")]
+        public List<ProfileLink> GetLinks()
+        {
+            var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+            return _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+        }
+
+        [HttpGet]
+        [Route("removelink/{id}")]
+        public ActionResult RemoveLink(Guid id)
+        {
+            try
+            {
+                var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                var l = _context.ProfileLinks.FirstOrDefault(t => t.Member.ID == member.ID && t.ID == id);
+                if (l == null)
+                    return NotFound();
+                else
+                {
+                    _context.ProfileLinks.Remove(l);
+                    _context.SaveChanges();
+                    return Ok();
+                }
+            }catch(Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("savelink")]
+        public ActionResult SaveLink([FromForm] Guid id, [FromForm] string url, [FromForm] string name)
+        {
+            try
+            {
+                var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                if (id == Guid.Empty)
+                {
+                    var pl = new ProfileLink()
+                    {
+                        ID = Guid.NewGuid(),
+                        Member = member,
+                        Name = name,
+                        URL = url
+                    };
+                    _context.ProfileLinks.Add(pl);
+                    _context.SaveChanges();
+                    return Ok(pl);
+                }
+                else
+                {
+                    var pl = _context.ProfileLinks.FirstOrDefault(t => t.Member.ID == member.ID && t.ID == id);
+                    if(pl == null) return NotFound();
+                    else
+                    {
+                        pl.Name = name;
+                        pl.URL = url;
+                        _context.SaveChanges();
+                        return Ok(pl);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("getemails")]
+        public List<ProfileEmail> GetEmails()
+        {
+            var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+            return _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+        }
+
+        [HttpGet]
+        [Route("removeemail/{id}")]
+        public ActionResult RemoveEmail(Guid id)
+        {
+            try
+            {
+                var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                var l = _context.ProfileEmails.FirstOrDefault(t => t.Member.ID == member.ID && t.ID == id);
+                if (l == null)
+                    return NotFound();
+                else
+                {
+                    _context.ProfileEmails.Remove(l);
+                    _context.SaveChanges();
+                    return Ok();
+                }
+            }catch(Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("saveemail")]
+        public ActionResult SaveEmail([FromForm] Guid id, [FromForm] string email)
+        {
+            try
+            {
+                var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                if (id == Guid.Empty)
+                {
+                    var pe = new ProfileEmail()
+                    {
+                        ID = Guid.NewGuid(),
+                        Member = member,
+                        Email = email
+                    };
+                    _context.ProfileEmails.Add(pe);
+                    _context.SaveChanges();
+                    return Ok(pe);
+                }
+                else
+                {
+                    var pe = _context.ProfileEmails.FirstOrDefault(t => t.Member.ID == member.ID && t.ID == id);
+                    if (pe == null) return NotFound();
+                    else
+                    {
+                        pe.Email = email;
+                        _context.SaveChanges();
+                        return Ok(pe);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        
+
+        [HttpGet]
+        [Route("getphones")]
+        public List<ProfilePhone> GetPhones()
+        {
+            var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+            return _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+        }
+
+        [HttpGet]
+        [Route("removephone/{id}")]
+        public ActionResult RemovePhone(Guid id)
+        {
+            var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+            var l = _context.ProfilePhones.FirstOrDefault(t => t.Member.ID == member.ID && t.ID == id);
+            if (l == null)
+                return NotFound();
             else
             {
-                member = await _context.Members.FirstOrDefaultAsync(t => t.UserName == id);
+                _context.ProfilePhones.Remove(l);
+                _context.SaveChanges();
+                return Ok();
             }
+        }
 
-            if (member == null)
+        [HttpPost]
+        [Route("savephone")]
+        public ActionResult SavePhone([FromForm] Guid id, [FromForm] string phone)
+        {
+            try
             {
-                return NotFound();
+                var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                if (id == Guid.Empty)
+                {
+                    var pp = new ProfilePhone()
+                    {
+                        ID = Guid.NewGuid(),
+                        Member = member,
+                        Phone = phone
+                    };
+                    _context.ProfilePhones.Add(pp);
+                    _context.SaveChanges();
+                    return Ok(pp);
+                }
+                else
+                {
+                    var pe = _context.ProfilePhones.FirstOrDefault(t => t.Member.ID == member.ID && t.ID == id);
+                    if (pe == null) return NotFound();
+                    else
+                    {
+                        pe.Phone = phone;
+                        _context.SaveChanges();
+                        return Ok(pe);
+                    }
+                }
             }
-            MemberDTO result = new MemberDTO(member)
+            catch (Exception ex)
             {
-
-                Phone = member.Phone,
-                Email = member.Email,
-                FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID && t.Status == FollowerStatus.Active),
-                FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
-                PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID),
-                FollowRequestCount = _context.Followers.Count(t => t.Following.ID == member.ID && t.Status == FollowerStatus.Requested)
-            };
-            return result;
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -893,7 +1124,7 @@ namespace Bolo.Controllers
                 ThoughtStatus = string.Empty,
                 Visibility = MemberProfileVisibility.Public,
                 State = locData.Region_Name,
-                Country= locData.Country_Name,
+                Country = locData.Country_Name,
                 SecurityAnswer = EncryptionHelper.CalculateSHA256(model.SecurityAnswer.ToLower().Trim()),
                 SecurityQuestion = model.SecurityQuestion,
                 IsEmailVerified = false

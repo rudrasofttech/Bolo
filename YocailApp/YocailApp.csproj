@@ -131,6 +131,9 @@
 	  <MauiXaml Update="AddPostPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\DevicePhotosCV.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\ExpandableLabel.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

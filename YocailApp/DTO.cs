@@ -395,14 +395,18 @@ namespace YocailApp
         public string URI { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string DateAdded { get; set; } = string.Empty;
+        public string Data { get; set; } = string.Empty;
 
-        public DevicePhoto(string uri, string displayName, string dateAdded, string size, string relativePath)
+        public Uri URL { get { return new Uri(URI); } }
+
+        public DevicePhoto(string uri, string displayName, string dateAdded, string size, string relativePath, string data)
         {
             URI = uri;
             DisplayName = displayName;
             DateAdded = dateAdded;
             RelativePath = relativePath;
             Size = size;
+            Data = data;
         }
     }
 

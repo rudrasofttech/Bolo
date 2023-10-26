@@ -4,14 +4,16 @@ using Bolo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
-    partial class BoloContextModelSnapshot : ModelSnapshot
+    [Migration("20231023061906_RemoveEmailsPhoneAddressColumn")]
+    partial class RemoveEmailsPhoneAddressColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -579,26 +581,6 @@ namespace Bolo.Migrations
                     b.ToTable("PostPhoto");
                 });
 
-            modelBuilder.Entity("Bolo.Models.ProfileEmail", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int?>("MemberID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("MemberID");
-
-                    b.ToTable("ProfileEmail");
-                });
-
             modelBuilder.Entity("Bolo.Models.ProfileLink", b =>
                 {
                     b.Property<Guid>("ID")
@@ -621,26 +603,6 @@ namespace Bolo.Migrations
                     b.HasIndex("MemberID");
 
                     b.ToTable("ProfileLink");
-                });
-
-            modelBuilder.Entity("Bolo.Models.ProfilePhone", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("MemberID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("MemberID");
-
-                    b.ToTable("ProfilePhone");
                 });
 
             modelBuilder.Entity("Bolo.Models.PushNotificationWebApp", b =>
@@ -866,25 +828,7 @@ namespace Bolo.Migrations
                         .HasForeignKey("MemberPostID");
                 });
 
-            modelBuilder.Entity("Bolo.Models.ProfileEmail", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberID");
-
-                    b.Navigation("Member");
-                });
-
             modelBuilder.Entity("Bolo.Models.ProfileLink", b =>
-                {
-                    b.HasOne("Bolo.Models.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberID");
-
-                    b.Navigation("Member");
-                });
-
-            modelBuilder.Entity("Bolo.Models.ProfilePhone", b =>
                 {
                     b.HasOne("Bolo.Models.Member", "Member")
                         .WithMany()
