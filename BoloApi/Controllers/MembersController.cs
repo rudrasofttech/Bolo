@@ -172,6 +172,9 @@ namespace Bolo.Controllers
                     mdto.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
                 if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
                     mdto.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+                LocationHelper lh = new LocationHelper();
+                mdto.CountryName = lh.GetCountryName(mdto.Country);
+
                 LoginReturnDTO result = new LoginReturnDTO() { Member = mdto, Token = GenerateJSONWebToken(member) };
                 return result;
             }
@@ -275,10 +278,12 @@ namespace Bolo.Controllers
                 if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
                     result.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
                 LocationHelper lh = new LocationHelper();
-                result.Country = lh.GetCountryName(result.Country);
+                result.CountryName = lh.GetCountryName(result.Country);
                 return result;
             }
         }
+
+
 
         // GET: api/Members
         [HttpGet]
@@ -337,7 +342,7 @@ namespace Bolo.Controllers
                 if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
                     result.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
                 LocationHelper lh = new LocationHelper();
-                result.Country = lh.GetCountryName(result.Country);
+                result.CountryName = lh.GetCountryName(result.Country);
 
                 return result;
             }catch(Exception ex)

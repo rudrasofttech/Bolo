@@ -1,12 +1,16 @@
 ﻿@page "/login"
 @using Bolo.Admin.Models;
+@layout EmptyLayout
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 @inject LocalStorageAccessor lss
 
-<div class="container">
-    <div class="row">
+<div class="container mt-5">
+    <div class="row justify-content-center">
         <div class="col-lg-4">
+            <div class="p-3 ps-0">
+                <img src="Yocail-logo.svg" class="img-fluid" style="width:150px" />
+            </div>
             <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
                 <div class="mb-3">
                     <label class="form-label">Username</label>

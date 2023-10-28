@@ -499,11 +499,11 @@ class Home extends React.Component {
 
         return <div className="container-lg my-md-3 my-2">
             <div className="row">
-                <div className="col-md-7 col-12">
+                <div className="col-md-7 px-lg-5 col-12">
                     {this.state.search.indexOf("#") > -1 ? <HashTagDetail search={this.state.search} /> : null}
                     <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
                 </div>
-                <div className="col-md-5 d-none d-md-block">
+                <div className="col-md-5 px-lg-4 d-none d-md-block">
                     <AskPushNotification />
                     <SendInvite />
                     <div className="sticky-column py-2">
@@ -626,10 +626,10 @@ class Explore extends React.Component {
 
         return <div className="container-lg my-md-3 my-2">
             <div className="row">
-                <div className="col-md-7 col-12">
+                <div className="col-md-7 px-lg-5 col-12">
                     <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
                 </div>
-                <div className="col-md-5 d-none d-md-block">
+                <div className="col-md-5 px-lg-4 d-none d-md-block">
                     <AskPushNotification />
                     <SendInvite />
                     <div className="sticky-column py-2">
@@ -1207,8 +1207,8 @@ class MemberPost extends React.Component {
                     </table>
                 </div>
             </div>
-            <div className="p-2 lh-sm">
-                <ExpandableTextLabel cssclass="" text={p.describe === null ? "" : p.describe} maxlength={100} />
+            <div className="lh-sm">
+                <ExpandableTextLabel cssclass="fs-small" text={p.describe === null ? "" : p.describe} maxlength={100} />
             </div>
             {likemodal}
             {commentbox}
@@ -1826,7 +1826,6 @@ class MemberPostList extends React.Component {
             {loading}
             {html}
             {loadmore}
-
         </React.Fragment>;
     }
 }
@@ -2010,26 +2009,18 @@ class MemberSmallList extends React.Component {
         }
 
         return <div style={{ minHeight: "400px" }}>
-            <table className="w-100" cellPadding="0" cellSpacing="0">
-                <tbody>
-                    <tr>
-                        <td className="px-1" align="center" valign="middle">
-                            <input type="text" placeholder="Search keywords..." className="form-control shadow-none border" value={this.state.q}
-                                onChange={(e) => {
-                                    this.setState({ q: e.target.value, p: 0 }, () => { if (this.state.q === "") { this.loadFeed(true); } })
-                                }} />
-                        </td>
-                        <td align="center" valign="middle" width="45px">
-                            <button type="button" disabled={this.state.loading} className="btn btn-blue" onClick={() => { this.loadFeed(true); }}>
-                                {this.state.loading ? <div className="spinner-border spinner-border-sm" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div>
-                                    : <i className="bi bi-search"></i>}
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div className="row g-1">
+                <div className="col-10"><input type="text" placeholder="Search keywords..." className="form-control shadow-none border" value={this.state.q}
+                    onChange={(e) => {
+                        this.setState({ q: e.target.value, p: 0 }, () => { if (this.state.q === "") { this.loadFeed(true); } })
+                    }} /></div>
+                <div className="col"><button type="button" disabled={this.state.loading} className="btn btn-blue" onClick={() => { this.loadFeed(true); }}>
+                    {this.state.loading ? <div className="spinner-border spinner-border-sm" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                        : <i className="bi bi-search"></i>}
+                </button></div>
+            </div>
             {this.renderPosts()}
             {loadmore}
             {this.state.loading ? <div className="text-center p-2"><div className="spinner-border" role="status">
@@ -2100,8 +2091,9 @@ class MemberSmallRow extends React.Component {
                 <MemberPicSmall member={this.state.member} />
             </div>
             <div className="col px-1">
-                <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} className="text-primary fs-20">
-                    {this.state.member.userName}
+                <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} >
+                    {this.state.member.name != "" ? <div className="fs-20 text-secondary fw-semibold text-capitalize">{this.state.member.name}</div> : null}
+                    <div className={this.state.member.name != "" ? "text-primary fs-small mt-2" : "fs-20 text-secondary fw-semibold" }>{this.state.member.userName}</div>
                 </a>
             </div>
             <div className="col text-end">
@@ -2955,7 +2947,7 @@ class Profile extends React.Component {
                                 {pic}
                                 <div className="p-1 fs-20 text-center mb-1 fw-bold">@{this.state.member.userName}</div>
                                 {name}
-                                {this.state.member.country !== "" ? <div className="my-3 text-secondary fs-small"><i className="bi bi-globe-central-south-asia"></i> {this.state.member.country}</div> : null }
+                                {this.state.member.countryName !== "" ? <div className="my-3 text-secondary fs-small"><i className="bi bi-globe-central-south-asia"></i> {this.state.member.countryName}</div> : null}
                                 {this.state.member.thoughtStatus !== "" ? <div className="my-3 text-secondary fs-small">{this.state.member.thoughtStatus}</div> : null}
                                 <div className="fs-small">
                                     <ExpandableTextLabel cssclass="text-justify my-3 lh-base" text={this.state.member.bio === null ? "" : this.state.member.bio} maxlength={200} />
@@ -2989,7 +2981,7 @@ class Profile extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="col-md-7 col-12">
+                    <div className="col-md-7 px-lg-5 col-12">
                         <MemberPostList search={this.state.member.userName} viewMode={1} viewModeAllowed="true" />
                     </div>
                 </div>
@@ -4414,7 +4406,7 @@ class RegisterForm extends React.Component {
                         </div>
                         <a href="javascript:void(0);" onClick={() => { this.setState({ showForgotPassword: true }); }} title="Forgot Password?" className="forgot-pass">Forgot Password?</a>
                     </div>
-                    <button type="submit" disabled={this.state.loading} className="btn btn-blue">{this.state.loading ? <div className="spinner-border" role="status">
+                    <button type="submit" disabled={this.state.loading} className="btn btn-blue">{this.state.loading ? <div className="spinner-border spinner-border-sm" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div> : "Login"}</button>
                 </form>
@@ -4435,9 +4427,6 @@ class RegisterForm extends React.Component {
     }
 
     render() {
-        let loading = this.state.loading ? <div className="progress" style={{ height: "5px" }}>
-            <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}></div>
-        </div> : null;
         let messagecontent = this.state.message !== "" ? <div className={"mt-2 text-center text-" + this.state.bsstyle}>
             {this.state.message}
         </div> : null;
@@ -4506,7 +4495,7 @@ class RegisterForm extends React.Component {
                             }} />
                     </div>
                     <div id="securitypasswordHelp" className="form-text mb-3 text-center">Correct answer to your security question.</div>
-                    <button className="btn btn-dark" type="submit">{this.state.loading ? <div className="spinner-border text-light" role="status">
+                    <button className="btn btn-dark" type="submit">{this.state.loading ? <div className="spinner-border spinner-border-sm text-light" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div> : "Register"}</button>
                 </form>
@@ -4526,7 +4515,6 @@ class RegisterForm extends React.Component {
                 </div>
                 <p className="haveaccount">Don’t have an account? <a href="javascript:void(0);" onClick={this.handleRegisterClickHere} title="SIGN UP HERE">SIGN UP HERE</a></p>
                 {messagecontent}
-                {loading}
             </React.Fragment>;
         return <div className="wrapper sign-up" style={{ minHeight: "100vh" }}>
             <div className="banner-image d-none d-md-block">

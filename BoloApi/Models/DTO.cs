@@ -150,6 +150,7 @@ namespace Bolo.Models
         public ActivityStatus Activity { get; set; }
         public MemberProfileVisibility Visibility { get; set; }
         public string Pic { get; set; } = string.Empty;
+        public string CountryName { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string State { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
