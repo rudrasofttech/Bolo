@@ -40,7 +40,7 @@ public partial class PostCV : ContentView
                     MaximumVisible = 7,
                     HideSingle = true,
                     HorizontalOptions= LayoutOptions.Center,
-                    Margin = new Thickness(10)
+                    Margin = new Thickness(0, 15,0,0)
                 };
                 var crsl = new CarouselView()
                 {
@@ -66,7 +66,7 @@ public partial class PostCV : ContentView
                 };
                 
                 PhotoStackLayout.Add(crsl);
-                PhotoStackLayout.Add(iv);
+                PhotoStackCtrlGrid.Add(iv,0,0);
             }
 
             //if (string.IsNullOrEmpty(pvm.Post.Describe))

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.Controls.ExpandableLabel">
     <StackLayout>
-        <Label x:Name="DescribeLabel" VerticalOptions="Start" FontSize="Body" HorizontalOptions="Start">
+        <Label x:Name="DescribeLabel" VerticalOptions="Start" FontSize="13" HorizontalOptions="Start">
             <Label.GestureRecognizers>
                 <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
             </Label.GestureRecognizers>

@@ -566,8 +566,8 @@ namespace Bolo.Controllers
         [Route("validatesecurityanswer")]
         public ActionResult ValidateSecurityAnswer([FromForm] string username, [FromForm] string question, [FromForm] string answer, [FromForm] string password)
         {
-            //if (string.IsNullOrEmpty(answer))
-            //    return BadRequest(new { error = "Security Answer missing." });
+            if (string.IsNullOrEmpty(answer))
+                answer = "";
             if (string.IsNullOrEmpty(question))
                 return BadRequest(new { error = "Security Question missing." });
             if (string.IsNullOrEmpty(username))
@@ -579,7 +579,7 @@ namespace Bolo.Controllers
 
             try
             {
-                var member = _context.Members.FirstOrDefault(t => (t.Email == username || t.UserName == username) && t.SecurityQuestion == question && t.SecurityAnswer == EncryptionHelper.CalculateSHA256(answer.ToLower()));
+                var member = _context.Members.FirstOrDefault(t => (t.Email == username || t.UserName == username) && t.SecurityQuestion == question && t.SecurityAnswer == EncryptionHelper.CalculateSHA256(answer));
                 if (member == null)
                 {
                     return NotFound(new { error = "Security answer provided does not match our records." });
@@ -597,6 +597,21 @@ namespace Bolo.Controllers
                 return StatusCode(500, new { error = "Unable to process request. " + ex.Message });
             }
         }
+
+        //[HttpGet]
+        //[AllowAnonymous]
+        //[Route("changesecurity")]
+        //public ActionResult<string> ChangeSecurityAllProfiles()
+        //{
+        //    var list = _context.Members.Where(t => true);
+        //    foreach(var m  in list)
+        //    {
+        //        m.SecurityQuestion = "Whats the most common password?";
+        //        m.SecurityAnswer = EncryptionHelper.CalculateSHA256("Welcome1!");
+        //    }
+        //    _context.SaveChanges();
+        //    return Ok();
+        //}
 
         [HttpPost]
         [Route("savebio")]
@@ -858,6 +873,24 @@ namespace Bolo.Controllers
                     _ = _hubContext.Clients.User(c.Person.PublicID.ToString()).SendAsync("ContactUpdated", mdto);
                 }
 
+                return Ok();
+            }
+        }
+
+        [HttpGet]
+        [Route("savepassword")]
+        public async Task<IActionResult> SavePassword([FromQuery] string d)
+        {
+            if(string.IsNullOrEmpty(d)) return BadRequest();
+            var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+            if (member == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                member.Password = EncryptionHelper.CalculateSHA256(d);
+                await _context.SaveChangesAsync();
                 return Ok();
             }
         }

@@ -8,8 +8,8 @@
     <ContentPage.BindingContext>
         <local:DiscoverPageVM />
     </ContentPage.BindingContext>
-    <ScrollView>
-        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+        <ScrollView>
             <StackLayout>
                 <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
         VerticalOptions="FillAndExpand"  RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
@@ -26,7 +26,6 @@
                 <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
                                    IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />
             </StackLayout>
-        </RefreshView>
-    </ScrollView>
-
+        </ScrollView>
+    </RefreshView>
 </ContentPage>

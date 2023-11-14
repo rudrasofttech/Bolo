@@ -24,6 +24,17 @@ public partial class ProfilePage : ContentPage
         //MemberCard.ManageProfileButtonVisible = true;
     }
 
+    protected async override void OnAppearing()
+    {
+        base.OnAppearing();
+        if((BindingContext as ProfileVM).Posts.Count == 0) {
+            if (string.IsNullOrEmpty((BindingContext as ProfileVM).UserName))
+            {
+                await(BindingContext as ProfileVM).LoadData();
+            }
+        }
+    }
+
     private async void ManageProfileButton_Clicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new EditProfilePage());

@@ -82,6 +82,7 @@ namespace Bolo.Admin.Models
         public ActivityStatus Activity { get; set; }
         public MemberProfileVisibility Visibility { get; set; }
         public string Pic { get; set; } = string.Empty;
+        public string CountryName { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string State { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
@@ -92,12 +93,31 @@ namespace Bolo.Admin.Models
         public int FollowRequestCount { get; set; }
         public string Phone { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string RecoveryQuestion { get; set; } = string.Empty;
-        public RecordStatus Status { get; set; }
+        public string SecurityQuestion { get; set; } = string.Empty;
+        public string SecurityAnswer { get; set; } = string.Empty;
         public int ProfileCompletePercent { get; set; }
         public string EmptyFields { get; set; } = string.Empty;
-        public bool IsEmailVerified { get; set; }
         public DateTime LastPulse { get; set; }
+        public RecordStatus Status { get; set; }
+        public bool IsEmailVerified { get; set; }
+
+        public List<ProfileEmail> Emails { get; set; } = new List<ProfileEmail>();
+        public List<ProfilePhone> Phones { get; set; } = new List<ProfilePhone>();
+        public List<ProfileLink> Links { get; set; } = new List<ProfileLink> { };
+
+        public string PicFormedURL
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Pic))
+                    return string.Empty;
+                else if (Pic.ToLower().StartsWith("http://") || Pic.ToLower().StartsWith("https://") || Pic.ToLower().StartsWith("data"))
+                    return Pic;
+                else
+                    return $"https://www.yocail.com/{Pic}";
+            }
+        }
+
         public MemberDTO()
         {
             ID = Guid.Empty;
@@ -110,6 +130,25 @@ namespace Bolo.Admin.Models
             City = "";
             ThoughtStatus = "";
         }
+    }
+
+    public class ProfileEmail
+    {
+        public Guid ID { get; set; }
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ProfilePhone
+    {
+        public Guid ID { get; set; }
+        public string Phone { get; set; } = string.Empty;
+    }
+
+    public class ProfileLink
+    {
+        public Guid ID { get; set; }
+        public string URL { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
     }
 
     public class MemberListPaged : PagingModel

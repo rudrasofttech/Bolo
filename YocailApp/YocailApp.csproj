@@ -113,6 +113,9 @@
 	  <Compile Update="CommentsPage.xaml.cs">
 	    <DependentUpon>CommentsPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Platforms\iOS\MediaService.cs">
+	    <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+	  </Compile>
 	  <Compile Update="Resources\Translations\AppRes.Designer.cs">
 	    <DesignTime>True</DesignTime>
 	    <AutoGen>True</AutoGen>
@@ -129,6 +132,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="AddPostPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\DevicePhotoCV.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\DevicePhotosCV.xaml">

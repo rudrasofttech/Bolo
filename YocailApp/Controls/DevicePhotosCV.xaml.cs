@@ -7,7 +7,7 @@ namespace YocailApp.Controls;
 
 public partial class DevicePhotosCV : ContentView
 {
-    IMediaService service;
+    private readonly IMediaService service = new  MediaService();
     public ObservableCollection<DevicePhoto> _photos = new();
     public ObservableCollection<DevicePhoto> Photos
     {
@@ -24,7 +24,6 @@ public partial class DevicePhotosCV : ContentView
     public DevicePhotosCV()
     {
         InitializeComponent();
-        service = new MediaService();
         Loaded += DevicePhotosCV_Loaded;
     }
 
@@ -58,6 +57,6 @@ public partial class DevicePhotosCV : ContentView
         //    }
         //}
         //stackLayout.Content = g;
-        OnPropertyChanged("Photos");
+        OnPropertyChanged(nameof(Photos));
     }
 }

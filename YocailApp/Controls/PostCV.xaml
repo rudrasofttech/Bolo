@@ -11,15 +11,17 @@
     </ContentView.Resources>
     <VerticalStackLayout x:Name="PostVerticalLayout"  HorizontalOptions="FillAndExpand" Margin="0,5,0,20" >
         <Grid Margin="15,5,15,10" ColumnDefinitions="*,30">
-            <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Center">
-                <Frame IsVisible="{Binding Post.Owner.HasPic}" BorderColor="Transparent" CornerRadius="3" Padding="0" Margin="0,0,5,0" HorizontalOptions="Fill" VerticalOptions="Fill" >
-                    <Image x:Name="ProfilePic" Source="{Binding Post.Owner.PicPathConverted}" WidthRequest="30" HeightRequest="30">
+            <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Start">
+                <Frame HeightRequest="40" WidthRequest="40" IsVisible="{Binding Post.Owner.HasPic}" BorderColor="Transparent" 
+                       CornerRadius="10"  Padding="1" 
+                       Margin="0,0,5,0" HorizontalOptions="Center">
+                    <Image x:Name="ProfilePic" Source="{Binding Post.Owner.PicPathConverted}" Aspect="AspectFit">
                         <Image.GestureRecognizers>
                             <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
                         </Image.GestureRecognizers>
                     </Image>
                 </Frame>
-                <Label Text="{Binding Post.Owner.UserName,StringFormat='@{0}'}"  VerticalOptions="Center" HorizontalOptions="Center" FontFamily="InterSemiBold" FontSize="Header" >
+                <Label Text="{Binding Post.Owner.UserName,StringFormat='{0}'}"  VerticalOptions="Center" HorizontalOptions="Center" FontAttributes="Bold" FontFamily="InterSemiBold" FontSize="Header" TextColor="{StaticResource Primary}" >
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
                     </Label.GestureRecognizers>
@@ -46,26 +48,30 @@
                 <TapGestureRecognizer NumberOfTapsRequired="2" Command="{Binding DoubleTapCommand}" />
             </StackLayout.GestureRecognizers>
         </StackLayout>
-        <Grid  RowDefinitions="30" ColumnDefinitions="30,*,30,*,30,*, 30" Padding="15,5,15,5">
-            <ImageButton Source="{Binding HasReacted, Converter={StaticResource BoolToSourceConverter}}" Grid.Column="0" HeightRequest="20" Command="{Binding DoubleTapCommand}"></ImageButton>
-            <Label VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="1" IsVisible="{Binding ShowReactionCount}" FontAttributes="Bold" FontSize="Body">
-                <Label.FormattedText>
-                    <FormattedString>
-                        <Span Text="{Binding ReactionCount}" FontAttributes="Bold" />
-                    </FormattedString>
-                </Label.FormattedText>
-            </Label>
-            <ImageButton IsVisible="{Binding Post.AcceptComment}" Source="chatsquaretext.svg" Grid.Column="2" HeightRequest="20" Clicked="ImageButton_Clicked"></ImageButton>
-            <Label VerticalOptions="Center" HorizontalOptions="Start" Grid.Column="3" IsVisible="{Binding ShowCommentCount}"  FontSize="Body">
-                <Label.FormattedText>
-                    <FormattedString>
-                        <Span Text="{Binding CommentCount}" FontAttributes="Bold" />
-                    </FormattedString>
-                </Label.FormattedText>
-            </Label>
-            <ImageButton IsVisible="{Binding Post.AllowShare}" Source="share.svg" Grid.Column="4" HeightRequest="20"></ImageButton>
-            <ImageButton Grid.Column="6" Source="threedotsvertical.svg" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
+        <Grid x:Name="PhotoStackCtrlGrid" RowDefinitions="*" HorizontalOptions="FillAndExpand" ColumnDefinitions="100,*">
+
+            <Grid Grid.Row="0" Grid.Column="1" HorizontalOptions="End" ColumnDefinitions="auto,auto,auto,auto" Margin="0,10">
+                <VerticalStackLayout Grid.Column="0" Margin="10,3">
+                    <ImageButton HorizontalOptions="Center" Source="{Binding HasReacted, Converter={StaticResource BoolToSourceConverter}}" 
+                             HeightRequest="20" Command="{Binding DoubleTapCommand}"></ImageButton>
+                    <Label VerticalOptions="Start" HeightRequest="12" Text="{Binding ReactionCount,StringFormat='{0}'}" HorizontalOptions="Center" IsVisible="{Binding ShowReactionCount}" FontSize="10" FontAttributes="Bold">
+                    </Label>
+                    <Label Text="Likes" Margin="0" Padding="0" VerticalOptions="Start" HeightRequest="12" HorizontalOptions="Center" IsVisible="{Binding ShowReactionCount}" FontSize="10" FontAttributes="Bold">
+                    </Label>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Margin="5,3">
+                    <ImageButton IsVisible="{Binding Post.AcceptComment}" Source="chatsquaretext.svg" 
+                             HeightRequest="20" Clicked="ImageButton_Clicked"></ImageButton>
+                    <Label VerticalOptions="Start" Text="{Binding CommentCount}" HeightRequest="12" HorizontalOptions="Center" IsVisible="{Binding ShowCommentCount}" FontSize="10" FontAttributes="Bold">
+                    </Label>
+                    <Label Text="Comments" Margin="0" Padding="0" VerticalOptions="Start" HeightRequest="12" HorizontalOptions="Center" IsVisible="{Binding ShowCommentCount}" FontSize="10" FontAttributes="Bold">
+                    </Label>
+                </VerticalStackLayout>
+                <ImageButton IsVisible="{Binding Post.AllowShare}" VerticalOptions="Start" Source="share.svg" Grid.Row="0" Grid.Column="2" HeightRequest="20"></ImageButton>
+                <ImageButton Source="threedotsvertical.svg" HeightRequest="20" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Start" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
+            </Grid>
         </Grid>
+        
         <StackLayout Padding="15,0,15,5">
             <controls:ExpandableLabel x:Name="ExpDescribeLabel" Text="{Binding Post.Describe}" />
             <Label Text="{Binding Post.PostDateDisplay}" VerticalOptions="Center" FontFamily="InterLight" FontSize="Micro" Padding="0,0,0,0"></Label>

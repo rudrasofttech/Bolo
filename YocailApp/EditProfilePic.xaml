@@ -5,8 +5,23 @@
              xmlns:controls="clr-namespace:YocailApp.Controls"
              xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
              Title="Profile Photo" Shell.NavBarIsVisible="True" Shell.TabBarIsVisible="False" BackgroundColor="#F9F9F9" >
-    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Start">
-        <controls:DevicePhotosCV  />
-        <!--<cv:CameraView x:Name="cameraView" HeightRequest="400" CamerasLoaded="cameraView_CamerasLoaded" BarcodeDetected="cameraView_BarcodeDetected"/>-->
-    </VerticalStackLayout>
+
+    <ScrollView x:Name="stackLayout" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+
+        <CollectionView ItemsSource="{Binding Photos, Mode=TwoWay}"  HorizontalOptions="FillAndExpand" 
+VerticalOptions="FillAndExpand">
+            <!--<CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="2" />
+                    </CollectionView.ItemsLayout>-->
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <!--<controls:DevicePhotoCV BindingContext="{Binding this}"  />-->
+                    <Label Text="qwqqe"></Label>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </ScrollView>
+    <!--<cv:CameraView x:Name="cameraView" HeightRequest="400" CamerasLoaded="cameraView_CamerasLoaded" BarcodeDetected="cameraView_BarcodeDetected"/>-->
+
 </ContentPage>

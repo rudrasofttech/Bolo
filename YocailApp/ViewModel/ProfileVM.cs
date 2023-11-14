@@ -129,7 +129,7 @@ namespace YocailApp.ViewModel
                 CurrentPage = 0;
                 TotalRecords = 0;
                 Posts?.Clear();
-                await LoadExploreData();
+                await LoadData();
                 IsRefreshing = false;
             });
         }
@@ -204,6 +204,7 @@ namespace YocailApp.ViewModel
                         TotalRecords = data.Total;
                         PageSize = data.PageSize;
                         Posts ??= new ObservableCollection<PostVM>();
+                        Posts.Clear();
                         foreach (var i in data.Posts)
                         {
                             var apm = new PostVM()
@@ -216,6 +217,8 @@ namespace YocailApp.ViewModel
 
                         OnPropertyChanged("Posts");
                         OnPropertyChanged("HasMorePages");
+                        OnPropertyChanged("EmptyTextVisible");
+                        OnPropertyChanged("HasData");
                     }
                     else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     {

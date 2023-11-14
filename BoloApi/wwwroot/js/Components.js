@@ -2093,7 +2093,7 @@ class MemberSmallRow extends React.Component {
             <div className="col px-1">
                 <a href={'//' + window.location.host + '/profile?un=' + this.state.member.userName} >
                     {this.state.member.name != "" ? <div className="fs-20 text-secondary fw-semibold text-capitalize">{this.state.member.name}</div> : null}
-                    <div className={this.state.member.name != "" ? "text-primary fs-small mt-2" : "fs-20 text-secondary fw-semibold" }>{this.state.member.userName}</div>
+                    <div className={this.state.member.name != "" ? "text-primary fs-small mt-2" : "fs-20 text-secondary fw-semibold"}>{this.state.member.userName}</div>
                 </a>
             </div>
             <div className="col text-end">
@@ -3018,7 +3018,7 @@ class ManageProfile extends React.Component {
                 height: 300,
                 locked: true
             },
-            croppedImageUrl: null, profilepiczoom: 1, countryitems: []
+            croppedImageUrl: null, profilepiczoom: 1, countryitems: [], showchangepasswordmodal: false
         };
 
         this.hammer = null;
@@ -3234,7 +3234,6 @@ class ManageProfile extends React.Component {
                     }
                 });
         });
-
     }
 
     saveData(name, value) {
@@ -3456,6 +3455,27 @@ class ManageProfile extends React.Component {
         else { return null; }
     }
 
+    renderChangePasswordModal() {
+        if (this.state.showchangepasswordmodal) {
+            return <React.Fragment>
+                <div className="modal d-block" tabIndex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5">Reset Password</h1>
+                                <button type="button" className="btn-close" onClick={() => { this.setState({ showchangepasswordmodal: false }); }}></button>
+                            </div>
+                            <div className="modal-body">
+                                <ChangePassword />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal-backdrop fade show"></div>
+            </React.Fragment>;
+        }
+    }
+
     render() {
         if (!this.state.loggedin) {
             return <RegisterForm beginWithRegister={false} onLogin={() => {
@@ -3496,6 +3516,10 @@ class ManageProfile extends React.Component {
                             <div className="mb-3">
                                 <label htmlFor="channelnametxt" className="form-label text-primary">Username</label>
                                 <input type="text" id="channelnametxt" disabled readOnly name="userName" placeholder="Unique Channel Name" className="form-control shadow-none border" value={this.state.myself.userName} />
+                            </div>
+                            <div className="mb-3">
+                                <button type="button" className="btn btn-primary" onClick={() => { this.setState({ showchangepasswordmodal: true }); }}>Reset Password</button>
+                                {this.renderChangePasswordModal()}
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="nametxt" className="form-label text-primary">Name <span className="text-danger">(Required)</span></label>
@@ -3830,6 +3854,65 @@ class ManageProfile extends React.Component {
                 {loading}
             </React.Fragment>;
         }
+    }
+}
+
+class ChangePassword extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            loading: false, bsstyle: '', message: '', password: '', confirmPassword: ''
+        };
+    }
+
+    savePassword = () => {
+        if (this.state.password !== this.state.confirmPassword) {
+            this.setState({ bsstyle: "danger", message: "Confirm password should match password." });
+            return;
+        }
+        fetch('//' + window.location.host + '/api/Members/SavePassword?d=' + this.state.password, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem("token")
+            }
+        }).then(response => {
+            if (response.status === 401) {
+                //if token is not valid than remove token, set myself object with empty values
+                localStorage.removeItem("token");
+                this.setState({ loading: false, message: 'You are not logged in.', bsstyle: 'danger' });
+            } else if (response.status === 200) {
+                this.setState({ loading: false, message: 'Account password is reset.', bsstyle: 'success' });
+
+            } else {
+                try {
+                    response.json().then(data => {
+                        this.setState({ loading: false, message: data.error, bsstyle: 'danger' });
+                    });
+                } catch (err) {
+                    this.setState({ loading: false, message: 'Unable to reset password.', bsstyle: 'danger' });
+                }
+            }
+        });
+    }
+
+    render() {
+        return <React.Fragment>
+            <div className="mb-3">
+                <label className="form-label">Password</label>
+                <input type="password" autoComplete={false} className="form-control shadow-none border" maxLength="100" minLength="8" value={this.state.password} onChange={(e) => { this.setState({ password: e.target.value }) }} />
+            </div>
+            <div className="mb-3">
+                <label className="form-label">Confirm Password</label>
+                <input type="password" autoComplete={false} className="form-control shadow-none border" value={this.state.confirmPassword} onChange={(e) => { this.setState({ confirmPassword: e.target.value }) }} />
+            </div>
+            <div className="mb-3">
+                <button type="button" disabled={this.state.loading} className="btn btn-primary" onClick={this.savePassword}>
+                    {this.state.loading ? <span className="spinner-border spinner-border-sm" aria-hidden="true"></span> : null}
+                    <span role="status">Save Password</span></button>
+            </div>
+            {this.state.message !== "" ? <div className={"my-2 text-" + this.state.bsstyle}>{this.state.message}</div> : null}
+        </React.Fragment>;
     }
 }
 

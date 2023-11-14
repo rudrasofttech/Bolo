@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:YocailApp.ViewModel"
              xmlns:controls="clr-namespace:YocailApp.Controls"
              x:Class="YocailApp.MainPage" Title="Yocail">
-    
+
     <ContentPage.BindingContext>
         <local:MainPageVM />
     </ContentPage.BindingContext>
@@ -12,9 +12,8 @@
         <StackLayout Grid.Row="0">
             <Image Source="logo.png" HeightRequest="35" HorizontalOptions="Center" />
         </StackLayout>
-        
-        <ScrollView Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" x:Name="ScrollViewMain" Scrolled="ScrollView_Scrolled">
-            <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+        <RefreshView Grid.Row="1"  IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+            <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" x:Name="ScrollViewMain" Scrolled="ScrollView_Scrolled">
                 <StackLayout>
                     <StackLayout IsVisible="{Binding EmptyTextVisible}" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
                         <Label Text="NOTHING TO SEE HERE" Style="{StaticResource HeadingLabel}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
@@ -28,12 +27,10 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-                    <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
-                   IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />
+                    <!--<ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
+                   IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />-->
                 </StackLayout>
-            </RefreshView>
-        </ScrollView>
+            </ScrollView>
+        </RefreshView>
     </Grid>
-    
-
 </ContentPage>
