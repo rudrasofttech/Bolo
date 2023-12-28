@@ -338,17 +338,17 @@ img {
     align-self: center;
 }
 
-.custom-control-label::before,
-.custom-control-label::after {
-    top: 0;
-    width: 23px;
-    height: 23px;
-    border-radius: 0 !important;
-    -webkit-border-radius: 0 !important;
-    -moz-border-radius: 0 !important;
-    -ms-border-radius: 0 !important;
-    -o-border-radius: 0 !important;
-}
+    .custom-control-label::before,
+    .custom-control-label::after {
+        top: 0;
+        width: 23px;
+        height: 23px;
+        border-radius: 0 !important;
+        -webkit-border-radius: 0 !important;
+        -moz-border-radius: 0 !important;
+        -ms-border-radius: 0 !important;
+        -o-border-radius: 0 !important;
+    }
 
 
 /* Media Query */

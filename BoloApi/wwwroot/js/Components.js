@@ -4357,7 +4357,7 @@ class RegisterForm extends React.Component {
             showregisterform: props.beginWithRegister, showForgotPassword: false,
             registerdto: { userName: '', password: '', userEmail: '', securityQuestion: '', securityAnswer: '' },
             logindto: { userName: '', password: '' },
-            loading: false, message: '', bsstyle: '', loggedin: loggedin
+            loading: false, message: '', bsstyle: '', loggedin: loggedin, showSecurityQuestionSampleModal: false
         };
 
         this.handleRegisterSubmit = this.handleRegisterSubmit.bind(this);
@@ -4502,6 +4502,30 @@ class RegisterForm extends React.Component {
         }
     }
 
+    renderSecurityQuestionSampleModal() {
+        if (this.state.showSecurityQuestionSampleModal) {
+            return <div>
+                <div className="modal fade show" style={{display:"block"}} tabIndex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h1 className="modal-title fs-5">Security Questions Hints</h1>
+                                <button type="button" className="btn-close" onClick={() => this.setState({ showSecurityQuestionSampleModal: false })}></button>
+                            </div>
+                            <div className="modal-body">
+                                <SecurityQuestionSampleList onQuestionSelect={e => {
+                                    let rdto = this.state.registerdto;
+                                    rdto.securityQuestion = e;
+                                    this.setState({ registerdto: rdto, showSecurityQuestionSampleModal : false }); } } />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal-backdrop fade show"></div>
+            </div>;
+        }
+    }
+
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.beginWithRegister !== prevState.beginWithRegister) {
             return { someState: nextProps.beginWithRegister };
@@ -4567,7 +4591,8 @@ class RegisterForm extends React.Component {
                             <option value="What was the name of the first school you remember attending?" />
                         </datalist>
                     </div>
-                    <div id="securityquestionHelp" className="form-text text-center mb-3">This is required to reset forgotten password.</div>
+                    <div id="securityquestionHelp" className="form-text text-center mb-3 py-1">Security Question is required to recover forgotten password.
+                        <a href="javascript:void(0);" onClick={() => this.setState({ showSecurityQuestionSampleModal: true })} className="fw-bold mx-1" style={{ color:"#30235B"}}>Sample Questions List</a></div>
                     <div className="form-group ic-input">
                         <img src={"//" + location.host + "/theme1/images/ic-shield-yes.svg"} className="input-icon" alt="" />
                         <input type="text" class="form-control" maxlength="100" placeholder="Security Answer" required name="securityAnswer" value={this.state.registerdto.securityAnswer}
@@ -4577,12 +4602,13 @@ class RegisterForm extends React.Component {
                                 this.setState({ registerdto: rdto });
                             }} />
                     </div>
-                    <div id="securitypasswordHelp" className="form-text mb-3 text-center">Correct answer to your security question.</div>
+                    <div id="securitypasswordHelp" className="form-text mb-3 text-center d-none">Correct answer to your security question.</div>
                     <button className="btn btn-dark" type="submit">{this.state.loading ? <div className="spinner-border spinner-border-sm text-light" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div> : "Register"}</button>
                 </form>
                 {messagecontent}
+                {this.renderSecurityQuestionSampleModal()}
             </div>
             <div className="alternateoption">
                 <span>Or</span>
@@ -4652,6 +4678,42 @@ class RegisterForm extends React.Component {
                     </div>
                 </main>
             </div>
+        </div>;
+    }
+}
+
+class SecurityQuestionSampleList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.list = ["What is the name of your first friend?",
+            "What was the make and model of your first car?",
+            "In what city did your parents meet?",
+            "What is your birth place?",
+            "What is your favourite place to visit?",
+            "What was the name of the first school you remember attending?"];
+
+        this.state = {
+            copiedText : ""
+        };
+    }
+
+    render() {
+        let items = [];
+        for (let i = 0; i < this.list.length; i++) {
+            items.push(<li className={"pointer mb-2 p-2 " + (this.list[i] == this.state.copiedText ? " bg-success text-white " : "")} onClick={() => {
+                navigator.clipboard.writeText(this.list[i]);
+                this.setState({ copiedText: this.list[i] });
+                if (this.props.onQuestionSelect !== undefined) {
+                    this.props.onQuestionSelect(this.list[i]);
+                }
+            }}>{this.list[i]}
+                
+            </li>);
+        }
+        return <div><ul className="list-group securityquestionlist">
+            {items}
+        </ul>
+            <div style={{ fontSize: "0.7rem"}} className="text-center p-1">Click to select</div>
         </div>;
     }
 }

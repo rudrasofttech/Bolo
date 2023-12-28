@@ -33,23 +33,27 @@ namespace Bolo.Controllers
             emailWorker = new EmailHelper(config,_webHostEnvironment);
         }
 
+        
         public IActionResult Index([FromQuery] string q = "")
         {
             ViewBag.Search = q;
             return View();
         }
 
+        [HttpGet]
         public IActionResult Conversation()
         {
             return View();
         }
 
+        [HttpGet]
         [Route("addpost")]
         public IActionResult AddPost()
         {
             return View(new PostPhotoDTO());
         }
 
+        [HttpGet]
         [Route("profile")]
         public IActionResult Profile([FromQuery] string un = "")
         {
@@ -57,19 +61,21 @@ namespace Bolo.Controllers
             return View();
         }
 
+        [HttpGet]
         [Route("discover")]
         public IActionResult Discover()
         {
             return View();
         }
 
+        [HttpGet]
         [Route("updateprofile")]
         public IActionResult UpdateProfile()
         {
             return View();
         }
 
-
+        [HttpGet]
         [Route("post/{id}")]
         public IActionResult Post(Guid id)
         {
@@ -77,6 +83,7 @@ namespace Bolo.Controllers
             return View();
         }
 
+        [HttpGet]
         public IActionResult EmailVerify(Guid id)
         {
             try

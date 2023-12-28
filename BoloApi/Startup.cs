@@ -83,7 +83,7 @@ namespace BoloApi
                 o.KeepAliveInterval = TimeSpan.FromMinutes(1);
                 o.MaximumReceiveMessageSize = null;
             });
-            
+            services.AddSwaggerGen();
             services.Configure<HubOptions>(options =>
             {
                 options.MaximumReceiveMessageSize = null;
@@ -108,7 +108,12 @@ namespace BoloApi
             app.UseAuthentication();
 
             app.UseAuthorization();
+            app.UseSwagger();
 
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Yocail API");
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<PersonChatHub>("/personchathub");

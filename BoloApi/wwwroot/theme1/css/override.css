@@ -1,6 +1,6 @@
-﻿body {
-    margin-top: 104px;
-}
+﻿/*body {
+    margin-top: 88px;
+}*/
 
 .ff-righteous {
     font-family: 'Righteous','Poppins', sans-serif;
@@ -118,7 +118,7 @@
 }
 
 .logo {
-    max-height: 80px;
+    max-height: 60px;
 }
 
 .fs-24 {
@@ -152,14 +152,15 @@
 }
 
 #mainmenubar {
-    position: fixed;
-    right: 0;
+    /*position: fixed;*/
+    position: -webkit-sticky;
+    position: sticky;
     top: 0;
-    left: 0;
+    /*right: 0;
+    left: 0;*/
     z-index: 1030;
     border-bottom: 5px solid lightgrey;
     background: #ffffff;
-    height: 104px;
 }
 
 .btn-follow {
@@ -167,7 +168,7 @@
 }
 
 .sticky-column {
-    top: 104px;
+    top: 65px;
     position: -webkit-sticky;
     position: sticky;
 }
@@ -206,9 +207,9 @@
 }
 
 @media (max-width : 768px) {
-    body {
+    /*body {
         margin-top: 58px;
-    }
+    }*/
 
     #mainmenubar {
         /*position: static;

@@ -101,6 +101,20 @@ select{
     position: absolute;
     left: 20px;
 }
+.pointer {
+    cursor: pointer;
+}
+.securityquestionlist li {
+    border-radius:5px;
+}
+.securityquestionlist li:hover {
+    border-radius: 5px;
+    background-color: #fff3cd;
+}
+
+    .securityquestionlist li:hover > div {
+        display: block;
+    }
 
 
 /* ::-webkit-input-placeholder {
