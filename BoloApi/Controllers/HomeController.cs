@@ -41,6 +41,7 @@ namespace Bolo.Controllers
         }
 
         [HttpGet]
+        [Route("conversation")]
         public IActionResult Conversation()
         {
             return View();

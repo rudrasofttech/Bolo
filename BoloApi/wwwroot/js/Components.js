@@ -497,16 +497,16 @@ class Home extends React.Component {
             }} />;
         }
 
-        return <div className="container-lg my-md-3 my-2">
+        return <div className="container my-md-3 my-2">
             <div className="row">
-                <div className="col-md-7 px-lg-5 col-12">
+                <div className="col-lg-8 col-md-8 col-12">
                     {this.state.search.indexOf("#") > -1 ? <HashTagDetail search={this.state.search} /> : null}
                     <MemberPostList search={this.state.search} viewMode={2} viewModeAllowed="false" />
                 </div>
-                <div className="col-md-5 px-lg-4 d-none d-md-block">
-                    <AskPushNotification />
-                    <SendInvite />
+                <div className="col-lg-4 col-md-4 d-none d-md-block">
                     <div className="sticky-column py-2">
+                        <AskPushNotification />
+                        <SendInvite />
                         <SuggestedAccounts />
                     </div>
                 </div>
@@ -624,12 +624,12 @@ class Explore extends React.Component {
             }} />;
         }
 
-        return <div className="container-lg my-md-3 my-2">
+        return <div className="container-fluid my-md-3 my-2">
             <div className="row">
-                <div className="col-md-7 px-lg-5 col-12">
+                <div className="col-md-9 col-12">
                     <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
                 </div>
-                <div className="col-md-5 px-lg-4 d-none d-md-block">
+                <div className="col-md-3 d-none d-md-block">
                     <AskPushNotification />
                     <SendInvite />
                     <div className="sticky-column py-2">
@@ -1107,14 +1107,13 @@ class MemberPost extends React.Component {
             <a href={'//' + window.location.host + '/profile?un=' + p.owner.userName} className="text-primary fw-semibold fs-20">
                 {p.owner.userName}
             </a>;
-        let owner = <div className="p-md-3 p-2">
+        let owner = <div className="p-lg-3 p-2">
             <div className="row g-0 align-items-center ">
-                <div className="col-2 col-md-1">
+                <div className="col-2 col-lg-2 px-md-1" style={{maxWidth:"60px"}}>
                     <MemberPicSmall member={p.owner} />
                 </div>
-                <div className="col ps-1">
+                <div className="col col-lg ps-1">
                     {ownerlink}
-
                 </div>
                 <div className="col-1 text-end">
                     <button className="btn btn-link text-primary fs-4" onClick={() => { this.setState({ showModal: 'post' /*showpostoptions: true*/ }) }}><i className="bi bi-three-dots"></i></button>
@@ -1129,11 +1128,11 @@ class MemberPost extends React.Component {
             </div>;
         } else if (p.photos) {
             if (p.photos.length == 1) {
-                postshtml = <div className="text-center" style={{ minHeight: "300px" }}>
-                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid w-100" onDoubleClick={() => { this.addReaction(); }} />
+                postshtml = <div className="text-center bg-light" style={{ minHeight: "300px" }}>
+                    <img src={"//" + location.host + "/" + p.photos[0].photo} className="img-fluid" onDoubleClick={() => { this.addReaction(); }} />
                 </div>
             } else {
-                postshtml = <div style={{ minHeight: "400px" }}><PhotoCarousel photos={p.photos} postid={p.id} /></div>;
+                postshtml = <div className="text-center bg-light" style={{ minHeight: "400px" }}><PhotoCarousel photos={p.photos} postid={p.id} /></div>;
             }
         }
 
@@ -1181,34 +1180,40 @@ class MemberPost extends React.Component {
         }
         return <div id={this.state.post.id} className="mb-2 bg-white memberpost">
             {owner}
-            {postshtml}
-            <div className="row g-1 mt-2">
-                <div className="col">
-                    <div className=" text-secondary" style={{ fontSize: "13px" }}>
-                        <DateLabel value={p.postDate} />
+            <div >
+                <div className="px-lg-5">
+                    {postshtml}
+                </div>
+                <div className="px-lg-5">
+                    <div className="row g-1 mt-2">
+                        <div className="col">
+                            <div className=" text-secondary" style={{ fontSize: "13px" }}>
+                                <DateLabel value={p.postDate} />
+                            </div>
+                        </div>
+                        <div className="col text-end">
+                            <table className="d-inline-block" cellPadding="0" cellSpacing="0">
+                                <tbody>
+                                    <tr>
+                                        <td className="px-3 pb-0" align="center" valign="top">
+                                            {reactionhtml}
+                                        </td>
+                                        {p.acceptComment ? <td className="px-3 pb-0" align="center" valign="top">{commentBtn}</td> : null}
+                                        {p.allowShare ? <td className="px-3 pb-0" align="center" valign="top">{shareBtn}</td> : null}
+                                    </tr>
+                                    <tr>
+                                        <td align="center" valign="top">{reactionCountHtml}</td>
+                                        {p.acceptComment ? <td align="center" valign="top">{commentCountHtml}</td> : null}
+                                        {p.allowShare ? <td></td> : null}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div className="lh-sm">
+                        <ExpandableTextLabel cssclass="fs-small" text={p.describe === null ? "" : p.describe} maxlength={100} />
                     </div>
                 </div>
-                <div className="col text-end">
-                    <table className="d-inline-block" cellPadding="0" cellSpacing="0">
-                        <tbody>
-                            <tr>
-                                <td className="px-3 pb-0" align="center" valign="top">
-                                    {reactionhtml}
-                                </td>
-                                {p.acceptComment ? <td className="px-3 pb-0" align="center" valign="top">{commentBtn}</td> : null}
-                                {p.allowShare ? <td className="px-3 pb-0" align="center" valign="top">{shareBtn}</td> : null}
-                            </tr>
-                            <tr>
-                                <td align="center" valign="top">{reactionCountHtml}</td>
-                                {p.acceptComment ? <td align="center" valign="top">{commentCountHtml}</td> : null}
-                                {p.allowShare ? <td></td> : null}
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div className="lh-sm">
-                <ExpandableTextLabel cssclass="fs-small" text={p.describe === null ? "" : p.describe} maxlength={100} />
             </div>
             {likemodal}
             {commentbox}
@@ -2939,10 +2944,10 @@ class Profile extends React.Component {
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <div className="container-lg my-lg-3 my-2">
+            me = <div className="container-fluid my-lg-3 my-2">
                 <div className="row">
-                    <div className="col-md-5 px-lg-5">
-                        <div class="sticky-column py-3 ">
+                    <div className="col-md-4 d-none d-md-block">
+                        <div class="sticky-column py-3">
                             <div className="text-center mb-2 p-3 py-2 bg-white rounded-4 border">
                                 {pic}
                                 <div className="p-1 fs-20 text-center mb-1 fw-bold">@{this.state.member.userName}</div>
@@ -2981,7 +2986,7 @@ class Profile extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="col-md-7 px-lg-5 col-12">
+                    <div className="col-md-8 col-12">
                         <MemberPostList search={this.state.member.userName} viewMode={1} viewModeAllowed="true" />
                     </div>
                 </div>
@@ -4625,26 +4630,25 @@ class RegisterForm extends React.Component {
                 <p className="haveaccount">Don’t have an account? <a href="javascript:void(0);" onClick={this.handleRegisterClickHere} title="SIGN UP HERE">SIGN UP HERE</a></p>
                 {messagecontent}
             </React.Fragment>;
-        return <div className="wrapper sign-up" style={{ minHeight: "100vh" }}>
+        return <div className="wrapper sign-up pt-5" style={{ minHeight: "100vh" }}>
             <div className="banner-image d-none d-md-block">
                 <img src={bannerimage} alt="Banner" />
             </div>
-            <div className="container">
-                <header className="site-header">
-                    <a href="#" title="Yocail">
-                        <img src={"//" + location.host + "/theme1/images/Yocail-logo.svg"} alt="Yocail Logo" />
-                    </a>
-                </header>
+            <div className="container mt-5">
                 <main>
                     <div className="row">
                         <div className="intro-slide col-md-6">
+                            <header className="site-header">
+                                <a href="#" title="Yocail">
+                                    <img src={"//" + location.host + "/theme1/images/Yocail-logo.svg"} alt="Yocail Logo" />
+                                </a>
+                            </header>
                             <div id="carouselExampleIndicators" className="carousel slide" data-ride="carousel">
                                 <ol className="carousel-indicators">
                                     <li data-target="#carouselExampleIndicators" data-slide-to="0" className="active"></li>
                                 </ol>
                                 <div className="carousel-inner">
                                     <div className="carousel-item active">
-                                        <h2>Yocail</h2>
                                         <p>Safely share pictures with your friends and family.</p>
                                     </div>
                                 </div>
@@ -6042,7 +6046,7 @@ class Conversation extends React.Component {
 
         return (
             <React.Fragment>
-                <div className="container">
+                <div className="container-fluid">
                     <div className="row">
                         {searchhtml}
                         {loading}
@@ -7353,7 +7357,7 @@ class PersonChat extends React.Component {
                     <source src="/media/swiftly.m4r"></source>
                     <source src="/media/swiftly.ogg"></source>
                 </audio>
-                <HeartBeat activity="4" interval="3000" />
+                {/*<HeartBeat activity="4" interval="3000" />*/}
             </React.Fragment >
         );
     }

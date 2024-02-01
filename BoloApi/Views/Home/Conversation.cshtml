@@ -1,7 +1,16 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Conversation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h1>Conversation</h1>
-
+@section scripts{
+    <environment include="Development">
+        <script type="text/babel">
+            ReactDOM.render(<Conversation />,document.getElementById('root'));
+        </script>
+    </environment>
+    <environment include="Staging,Production" exclude="Development">
+        <script>
+            ReactDOM.render(React.createElement(Conversation, { }), document.getElementById('root'));
+        </script>
+    </environment>
+}

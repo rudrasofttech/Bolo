@@ -137,8 +137,8 @@
     font-size: 11px !important;
 }
 
-.text-justify{
-    text-align:justify !important;
+.text-justify {
+    text-align: justify !important;
 }
 
 .loader-center {
@@ -159,23 +159,46 @@
     /*right: 0;
     left: 0;*/
     z-index: 1030;
-    border-bottom: 5px solid lightgrey;
+    border-bottom: 2px solid lightgrey;
     background: #ffffff;
 }
 
 .btn-follow {
-    width: 110px;
+    width: 80px;
 }
 
 .sticky-column {
-    top: 65px;
+    top: 95px;
     position: -webkit-sticky;
     position: sticky;
+}
+
+.sticky-bottom-column {
+    bottom: 0px;
+    position: -webkit-sticky;
+    position: sticky;
+}
+.memberpost
+{
+    max-width:700px;
+    
 }
 
 @media (min-width: 1400px) {
     .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
         max-width: 1120px;
+    }
+}
+
+@media (min-width: 992px) {
+    .px-lg-6 {
+        padding-right: 5rem !important;
+        padding-left: 5rem !important;
+    }
+
+    .px-lg-7 {
+        padding-right: 7rem !important;
+        padding-left: 7rem !important;
     }
 }
 
@@ -219,12 +242,14 @@
         z-index: auto;*/
         height: auto;
     }
+
     .profile-icon {
         max-height: 28px;
         min-height: 28px;
         max-width: 28px;
         max-width: 28px;
     }
+
     .menubar {
         position: -webkit-sticky;
         position: sticky;
