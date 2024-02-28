@@ -71,7 +71,6 @@
                 <ImageButton Source="threedotsvertical.svg" HeightRequest="20" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Start" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
             </Grid>
         </Grid>
-        
         <StackLayout Padding="15,0,15,5">
             <controls:ExpandableLabel x:Name="ExpDescribeLabel" Text="{Binding Post.Describe}" />
             <Label Text="{Binding Post.PostDateDisplay}" VerticalOptions="Center" FontFamily="InterLight" FontSize="Micro" Padding="0,0,0,0"></Label>

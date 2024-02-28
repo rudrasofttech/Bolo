@@ -77,7 +77,7 @@ namespace YocailApp.ViewModel
                 if (string.IsNullOrEmpty(Member.Pic))
                     return "nopic.png";
                 else
-                    return Member.Pic;
+                    return Member.PicFormedURL;
             }
         }
 
@@ -156,6 +156,7 @@ namespace YocailApp.ViewModel
                         string result = await content.ReadAsStringAsync();
                         JsonSerializerOptions l = new() { PropertyNameCaseInsensitive = true };
                         Member = JsonSerializer.Deserialize<MemberModel>(result, l);
+                        OnPropertyChanged("ProfilePic");
                     }
                     else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     {
@@ -180,7 +181,39 @@ namespace YocailApp.ViewModel
             }
             else
             {
-                Member = CurrentMember;
+                try
+                {
+                    var client = await Utility.SharedClientAsync();
+                    using HttpResponseMessage response = await client.GetAsync($"api/members/validate");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        HttpContent content = response.Content;
+                        string result = await content.ReadAsStringAsync();
+                        JsonSerializerOptions l = new() { PropertyNameCaseInsensitive = true };
+                        Member = JsonSerializer.Deserialize<MemberModel>(result, l);
+                        AccessSecureStorage.SetCurrentMember(JsonSerializer.Serialize(Member));
+                        OnPropertyChanged("ProfilePic");
+                    }
+                    else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    {
+                        Application.Current.MainPage = new LoginPage();
+                    }
+                    else
+                    {
+                        Error = true;
+                        ErrorMessage = "";
+                        Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error loading feed");
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    Loading = false;
+                }
             }
         }
 

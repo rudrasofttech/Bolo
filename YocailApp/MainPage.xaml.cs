@@ -19,8 +19,8 @@ namespace YocailApp
         {
             (BindingContext as MainPageVM).CurrentMember = JsonSerializer.Deserialize<MemberModel>(AccessSecureStorage.GetCurrentMember()
                 , new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-            //(BindingContext as MainPageVM).LoadFeedFromCache();
-            //if (!(BindingContext as MainPageVM).HasCacheData)
+            (BindingContext as MainPageVM).LoadFeedFromCache();
+            if (!(BindingContext as MainPageVM).HasCacheData)
             if ((BindingContext as MainPageVM).Posts.Count == 0)
             {
                 await (BindingContext as MainPageVM).LoadData();

@@ -123,8 +123,23 @@
   <data name="AddPhotoMsg" xml:space="preserve">
     <value>Add Photo</value>
   </data>
+  <data name="AppPostMediaPickerTitle" xml:space="preserve">
+    <value>Choose a photo</value>
+  </data>
   <data name="CancelTxt" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="CapturePhotoTxt" xml:space="preserve">
+    <value>Capture Photo</value>
+  </data>
+  <data name="ChangePasswordTxt" xml:space="preserve">
+    <value>Change Password</value>
+  </data>
+  <data name="ChangeSecurityQuestionTxt" xml:space="preserve">
+    <value>Change Security Question</value>
+  </data>
+  <data name="ChoosePhotoTxt" xml:space="preserve">
+    <value>Choose Photo</value>
   </data>
   <data name="CommentDeletedMessage" xml:space="preserve">
     <value>Comment Deleted</value>
@@ -189,6 +204,9 @@
   <data name="PasswordPh" xml:space="preserve">
     <value>Password</value>
   </data>
+  <data name="PhotoMissingMsg" xml:space="preserve">
+    <value>Select a photo.</value>
+  </data>
   <data name="RemovePhotoMsg" xml:space="preserve">
     <value>Remove Photo</value>
   </data>
@@ -227,6 +245,12 @@
   </data>
   <data name="SaveNameMsg" xml:space="preserve">
     <value>Name Updated</value>
+  </data>
+  <data name="SaveProfilePicErr" xml:space="preserve">
+    <value>Unable to update profile picture</value>
+  </data>
+  <data name="SaveProfilePicMsg" xml:space="preserve">
+    <value>Profile picture update</value>
   </data>
   <data name="SaveThoughtError" xml:space="preserve">
     <value>One Line Status not updated</value>

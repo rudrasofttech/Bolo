@@ -11,10 +11,6 @@
     </ContentPage.BindingContext>
     <ScrollView>
         <VerticalStackLayout Padding="20">
-            <Frame VerticalOptions="Start" Padding="0" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" CornerRadius="50" BorderColor="Transparent" Margin="0,0,0,2">
-                <Image Source="{Binding ProfilePic, Mode=TwoWay}" Aspect="Fill" />
-            </Frame>
-            <Button Text="Edit Photo" WidthRequest="100" HeightRequest="30" Padding="0" Margin="0,0,0,20" Clicked="Button_Clicked"></Button>
             <Label FontAttributes="Bold" HorizontalOptions="Center" Margin="0,10,0,0">
                 <Label.FormattedText>
                     <FormattedString>
@@ -74,22 +70,11 @@
             <Label FontAttributes="Bold" Text="Year of Birth" HorizontalOptions="Center" Margin="0,20,0,0">
             </Label>
             <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Picker SelectedIndexChanged="Picker_SelectedIndexChanged" Title="Select Birth Year" HorizontalTextAlignment="Center" SelectedItem="{Binding BirthYear, Mode=OneWay}"  ItemsSource="{Binding Years}" HorizontalOptions="FillAndExpand">
+                <Picker SelectedIndexChanged="Picker_SelectedIndexChanged" Title="Select Birth Year" HorizontalTextAlignment="Center" SelectedItem="{Binding BirthYear}"  ItemsSource="{Binding Years}" HorizontalOptions="FillAndExpand">
                     
                 </Picker>
             </Frame>
-            <Label FontAttributes="Bold" Margin="0,20,0,0" HorizontalOptions="Center">
-                <Label.FormattedText>
-                    <FormattedString>
-                        <Span Text="Security Question " FontFamily="Poppins" FontAttributes="Bold" />
-                        <Span Text="*" TextColor="Red" FontAttributes="Bold" />
-                    </FormattedString>
-                </Label.FormattedText>
-            </Label>
-            <Frame HasShadow="True" BackgroundColor="White" BorderColor="{StaticResource Primary}" Padding="15,2">
-                <Editor AutoSize="TextChanges" HorizontalTextAlignment="Center" Text="{Binding SecurityQuestion, Mode=TwoWay}" MaxLength="300" HorizontalOptions="FillAndExpand">
-                </Editor>
-            </Frame>
+            
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

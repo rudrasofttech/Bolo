@@ -79,11 +79,56 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Choose a photo.
+        /// </summary>
+        internal static string AppPostMediaPickerTitle {
+            get {
+                return ResourceManager.GetString("AppPostMediaPickerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string CancelTxt {
             get {
                 return ResourceManager.GetString("CancelTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Capture Photo.
+        /// </summary>
+        internal static string CapturePhotoTxt {
+            get {
+                return ResourceManager.GetString("CapturePhotoTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Password.
+        /// </summary>
+        internal static string ChangePasswordTxt {
+            get {
+                return ResourceManager.GetString("ChangePasswordTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Security Question.
+        /// </summary>
+        internal static string ChangeSecurityQuestionTxt {
+            get {
+                return ResourceManager.GetString("ChangeSecurityQuestionTxt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose Photo.
+        /// </summary>
+        internal static string ChoosePhotoTxt {
+            get {
+                return ResourceManager.GetString("ChoosePhotoTxt", resourceCulture);
             }
         }
         
@@ -277,6 +322,15 @@ namespace YocailApp.Resources.Translations {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select a photo..
+        /// </summary>
+        internal static string PhotoMissingMsg {
+            get {
+                return ResourceManager.GetString("PhotoMissingMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remove Photo.
         /// </summary>
         internal static string RemovePhotoMsg {
@@ -390,6 +444,24 @@ namespace YocailApp.Resources.Translations {
         internal static string SaveNameMsg {
             get {
                 return ResourceManager.GetString("SaveNameMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to update profile picture.
+        /// </summary>
+        internal static string SaveProfilePicErr {
+            get {
+                return ResourceManager.GetString("SaveProfilePicErr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Profile picture update.
+        /// </summary>
+        internal static string SaveProfilePicMsg {
+            get {
+                return ResourceManager.GetString("SaveProfilePicMsg", resourceCulture);
             }
         }
         

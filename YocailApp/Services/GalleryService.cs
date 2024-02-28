@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace YocailApp.Services
 {
-    interface IMediaService
+    public partial class GalleryService
     {
-        public List<DevicePhoto> GetPhotoList();
+        public partial List<string> GetPhotoList();
     }
 }

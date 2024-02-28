@@ -12,8 +12,11 @@
             <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                 <Frame CornerRadius="10" Padding="5, 15" BackgroundColor="AliceBlue" BorderColor="LightGray" Margin="10">
                     <StackLayout VerticalOptions="FillAndExpand">
-                        <Frame VerticalOptions="Start" Padding="0" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" CornerRadius="50" BorderColor="Transparent" Margin="0,0,0,10">
+                        <Frame x:Name="DpFrame" VerticalOptions="Start" WidthRequest="75" HeightRequest="75" HorizontalOptions="Center" Padding="0" CornerRadius="10" BorderColor="Transparent" Margin="0,0,0,10">
                             <Image Source="{Binding ProfilePic, Mode=TwoWay}" Aspect="Fill" />
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer x:Name="DbFrameTap" Tapped="DbFrameTap_Tapped" />
+                            </Frame.GestureRecognizers>
                         </Frame>
                         <Label Text="{Binding Member.UserName, Mode=TwoWay}" HorizontalOptions="Center" Padding="0" Margin="0,5,0,0" TextColor="Black" FontSize="16" FontFamily="PoppinsBold" FontAttributes="Bold"></Label>
                         <Label Text="{Binding Member.Name, Mode=TwoWay}" HorizontalOptions="Center" IsVisible="{Binding NameVisible}" FontSize="12" TextColor="#616161" FontFamily="Poppins"></Label>
@@ -38,13 +41,12 @@
                                 </Frame.GestureRecognizers>
                             </Frame>
                         </HorizontalStackLayout>
-
                     </StackLayout>
                 </Frame>
                 <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
 VerticalOptions="FillAndExpand"  RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="2" />
+                        <GridItemsLayout Orientation="Vertical" Span="3" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>

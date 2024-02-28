@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using YocailApp.Resources.Translations;
@@ -230,6 +231,8 @@ namespace YocailApp.ViewModel
                 using HttpResponseMessage response = await client.GetAsync($"api/members/savebirthyear?d={BirthYear}");
                 if (response.IsSuccessStatusCode)
                 {
+                    CurrentMember.BirthYear = BirthYear;
+                    AccessSecureStorage.SetCurrentMember(JsonSerializer.Serialize(CurrentMember));
                     await Utility.ShowToast(AppRes.SaveBirthYearMsg);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -265,6 +268,8 @@ namespace YocailApp.ViewModel
                 using HttpResponseMessage response = await client.GetAsync($"api/members/savename?d={Name}");
                 if (response.IsSuccessStatusCode)
                 {
+                    CurrentMember.Name = Name;
+                    AccessSecureStorage.SetCurrentMember(JsonSerializer.Serialize(CurrentMember));
                     await Utility.ShowToast(AppRes.SaveNameMsg);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -300,6 +305,8 @@ namespace YocailApp.ViewModel
                 using HttpResponseMessage response = await client.GetAsync($"api/members/savephone?d={Phone}");
                 if (response.IsSuccessStatusCode)
                 {
+                    CurrentMember.Phone = Phone;
+                    AccessSecureStorage.SetCurrentMember(JsonSerializer.Serialize(CurrentMember));
                     await Utility.ShowToast(AppRes.SaveMobileMsg);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -335,6 +342,8 @@ namespace YocailApp.ViewModel
                 using HttpResponseMessage response = await client.GetAsync($"api/members/saveemail?d={Email}");
                 if (response.IsSuccessStatusCode)
                 {
+                    CurrentMember.Email = Email;
+                    AccessSecureStorage.SetCurrentMember(JsonSerializer.Serialize(CurrentMember));
                     await Utility.ShowToast(AppRes.SaveEmailMsg);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -374,6 +383,8 @@ namespace YocailApp.ViewModel
                 using HttpResponseMessage response = await client.GetAsync($"api/members/savethoughtstatus?d={ThoughtStatus}");
                 if (response.IsSuccessStatusCode)
                 {
+                    CurrentMember.ThoughtStatus = ThoughtStatus;
+                    AccessSecureStorage.SetCurrentMember(JsonSerializer.Serialize(CurrentMember));
                     await Utility.ShowToast(AppRes.SaveThoughtMsg);
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)

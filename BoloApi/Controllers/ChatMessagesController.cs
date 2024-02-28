@@ -196,14 +196,14 @@ namespace Bolo.Controllers
                         await _context.SaveChangesAsync();
                         _ = _hubContext.Clients.User(receiver.PublicID.ToString().ToLower()).SendAsync("ReceiveTextMessage", sender.PublicID.ToString().ToLower(), cm.Message, cm.SentDate, cm.PublicID);
 
-                        MemberDTO recedto = new MemberDTO(receiver);
-                        if (recedto.Activity == ActivityStatus.Offline || recedto.Activity == ActivityStatus.Meeting)
-                        {
-                            string email = System.IO.File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
-                            email = email.Replace("{sender}", sender.Name).Replace("{message}", cm.Message);
+                        //MemberDTO recedto = new MemberDTO(receiver);
+                        //if (recedto.Activity == ActivityStatus.Offline || recedto.Activity == ActivityStatus.Meeting)
+                        //{
+                        //    string email = System.IO.File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "emails", "newmessage.html"));
+                        //    email = email.Replace("{sender}", sender.Name).Replace("{message}", cm.Message);
                             
-                            await emailWorker.SendEmailAsync(receiver.Name, receiver.Email,String.Format("{0} sent a message on Waarta.", sender.Name), email, "", sender.Name, sender.Email);
-                        }
+                        //    await emailWorker.SendEmailAsync(receiver.Name, receiver.Email,String.Format("{0} sent a message on Waarta.", sender.Name), email, "", sender.Name, sender.Email);
+                        //}
                     }
                     return Ok(new ChatMessageDTO(cm));
                 }

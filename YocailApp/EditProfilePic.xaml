@@ -3,25 +3,41 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.EditProfilePic"
              xmlns:controls="clr-namespace:YocailApp.Controls"
-             xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
-             Title="Profile Photo" Shell.NavBarIsVisible="True" Shell.TabBarIsVisible="False" BackgroundColor="#F9F9F9" >
+             xmlns:local="clr-namespace:YocailApp.ViewModel"
+             Title="Profile Photo" Shell.NavBarIsVisible="True" Shell.TabBarIsVisible="False">
+    <ContentPage.BindingContext>
+        <local:EditProfilePicVM />
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="SaveToolbarItem" Text="Save" Clicked="CaptureButton_Clicked"></ToolbarItem>
+    </ContentPage.ToolbarItems>
 
-    <ScrollView x:Name="stackLayout" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-
-        <CollectionView ItemsSource="{Binding Photos, Mode=TwoWay}"  HorizontalOptions="FillAndExpand" 
-VerticalOptions="FillAndExpand">
-            <!--<CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="2" />
-                    </CollectionView.ItemsLayout>-->
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <!--<controls:DevicePhotoCV BindingContext="{Binding this}"  />-->
-                    <Label Text="qwqqe"></Label>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-    </ScrollView>
+    <Grid ZIndex="0" RowDefinitions="250,*" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <StackLayout BackgroundColor="Black" Grid.Row="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <Frame HeightRequest="200" WidthRequest="200"  x:Name="PhotoFrame"  
+                   CornerRadius="10" Padding="0,0,0,0" Background="White" 
+                   HorizontalOptions="Center" VerticalOptions="FillAndExpand">
+                <controls:PhotoCV x:Name="PhotoCV" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+            </Frame>
+        </StackLayout>
+        <ScrollView x:Name="GalleryScrollView" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <CollectionView x:Name="GalleryCollectionView">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame HeightRequest="130" Margin="1" Padding="0" CornerRadius="0">
+                            <Image Aspect="AspectFill" Source="{Binding .}"  Margin="0">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer CommandParameter="{Binding .}" Tapped="TapGestureRecognizer_Tapped" />
+                                </Image.GestureRecognizers>
+                            </Image>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </Grid>
     <!--<cv:CameraView x:Name="cameraView" HeightRequest="400" CamerasLoaded="cameraView_CamerasLoaded" BarcodeDetected="cameraView_BarcodeDetected"/>-->
-
 </ContentPage>

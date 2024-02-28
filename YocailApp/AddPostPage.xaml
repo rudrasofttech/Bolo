@@ -2,13 +2,62 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:res="clr-namespace:YocailApp.Resources.Translations"
+             xmlns:local="clr-namespace:YocailApp.ViewModel"
              x:Class="YocailApp.AddPostPage"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:pinch="clr-namespace:Bertuzzi.MAUI.PinchZoomImage;assembly=Bertuzzi.MAUI.PinchZoomImage"  
              Title="Add Post">
-    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
-        <Label Text="{x:Static res:AppRes.CreatePostHeading}" HorizontalOptions="Center" FontSize="28"></Label>
-        <StackLayout Margin="0,30">
-            <Image Source="createnewpost.png" HorizontalOptions="Center" VerticalOptions="Center" />
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.BindingContext>
+        <local:AddPostVM />
+    </ContentPage.BindingContext>
+    <VerticalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="StartAndExpand">
+        <StackLayout Padding="0,100,0,0" IsVisible="{Binding HasPhotos, Converter={StaticResource InvertedBoolConverter}}">
+            <Label Text="{x:Static res:AppRes.CreatePostHeading}" HorizontalOptions="Center" FontSize="28"></Label>
+            <StackLayout Margin="0,30">
+                <Image Source="createnewpost.png" HorizontalOptions="Center" VerticalOptions="Center" />
+            </StackLayout>
+            <Button Text="Add Post" WidthRequest="100" x:Name="AddPostButton" Clicked="AddPostButton_Clicked" ></Button>
         </StackLayout>
-        <Button Text="Add Post" WidthRequest="100"></Button>
+        <StackLayout IsVisible="{Binding SingleItem}" >
+            <Image Source="{Binding FirstPath}" HorizontalOptions="CenterAndExpand" 
+                   VerticalOptions="StartAndExpand" MinimumHeightRequest="500" MaximumHeightRequest="600" />
+            <Grid RowDefinitions="*" ColumnDefinitions="*,*">
+                <Button Text="Add More" Style="{StaticResource LinkButton}"  
+            Grid.Column="0" WidthRequest="100" HorizontalOptions="Start" Margin="10,0,10,0" Clicked="AddPostButton_Clicked"></Button>
+                <Button Text="Next" Style="{StaticResource LinkButton}" HorizontalOptions="End"  
+Grid.Column="1" WidthRequest="50" Margin="0,0,10,0" ></Button>
+            </Grid>
+
+        </StackLayout>
+        <StackLayout IsVisible="{Binding MultipleItem}">
+            <CarouselView ItemsSource="{Binding PathList}" IndicatorView="indicatorView">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid HorizontalOptions="FillAndExpand" VerticalOptions="StartAndExpand">
+                            <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                <Image Source="{Binding}" HorizontalOptions="Center" VerticalOptions="Center" MinimumHeightRequest="500" MaximumHeightRequest="600" />
+                            </StackLayout>
+                            <ImageButton ZIndex="1" Source="xcircle.svg" CommandParameter="{Binding}" Clicked="RemovePhoto_Clicked" WidthRequest="20" HeightRequest="20" VerticalOptions="Start" HorizontalOptions="End" Margin="0,10,10,0">
+
+                            </ImageButton>
+                        </Grid>
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
+            <Grid RowDefinitions="*" ColumnDefinitions="*,*,*"  HorizontalOptions="FillAndExpand">
+                <IndicatorView Margin="10,0,0,0" x:Name="indicatorView" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Start"
+                   IndicatorColor="LightGray"
+                   SelectedIndicatorColor="DarkGray"/>
+                <Button Text="Add More" FontAttributes="Bold" Style="{StaticResource LinkButton}"  
+                        Grid.Column="1" WidthRequest="100" HorizontalOptions="Center" Margin="0,0,10,0" Clicked="AddPostButton_Clicked"></Button>
+                <Button Text="Next" Style="{StaticResource LinkButton}" HorizontalOptions="End"  
+Grid.Column="2" WidthRequest="50" FontAttributes="Bold" Margin="0,0,0,0" ></Button>
+            </Grid>
+        </StackLayout>
     </VerticalStackLayout>
 </ContentPage>

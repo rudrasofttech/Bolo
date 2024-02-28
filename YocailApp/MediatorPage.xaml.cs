@@ -1,5 +1,6 @@
 using System.Text.Json;
 using YocailApp.ViewModel;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace YocailApp;
 
@@ -57,7 +58,7 @@ public partial class MediatorPage : ContentPage
             }
             finally
             {
-                
+                (BindingContext as BaseVM).Loading = false;
             }
         }
 

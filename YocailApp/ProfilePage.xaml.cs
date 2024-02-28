@@ -44,6 +44,8 @@ public partial class ProfilePage : ContentPage
     {
         var actions = new List<string>
         {
+            AppRes.ChangePasswordTxt,
+            AppRes.ChangeSecurityQuestionTxt,
             AppRes.IgnoredMembersTxt,
             AppRes.LogoutTxt
         };
@@ -55,6 +57,31 @@ public partial class ProfilePage : ContentPage
         {
             AccessSecureStorage.RemoveAll();
             Application.Current.MainPage = new LoginPage();
+        }
+    }
+
+    private async void DbFrameTap_Tapped(object sender, TappedEventArgs e)
+    {
+        //actions.Add(AppRes.ReportTxt);
+        var actions = new List<string>
+        {
+            AppRes.CapturePhotoTxt,
+            AppRes.ChoosePhotoTxt,
+            AppRes.RemovePhotoMsg
+        };
+
+        string action = await DisplayActionSheet(AppRes.ActionTxt, AppRes.CancelTxt, null, buttons: actions.ToArray());
+        if (action == AppRes.ChoosePhotoTxt)
+        {
+            await Navigation.PushAsync(new EditProfilePic());
+            //await Navigation.PushAsync(new DisplayGallery());
+        }
+        else if (action == AppRes.CapturePhotoTxt) {
+            await Navigation.PushAsync(new EditProfilePic() );
+        }
+        else if (action == AppRes.RemovePhotoMsg) { }
+        {
+
         }
     }
 }
