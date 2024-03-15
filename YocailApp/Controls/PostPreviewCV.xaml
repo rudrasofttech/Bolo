@@ -2,11 +2,14 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YocailApp.Controls.PostPreviewCV" x:Name="this">
-    <Frame BorderColor="White" CornerRadius="0" Padding="0" Margin="1" HeightRequest="130" IsClippedToBounds="True">
-        <Image Source="{Binding FirstPhoto}"  Aspect="AspectFill" >
-            <Image.GestureRecognizers>
-                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="TapGestureRecognizer_Tapped" />
-            </Image.GestureRecognizers>
-        </Image>
+    <Frame Margin="6,3,6,3" CornerRadius="10" Padding="1" BorderColor="Grey" MaximumHeightRequest="150">
+        <Frame Padding="0" CornerRadius="10" Margin="0" IsClippedToBounds="True">
+            <Image Source="{Binding FirstPhoto}"  Aspect="AspectFill" HeightRequest="150" >
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="TapGestureRecognizer_Tapped" />
+                </Image.GestureRecognizers>
+            </Image>
+        </Frame>
     </Frame>
+    
 </ContentView>

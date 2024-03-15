@@ -14,11 +14,10 @@
                 <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
         VerticalOptions="FillAndExpand"  RemainingItemsThreshold="3" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="3" />
+                        <GridItemsLayout Orientation="Vertical" Span="2" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <!--<controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />-->
                             <controls:PostPreviewCV BindingContext="{Binding this}"  />
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

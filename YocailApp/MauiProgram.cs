@@ -1,6 +1,8 @@
 ﻿
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using YocailApp.Controls;
+using YocailApp.ViewModel;
 
 namespace YocailApp
 {
@@ -25,9 +27,10 @@ namespace YocailApp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+            builder.Services.AddTransientPopup<GalleryPopup, PhoneGalleryVM>();
 
 #if DEBUG
-		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

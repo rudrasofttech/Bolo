@@ -25,6 +25,7 @@ else if (Model != null)
                 <th>Last Pulse</th>
                 <th>Status</th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -78,6 +79,9 @@ else if (Model != null)
                             <button type="button" class="btn btn-light" @onclick="async () => {await this.ChangeStatus(m, RecordStatus.Active);}">Set Active</button>
                         }
                     </td>
+                    <td>
+                        <button type="button" class="btn btn-light">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -112,10 +116,11 @@ else if (Model != null)
     private MemberListPaged? Model;
     public string Keywords { get; set; } = string.Empty;
     public int CurrentPage { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
+    public int PageSize { get; set; } = 40;
     public bool Loading { get; set; }
     public string Error { get; set; } = string.Empty;
     public string Success { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         if (await lss.GetSessionValueAsync<MemberDTO>("user") == null)

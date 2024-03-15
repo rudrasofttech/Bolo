@@ -624,12 +624,12 @@ class Explore extends React.Component {
             }} />;
         }
 
-        return <div className="container-fluid my-md-3 my-2">
+        return <div className="container my-md-3 my-2">
             <div className="row">
-                <div className="col-md-9 col-12">
+                <div className="col-lg-8 col-12">
                     <MemberPostList search="explore" viewMode={1} viewModeAllowed="true" />
                 </div>
-                <div className="col-md-3 d-none d-md-block">
+                <div className="col-lg-4 d-none d-md-block">
                     <AskPushNotification />
                     <SendInvite />
                     <div className="sticky-column py-2">
@@ -2944,7 +2944,7 @@ class Profile extends React.Component {
             } else {
                 followhtml = this.renderFollowHtml();
             }
-            me = <div className="container-fluid my-lg-3 my-2">
+            me = <div className="container my-lg-3 my-2">
                 <div className="row">
                     <div className="col-md-4 d-none d-md-block">
                         <div class="sticky-column py-3">

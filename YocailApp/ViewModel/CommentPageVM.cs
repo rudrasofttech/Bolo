@@ -18,7 +18,7 @@ namespace YocailApp.ViewModel
     {
         public PostModel Post { get; set; }
 
-        private ObservableCollection<CommentVM> _comments;
+        private ObservableCollection<CommentVM> _comments = new ObservableCollection<CommentVM>();
         public ObservableCollection<CommentVM> Comments
         {
             get => _comments;
@@ -181,6 +181,7 @@ namespace YocailApp.ViewModel
                         };
                         Comments.Add(apm);
                     }
+                    OnPropertyChanged("Comments");
                     OnPropertyChanged("HasMorePages");
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)

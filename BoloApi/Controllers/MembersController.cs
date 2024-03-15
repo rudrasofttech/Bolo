@@ -219,6 +219,7 @@ namespace Bolo.Controllers
             var query = _context.Members.Where(t => true);
             if (!string.IsNullOrEmpty(k))
                 query = query.Where(t => t.Email.Contains(k) || t.UserName.Contains(k) || t.Name.Contains(k));
+
             result.Total = query.Count();
             result.Members = query.OrderByDescending(t => t.CreateDate).Select(t => new MemberDTO(t)).Skip(ps * p).Take(ps).ToList();
             foreach (var m in result.Members)
@@ -345,7 +346,8 @@ namespace Bolo.Controllers
                 result.CountryName = lh.GetCountryName(result.Country);
 
                 return result;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
             }
@@ -375,7 +377,8 @@ namespace Bolo.Controllers
                     _context.SaveChanges();
                     return Ok();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
             }
@@ -404,7 +407,7 @@ namespace Bolo.Controllers
                 else
                 {
                     var pl = _context.ProfileLinks.FirstOrDefault(t => t.Member.ID == member.ID && t.ID == id);
-                    if(pl == null) return NotFound();
+                    if (pl == null) return NotFound();
                     else
                     {
                         pl.Name = name;
@@ -444,7 +447,8 @@ namespace Bolo.Controllers
                     _context.SaveChanges();
                     return Ok();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
             }
@@ -487,7 +491,7 @@ namespace Bolo.Controllers
             }
         }
 
-        
+
 
         [HttpGet]
         [Route("getphones")]
@@ -881,7 +885,7 @@ namespace Bolo.Controllers
         [Route("savepassword")]
         public async Task<IActionResult> SavePassword([FromQuery] string d)
         {
-            if(string.IsNullOrEmpty(d)) return BadRequest();
+            if (string.IsNullOrEmpty(d)) return BadRequest();
             var member = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
             if (member == null)
             {
@@ -1324,12 +1328,14 @@ namespace Bolo.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Member>> DeleteMember(int id)
         {
+            if (!User.IsInRole("Master"))
+                return null;
+
             var member = await _context.Members.FindAsync(id);
             if (member == null)
             {
                 return NotFound();
             }
-
             _context.Members.Remove(member);
             await _context.SaveChangesAsync();
 

@@ -4,12 +4,11 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:YocailApp"
-    Shell.FlyoutBehavior="Disabled" Title="" NavBarIsVisible="False">
+     Title="" NavBarIsVisible="False">
+    
     <TabBar >
         <Tab Route="home" Icon="housesolid.png" >
-            <ShellContent Title="Home" Route="main">
-                <local:MainPage />
-            </ShellContent>
+            <ShellContent Title="Home" Route="main" ContentTemplate="{DataTemplate local:MainPage}" />
         </Tab>
         <Tab Icon="search.png"  >
             <ShellContent Title="Search" Route="search">
@@ -20,6 +19,7 @@
             <ShellContent Title="Explore" ContentTemplate="{DataTemplate local:DiscoverPage}" />
         </Tab>
         <Tab Icon="plussolid.png" >
+            
             <ShellContent Title="Add Post" Route="addpost" ContentTemplate="{DataTemplate local:AddPostPage}" />
         </Tab>
         <Tab Icon="personsquare.png" >

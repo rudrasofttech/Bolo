@@ -15,7 +15,7 @@ namespace YocailApp
             Loaded += MainPage_Loaded;
         }
 
-        private async void MainPage_Loaded(object sender, EventArgs e)
+        private void MainPage_Loaded(object sender, EventArgs e)
         {
             (BindingContext as MainPageVM).CurrentMember = JsonSerializer.Deserialize<MemberModel>(AccessSecureStorage.GetCurrentMember()
                 , new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
@@ -23,7 +23,7 @@ namespace YocailApp
             if (!(BindingContext as MainPageVM).HasCacheData)
             if ((BindingContext as MainPageVM).Posts.Count == 0)
             {
-                await (BindingContext as MainPageVM).LoadData();
+                _= (BindingContext as MainPageVM).LoadData();
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Maui.Core;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace YocailApp.ViewModel
 {
     public class AddPostVM : BaseVM
     {
+        
+
         public ObservableCollection<string> _pathList = new ObservableCollection<string>();
         public ObservableCollection<string> PathList
         {
@@ -71,22 +74,35 @@ namespace YocailApp.ViewModel
 
         public void AddPath(string p)
         {
-            _pathList.Add(p);
-            OnPropertyChanged("PathList");
-            OnPropertyChanged("HasPhotos");
-            OnPropertyChanged("SingleItem");
-            OnPropertyChanged("MultipleItem");
-            OnPropertyChanged("FirstPath");
+            if (!_pathList.Any(t => t.ToLower() == p.ToLower()))
+            {
+                _pathList.Add(p);
+                OnPropertyChanged("PathList");
+                OnPropertyChanged("HasPhotos");
+                OnPropertyChanged("SingleItem");
+                OnPropertyChanged("MultipleItem");
+                OnPropertyChanged("FirstPath");
+            }
         }
 
         public void RemovePath(string p)
         {
-            _pathList.Remove(p);
-            OnPropertyChanged("PathList");
-            OnPropertyChanged("HasPhotos");
-            OnPropertyChanged("SingleItem");
-            OnPropertyChanged("MultipleItem");
-            OnPropertyChanged("FirstPath");
+            List<string> paths = _pathList.Select(t => t).ToList();
+            if (paths.Remove(p))
+            {
+                ObservableCollection<string> temp = new ObservableCollection<string>();
+                foreach (string path in paths)
+                {
+                    temp.Add(path);
+                }
+
+                PathList = temp;
+                OnPropertyChanged("PathList");
+                OnPropertyChanged("HasPhotos");
+                OnPropertyChanged("SingleItem");
+                OnPropertyChanged("MultipleItem");
+                OnPropertyChanged("FirstPath");
+            }
         }
     }
 }

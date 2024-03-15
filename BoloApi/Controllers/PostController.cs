@@ -359,7 +359,7 @@ namespace Bolo.Controllers
                 };
                 foreach (string s in value.Photos.Where(t => !string.IsNullOrEmpty(t)))
                 {
-                    string substr = s[(s.IndexOf(";base64,") + 8)..];
+                    string substr = s.IndexOf(";base64,") > -1 ? s[(s.IndexOf(";base64,") + 8)..] : s;
                     byte[] data = System.Convert.FromBase64String(substr);
                     string filename = string.Format("{0}.jpg", Guid.NewGuid().ToString());
                     string webRootPath = _webHostEnvironment.WebRootPath;

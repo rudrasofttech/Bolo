@@ -1,3 +1,5 @@
+
+using Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 using System.Diagnostics;
 using YocailApp.Resources.Translations;
 using YocailApp.ViewModel;
@@ -32,10 +34,23 @@ public partial class CommentsPage : ContentPage
         (BindingContext as CommentPageVM).Post = post;
         await (BindingContext as CommentPageVM).LoadData();
     }
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
 
+        App.Current.On<Microsoft.Maui.Controls.PlatformConfiguration.Android>().UseWindowSoftInputModeAdjust(WindowSoftInputModeAdjust.Resize);
+
+        
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        App.Current.On<Microsoft.Maui.Controls.PlatformConfiguration.Android>().UseWindowSoftInputModeAdjust(WindowSoftInputModeAdjust.Pan);
+    }
     private async void ImageButton_Clicked(object sender, EventArgs e)
     {
-        var cvm = (sender as ImageButton).CommandParameter as CommentVM;
+        var cvm = (sender as Microsoft.Maui.Controls.ImageButton).CommandParameter as CommentVM;
         var actions = new List<string>();
         if (cvm.IsOwner)
         {
@@ -48,7 +63,7 @@ public partial class CommentsPage : ContentPage
         {
             bool answer = await DisplayAlert(AppRes.ConfirmTxt, AppRes.DeleteConfirmTxt, AppRes.YesTxt, AppRes.NoTxt);
             if (answer)
-                (BindingContext as CommentPageVM).DeleteComment((sender as ImageButton).CommandParameter as CommentVM);
+                (BindingContext as CommentPageVM).DeleteComment((sender as Microsoft.Maui.Controls.ImageButton).CommandParameter as CommentVM);
         }
     }
 

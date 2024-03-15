@@ -46,7 +46,7 @@
                 <CollectionView ItemsSource="{Binding Posts, Mode=TwoWay}" x:Name="ExploreCollectionView" HorizontalOptions="FillAndExpand" 
 VerticalOptions="FillAndExpand"  RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" Span="3" />
+                        <GridItemsLayout Orientation="Vertical" Span="2" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>

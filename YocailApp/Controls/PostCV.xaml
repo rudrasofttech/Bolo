@@ -9,24 +9,25 @@
             <toolkit:BoolToObjectConverter x:Key="BoolToSourceConverter" TrueObject="heartfill.svg" FalseObject="heart.svg" />
         </ResourceDictionary>
     </ContentView.Resources>
-    <VerticalStackLayout x:Name="PostVerticalLayout"  HorizontalOptions="FillAndExpand" Margin="0,5,0,20" >
-        <Grid Margin="15,5,15,10" ColumnDefinitions="*,30">
-            <HorizontalStackLayout Grid.Column="0" HorizontalOptions="Start">
-                <Frame HeightRequest="40" WidthRequest="40" IsVisible="{Binding Post.Owner.HasPic}" BorderColor="Transparent" 
-                       CornerRadius="10"  Padding="1" 
-                       Margin="0,0,5,0" HorizontalOptions="Center">
+    <VerticalStackLayout x:Name="PostVerticalLayout"  HorizontalOptions="FillAndExpand" Padding="0" Margin="0">
+        <Grid Padding="25,10,25,10" ColumnDefinitions="50,*,30" RowDefinitions="30,20">
+            <Frame Margin="0,0,20,0" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" HeightRequest="50" WidthRequest="50" CornerRadius="25" Padding="2" IsVisible="{Binding Post.Owner.HasPic}" BorderColor="{StaticResource Primary}">
+                <Frame HeightRequest="46" WidthRequest="46"   
+                       CornerRadius="23"  Padding="0" HorizontalOptions="Center" VerticalOptions="Center"
+                       Margin="0,0,0,0">
                     <Image x:Name="ProfilePic" Source="{Binding Post.Owner.PicPathConverted}" Aspect="AspectFit">
                         <Image.GestureRecognizers>
                             <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
                         </Image.GestureRecognizers>
                     </Image>
                 </Frame>
-                <Label Text="{Binding Post.Owner.UserName,StringFormat='{0}'}"  VerticalOptions="Center" HorizontalOptions="Center" FontAttributes="Bold" FontFamily="InterSemiBold" FontSize="Header" TextColor="{StaticResource Primary}" >
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
-                    </Label.GestureRecognizers>
-                </Label>
-            </HorizontalStackLayout>
+            </Frame>
+            <Label Text="{Binding Post.Owner.UserName,StringFormat='{0}'}" Grid.Column="1" Grid.Row="0" VerticalOptions="End" HorizontalOptions="Start" FontAttributes="Bold" FontFamily="InterSemiBold" FontSize="15" TextColor="{StaticResource Primary}" >
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Text="{Binding Post.PostDateDisplay}" Grid.Column="1" Grid.Row="1" VerticalOptions="Start" FontFamily="InterLight" FontSize="Micro" Padding="0,0,0,0"></Label>
         </Grid>
         <StackLayout x:Name="PhotoStackLayout" MinimumHeightRequest="200">
             <!--<Image Aspect="AspectFill" x:Name="SingleImage" IsVisible="{Binding ShowSinglePhoto}" Margin="0"  Source="{Binding FirstPhoto}" 
@@ -49,7 +50,6 @@
             </StackLayout.GestureRecognizers>
         </StackLayout>
         <Grid x:Name="PhotoStackCtrlGrid" RowDefinitions="*" HorizontalOptions="FillAndExpand" ColumnDefinitions="100,*">
-
             <Grid Grid.Row="0" Grid.Column="1" HorizontalOptions="End" ColumnDefinitions="auto,auto,auto,auto" Margin="0,10">
                 <VerticalStackLayout Grid.Column="0" Margin="10,3">
                     <ImageButton HorizontalOptions="Center" Source="{Binding HasReacted, Converter={StaticResource BoolToSourceConverter}}" 
@@ -67,13 +67,17 @@
                     <Label Text="Comments" Margin="0" Padding="0" VerticalOptions="Start" HeightRequest="12" HorizontalOptions="Center" IsVisible="{Binding ShowCommentCount}" FontSize="10" FontAttributes="Bold">
                     </Label>
                 </VerticalStackLayout>
-                <ImageButton IsVisible="{Binding Post.AllowShare}" VerticalOptions="Start" Source="share.svg" Grid.Row="0" Grid.Column="2" HeightRequest="20"></ImageButton>
-                <ImageButton Source="threedotsvertical.svg" HeightRequest="20" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center" VerticalOptions="Start" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
+                <VerticalStackLayout Grid.Row="0" Grid.Column="2" Margin="5,3">
+                    <ImageButton IsVisible="{Binding Post.AllowShare}" VerticalOptions="Start" Source="share.svg" HeightRequest="20"></ImageButton>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Row="0" Grid.Column="3" Margin="5,3">
+                    <ImageButton Source="threedotsvertical.svg" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Start" x:Name="HamburgerMenuImgBtn" Clicked="HamburgerMenuImgBtn_Clicked"  />
+                </VerticalStackLayout>
+                
             </Grid>
         </Grid>
-        <StackLayout Padding="15,0,15,5">
+        <StackLayout Padding="20,5,20,5">
             <controls:ExpandableLabel x:Name="ExpDescribeLabel" Text="{Binding Post.Describe}" />
-            <Label Text="{Binding Post.PostDateDisplay}" VerticalOptions="Center" FontFamily="InterLight" FontSize="Micro" Padding="0,0,0,0"></Label>
         </StackLayout>
     </VerticalStackLayout>
 </ContentView>

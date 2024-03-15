@@ -28,9 +28,11 @@ public partial class PostCV : ContentView
                 {
                     Margin = new Thickness(0),
                     VerticalOptions = LayoutOptions.Fill,
-                    HorizontalOptions = LayoutOptions.Fill
+                    HorizontalOptions = LayoutOptions.Fill,
+                    Source = new UriImageSource { Uri = new Uri(pvm.FirstPhoto),
+                    CachingEnabled = true,
+                    CacheValidity = new TimeSpan(7,0,0,0)}
                 };
-                img.SetBinding(Image.SourceProperty, "FirstPhoto");
                 PhotoStackLayout.Add(img);
             }
             if (pvm.ShowCarousel)
@@ -68,11 +70,6 @@ public partial class PostCV : ContentView
                 PhotoStackLayout.Add(crsl);
                 PhotoStackCtrlGrid.Add(iv,0,0);
             }
-
-            //if (string.IsNullOrEmpty(pvm.Post.Describe))
-            //{
-            //    PostVerticalLayout.Children.Remove(ExpDescribeLabel);
-            //}
         }
     }
 

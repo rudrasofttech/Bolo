@@ -8,26 +8,25 @@
     <ContentPage.BindingContext>
         <local:MainPageVM />
     </ContentPage.BindingContext>
-    
-        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
-            <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" x:Name="ScrollViewMain" Scrolled="ScrollView_Scrolled">
-                <StackLayout>
-                    <StackLayout IsVisible="{Binding EmptyTextVisible}" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                        <Label Text="NOTHING TO SEE HERE" Style="{StaticResource HeadingLabel}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
-                        <Label Padding="10" Text="We have nothing to show in your feed, may be trying adding some photos or starting following other members." HorizontalOptions="Fill" HorizontalTextAlignment="Center"></Label>
-                    </StackLayout>
-                    <CollectionView ItemsSource="{Binding Posts}" x:Name="FeedPostCollectionView" HorizontalOptions="FillAndExpand" 
-                            VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    <!--<ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
-                   IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />-->
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" >
+        <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" x:Name="ScrollViewMain" Scrolled="ScrollView_Scrolled">
+            <StackLayout>
+                <StackLayout IsVisible="{Binding EmptyTextVisible}" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                    <Label Text="NOTHING TO SEE HERE" Style="{StaticResource HeadingLabel}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
+                    <Label Padding="10" Text="We have nothing to show in your feed, may be trying adding some photos or starting following other members." HorizontalOptions="Fill" HorizontalTextAlignment="Center"></Label>
                 </StackLayout>
-            </ScrollView>
-        </RefreshView>
-    
+                <CollectionView ItemsSource="{Binding Posts}" x:Name="FeedPostCollectionView" HorizontalOptions="FillAndExpand" 
+                            VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <controls:PostCV BindingContext="{Binding this}" HamburgerMenuClicked="PostCV_HamburgerMenuClicked" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!--<ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" Margin="5"
+                   IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />-->
+            </StackLayout>
+        </ScrollView>
+    </RefreshView>
+
 </ContentPage>

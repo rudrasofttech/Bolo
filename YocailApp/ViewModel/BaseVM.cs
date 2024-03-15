@@ -166,7 +166,7 @@ namespace YocailApp.ViewModel
             }
         }
 
-        public int PageSize { get; set; } = 42;
+        public int PageSize { get; set; } = 10;
 
         public ICommand LoadMoreCommand { get; set; }
         public ICommand RefreshCommand { get; set; }

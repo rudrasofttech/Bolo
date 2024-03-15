@@ -46,7 +46,7 @@ public partial class ExpandableLabel : ContentView
             return Text.Length > DefaultMaxLength;
         }
     }
-    private bool _showingFull;
+    private bool _showingFull = true;
     public bool ShowingFull
     {
         get { return _showingFull; }

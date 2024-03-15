@@ -4,7 +4,6 @@
     {
         private Stack<ShellNavigationState> Uri { get; set; } // Navigation stack.  
         private ShellNavigationState temp; // Prevents applications from adding redundant data to the stack when the back button is clicked.  
-        
         public AppShell()
         {
             InitializeComponent();

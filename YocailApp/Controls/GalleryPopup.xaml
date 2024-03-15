@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="YocailApp.Controls.GalleryPopup" CanBeDismissedByTappingOutsideOfPopup="True" Color="Transparent" Opened="Popup_Opened" >
+    <VerticalStackLayout Padding="1" HeightRequest="500" BackgroundColor="Black">
+        <!--<Grid ColumnDefinitions="*,40">
+                <Label Text="Gallery" Padding="10,0,0,0" FontSize="Header" VerticalOptions="Center" Grid.Column="0"></Label>
+                <Button Text="Close" Grid.Column="1" Clicked="OnYesButtonClicked" />
+            </Grid>-->
+        <ScrollView x:Name="GalleryScrollView" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" MaximumHeightRequest="500">
+            <CollectionView x:Name="GalleryCollectionView" SelectionMode="Single" SelectionChanged="GalleryCollectionView_SelectionChanged">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="1">
+                            <Image Aspect="AspectFill" HeightRequest="150" Source="{Binding .}">
+                            </Image>
+                        </Grid>
+                        
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </VerticalStackLayout>
+</toolkit:Popup>

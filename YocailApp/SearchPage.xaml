@@ -13,7 +13,7 @@
     <VerticalStackLayout>
         <Grid ColumnDefinitions="*,40" Padding="15,10,15,0">
             <Entry Grid.Column="0" x:Name="SearchBar" FontSize="Body" Placeholder="{x:Static res:AppRes.SearchBarPH }" Text="{Binding Keywords, Mode=TwoWay}" HorizontalOptions="Fill" />
-            <ImageButton Grid.Column="1" Source="search.png" HeightRequest="35" Padding="3" HorizontalOptions="Center" VerticalOptions="Center" Command="{Binding SearchCommand}"/>
+            <ImageButton Grid.Column="1" Source="search.png" HeightRequest="20" Padding="3" HorizontalOptions="Center" VerticalOptions="Center" Command="{Binding SearchCommand}"/>
         </Grid>
         <ActivityIndicator IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}"></ActivityIndicator>
         <ScrollView Padding="15,0,15,15">

@@ -13,7 +13,7 @@
             <StackLayout>
                 <ActivityIndicator VerticalOptions="Center" HorizontalOptions="Center" IsVisible="{Binding Loading}" IsRunning="{Binding Loading ,Mode=TwoWay}" />
                 <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" Padding="0" Margin="0">
-                    <CollectionView  ItemsSource="{Binding Comments, Mode=TwoWay}" x:Name="CommentsCollectionView" HorizontalOptions="FillAndExpand" 
+                    <CollectionView  ItemsSource="{Binding Comments}" x:Name="CommentsCollectionView" HorizontalOptions="FillAndExpand" 
                             VerticalOptions="FillAndExpand" RemainingItemsThreshold="2" 
                                  RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                         <CollectionView.ItemTemplate>
@@ -49,9 +49,9 @@
             </StackLayout>
         </ScrollView>
         <StackLayout Grid.Row="1">
-            <Grid ColumnDefinitions="*,50" Padding="5">
-                <Entry ClearButtonVisibility="WhileEditing" Keyboard="Chat" Text="{Binding CommentDraft, Mode=TwoWay}" FontSize="Default" IsSpellCheckEnabled="True" IsTextPredictionEnabled="True" Placeholder="Type your comment" Grid.Column="0" ></Entry>
-                <ImageButton IsVisible="{Binding PostButtonEnabled, Mode=TwoWay}" Source="cursorfill.svg" Command="{Binding PostCommentCommand}" Padding="5" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center"></ImageButton>
+            <Grid ColumnDefinitions="*,40" Padding="5">
+                <Entry ClearButtonVisibility="WhileEditing" Keyboard="Chat" Text="{Binding CommentDraft, Mode=TwoWay}" IsSpellCheckEnabled="True" IsTextPredictionEnabled="True" Placeholder="Type your comment" Grid.Column="0" ></Entry>
+                <ImageButton HeightRequest="25" WidthRequest="25" IsVisible="{Binding PostButtonEnabled, Mode=TwoWay}" Source="cursorfill.svg" Command="{Binding PostCommentCommand}" Padding="5" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="Center"></ImageButton>
             </Grid>
         </StackLayout>
     </Grid>
