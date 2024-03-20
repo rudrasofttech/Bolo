@@ -55,6 +55,10 @@
     font-weight: bold;
 }
 
+textarea.form-control {
+    padding: 10px 15px;
+}
+
 .btn-primary {
     --bs-btn-color: #fff;
     --bs-btn-bg: #30235B;
@@ -177,10 +181,6 @@
     bottom: 0px;
     position: -webkit-sticky;
     position: sticky;
-}
-
-textarea.form-control {
-    padding:10px 15px;
 }
 .memberpost
 {

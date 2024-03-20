@@ -69,7 +69,7 @@ namespace Bolo.Controllers
         /// <param name="p"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
+        public async Task<ActionResult> Get([FromQuery] string q = "", [FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             try
             {
