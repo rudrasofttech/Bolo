@@ -150,33 +150,39 @@ namespace Bolo.Controllers
         [Route("Login")]
         public async Task<ActionResult<LoginReturnDTO>> Login(LoginDTO model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest();
-            }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest();
+                }
 
-            var member = await _context.Members.Include(t => t.Roles).FirstOrDefaultAsync(t => (t.UserName == model.UserName || t.Email == model.UserName) && t.Password == EncryptionHelper.CalculateSHA256(model.Password));
+                var member = await _context.Members.Include(t => t.Roles).FirstOrDefaultAsync(t => (t.UserName == model.UserName || t.Email == model.UserName) && t.Password == EncryptionHelper.CalculateSHA256(model.Password));
 
-            if (member == null)
+                if (member == null)
+                {
+                    return NotFound(new { error = "Invalid Credentials" });
+                }
+                else
+                {
+                    member.Status = RecordStatus.Active;
+                    await _context.SaveChangesAsync();
+                    var mdto = new MemberDTO(member);
+                    if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
+                        mdto.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+                    if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
+                        mdto.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+                    if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
+                        mdto.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+                    LocationHelper lh = new LocationHelper();
+                    mdto.CountryName = lh.GetCountryName(mdto.Country);
+
+                    LoginReturnDTO result = new LoginReturnDTO() { Member = mdto, Token = GenerateJSONWebToken(member) };
+                    return result;
+                }
+            }catch(Exception ex)
             {
-                return NotFound(new { error = "Invalid Credentials" });
-            }
-            else
-            {
-                member.Status = RecordStatus.Active;
-                await _context.SaveChangesAsync();
-                var mdto = new MemberDTO(member);
-                if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
-                    mdto.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
-                if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
-                    mdto.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
-                if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
-                    mdto.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
-                LocationHelper lh = new LocationHelper();
-                mdto.CountryName = lh.GetCountryName(mdto.Country);
-
-                LoginReturnDTO result = new LoginReturnDTO() { Member = mdto, Token = GenerateJSONWebToken(member) };
-                return result;
+                return StatusCode(500, new { error = ex.Message, stachtrace = ex.StackTrace });
             }
         }
 
