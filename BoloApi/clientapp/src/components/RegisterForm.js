@@ -191,7 +191,7 @@ function RegisterForm() {
                                         <span className="visually-hidden">Loading...</span>
                                     </div> : "Register"}</button>
                                 </form>
-                                <ShowMessage bsstyle={bsstyle} message={message} />
+                                <ShowMessage messagemodal={message} />
                                 {renderSecurityQuestionSampleModal()}
                             </div>
                             <div className="alternateoption">

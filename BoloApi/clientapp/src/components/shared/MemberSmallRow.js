@@ -1,11 +1,9 @@
 ﻿import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import MemberPicSmall from "./MemberPicSmall";
 import ConfirmBox from "./ConfirmBox";
 import FollowButton from "./FollowButton";
 
 function MemberSmallRow(props) {
-    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const token = props.token;
     const member = props.member;
@@ -24,10 +22,7 @@ function MemberSmallRow(props) {
             }
         })
             .then(response => {
-                if (response.status === 401) {
-                    localStorage.removeItem("token");
-                    navigate("/login");
-                } else if (response.status === 200) {
+                 if (response.status === 200) {
                     setStatus(0);
                     setShowRemove(false);
                     if (props.removed) {

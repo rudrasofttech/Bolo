@@ -1,14 +1,14 @@
 ﻿import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import MemberPost from "./shared/MemberPost";
+import { MessageModel } from "./shared/Model";
+import { useAuth } from "./shared/AuthProvider";
 
 function MemberPostList(props) {
-    const navigate = useNavigate();
-    //const myself = localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself"));
+    const auth = useAuth();
+    
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [bsstyle, setBsstyle] = useState('');
-    const token = props.token;
+    const [message, setMessage] = useState(new MessageModel());
+    
     const [q, setSearchKeyword] = useState(props.search);
     let ls = { model: null, posts: [] };
     if (props.search === "userfeed" && localStorage.getItem("userfeed") != null)
@@ -82,14 +82,11 @@ function MemberPostList(props) {
         fetch(url, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + auth.token
             }
         })
             .then(response => {
-                if (response.status === 401) {
-                    localStorage.removeItem("token");
-                    navigate("/login");
-                } else if (response.status === 200) {
+                if (response.status === 200) {
                     response.json().then(data => {
                         console.log(data);
                         let temp = firsttime ? data.posts : posts;
@@ -111,11 +108,10 @@ function MemberPostList(props) {
                     });
                 }
             }).catch(error => {
-                setBsstyle('danger');
-                setMessage('Unable to contact server, Please check your internet connection.');
+                setMessage(new MessageModel('danger','Unable to contact server, Please check your internet connection.'));
                 console.log(error);
             }).finally(() => { setLoading(false); });
-    }, [q, p, token, navigate, firsttime]);
+    }, [q, p, auth.token, firsttime]);
 
 
     const postDeleted = (id) => {

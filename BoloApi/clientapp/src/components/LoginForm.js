@@ -1,47 +1,53 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ShowMessage from "./shared/ShowMessage";
+import { useAuth } from "./shared/AuthProvider";
+import { MessageModel } from "./shared/Model";
+import Spinner from "./shared/Spinner";
 
 function LoginForm(props) {
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
+    const auth = useAuth();
     const [logindto, setLoginTo] = useState({ userName: props.username, password: '' });
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [bsstyle, setBsstyle] = useState('');
+    const [message, setMessage] = useState(new MessageModel());
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
         setLoading(true);
-        fetch('//' + window.location.host + '/api/Members/Login', {
-            method: 'post',
-            body: JSON.stringify({ UserName: logindto.userName, Password: logindto.password }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                if (response.status === 200) {
-                    response.json().then(data => {
-                        console.log(data);
-                        if (data.token !== undefined) {
-                            localStorage.setItem("token", data.token);
-                            localStorage.setItem("myself", JSON.stringify(data.member));
-                            setBsstyle('');
-                            setMessage('');
-                            navigate('/');
-                        }
-                    });
-                }
-                else if (response.status === 404) {
-                    response.json().then(data => {
-                        setBsstyle('danger');
-                        setMessage(data.error);
-                    });
-                }
-            }).finally(() => {
-                setLoading(false);
-            });
+        if (logindto.userName !== "" && logindto.password !== "") {
+            let ret = await auth.loginAction(logindto);
+            setMessage(ret);
+        }
+        setLoading(false);
+        //fetch('//' + window.location.host + '/api/Members/Login', {
+        //    method: 'post',
+        //    body: JSON.stringify({ UserName: logindto.userName, Password: logindto.password }),
+        //    headers: {
+        //        'Content-Type': 'application/json'
+        //    }
+        //})
+        //    .then(response => {
+        //        if (response.status === 200) {
+        //            response.json().then(data => {
+        //                console.log(data);
+        //                if (data.token !== undefined) {
+        //                    localStorage.setItem("token", data.token);
+        //                    localStorage.setItem("myself", JSON.stringify(data.member));
+        //                    setMessage(new MessageModel());
+        //                    navigate('/');
+        //                }
+        //            });
+        //        }
+        //        else if (response.status === 404) {
+        //            response.json().then(data => {
+        //                setMessage(new MessageModel("danger", data.error, 0));
+        //            });
+        //        }
+        //    }).finally(() => {
+        //        setLoading(false);
+        //    });
     }
     return <div className="wrapper sign-up pt-5" style={{ minHeight: "100vh" }}>
         <div className="banner-image d-none d-md-block">
@@ -112,16 +118,14 @@ function LoginForm(props) {
                                     </div>
                                     <Link to="/forgotpassword" title="Forgot Password?" className="forgot-pass">Forgot Password?</Link>
                                 </div>
-                                <button type="submit" disabled={loading} className="btn btn-blue">{loading ? <div className="spinner-border spinner-border-sm" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                </div> : "Login"}</button>
+                                <button type="submit" disabled={loading} className="btn btn-blue">{loading ? <Spinner sm={true } /> : "Login"}</button>
                             </form>
                             <div className="alternateoption">
                                 <span>Or</span>
                             </div>
                             <p className="haveaccount">Don’t have an account?
                                 <Link to="/register" title="SIGN UP HERE">SIGN UP HERE</Link></p>
-                            <ShowMessage bsstyle={bsstyle} message={message} />
+                            <ShowMessage messagemodal={message} />
                         </div>
                     </div>
                 </div>

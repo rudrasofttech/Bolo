@@ -1,36 +1,32 @@
 ﻿import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import MemberPicSmall from "./MemberPicSmall";
 import DateLabel from "./DateLabel";
 import ConfirmBox from "./ConfirmBox";
 import AutoAdjustTextArea from "./AutoAdjustTextArea";
 import { MessageModel } from "./Model";
+import { useAuth } from "./AuthProvider";
 
 function MemberComment(props) {
-    const navigate = useNavigate();
-    const myself = localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself"));
-    const token = localStorage.getItem("token") == null ? '' : localStorage.getItem("token");
+    const auth = useAuth();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     const [loadingComments, setLoadingComments] = useState(false);
     const [comments, setComments] = useState({ current: 0, pageSize: 20, total: 0, commentList: [] });
+    const [currentPage, setCurrentPage] = useState(0);
     const [commenttext, setCommentText] = useState('');
     const [commentiddel, setCommentIDDel] = useState(0);
     const [textarearows, setTextAreaRows] = useState()
 
     useEffect(() => {
         setLoadingComments(true);
-        let url = '//' + window.location.host + '/api/post/comments/' + props.post.id + '?ps=' + comments.pageSize + '&p=' + comments.current;
+        let url = '//' + window.location.host + '/api/post/comments/' + props.post.id + '?ps=' + comments.pageSize + '&p=' + currentPage;
         fetch(url, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + auth.token
             }
         }).then(response => {
-            if (response.status === 401) {
-                localStorage.removeItem("token");
-                navigate("/login");
-            } else if (response.status === 200) {
+             if (response.status === 200) {
                 response.json().then(data => {
                     console.log(data);
                     let temp = comments.commentList;
@@ -58,8 +54,10 @@ function MemberComment(props) {
             }
         }).catch(() => {
             setMessage(new MessageModel("danger", "Unable to connect to internet."));
-        }).finally(() => { setLoadingComments(false); });
-    }, [props.post, navigate, token]);
+        }).finally(() => {
+            setLoadingComments(false);
+        });
+    }, [props.post, auth.token, currentPage]);
 
 
     const addComment = () => {
@@ -70,13 +68,9 @@ function MemberComment(props) {
         fetch(`//${window.location.host}/api/post/addcomment`, {
             method: 'post',
             body: fd,
-            headers: { 'Authorization': 'Bearer ' + token }
+            headers: { 'Authorization': 'Bearer ' + auth.token }
         }).then(response => {
-            if (response.status === 401) {
-                //if token is not valid than remove token, set myself object with empty values
-                localStorage.removeItem("token");
-                navigate("/login");
-            } else if (response.status === 200) {
+            if (response.status === 200) {
                 response.json().then(data => {
                     let temp = comments.commentList;
                     temp.unshift(data);
@@ -109,14 +103,11 @@ function MemberComment(props) {
         fetch(url, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + auth.token
             }
         })
             .then(response => {
-                if (response.status === 401) {
-                    localStorage.removeItem("token");
-                    navigate("/login");
-                } else if (response.status === 200) {
+                 if (response.status === 200) {
                     let temp = comments.commentList.filter(t => t.id !== commentiddel);
                     setCommentIDDel(0);
                     setComments({
@@ -144,7 +135,7 @@ function MemberComment(props) {
         for (var k in comments.commentList) {
             var p = comments.commentList[k];
             var ownedCommentMenu = null;
-            if (myself.id === p.postedBy.id) {
+            if (auth.myself.id === p.postedBy.id) {
                 ownedCommentMenu = <button data-id={p.id} onClick={(e) => { setCommentIDDel(parseInt(e.target.getAttribute("data-id"), 10)) }}
                     className="btn btn-link text-primary btn-sm mx-2" type="button">
                     <i data-id={p.id} className="bi bi-trash"></i></button>;
@@ -179,7 +170,16 @@ function MemberComment(props) {
                         <button type="button" className="btn-close" onClick={() => { props.cancel(); }}></button>
                     </div>
                     <div className="modal-body p-1" style={{ minHeight: "300px" }}>
-                        {loadingComments ? <div className="p-1 text-center">Loading Comments...</div> : renderComments()}
+                        {loadingComments ? <div className="p-1 text-center">Loading Comments...</div> :
+                            <>{renderComments()}
+                                {(comments.current + 1 < comments.totalPages) ?
+                                    <div className="text-center">
+                                        <button className="btn btn-light" onClick={() => {
+                                            setCurrentPage(comments.current + 1);
+                                        }}>Load More</button>
+                                    </div>
+                                    : null}
+                            </>}
                         {commentiddel > 0 ? <ConfirmBox title="" message="Are you sure you want to remove this comment?"
                             ok={() => { removeComment(); }} cancel={() => { setCommentIDDel(0); }} /> : null}
                     </div>

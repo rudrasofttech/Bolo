@@ -1,5 +1,4 @@
 ﻿import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import MemberPicSmall from "./MemberPicSmall";
 import PhotoCarousel from "./PhotoCarousel";
 import MemberSmallList from "./MemberSmallList";
@@ -9,10 +8,10 @@ import MemberComment from "./MemberComment";
 import ShowMessage from "./ShowMessage";
 import EditPost from "../EditPost";
 import { MessageModel } from "./Model";
+import { useAuth } from "./AuthProvider";
 
 function MemberPost(props) {
-    const navigate = useNavigate();
-    const myself = localStorage.getItem("myself") == null ? null : JSON.parse(localStorage.getItem("myself"));
+    const auth = useAuth();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     const token = localStorage.getItem("token") == null ? '' : localStorage.getItem("token");
@@ -25,7 +24,7 @@ function MemberPost(props) {
     const addReaction = () => {
         fetch('//' + window.location.host + '/api/post/addreaction/' + post.id, {
             method: 'get',
-            headers: { "Authorization": 'Bearer ' + token }
+            headers: { "Authorization": 'Bearer ' + auth.token }
         }).then(response => {
             if (response.status === 200) {
                 response.json().then(data => {
@@ -33,7 +32,7 @@ function MemberPost(props) {
                     p.hasReacted = data.hasReacted;
                     p.reactionCount = data.reactionCount;
                     setMessage(new MessageModel());
-                    
+
                     setPost(p);
                 });
             } else {
@@ -56,27 +55,23 @@ function MemberPost(props) {
             method: 'post',
             body: JSON.stringify({ describe: post.describe, acceptComment: post.acceptComment, allowShare: post.allowShare }),
             headers: {
-                'Authorization': 'Bearer ' + token,
+                'Authorization': 'Bearer ' + auth.token,
                 'Content-Type': 'application/json'
             }
         }).then(response => {
-            if (response.status === 401) {
-                //if token is not valid than remove token, set myself object with empty values
-                localStorage.removeItem("token");
-                navigate("/login");
-            } else if (response.status === 200) {
-                setMessage({ style: "", message: "", disappear: 0 });
+            if (response.status === 200) {
+                setMessage(new MessageModel());
                 setShowModal('');
             } else {
                 response.json().then(data => {
-                    setMessage({ style: "danger", message: data.error, disappear: 0 });
+                    setMessage(new MessageModel("danger", data.error, 0));
                 }).catch(err => {
                     console.log(err);
-                    setMessage({ style: "danger", message: "Unable to add reaction to post.", disappear: 0 });
+                    setMessage(new MessageModel("danger", "Unable to add reaction to post.", 0));
                 });
             }
         }).catch(error => {
-            setMessage({ style: "danger", message: "Unable to connect to internet.", disappear: 0 });
+            setMessage(new MessageModel("danger", "Unable to connect to internet.", 0));
             console.log(error);
         }).finally(() => {
             setLoading(false);
@@ -87,26 +82,22 @@ function MemberPost(props) {
         fetch(`//${window.location.host}/api/post/share/${post.id}?uid=${sharewithid}`, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + auth.token
             }
         })
             .then(response => {
-                if (response.status === 401) {
-                    //if token is not valid than remove token, set myself object with empty values
-                    localStorage.removeItem("token");
-                    navigate("/login");
-                } else if (response.status === 200) {
-                    setMessage({ style: "success", message: "Post is shared.", disappear: 0 });
+                if (response.status === 200) {
+                    setMessage(new MessageModel("success", "Post is shared.", 0));
                 } else {
                     response.json().then(data => {
-                        setMessage({ style: "danger", message: data.error, disappear: 0 });
+                        setMessage(new MessageModel("danger", data.error, 0));
                     }).catch(err => {
-                        setMessage({ style: "danger", message: "Unable to share post.", disappear: 0 });
+                        setMessage(new MessageModel("danger", "Unable to share post.", 0));
                         console.log(err);
                     });
                 }
             }).catch(error => {
-                setMessage({ style: "danger", message: "Unable to connect to internet.", disappear: 0 });
+                setMessage(new MessageModel("danger", "Unable to connect to internet.", 0));
                 console.log(error);
             });
     }
@@ -115,16 +106,12 @@ function MemberPost(props) {
         fetch(`//${window.location.host}/api/post/delete/${post.id}`, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + auth.token
             }
         }).then(response => {
-            if (response.status === 401) {
-                //if token is not valid than remove token, set myself object with empty values
-                localStorage.removeItem("token");
-                navigate("/login");
-            } else if (response.status === 200) {
+            if (response.status === 200) {
                 let id = post.id;
-                setMessage({ style: "", message: "", disappear: 0 });
+                setMessage(new MessageModel());
                 setShowModal("");
                 setPost(null);
                 if (props.ondelete !== undefined && props.ondelete !== null) {
@@ -132,17 +119,17 @@ function MemberPost(props) {
                 }
             } else {
                 response.json().then(data => {
-                    setMessage({ style: "danger", message: data.error, disappear: 0 });
+                    setMessage(new MessageModel("danger", data.error));
                     setShowModal("");
                 }).catch(err => {
-                    setMessage({ style: "danger", message: "Unable to delete post.", disappear: 0 });
+                    setMessage(new MessageModel("danger", "Unable to delete post."));
                     setShowModal("");
                     console.log(err);
                 });
             }
         }).catch((error) => {
             setShowModal("");
-            setMessage({ style: "danger", message: "Unable to connect to internet.", disappear: 0 });
+            setMessage(new MessageModel("danger", "Unable to connect to internet."));
             console.log(error);
         });
     }
@@ -151,7 +138,7 @@ function MemberPost(props) {
         fetch(`//${window.location.host}/api/ignored/${post.owner.id}`, {
             method: 'post',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + auth.token
             }
         }).then(response => {
             if (response.status === 200) {
@@ -171,26 +158,26 @@ function MemberPost(props) {
         fetch(`//${window.location.host}/api/post/flag/${post.id}?type=${typeid}`, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + auth.token
             }
         }).then(response => {
             if (response.status === 200) {
                 setShowModal("");
-                setMessage({ style: "info", message: "Thank you! for reporting the post.", disappear: 1500 });
+                setMessage(new MessageModel("info", "Thank you! for reporting the post."));
             } else {
                 setShowModal("");
-                setMessage({ style: "danger", message: "Unable to process your request.", disappear: 1000 });
+                setMessage(new MessageModel("danger", "Unable to process your request."));
             }
         }).catch(() => {
             setShowModal("");
-            setMessage({ style: "danger", message: "Unable to process your request.", disappear: 1000 });
+            setMessage(new MessageModel("danger", "Unable to process your request."));
         });
     }
 
     const renderPostOptions = () => {
         if (showModal === "post") {
             let deletebtn = null; let ignoreaccbtn = null, editbtn = null;
-            if (post.owner.id === myself.id) {
+            if (post.owner.id === auth.myself.id) {
                 editbtn = <div className="text-center border-bottom mb-1 p-1">
                     <button type="button" className="btn btn-link btn-lg text-decoration-none text-primary fw-normal"
                         onClick={() => { setShowModal('edit'); }}>
@@ -205,7 +192,7 @@ function MemberPost(props) {
                 </div>;
             }
 
-            if (post.owner.id !== myself.id) {
+            if (post.owner.id !== auth.myself.id) {
                 ignoreaccbtn = <div className="text-center mb-1 p-1">
                     <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger  fw-normal"
                         onClick={() => { ignoreMember(); }}>
@@ -296,7 +283,7 @@ function MemberPost(props) {
         if (!p.acceptComment)
             commentbox = null;
         let reactionCountHtml = <span className="d-block mt-1 text-dark" style={{ fontSize: "0.7rem" }}>{(p.reactionCount > 0) ? <>{p.reactionCount}<br />Likes</> : " "}</span>;
-        
+
         let reactionhtml = <button type="button" className="btn btn-link py-0 fs-3 text-primary text-decoration-none" onClick={addReaction}>
             <i className="bi bi-heart"></i>{reactionCountHtml}
         </button>;
@@ -375,9 +362,9 @@ function MemberPost(props) {
                                 <button type="button" className="btn-close" onClick={() => { setShowModal(''); }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                <MemberSmallList token={token} memberid={myself.id} target="share" onSelected={(id) => { sharePost(id); }}></MemberSmallList>
+                                <MemberSmallList token={auth.token} memberid={auth.myself.id} target="share" onSelected={(id) => { sharePost(id); }}></MemberSmallList>
                             </div>
-                            <ShowMessage bsstyle={message.style} message={message.message} disappear={message.disappear} />
+                            <ShowMessage messagemodal={message} />
                         </div>
                     </div>
                 </div>
@@ -462,7 +449,7 @@ function MemberPost(props) {
                                 {loading ? <div className="spinner-border" role="status">
                                     <span className="visually-hidden">Loading...</span>
                                 </div> : null}
-                                <ShowMessage bsstyle={message.style} message={message.message} />
+                                <ShowMessage messagemodal={message} />
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" onClick={editPost}>Save</button>

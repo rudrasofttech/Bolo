@@ -1,7 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 
 function HashTagDetail(props) {
-    const token = props.token;
     const [totalPosts, setTotalPosts] = useState(null);
     const [followed, setFollowed] = useState(null);
 
@@ -9,7 +8,7 @@ function HashTagDetail(props) {
         fetch(`//${window.location.host}/api/post/hashtagpostcount?q=${encodeURIComponent(props.search)}`, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + props.token
             }
         })
             .then(resp => {
@@ -20,36 +19,33 @@ function HashTagDetail(props) {
                     });
                 }
             });
-    }, [props.search, token])
+    }, [props.search, props.token])
 
     const follow = () => {
         fetch(`//${window.location.host}/api/follow/FollowHashtag?q=${encodeURIComponent(props.search)}`, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + props.token
             }
-        })
-            .then(resp => {
-                if (resp.status === 200) {
-                    setFollowed(true);
-                }
-            });
+        }).then(resp => {
+            if (resp.status === 200) {
+                setFollowed(true);
+            }
+        });
     }
 
     const unfollow = () => {
         fetch("//" + window.location.host + "/api/follow/UnfollowHashtag?q=" + encodeURIComponent(props.search), {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + props.token
             }
-        })
-            .then(resp => {
-                if (resp.status === 200) {
-                    setFollowed(false);
-                }
-            });
+        }).then(resp => {
+            if (resp.status === 200) {
+                setFollowed(false);
+            }
+        });
     }
-
 
     return <div className=" bg-white rounded-3 mb-2 p-2">
         <div className="row align-items-center">
@@ -62,7 +58,8 @@ function HashTagDetail(props) {
                     followed ? <button type="button" className="btn btn-primary" onClick={unfollow}>Unfollow</button> : <button type="button" className="btn btn-primary" onClick={follow}>Follow</button>
                     : null}
             </div>
-        </div></div>;
-
+        </div>
+    </div>;
 }
+
 export default HashTagDetail;

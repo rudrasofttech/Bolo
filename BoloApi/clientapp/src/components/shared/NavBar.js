@@ -1,9 +1,10 @@
 ﻿import { Link } from "react-router-dom";
+import { useAuth } from "./AuthProvider";
 
 function NavBar(props) {
-    const member = localStorage.getItem("myself") != null ? JSON.parse(localStorage.getItem("myself")) : null;
+    const auth = useAuth();
     return <div id="mainmenubar">
-        <div className="container py-2 px-2">
+        <div className="container px-2">
             <div className="row g-0 align-items-center">
                 <div className="col-md-2 d-none d-md-block  py-2">
                     <Link to="/">
@@ -24,7 +25,7 @@ function NavBar(props) {
                                 </button>
                             </div>
                             <div className="col">
-                                <Link className="btn btn-link text-primary fs-4 mx-md-4" to="/discover" title="Discover">
+                                <Link className="btn btn-link text-primary fs-4 mx-md-4" to="/explore" title="Explore">
                                     <i className="bi bi-globe-central-south-asia"></i>
                                 </Link>
                             </div>
@@ -41,22 +42,9 @@ function NavBar(props) {
                                 </button>
                             </div>
                             <div className="col">
-                                <div className="dropdown me-2">
-                                    <button type="button" className="btn btn-link text-primary fs-4 mx-md-4 position-relative" >
-                                        {member != null && member.pic !== "" ? <img alt="" src={`//${window.location.host}/${member.pic}`} className='profile-icon profile-pic-border' /> : <img src={`//${window.location.host}/theme1/images/person-fill.svg`} className='profile-icon profile-pic-border' alt="" />}
-                                    </button>
-                                    <ul className="dropdown-menu">
-                                        <li className="py-2 border-bottom">
-                                            <Link className="dropdown-item py-1" to="/profile"><i className="bi bi-person-lines-fill"></i> Profile</Link>
-                                        </li>
-                                        {/*<li className="py-2 border-bottom">*/}
-                                        {/*    <a className="dropdown-item py-1" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#ignoredMembersModal"><i className="bi bi-sign-stop"></i> Ignored</a>*/}
-                                        {/*</li>*/}
-                                        {/*<li className="py-2">*/}
-                                        {/*    <a className="dropdown-item py-1" href="javascript:void(0);" onclick="localStorage.clear();location.href = '//' + location.host;"><i className="bi bi-box-arrow-left"></i> Logout</a>*/}
-                                        {/*</li>*/}
-                                    </ul>
-                                </div>
+                                <Link className="btn btn-link text-primary fs-4 mx-md-4" to="/profile" title="Profile">
+                                    {auth.myself != null && auth.myself.pic !== "" ? <img alt="" src={`//${window.location.host}/${auth.myself.pic}`} className='profile-icon profile-pic-border' /> : <img src={`//${window.location.host}/theme1/images/person-fill.svg`} className='profile-icon profile-pic-border' alt="" />}
+                                </Link>
                             </div>
                         </div>
                     </div>

@@ -65,44 +65,66 @@ namespace Bolo.Controllers
         [Route("HasRequest/{id}")]
         public ActionResult HasRequest(Guid id)
         {
-            bool result = _context.Followers.Any(t => t.Following.PublicID == new Guid(User.Identity.Name) &&
-            t.Follower.PublicID == id && t.Status == FollowerStatus.Requested);
-            if (result)
-                return Ok();
-            else
-                return StatusCode(500, null);
+            try
+            {
+                bool result = _context.Followers.Any(t => t.Following.PublicID == new Guid(User.Identity.Name) &&
+                t.Follower.PublicID == id && t.Status == FollowerStatus.Requested);
+                if (result)
+                    return Ok();
+                else
+                    return NotFound();
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         [HttpGet]
         [Route("Allow/{id}")]
         public ActionResult Allow(Guid id)
         {
-            var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            var f = _context.Followers.FirstOrDefault(t => t.Follower.PublicID == id && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Requested);
-            if (f != null)
+            try
             {
-                f.Status = FollowerStatus.Active;
-                _context.SaveChanges();
-                return Ok();
-            }
+                var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                var f = _context.Followers.FirstOrDefault(t => t.Follower.PublicID == id && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Requested);
+                if (f != null)
+                {
+                    f.Status = FollowerStatus.Active;
+                    _context.SaveChanges();
+                    return Ok();
+                }
 
-            return BadRequest();
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         [HttpGet]
         [Route("Reject/{id}")]
         public ActionResult Reject(Guid id)
         {
-            var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            var f = _context.Followers.FirstOrDefault(t => t.Follower.PublicID == id && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Requested);
-            if (f != null)
+            try
             {
-                _context.Followers.Remove(f);
-                _context.SaveChanges();
-                return Ok();
-            }
+                var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                var f = _context.Followers.FirstOrDefault(t => t.Follower.PublicID == id && t.Following.ID == currentMember.ID && t.Status == FollowerStatus.Requested);
+                if (f != null)
+                {
+                    _context.Followers.Remove(f);
+                    _context.SaveChanges();
+                    return Ok();
+                }
 
-            return BadRequest();
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         /// <summary>

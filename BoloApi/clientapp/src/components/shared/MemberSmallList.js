@@ -1,13 +1,15 @@
 ﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MemberSmallRow from "./MemberSmallRow";
+import { useAuth } from "./AuthProvider";
 
 function MemberSmallList(props) {
     const navigate = useNavigate();
+    const auth = useAuth();
     const [loading, setLoading] = useState(false);
     //const [message, setMessage] = useState(new MessageModel());
-    const token = props.token;
-    const myself = props.myself;
+    //const token = props.token;
+    //const myself = props.myself;
     const [model, setModel] = useState(null);
     const [q, setKeywords] = useState('');
     const [p, setCurrentPage] = useState(0);
@@ -31,7 +33,7 @@ function MemberSmallList(props) {
         fetch('//' + window.location.host + '/api/Follow/UnfollowHashtag?q=' + encodeURIComponent(tag), {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': `Bearer ${auth.token}`
             }
         })
             .then(response => {
@@ -49,7 +51,7 @@ function MemberSmallList(props) {
         fetch(url + "?q=" + encodeURIComponent(q) + "&p=" + p, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': `Bearer ${auth.token}`
             }
         })
             .then(response => {
@@ -87,14 +89,14 @@ function MemberSmallList(props) {
                     });
                 }
             });
-    }, [url, q, p, token, followList, reactions, props.target]);
+    }, [url, q, p, auth.token, followList, reactions, props.target]);
 
     const renderPosts = () => {
         if (props.target === 'reaction') {
             let items = [];
             for (let k in reactions) {
                 let p = reactions[k];
-                items.push(<MemberSmallRow token={token} key={p.member.id} member={p.member} status={p.status} />);
+                items.push(<MemberSmallRow token={auth.token} key={p.member.id} member={p.member} status={p.status} />);
             }
             return <>{items}</>;
         }
@@ -102,8 +104,8 @@ function MemberSmallList(props) {
             let items = [];
             for (let k in followList) {
                 let p = followList[k];
-                items.push(<MemberSmallRow token={token} key={p.follower.id} member={p.follower} status={p.status}
-                    showRemove={myself.id === props.memberid ? true : false}
+                items.push(<MemberSmallRow token={auth.token} key={p.follower.id} member={p.follower} status={p.status}
+                    showRemove={auth.myself.id === props.memberid ? true : false}
                     removed={(id) => { followerRemoved(id); }}
                 />);
             }
@@ -113,7 +115,7 @@ function MemberSmallList(props) {
             let items = [];
             for (let k in followList) {
                 let p = followList[k];
-                items.push(<MemberSmallRow token={token} key={p.follower.id} member={p.follower} status={p.status}
+                items.push(<MemberSmallRow token={auth.token} key={p.follower.id} member={p.follower} status={p.status}
                     showRemove={false} showShare={true} onShare={(id) => {
                         if (props.onSelected !== undefined && props.onSelected !== null)
                             props.onSelected(id);
@@ -138,7 +140,7 @@ function MemberSmallList(props) {
                     </div>;
                     items.push(h);
                 } else {
-                    items.push(<MemberSmallRow token={token} key={p.following.id} member={p.following} status={p.status} />);
+                    items.push(<MemberSmallRow token={auth.token} key={p.following.id} member={p.following} status={p.status} />);
                 }
             }
             return <>{items}</>;

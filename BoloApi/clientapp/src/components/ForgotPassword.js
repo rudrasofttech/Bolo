@@ -140,10 +140,10 @@ function ForgotPassword() {
                                         </div>
                                     </div>
                                     <div className="col-4">
-                                        <button type="submit" disabled={loading} className="btn btn-secondary">{loading ? 
-                                        <div className="spinner-border spinner-border-sm" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </div> : "Load Member"}</button></div>
+                                        <button type="submit" disabled={loading} className="btn btn-secondary">{loading ?
+                                            <div className="spinner-border spinner-border-sm" role="status">
+                                                <span className="visually-hidden">Loading...</span>
+                                            </div> : "Load Member"}</button></div>
                                 </div>
                             </form>
                             {securityQuestion !== "" ?
@@ -174,7 +174,7 @@ function ForgotPassword() {
                             }
                             <p className="haveaccount mt-3">
                                 <Link to="/login" title="Login Again">Try Login Again</Link></p>
-                            <ShowMessage bsstyle={bsstyle} message={message} />
+                            <ShowMessage messagemodal={message} />
                         </div>
                     </div>
                 </div>
