@@ -1,4 +1,5 @@
 ﻿import { useState } from "react";
+import { Link } from "react-router-dom";
 import MemberPicSmall from "./MemberPicSmall";
 import PhotoCarousel from "./PhotoCarousel";
 import MemberSmallList from "./MemberSmallList";
@@ -14,11 +15,11 @@ function MemberPost(props) {
     const auth = useAuth();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
-    const token = localStorage.getItem("token") == null ? '' : localStorage.getItem("token");
+    //const token = localStorage.getItem("token") == null ? '' : localStorage.getItem("token");
     const [post, setPost] = useState(props.post);
     const [hashtag, setHashtag] = useState(props.hashtag ? props.hashtag : '');
     const [showModal, setShowModal] = useState('') /*reaction,comment,post,edit,delete,flag,share */
-    const [muted, setMuted] = useState(true);
+    //const [muted, setMuted] = useState(true);
 
 
     const addReaction = () => {
@@ -144,7 +145,7 @@ function MemberPost(props) {
             if (response.status === 200) {
                 response.text().then(data => {
                     //console.log(data);
-                    if (data == "false") { } else if (data == "true") {
+                    if (data === "false") { } else if (data === "true") {
                         if (props.onIgnoredMember !== undefined && props.onIgnoredMember !== null) {
                             props.onIgnoredMember(post.owner.id);
                         }
@@ -230,16 +231,16 @@ function MemberPost(props) {
     const renderPostDisplay = (p) => {
         p.describe = p.describe + " ";
         let ownerlink = hashtag !== '' ? <div className="d-inline-block">
-            <a href={`//${window.location.host}/post/hastag?ht=${hashtag}`} className="text-primary fw-semibold fs-20">
+            <Link to={`//${window.location.host}/post/hastag?ht=${hashtag}`} className="text-primary fw-semibold fs-20">
                 {p.owner.userName}
-            </a>
-            <a href={`//${window.location.host}/profile?un=${p.owner.userName}`} className="text-primary fw-semibold fs-20">
+            </Link>
+            <Link to={`//${window.location.host}/profile/${p.owner.userName}`} className="text-primary fw-semibold fs-20">
                 {p.owner.userName}
-            </a>
+            </Link>
         </div> :
-            <a href={`//${window.location.host}/profile?un=${p.owner.userName}`} className="text-primary fw-semibold fs-20">
+            <Link to={`//${window.location.host}/profile/${p.owner.userName}`} className="text-primary fw-semibold fs-20">
                 {p.owner.userName}
-            </a>;
+            </Link>;
         let owner = <div className="p-lg-3 p-2">
             <div className="row g-0 align-items-center ">
                 <div className="col-2 col-lg-2 px-md-1" style={{ maxWidth: "60px" }}>

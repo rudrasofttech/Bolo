@@ -10,6 +10,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Profile from './components/Profile';
 import Explore from './components/Explore';
 import ManageProfile from './components/ManageProfile';
+import IgnoredUsers from './components/IgnoredUsers';
 
 function App() {
     return <>
@@ -20,6 +21,7 @@ function App() {
                     <Route exact path='/profile/:username?' element={<Profile />} />
                     <Route exact path='/manageprofile' element={<ManageProfile />} />
                     <Route exact path='/explore' element={<Explore />} />
+                    <Route exact path='/ignored' element={<IgnoredUsers />} />
                 </Route>
                 <Route exact path='/register' element={<RegisterForm />} />
                 <Route exact path='/login/:username?' element={<LoginForm />} />

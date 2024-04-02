@@ -1,5 +1,5 @@
 ﻿body {
-    margin-top: 88px;
+    /*margin-top: 88px;*/
 }
 
 .ff-righteous {
@@ -156,9 +156,9 @@ textarea.form-control {
 }
 
 #mainmenubar {
-    position: fixed;
-    /*position: -webkit-sticky;
-    position: sticky;*/
+    
+    position: -webkit-sticky;
+    position: sticky;
     top: 0;
     /*right: 0;
     left: 0;*/
@@ -169,7 +169,7 @@ textarea.form-control {
 }
 
 .btn-follow {
-    width: 80px;
+    min-width: 80px;
 }
 
 .sticky-column {

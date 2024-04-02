@@ -19,9 +19,9 @@ function Home(props) {
                     <MemberPostList search={search} viewMode={2} viewModeAllowed="false" />
                 </div>
                 <div className="col-lg-4 col-md-4 d-none d-md-block">
-                    <div className="sticky-column py-2">
-                        <AskPushNotification />
-                        <SendInvite myself={auth.myself} />
+                    <AskPushNotification />
+                    <SendInvite myself={auth.myself} />
+                    <div className="sticky-top py-2">
                         <SuggestedAccounts />
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 ﻿import { useState } from "react";
+import { Link } from "react-router-dom";
 import MemberPicSmall from "./MemberPicSmall";
 import ConfirmBox from "./ConfirmBox";
 import FollowButton from "./FollowButton";
@@ -53,10 +54,10 @@ function MemberSmallRow(props) {
             <MemberPicSmall member={member} />
         </div>
         <div className="col px-1">
-            <a href={'//' + window.location.host + '/profile?un=' + member.userName} >
+            <Link to={'//' + window.location.host + '/profile/' + member.userName} >
                 {member.name !== "" ? <div className="fs-20 text-secondary fw-semibold text-capitalize">{member.name}</div> : null}
                 <div className={member.name !== "" ? "text-primary fs-small mt-2" : "fs-20 text-secondary fw-semibold"}>{member.userName}</div>
-            </a>
+            </Link>
         </div>
         <div className="col text-end">
             {renderFollowButton()}

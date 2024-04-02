@@ -1,18 +1,20 @@
-﻿import { Link } from "react-router-dom";
+﻿import { Link, useParams } from "react-router-dom";
 import { useAuth } from "./shared/AuthProvider";
 import { useEffect, useState } from "react";
 import { MessageModel } from "./shared/Model";
-import  FollowButton  from "./shared/FollowButton";
-import  Spinner  from "./shared/Spinner";
-import  MemberSmallList  from "./shared/MemberSmallList";
-import  FollowRequestList  from "./FollowRequestList";
-import  ExpandableTextLabel  from "./shared/ExpandableTextLabel";
-import  MemberPostList  from "./MemberPostList";
+import FollowButton from "./shared/FollowButton";
+import Spinner from "./shared/Spinner";
+import MemberSmallList from "./shared/MemberSmallList";
+import FollowRequestList from "./FollowRequestList";
+import ExpandableTextLabel from "./shared/ExpandableTextLabel";
+import MemberPostList from "./MemberPostList";
 import ShowMessage from "./shared/ShowMessage";
 import Layout from "./Layout";
+import DropDownButton from "./shared/UI/DropDownButton";
 
-function Profile(props) {
+function Profile() {
     const auth = useAuth();
+    const { username } = useParams()
     const [loading, setLoading] = useState(false);
     const [showfollowers, setShowFollowers] = useState(false);
     const [showfollowing, setShowFollowing] = useState(false);
@@ -25,14 +27,14 @@ function Profile(props) {
 
     useEffect(() => {
         setLoading(true);
-        auth.validate();
-        let username = auth.myself.id;
-        if (props.username === undefined || props.username === null || props.username === "") {
-            username = auth.myself.id;
+        let un = "";
+        if (username === undefined) {
+            auth.validate();
+            un = auth.myself.id;
         } else {
-            username = props.username;
+            un = username;
         }
-        fetch('//' + window.location.host + '/api/Members/' + username, {
+        fetch('//' + window.location.host + '/api/Members/' + un, {
             method: 'get',
             headers: {
                 'Authorization': `Bearer ${auth.token}`
@@ -53,7 +55,7 @@ function Profile(props) {
             }).finally(() => {
                 setLoading(false);
             });
-    }, [props.username]);
+    }, [username]);
 
     const loadFollowStatus = (username) => {
         setLoading(true);
@@ -267,7 +269,7 @@ function Profile(props) {
         else if (showrequests) {
             followlist = <>{renderFollowRequest()}</>
         }
-        
+
         let me = null, pic = null, settings = null, followhtml = null;
         if (member !== null) {
             pic = member.pic !== "" ? <img src={"//" + window.location.host + "/" + member.pic} className="img-fluid profile-pic-border profile-thumb mb-2" alt="" />
@@ -277,8 +279,17 @@ function Profile(props) {
                 name = <div className="fs-18 text-center text-secondary">{member.name}</div>;
             }
             if (member != null && auth.myself.id === member.id) {
-                settings = <div className="p-1 ms-2">
-                    <Link to="/manageprofile">Edit Profile</Link>
+                settings = <div className="p-1 text-center">
+                    <DropDownButton text={<><i class="bi bi-gear me-1"></i>Settings</>}>
+                        <li>
+                            <Link to="/manageprofile" className="dropdown-item text-dark py-2">Edit Profile</Link></li>
+                        <li>
+                            <Link className="dropdown-item text-dark py-2" to="/ignored">Ignored Members</Link>
+                        </li>
+                        <li>
+                            <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2" onClick={() => auth.logOut()}>Logout</button>
+                        </li>
+                    </DropDownButton>
                 </div>;
             } else {
                 followhtml = renderFollowHtml();
@@ -345,14 +356,6 @@ function Profile(props) {
     }
 
     return <>{renderComp()}</>;
-    //return <ul >
-    //    <li className="py-2 border-bottom">
-    //        <Link className="dropdown-item py-1" to="/ignored"><i className="bi bi-sign-stop"></i> Ignored Members</Link>
-    //    </li>
-    //    <li className="py-2">
-    //        <button type="button" className="btn btn-link text-dark text-decoration-none dropdown-item py-1" onClick={() => auth.logOut()}><i className="bi bi-box-arrow-left"></i> Logout</button>
-    //    </li>
-    //</ul>;
 }
 
 export default Profile;

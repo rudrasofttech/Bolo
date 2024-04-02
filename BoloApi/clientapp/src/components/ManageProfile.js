@@ -12,6 +12,20 @@ import Spinner from "./shared/Spinner";
 function ManageProfile(props) {
     const auth = useAuth();
     const [myself, setMyself] = useState(auth.myself);
+    const [thoughtStatus, setThoughtStatus] = useState(auth.myself.thoughtStatus);
+    const [bio, setBio] = useState(auth.myself.bio);
+    const [securityAnswer, setSecurityAnswer] = useState(auth.myself.securityAnswer);
+    const [securityQuestion, setSecurityQuestion] = useState(auth.myself.securityQuestion);
+    const [userName, setUserName] = useState(auth.myself.userName);
+    const [phone, setPhone] = useState(auth.myself.phone);
+    const [email, setEmail] = useState(auth.myself.email);
+    const [name, setName] = useState(auth.myself.name);
+    const [gender, setGender] = useState(auth.myself.gender);
+    const [birthYear, setBirthYear] = useState(auth.myself.birthYear);
+    const [visibility, setVisibility] = useState(auth.myself.visibility);
+    const [country, setCountry] = useState(auth.myself.country);
+    const [state, setState] = useState(auth.myself.state);
+    const [city, setCity] = useState(auth.myself.city);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     const [showProfilePicModal, setShowProfilePicModal] = useState(false);
@@ -34,77 +48,59 @@ function ManageProfile(props) {
     let profilePicCanvas = null;
     let profilePicImgInst = null;
 
-    //useEffect(() => {
-    //    auth.validate();
-    //    //fetch('//' + window.location.host + '/api/CountryItem/', {
-    //    //    method: 'get',
-    //    //    headers: {
-    //    //        'Authorization': 'Bearer ' + auth.token
-    //    //    }
-    //    //}).then(response => {
-    //    //    if (response.status === 200) {
-    //    //        response.json().then(data => {
-    //    //            setCountryItems(data);
-    //    //        });
-    //    //    }
-    //    //});
-    //});
-
     const handleChange = (e) => {
-        let m = myself;
         switch (e.target.name) {
             case 'securityQuestion':
-                m.securityQuestion = e.target.value;
+                setSecurityQuestion(e.target.value);
                 break;
             case 'securityAnswer':
-                m.securityAnswer = e.target.value;
+                setSecurityAnswer(e.target.value);
                 break;
             case 'userName':
-                m.userName = e.target.value.replace(" ", "").replace("\\", "").replace("/", "").replace(";", "").replace("\"", "").replace("'", "").replace("#", "");
+                setUserName(e.target.value.replace(" ", "").replace("\\", "").replace("/", "").replace(";", "").replace("\"", "").replace("'", "").replace("#", ""));
                 break;
             case 'phone':
-                m.phone = e.target.value;
+                setPhone(e.target.value);
                 break;
             case 'email':
-                m.email = e.target.value;
+                setEmail(e.target.value);
                 break;
             case 'bio':
-                m.bio = e.target.value;
+                setBio(e.target.value);
                 break;
             case 'name':
                 if (e.target.value.trim() === "") {
-                    alert("Name is required.");
+                    setMessage("danger","Name is required.");
                     e.target.focus();
                 } else {
-                    m.name = e.target.value;
+                    setName(e.target.value);
                 }
                 break;
             case 'birthYear':
-                m.birthYear = e.target.value;
+                setBirthYear(e.target.value);
                 break;
             case 'gender':
-                m.gender = e.target.value;
+                setGender(e.target.value);
                 break;
             case 'visibility':
-                m.visibility = e.target.value;
+                setVisibility(e.target.value);
                 break;
             case 'country':
-                m.country = e.target.value;
+                setCountry( e.target.value);
                 break;
             case 'state':
-                m.state = e.target.value;
+                setState(e.target.value);
                 break;
             case 'city':
-                m.city = e.target.value;
+                setCity(e.target.value);
                 break;
             case 'thoughtStatus':
-                m.thoughtStatus = e.target.value;
+                setThoughtStatus(e.target.value);
                 break;
             default:
                 break;
         }
-
-        setMyself(m);
+        
     }
 
     //handleProfileImageLoaded(e) {
@@ -187,43 +183,43 @@ function ManageProfile(props) {
             });
     }
 
-    //const saveProfilePic = ()  => {
-    //    this.setState({
-    //        croppedImageUrl: this.profilePicCanvas.toDataURL("image/png")
-    //    }, () => {
-    //        this.hammer = null;
-    //        this.pinch = null;
-    //        this.profilePicCanvas = null;
-    //        this.profilePicImgInst = null;
-    //        setLoading(true);
-    //        const fd = new FormData();
-    //        fd.set("pic", croppedImageUrl);
-    //        fetch('//' + window.location.host + '/api/Members/savepic', {
-    //            method: 'post',
-    //            body: fd,
-    //            headers: {
-    //                'Authorization': 'Bearer ' + localStorage.getItem("token")
-    //            }
-    //        })
-    //            .then(response => {
-    //                if (response.status === 401) {
-    //                    //if token is not valid than remove token, set myself object with empty values
-    //                    localStorage.removeItem("token");
-    //                    this.setState({ loggedin: false, loading: false });
-    //                } else if (response.status === 200) {
-    //                    this.setState({ loading: false, showProfilePicModal: false, profilepiczoom: 1 });
-    //                    if (localStorage.getItem("token") !== null) {
-    //                        this.validate(localStorage.getItem("token"));
-    //                    }
-    //                    if (onProfileChange !== null) {
-    //                        onProfileChange();
-    //                    }
-    //                } else {
-    //                    this.setState({ loading: false, message: 'Unable to save profile pic', bsstyle: 'danger' });
-    //                }
-    //            });
-    //    });
-    //}
+    const saveProfilePic = ()  => {
+        //this.setState({
+        //    croppedImageUrl: this.profilePicCanvas.toDataURL("image/png")
+        //}, () => {
+        //    this.hammer = null;
+        //    this.pinch = null;
+        //    this.profilePicCanvas = null;
+        //    this.profilePicImgInst = null;
+        //    setLoading(true);
+        //    const fd = new FormData();
+        //    fd.set("pic", croppedImageUrl);
+        //    fetch('//' + window.location.host + '/api/Members/savepic', {
+        //        method: 'post',
+        //        body: fd,
+        //        headers: {
+        //            'Authorization': 'Bearer ' + localStorage.getItem("token")
+        //        }
+        //    })
+        //        .then(response => {
+        //            if (response.status === 401) {
+        //                //if token is not valid than remove token, set myself object with empty values
+        //                localStorage.removeItem("token");
+        //                this.setState({ loggedin: false, loading: false });
+        //            } else if (response.status === 200) {
+        //                this.setState({ loading: false, showProfilePicModal: false, profilepiczoom: 1 });
+        //                if (localStorage.getItem("token") !== null) {
+        //                    this.validate(localStorage.getItem("token"));
+        //                }
+        //                if (onProfileChange !== null) {
+        //                    onProfileChange();
+        //                }
+        //            } else {
+        //                this.setState({ loading: false, message: 'Unable to save profile pic', bsstyle: 'danger' });
+        //            }
+        //        });
+        //});
+    }
 
     const saveData = (name, value) => {
         setLoading(true);
@@ -238,8 +234,8 @@ function ManageProfile(props) {
                     if (response.status === 401) {
                         auth.logout();
                     } else if (response.status === 200) {
-                        setMessage("success", "Data is saved.");
-
+                        setMessage(new MessageModel("success", "Data is saved."));
+                        auth.validate();
                     } else {
                         response.json().then(data => {
                             setMessage(new MessageModel("danger", data.error));
@@ -268,6 +264,7 @@ function ManageProfile(props) {
                         auth.logout();
                     } else if (response.status === 200) {
                         setMessage("success", "Data is saved.");
+                        auth.validate();
                     } else {
                         response.json().then(data => {
                             setMessage(new MessageModel("danger", data.error));
@@ -285,11 +282,11 @@ function ManageProfile(props) {
     }
 
     const renderUSStates = () => {
-        return <select name="state" id="state" className="form-control" value={myself.state} onChange={handleChange} onBlur={saveData}><option value=""></option><option value="Alabama">Alabama</option><option value="Alaska">Alaska</option><option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option><option value="California">California</option><option value="Colorado">Colorado</option><option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option><option value="District of Columbia">District of Columbia</option><option value="Florida">Florida</option><option value="Georgia">Georgia</option><option value="Guam">Guam</option><option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option><option value="Illinois">Illinois</option><option value="Indiana">Indiana</option><option value="Iowa">Iowa</option><option value="Kansas">Kansas</option><option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option><option value="Maine">Maine</option><option value="Maryland">Maryland</option><option value="Massachusetts">Massachusetts</option><option value="Michigan">Michigan</option><option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option><option value="Missouri">Missouri</option><option value="Montana">Montana</option><option value="Nebraska">Nebraska</option><option value="Nevada">Nevada</option><option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option><option value="New Mexico">New Mexico</option><option value="New York">New York</option><option value="North Carolina">North Carolina</option><option value="North Dakota">North Dakota</option><option value="Northern Marianas Islands">Northern Marianas Islands</option><option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option><option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option><option value="Puerto Rico">Puerto Rico</option><option value="Rhode Island">Rhode Island</option><option value="South Carolina">South Carolina</option><option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option><option value="Texas">Texas</option><option value="Utah">Utah</option><option value="Vermont">Vermont</option><option value="Virginia">Virginia</option><option value="Virgin Islands">Virgin Islands</option><option value="Washington">Washington</option><option value="West Virginia">West Virginia</option><option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option></select>;
+        return <select name="state" id="state" className="form-control" value={state} onChange={handleChange} onBlur={() => { saveData("state", state) }}><option value=""></option><option value="Alabama">Alabama</option><option value="Alaska">Alaska</option><option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option><option value="California">California</option><option value="Colorado">Colorado</option><option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option><option value="District of Columbia">District of Columbia</option><option value="Florida">Florida</option><option value="Georgia">Georgia</option><option value="Guam">Guam</option><option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option><option value="Illinois">Illinois</option><option value="Indiana">Indiana</option><option value="Iowa">Iowa</option><option value="Kansas">Kansas</option><option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option><option value="Maine">Maine</option><option value="Maryland">Maryland</option><option value="Massachusetts">Massachusetts</option><option value="Michigan">Michigan</option><option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option><option value="Missouri">Missouri</option><option value="Montana">Montana</option><option value="Nebraska">Nebraska</option><option value="Nevada">Nevada</option><option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option><option value="New Mexico">New Mexico</option><option value="New York">New York</option><option value="North Carolina">North Carolina</option><option value="North Dakota">North Dakota</option><option value="Northern Marianas Islands">Northern Marianas Islands</option><option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option><option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option><option value="Puerto Rico">Puerto Rico</option><option value="Rhode Island">Rhode Island</option><option value="South Carolina">South Carolina</option><option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option><option value="Texas">Texas</option><option value="Utah">Utah</option><option value="Vermont">Vermont</option><option value="Virginia">Virginia</option><option value="Virgin Islands">Virgin Islands</option><option value="Washington">Washington</option><option value="West Virginia">West Virginia</option><option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option></select>;
     }
 
     const renderIndianStates = () => {
-        return <select name="state" id="state" className="form-control" value={myself.state} onChange={handleChange} onBlur={saveData}>
+        return <select name="state" id="state" className="form-control" value={state} onChange={handleChange} onBlur={() => { saveData("state", state) }}>
             <option value="Andhra Pradesh">Andhra Pradesh</option>
             <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
             <option value="Arunachal Pradesh">Arunachal Pradesh</option>
@@ -335,7 +332,7 @@ function ManageProfile(props) {
         } else if (myself.country.toLowerCase() === "usa") {
             return renderUSStates();
         } else {
-            return <input type="text" name="state" className="form-control" maxLength="100" value={myself.state} onChange={handleChange} onBlur={saveData} />
+            return <input type="text" name="state" className="form-control" maxLength="100" value={state} onChange={handleChange} onBlur={() => { saveData("state", state) } } />
         }
     }
 
@@ -358,14 +355,14 @@ function ManageProfile(props) {
                                 <div className="mb-3">
                                     <label htmlFor="securityAnswerTxt" className="form-label">Security Answer <span className="text-danger">(Required)</span></label>
                                     <input type="text" id="securityAnswerTxt" name="securityAnswer" className="form-control"
-                                        maxLength="300" value={myself.securityAnswer} onChange={handleChange} />
+                                        maxLength="300" value={securityAnswer} onChange={(e) => { setSecurityAnswer(e.target.value); }} />
                                 </div>
                                 
                             </div>
                             <div className="modal-footer">
                                 <ShowMessage messagemodal={message} toast={false} />
                                 <button type="button" disabled={loading} className="btn btn-primary"
-                                    onClick={() => { saveData("securityanswer", myself.securityAnswer) }}>
+                                    onClick={() => { saveData("securityanswer", securityAnswer) }}>
                                     {loading ? <Spinner sm={true} /> : "Save" }</button>
                             </div>
                         </div>
@@ -377,40 +374,40 @@ function ManageProfile(props) {
         else { return null; }
     }
 
-    //renderProfilePicModal() {
-    //    if (showProfilePicModal) {
-    //        const { crop, profile_pic, src } = this.state;
-    //        return <>
-    //            <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    //                <div className="modal-dialog">
-    //                    <div className="modal-content">
-    //                        <div className="modal-header">
-    //                            <h4 className="modal-title text-primary fw-semibold">Profile Picture</h4>
-    //                            <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close" onClick={toggleProfilePicModal}>
-    //                            </button>
-    //                        </div>
-    //                        <div className="modal-body">
-    //                            <div className="mb-3">
-    //                                <button className="btn btn-primary" type="button" onClick={() => { document.getElementById("profile_pic").click(); }}>Choose Picture</button>
-    //                                <input type="file" className="d-none" id="profile_pic" value={profile_pic}
-    //                                    onChange={this.handleFile} />
-    //                            </div>
-    //                            <div className="row justify-content-center">
-    //                                <div className="col">
-    //                                    <canvas id="profilePicCanvas" style={{ width: "300px", height: "300px" }}></canvas>
-    //                                </div>
-    //                            </div>
-    //                        </div>
-    //                        <div className="modal-footer">
-    //                            <button type="button" className="btn btn-primary" onClick={this.saveProfilePic}>Save</button>
-    //                        </div>
-    //                    </div>
-    //                </div>
-    //            </div><div className="modal-backdrop fade show"></div>
-    //        </>;
-    //    }
-    //    else { return null; }
-    //}
+    const renderProfilePicModal = () => {
+        if (showProfilePicModal) {
+            const { crop, profile_pic, src } = this.state;
+            return <>
+                <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h4 className="modal-title text-primary fw-semibold">Profile Picture</h4>
+                                <button type="button" className="btn-close" data-dismiss="modal" aria-label="Close" onClick={toggleProfilePicModal}>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                {/*<div className="mb-3">*/}
+                                {/*    <button className="btn btn-primary" type="button" onClick={() => { document.getElementById("profile_pic").click(); }}>Choose Picture</button>*/}
+                                {/*    <input type="file" className="d-none" id="profile_pic" value={profile_pic}*/}
+                                {/*        onChange={this.handleFile} />*/}
+                                {/*</div>*/}
+                                {/*<div className="row justify-content-center">*/}
+                                {/*    <div className="col">*/}
+                                {/*        <canvas id="profilePicCanvas" style={{ width: "300px", height: "300px" }}></canvas>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-primary" onClick={saveProfilePic}>Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div><div className="modal-backdrop fade show"></div>
+            </>;
+        }
+        else { return null; }
+    }
 
     const renderChangePasswordModal = () => {
         if (showchangepasswordmodal) {
@@ -450,14 +447,14 @@ function ManageProfile(props) {
                         <div className="col-lg-4">
                             <h4 className="mb-3 text-primary fw-bold text-center">Personal Information</h4>
                             <img src={myself.pic !== "" ? "//" + window.location.host + "/" + myself.pic : "/theme1/images/person-fill.svg"} className="rounded-circle mx-auto d-block img-fluid" alt="" style={{ width: "150px" }} />
-                            {/*<div className="text-center">*/}
-                            {/*    {myself.pic !== "" ? <button type="button" className="btn btn-sm btn-link m-1" onClick={this.removeProfilePicture}>Remove</button> : null}*/}
-                            {/*    <button type="button" className="btn btn-sm btn-link m-1" onClick={this.toggleProfilePicModal}>Change</button>*/}
-                            {/*</div>*/}
+                            <div className="text-center">
+                                {myself.pic !== "" ? <button type="button" className="btn btn-sm btn-link m-1" onClick={removeProfilePicture}>Remove</button> : null}
+                                <button type="button" className="btn btn-sm btn-link m-1" onClick={toggleProfilePicModal}>Change</button>
+                            </div>
                             <div className="mb-3">
                                 <label htmlFor="channelnametxt" className="form-label text-primary">Username</label>
                                 <input type="text" id="channelnametxt" disabled readOnly name="userName" placeholder="Unique Channel Name"
-                                    className="form-control shadow-none border" value={myself.userName} />
+                                    className="form-control shadow-none border" value={userName} />
                             </div>
                             <div className="mb-3">
                                 <button type="button" className="btn btn-primary" onClick={() => { setShowChangePasswordModal(true); }}>Reset Password</button>
@@ -466,25 +463,25 @@ function ManageProfile(props) {
                             <div className="mb-3">
                                 <label htmlFor="nametxt" className="form-label text-primary">Name <span className="text-danger">(Required)</span></label>
                                 <input type="text" id="nametxt" name="name" placeholder="Your Name" className="form-control shadow-none border"
-                                    value={myself.name} onChange={handleChange} onBlur={() => { saveData("name", myself.name) }} />
+                                    value={name} onChange={handleChange} onBlur={() => { saveData("name", name) }} />
                             </div>
                             <div className="mb-3">
                                 <label className="form-label text-primary">Mobile <span className="text-danger">(Required)</span></label>
-                                <input type="text" name="phone" className="form-control shadow-none border" maxLength="15" value={myself.phone} onChange={handleChange}
-                                    onBlur={() => { saveData("phone", myself.phone) }} />
+                                <input type="text" name="phone" className="form-control shadow-none border" maxLength="15" value={phone} onChange={handleChange}
+                                    onBlur={() => { saveData("phone", phone) }} />
                                 <div className="fs-small text-secondary">Mobile will not be shown on profile.</div>
                             </div>
                             <div className="mb-3">
                                 <label className="form-label text-primary">Email <span className="text-danger">(Required)</span></label>
-                                <input type="email" name="email" className="form-control shadow-none border" maxLength="250" value={myself.email}
+                                <input type="email" name="email" className="form-control shadow-none border" maxLength="250" value={email}
                                     onChange={handleChange}
-                                    onBlur={() => { saveData("email", myself.email) }} />
+                                    onBlur={() => { saveData("email", email) }} />
                                 <div className="fs-small text-secondary">Email will not be shown on profile.</div>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="birthyeartxt" className="form-label text-primary">Year of Birth</label>
-                                <select id="birthyeartxt" name="birthYear" className="form-select rounded-4 shadow-none border" value={myself.birthYear} onChange={handleChange}
-                                    onBlur={() => { saveData("birthYear", myself.birthYear) }}>
+                                <select id="birthyeartxt" name="birthYear" className="form-select rounded-4 shadow-none border" value={birthYear} onChange={handleChange}
+                                    onBlur={() => { saveData("birthYear", birthYear) }}>
                                     {yearitems}
                                 </select>
                                 <div className="fs-small text-secondary">Age will not be shown on profile.</div>
@@ -494,18 +491,18 @@ function ManageProfile(props) {
                             <h4 className="mb-3 text-primary fw-bold text-center">Profile Information</h4>
                             <div className="mb-3">
                                 <label htmlFor="thoughtStatus" className="form-label text-primary">One line Introduction</label>
-                                <input type="text" name="thoughtStatus" className="form-control shadow-none border" maxLength="195" value={myself.thoughtStatus} onChange={handleChange}
-                                    onBlur={() => { saveData("thoughtstatus", myself.thoughtStatus) }} />
+                                <input type="text" name="thoughtStatus" className="form-control shadow-none border" maxLength="195" value={thoughtStatus} onChange={(e) => { setThoughtStatus(e.target.value); } }
+                                    onBlur={() => { saveData("thoughtstatus", thoughtStatus) }} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="biotxt" className="form-label text-primary">About Me</label>
-                                <textarea className="form-control shadow-none border" id="biotxt" maxLength="950" name="bio" value={myself.bio} onChange={handleChange} rows="7" placeholder="Write something about yourself."
-                                    onBlur={() => { saveData("bio", myself.bio) }}></textarea>
+                                <textarea className="form-control shadow-none border" id="biotxt" maxLength="950" name="bio" value={bio} onChange={(e) => { setBio(e.target.value); }} rows="7" placeholder="Write something about yourself."
+                                    onBlur={() => { saveData("bio", bio) }}></textarea>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="visibilityselect" className="form-label text-primary">Profile Visibility</label>
-                                <select className="form-select rounded-4 shadow-none border" id="genderselect" name="visibility" value={myself.visibility} onChange={handleChange}
-                                    onBlur={() => { saveData("visibility", myself.visibility) }}>
+                                <select className="form-select rounded-4 shadow-none border" id="genderselect" name="visibility" value={visibility} onChange={handleChange}
+                                    onBlur={() => { saveData("visibility", visibility) }}>
                                     <option value="0"></option>
                                     <option value="2">Public</option>
                                     <option value="1">Private</option>
@@ -513,7 +510,7 @@ function ManageProfile(props) {
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="countryselect" className="form-label text-primary">Country</label>
-                                <select className="form-select rounded-4 shadow-none border" id="countryselect" name="country" value={myself.country} onChange={handleChange} onBlur={() => { saveData("country", myself.country) }}>
+                                <select className="form-select rounded-4 shadow-none border" id="countryselect" name="country" value={country} onChange={handleChange} onBlur={() => { saveData("country", country) }}>
                                     <option value=""></option>
                                     <option value="AD">Andorra</option>
                                     <option value="AE">United Arab Emirates</option>
@@ -768,8 +765,9 @@ function ManageProfile(props) {
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="securityQuesitonTxt" className="form-label text-primary">Security Question <span className="text-danger">(Required)</span></label>
-                                <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control shadow-none border" maxLength="300" value={myself.securityQuestion} onChange={handleChange}
-                                    onBlur={() => { saveData("securityquestion", myself.securityQuestion) }} />
+                                <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control shadow-none border"
+                                    maxLength="300" value={securityQuestion} onChange={(e) => { setSecurityQuestion(e.target.value); } }
+                                    onBlur={() => { saveData("securityquestion", securityQuestion) }} />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="securityAnswerTxt" className="form-label text-primary">Security Answer <span className="text-danger">(Required)</span></label>
@@ -795,7 +793,7 @@ function ManageProfile(props) {
             </>;
         } else {
             return <>
-                {loading}
+                {loading ? <Spinner /> : null}
             </>;
         }
     }

@@ -16,7 +16,8 @@ function ShowMessage({ toast = true, messagemodal = null}) {
     }, [messagemodal]);
 
     if (toast && (obj !== null && obj.message !== "")) {
-        return <div className="toast-container p-3 bottom-0 end-0"><div className="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
+        return <div className="toast-container p-3 bottom-0 end-0">
+            <div className="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
             <div className="toast-header">
                 <strong className="me-auto">Attention</strong>
                 <button type="button" className="btn-close" onClick={() => { setMessage(null); }} aria-label="Close"></button>
