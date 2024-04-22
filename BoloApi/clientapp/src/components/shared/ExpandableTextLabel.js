@@ -20,7 +20,7 @@ function ExpandableTextLabel(props) {
             });
             t = <>
                 {describe.split('\n').map((item, key) => {
-                    return <><span dangerouslySetInnerHTML={{ __html: item }}></span><br /></>
+                    return <><span className="d-inline lh-base" dangerouslySetInnerHTML={{ __html: item }}></span><br /></>
                 })}
             </>;
         } else {
@@ -28,11 +28,11 @@ function ExpandableTextLabel(props) {
             if (temp.length > props.maxlength) {
                 temp = temp.substring(0, props.maxlength);
             }
-            t = <>{temp}</>;
+            t = <span className="d-inline lh-base">{temp}</span>;
         }
 
         if (showexpand) {
-            expandbtn = <span onClick={() => { setExpand(!expand) }} className="text-primary ps-2 fw-semibold" >{(!expand) ? "More" : "Less"}</span>
+            expandbtn = <span onClick={() => { setExpand(!expand) }} className="text-primary ps-2 fw-semibold pointer" >{(!expand) ? "More" : "Less"}</span>
         }
 
         return <div className={props.cssclass}>{t}{expandbtn}</div>;

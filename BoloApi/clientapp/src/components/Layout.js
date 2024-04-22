@@ -1,15 +1,90 @@
-﻿import React, { Fragment } from 'react';
+﻿import React, { Fragment, useState } from 'react';
 import NavBar from './shared/NavBar';
+import Search from './Search';
+import NotificationList from './NotificationList';
+import SendPulse from './shared/SendPulse';
+import AskPushNotification from './AskPushNotification';
+import Sidebar from './shared/Sidebar';
 
 function Layout(props) {
+    const [showSearch, setShowSearch] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [keywords, setKeywords] = useState("");
+    const [unseennotificationcount, setUnseenNotificationCount] = useState(0);
+
+    const showNotificationModal = () => {
+        return <>
+            <div className={showNotification ? "modal d-block" : "modal fade"} id="NotificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-lg rounded-4 modal-dialog-scrollable modal-fullscreen-sm-down">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3 className="modal-title text-primary fw-semibold fs-4" id="notificationModalLabel">Notifications</h3>
+                            <button type="button" className="btn-close" onClick={() => { setShowNotification(false); }} aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body modal-dialog-scrollable">
+                            <NotificationList onNotificationClick={() => { setShowNotification(false); }} onUpdateUnseen={(data) => { setUnseenNotificationCount(data); }} />
+                        </div>
+                        <div className="modal-footer">
+                            <AskPushNotification />
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            {showNotification ? <div className="modal-backdrop fade show"></div> : null}
+        </>;
+    }
+
+    const showSearchModal = () => {
+        if (showSearch) {
+            return <>
+                <div className="modal  d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h3 className="modal-title fw-semibold" id="notificationModalLabel">
+                                    <input type="text" style={{ width: "300px" }} value={keywords} onChange={(e) => { setKeywords(e.target.value); }} className="form-control shadow-none border"
+                                        placeholder="Search People, Topics, Hashtags" maxLength="150" />
+                                </h3>
+                                <button type="button" className="btn-close" onClick={() => { setShowSearch(false); }} aria-label="Close"></button>
+                            </div>
+                            <div className="modal-body">
+                                <Search keywords={keywords} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal-backdrop fade show"></div>
+            </>;
+        } else
+            return null;
+    };
+
     return <>
         <NavBar
+            unseennotificationcount={unseennotificationcount}
             onAddPostClick={() => { console.log("add post click"); }}
-            onSearchClick={() => { console.log("search lick"); }}
-            onNotificationClick={() => { console.log("notification click"); }} />
-        <Fragment>
-            {props.children}
-        </Fragment>
+            onSearchClick={() => { setShowSearch(true); }}
+            onNotificationClick={() => { setShowNotification(true); }} />
+        <div className="container-fluid">
+            <div className="row">
+                <div className="col-sm-1 col-lg-1 sidemenubar d-none d-sm-block">
+                    <Sidebar unseennotificationcount={unseennotificationcount}
+                        onAddPostClick={() => { console.log("add post click"); }}
+                        onSearchClick={() => { setShowSearch(true); }}
+                        onNotificationClick={() => { setShowNotification(true); }} />
+                </div>
+                <div className="col">
+                    <Fragment>
+                        {props.children}
+                        {showSearchModal()}
+                        {showNotificationModal()}
+                        <SendPulse />
+                    </Fragment>
+                </div>
+            </div>
+        </div>
+        
     </>;
 }
 

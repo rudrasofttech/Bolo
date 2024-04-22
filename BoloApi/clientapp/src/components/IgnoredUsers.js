@@ -93,7 +93,7 @@ function IgnoredUsers() {
     }
     return <Layout>
         {renderComp()}
-        {loading ? <Spinner center={true} /> : null}
+        <Spinner show={loading} center={true} />
         <ShowMessage messagemodal={message} toast={true } />
     </Layout>;
 }

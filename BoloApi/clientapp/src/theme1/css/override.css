@@ -86,7 +86,7 @@ textarea.form-control {
     border-style: solid;
     border-color: #30235B;
     padding: 2px;
-    border-radius: 50% !important;
+    border-radius: 18% !important;
 }
 
 .carousel-indicators {
@@ -164,8 +164,25 @@ textarea.form-control {
     left: 0;*/
     z-index: 1;
     width:100%;
-    border-bottom: 2px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
     background: #ffffff;
+}
+
+.sidemenubar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    width: auto;
+    border-right: 1px solid lightgrey;
+    background: #ffffff;
+    height:100vh;
+}
+
+.sidemenubar .item{
+    height:16.6vh;
+    text-align:center;
+
 }
 
 .btn-follow {
@@ -185,8 +202,7 @@ textarea.form-control {
 }
 .memberpost
 {
-    max-width:700px;
-    
+    max-width:800px;
 }
 
 @media (min-width: 1400px) {

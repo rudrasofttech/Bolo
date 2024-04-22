@@ -11,15 +11,19 @@ import Profile from './components/Profile';
 import Explore from './components/Explore';
 import ManageProfile from './components/ManageProfile';
 import IgnoredUsers from './components/IgnoredUsers';
+import ViewPost from './components/ViewPost';
+import AddPost from './components/AddPost';
 
 function App() {
     return <>
         <AuthProvider>
             <Routes>
+                <Route exact path='/profile/:username?' element={<Profile />} />
+                <Route exact path='/post/:id' element={<ViewPost /> } />
                 <Route element={<PrivateRoute />}>
                     <Route exact path='/' element={<Home />} />
-                    <Route exact path='/profile/:username?' element={<Profile />} />
                     <Route exact path='/manageprofile' element={<ManageProfile />} />
+                    <Route exact path='/add' element={<AddPost />} />
                     <Route exact path='/explore' element={<Explore />} />
                     <Route exact path='/ignored' element={<IgnoredUsers />} />
                 </Route>

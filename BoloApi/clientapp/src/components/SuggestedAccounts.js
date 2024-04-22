@@ -37,27 +37,16 @@ function SuggestedAccounts(props) {
             });
     }, [auth.token]);
 
-    const renderResult = () => {
-        if (loading)
-            return <Spinner center={true} sm={true} />;
-
-        let items = [];
-        for (let k in list) {
-            items.push(<div key={k} className="p-3 py-2"><MemberSmallRow token={auth.token} member={list[k]} /></div>);
-        }
-        if (items.length > 0) {
-            return <div className="border rounded-4 mt-4">
-                <h4 className="text-primary my-3 fs-24 text-center ff-righteous">Suggested Accounts</h4>
-                {items}
-            </div>;
-        }
-        else {
-            return null;
-        }
-    }
-
     return <>
-        {renderResult()}
+        <Spinner show={loading} center={true} sm={true} />
+        {list.length > 0 ? <div className="border rounded-4 mt-4">
+            <h4 className="text-primary my-3 fs-24 text-center ff-righteous">Suggested Accounts</h4>
+            {list.map(l => {
+                return <div className="p-3 py-2">
+                    <MemberSmallRow token={auth.token} member={l} />
+                </div>;
+            })}
+        </div> : null }
         <ShowMessage messagemodal={message} />
     </>;
 }

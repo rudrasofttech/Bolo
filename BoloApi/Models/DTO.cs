@@ -529,7 +529,7 @@ namespace Bolo.Models
             else if (n.Type == MemberNotificationType.FollowRequest)
             {
                 Title = $"{n.Source.Name} wants to follow you.";
-                URL = $"profile?un={n.Source.UserName}";
+                URL = $"profile/{n.Source.UserName}";
             }
             else if (n.Type == MemberNotificationType.SharePost)
             {

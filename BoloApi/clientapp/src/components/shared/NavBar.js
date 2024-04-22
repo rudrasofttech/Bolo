@@ -3,7 +3,7 @@ import { useAuth } from "./AuthProvider";
 
 function NavBar(props) {
     const auth = useAuth();
-    return <div id="mainmenubar">
+    return <div id="mainmenubar" className="d-block d-md-none">
         <div className="container px-2">
             <div className="row g-0 align-items-center">
                 <div className="col-md-2 d-none d-md-block  py-2">
@@ -37,8 +37,9 @@ function NavBar(props) {
                             <div className="col">
                                 <button type="button" onClick={() => { props.onNotificationClick(); }} className="position-relative fs-4 mx-md-4 text-primary btn btn-link">
                                     <i className="bi bi-bell"></i>
-                                    <span style={{ fontSize: "0.8rem", top: "10px" }} className="position-absolute start-100 translate-middle badge rounded-pill bg-danger">
-                                    </span>
+                                    {props.unseennotificationcount > 0 ? <span style={{ fontSize: "0.8rem", top: "10px" }} className="position-absolute start-100 translate-middle badge rounded-pill bg-danger">
+                                        {props.unseennotificationcount}
+                                    </span> : null }
                                 </button>
                             </div>
                             <div className="col">

@@ -118,7 +118,7 @@ function LoginForm(props) {
                                     </div>
                                     <Link to="/forgotpassword" title="Forgot Password?" className="forgot-pass">Forgot Password?</Link>
                                 </div>
-                                <button type="submit" disabled={loading} className="btn btn-blue">{loading ? <Spinner sm={true } /> : "Login"}</button>
+                                <button type="submit" disabled={loading} className="btn btn-blue"><Spinner sm={true} show={loading} /> Login</button>
                             </form>
                             <div className="alternateoption">
                                 <span>Or</span>

@@ -88,8 +88,10 @@ function MemberSmallList(props) {
                         }
                     });
                 }
+            }).finally(() => {
+                setLoading(false);
             });
-    }, [url, q, p, auth.token, followList, reactions, props.target]);
+    }, [q, p]);
 
     const renderPosts = () => {
         if (props.target === 'reaction') {

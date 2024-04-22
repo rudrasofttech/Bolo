@@ -112,7 +112,12 @@ function AskPushNotification(props) {
         Notification.requestPermission().then((status) => {
             if (status === "granted") {
                 setPermission(status);
-                getSubscription();
+                navigator.serviceWorker.getRegistration()
+                    .then((r) => {
+                        reg = r;
+                        getSubscription();
+                    });
+                
             } else if (status === "blocked" || status === "denied") {
                 setPermission(status);
                 setMode("ask");
@@ -148,20 +153,19 @@ function AskPushNotification(props) {
         if (mode === "nosupport" || mode === "done") {
             return null;
         }
-        let message = <>Remain up to date with<br /> latest comments, reactions and content.</>;
+        let message = "";
         if (permission === "blocked") {
             message = <>You have blocked the notification.</>;
         } else if (permission === "denied") {
-            message = <>Notification permission is denied.<br /> Please allow yocail browser notifications.</>;
+            message = <>Notification permission is denied.<br /> Please allow yocail to send browser notifications.</>;
         }
         if (mode === "ask") {
             if (showModal) {
                 return <>{renderModal(message)}</>
             } else {
-                return <div className="p-3 py-2 rounded-4 border my-3 bg-white text-center">
-                    <h4 className="text-primary my-3 fs-24 ff-righteous">Yocail Notifications</h4>
-                    <div className="my-2 lh-sm">{message}</div>
-                    <button type="button" onClick={requestNotificationAccess} className="btn btn-blue my-2">Get Notifications</button>
+                return <div className="">
+                    {message !== "" ? <div className="my-2 lh-sm">{message}</div> : null}
+                    <button type="button" onClick={requestNotificationAccess} title="Remain up to date with latest comments, reactions and content." className="btn btn-blue my-2">Enable Browser Notifications</button>
                 </div>;
             }
         }

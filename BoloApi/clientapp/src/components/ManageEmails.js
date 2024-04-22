@@ -108,7 +108,7 @@ function ManageEmails(props) {
                                     </div>
                                     <div className="mb-2">
                                         <button type="submit" disabled={loading} className="btn btn-blue">
-                                            {loading ? <Spinner sm={true} /> : null} Save</button>
+                                            <Spinner show={loading} sm={true} /> Save</button>
                                     </div>
                                 </form>
                             </div>

@@ -314,6 +314,7 @@ namespace Bolo.Controllers
 
         // GET: api/Members/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<MemberDTO>> GetMember(string id)
         {
             try

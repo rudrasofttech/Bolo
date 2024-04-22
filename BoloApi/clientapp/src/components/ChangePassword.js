@@ -54,9 +54,7 @@ function ChangePassword() {
                 onChange={(e) => { setConfirmPassword(e.target.value); }} />
         </div>
         <div className="mb-3">
-            <button type="button" disabled={loading} className="btn btn-primary" onClick={savePassword}>
-                {loading ? <Spinner /> : null}
-                Save Password</button>
+            <button type="button" disabled={loading} className="btn btn-primary" onClick={savePassword}><Spinner show={loading} sm={true} /> Save Password</button>
         </div>
         <ShowMessage messagemodal={message} />
     </>;

@@ -11,10 +11,10 @@ function MemberPostList(props) {
     
     const [q, setSearchKeyword] = useState(props.search);
     let ls = { model: null, posts: [] };
-    if (props.search === "userfeed" && localStorage.getItem("userfeed") != null)
-        ls = JSON.parse(localStorage.getItem("userfeed"))
-    else if (props.search === "explore" && localStorage.getItem("explore") != null)
-        ls = JSON.parse(localStorage.getItem("explore"));
+    //if (props.search === "userfeed" && localStorage.getItem("userfeed") != null)
+    //    ls = JSON.parse(localStorage.getItem("userfeed"))
+    //else if (props.search === "explore" && localStorage.getItem("explore") != null)
+    //    ls = JSON.parse(localStorage.getItem("explore"));
     const [firsttime, setFirstTime] = useState(true);
     const [model, setModel] = useState(ls.model);
     const [posts, setPosts] = useState(ls.posts);
@@ -26,50 +26,10 @@ function MemberPostList(props) {
 
     const selectPost = (id) => {
         setViewMode(2);
-        document.getElementById(id).scrollIntoView({ behavior: "auto", block: "center", inline: "center" });
+        if (document.getElementById(id) != null) {
+            document.getElementById(id).scrollIntoView({ behavior: "auto", block: "center", inline: "center" });
+        }
     }
-
-    //const addReaction = (id) => {
-    //    fetch('//' + window.location.host + '/api/Post/addreaction/' + id, {
-    //        method: 'get',
-    //        headers: {
-    //            'Authorization': 'Bearer ' + token
-    //        }
-    //    })
-    //        .then(response => {
-    //            if (response.status === 401) {
-    //                //if token is not valid than remove token, set myself object with empty values
-    //                console.log("Unauthorized access return, but don take me to login page, just keep quiet.");
-    //            } else if (response.status === 200) {
-    //                response.json().then(data => {
-    //                    var temp = posts;
-    //                    for (var k in temp) {
-    //                        var p = temp[k];
-    //                        if (p.id == id) {
-    //                            p.hasReacted = data.hasReacted;
-    //                            p.reactionCount = data.reactionCount;
-    //                        }
-    //                    }
-    //                    setBsstyle('');
-    //                    setMessage('');
-    //                    setPosts(temp);
-    //                });
-    //            } else {
-    //                response.json().then(data => {
-    //                    setBsstyle('danger');
-    //                    setMessage(data.error);
-    //                }).catch(err => {
-    //                    setBsstyle('danger');
-    //                    setMessage('Unable to process your request.');
-    //                    console.log(err);
-    //                });
-    //            }
-    //        }).catch(error => {
-    //            setBsstyle('danger');
-    //            setMessage('Unable to contact server, Please check your internet connection.');
-    //            console.log(error);
-    //        });
-    //}
 
     useEffect(() => {
         setLoading(true);
@@ -103,15 +63,15 @@ function MemberPostList(props) {
                         });
                         setPosts(temp);
                         setFirstTime(false);
-                        if (q === "userfeed" || q === "explore")
-                            localStorage.setItem(q, JSON.stringify({ model, posts }));
+                        //if (q === "userfeed" || q === "explore")
+                        //    localStorage.setItem(q, JSON.stringify({ model, posts }));
                     });
                 }
             }).catch(error => {
                 setMessage(new MessageModel('danger','Unable to contact server, Please check your internet connection.'));
                 console.log(error);
             }).finally(() => { setLoading(false); });
-    }, [q, p, auth.token, firsttime]);
+    }, [q, p]);
 
 
     const postDeleted = (id) => {
@@ -136,17 +96,17 @@ function MemberPostList(props) {
             if (items.length === 0 && !loading) {
                 items.push(empty);
             }
-            return <>{items}</>;
+            return <div>{items}</div>;
         }
         else if (viewMode === 1) {
             let items = [];
             for (let k in posts) {
                 let p = posts[k];
                 if (p.videoURL !== "") { } else {
-                    items.push(<div className="col pointer">
+                    items.push(<div key={p.id + "indi"} className="col pointer">
                         <div className="card border-0">
-                            <div className="imgbg rounded-3" style={{ backgroundImage: "url(//" + window.location.host + "/" + p.photos[0].photo + ")" }}>
-                                <img alt="" src={"//" + window.location.host + "/" + p.photos[0].photo} className="opacity-0 img-fluid" data-postid={p.id} onClick={(e) => {
+                            <div className="imgbg rounded-3" style={{ backgroundImage: `url(${p.photos[0].photo})` }}>
+                                <img alt="" src={p.photos[0].photo} className="opacity-0 img-fluid" data-postid={p.id} onClick={(e) => {
                                     selectPost(e.target.getAttribute("data-postid"));
                                 }} />
                             </div>

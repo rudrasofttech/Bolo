@@ -54,7 +54,7 @@ function MemberSmallRow(props) {
             <MemberPicSmall member={member} />
         </div>
         <div className="col px-1">
-            <Link to={'//' + window.location.host + '/profile/' + member.userName} >
+            <Link to={`//${window.location.host}/@${member.userName}`} >
                 {member.name !== "" ? <div className="fs-20 text-secondary fw-semibold text-capitalize">{member.name}</div> : null}
                 <div className={member.name !== "" ? "text-primary fs-small mt-2" : "fs-20 text-secondary fw-semibold"}>{member.userName}</div>
             </Link>

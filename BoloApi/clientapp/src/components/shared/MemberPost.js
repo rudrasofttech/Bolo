@@ -15,7 +15,6 @@ function MemberPost(props) {
     const auth = useAuth();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
-    //const token = localStorage.getItem("token") == null ? '' : localStorage.getItem("token");
     const [post, setPost] = useState(props.post);
     const [hashtag, setHashtag] = useState(props.hashtag ? props.hashtag : '');
     const [showModal, setShowModal] = useState('') /*reaction,comment,post,edit,delete,flag,share */
@@ -241,7 +240,7 @@ function MemberPost(props) {
             <Link to={`//${window.location.host}/profile/${p.owner.userName}`} className="text-primary fw-semibold fs-20">
                 {p.owner.userName}
             </Link>;
-        let owner = <div className="p-lg-3 p-2">
+        let owner = <div className="py-lg-3 py-2">
             <div className="row g-0 align-items-center ">
                 <div className="col-2 col-lg-2 px-md-1" style={{ maxWidth: "60px" }}>
                     <MemberPicSmall member={p.owner} />
@@ -285,23 +284,17 @@ function MemberPost(props) {
             commentbox = null;
         let reactionCountHtml = <span className="d-block mt-1 text-dark" style={{ fontSize: "0.7rem" }}>{(p.reactionCount > 0) ? <>{p.reactionCount}<br />Likes</> : " "}</span>;
 
-        let reactionhtml = <button type="button" className="btn btn-link py-0 fs-3 text-primary text-decoration-none" onClick={addReaction}>
+        let reactionhtml = <div className="p-2 me-2 fs-3 d-inline-block text-center text-primary pointer" onClick={addReaction}>
             <i className="bi bi-heart"></i>{reactionCountHtml}
-        </button>;
+        </div>;
         if (p.hasReacted) {
-            reactionhtml = <button type="button" className="btn btn-link py-0 fs-3 text-danger text-decoration-none" onClick={addReaction}><i className="bi bi-heart-fill"></i>{reactionCountHtml}</button>;
+            reactionhtml = <div className="p-2 fs-3 d-inline-block text-center text-danger pointer" onClick={addReaction}><i className="bi bi-heart-fill"></i>{reactionCountHtml}</div>;
         }
-        let commentBtn = null, commentCountHtml = null;
-        if (p.acceptComment) {
-            commentCountHtml = <span className="d-block mt-1 text-dark" style={{ fontSize: "0.7rem" }}>{p.commentCount > 0 ? <>{p.commentCount}<br />Comments</> : " "}</span>;
-            commentBtn = <button type="button" className="btn btn-link fs-3 py-0 text-primary text-decoration-none mb-2" onClick={() => { setShowModal('comment'); }}><i className="bi bi-chat-square-text"></i>{commentCountHtml}</button>;
-        }
-        let shareBtn = null;
-        if (p.allowShare) {
-            shareBtn = <button type="button" title="Share post with people" className="btn btn-link py-0 fs-3 text-primary mb-2" onClick={() => { setShowModal('share'); }}><i className="bi bi-share-fill"></i>
-                <span className="d-block mt-1 text-dark" style={{ fontSize: "0.7rem" }}> </span>
-            </button>
-        }
+        let commentBtn = p.acceptComment ? <div className="p-2 me-2 fs-3 d-inline-block text-center text-primary pointer" onClick={() => { setShowModal('comment'); }}><i className="bi bi-chat-square-text"></i><span className="d-block mt-1 text-dark" style={{ fontSize: "0.7rem" }}>{p.commentCount > 0 ? <>{p.commentCount}<br />Comments</> : " "}</span></div> : null;
+        let shareBtn = p.allowShare ? <div className="p-2 fs-3 d-inline-block text-center text-primary pointer" title="Share post with people" onClick={() => { setShowModal('share'); }}>
+            <i className="bi bi-share-fill"></i>
+        </div> : null;
+
         let likemodal = null;
         if (showModal === "reaction") {
             likemodal = <>
@@ -323,27 +316,21 @@ function MemberPost(props) {
         }
         return <div id={post.id} className="mb-2 bg-white memberpost">
             {owner}
-            <div>
-                <div className="px-lg-5">
-                    {postshtml}
-                </div>
-                <div className="px-lg-5">
-                    <div className="row align-items-start g-1 mt-2">
-                        <div className="col">
-                            <div className=" text-secondary" style={{ fontSize: "13px" }}>
-                                <DateLabel value={p.postDate} />
-                            </div>
-                        </div>
-                        <div className="col text-end">
-                            {reactionhtml}
-                            {p.acceptComment ? <>{commentBtn}</> : null}
-                            {p.allowShare ? <>{shareBtn}</> : null}
-                        </div>
-                    </div>
-                    <div className="lh-sm">
-                        <ExpandableTextLabel cssclass="fs-small" text={p.describe === null ? "" : p.describe} maxlength={100} />
+            {postshtml}
+            <div className="row align-items-start g-1 mt-2">
+                <div className="col">
+                    <div className=" text-secondary" style={{ fontSize: "13px" }}>
+                        <DateLabel value={p.postDate} />
                     </div>
                 </div>
+                <div className="col text-end">
+                    {reactionhtml}
+                    {commentBtn}
+                    {shareBtn}
+                </div>
+            </div>
+            <div className="lh-sm">
+                <ExpandableTextLabel cssclass="fs-small" text={p.describe === null ? "" : p.describe} maxlength={100} />
             </div>
             {likemodal}
             {commentbox}

@@ -1,17 +1,18 @@
-﻿import { useEffect, useState, useSyncExternalStore } from "react";
+﻿import { useRef, useState } from "react";
+import AvatarEditor from 'react-avatar-editor'
 import { useAuth } from "./shared/AuthProvider";
 import { MessageModel } from "./shared/Model";
-import ShowMessage  from "./shared/ShowMessage";
+import ShowMessage from "./shared/ShowMessage";
 import ChangePassword from "./ChangePassword";
 import ManageLinks from "./ManageLinks";
 import ManageEmails from "./ManageEmails";
 import ManagePhones from "./ManagePhones";
 import Layout from "./Layout";
 import Spinner from "./shared/Spinner";
+import { Utility } from "./Utility";
 
 function ManageProfile(props) {
     const auth = useAuth();
-    const [myself, setMyself] = useState(auth.myself);
     const [thoughtStatus, setThoughtStatus] = useState(auth.myself.thoughtStatus);
     const [bio, setBio] = useState(auth.myself.bio);
     const [securityAnswer, setSecurityAnswer] = useState(auth.myself.securityAnswer);
@@ -31,22 +32,13 @@ function ManageProfile(props) {
     const [showProfilePicModal, setShowProfilePicModal] = useState(false);
     const [src, setSrc] = useState(null);
     const [showSecAnsModal, setShowSecAnsModal] = useState(false);
-    const [crop, setCrop] = useState({
-        unit: "px",
-        x: 0,
-        y: 0,
-        width: 300,
-        height: 300,
-        locked: true
-    });
-    const [croppedImageUrl, setCroppedImageUrl] = useState(null);
-    const [profilepiczoom, setProfilePicZoom] = useState(1);
+    const editor = useRef(null);
+    const profilePicInput = useRef(null);
+    const [profilePicScale, setProfilePicScale] = useState(1);
+
     //const [countryitems, setCountryItems] = useState([]);
     const [showchangepasswordmodal, setShowChangePasswordModal] = useState(false);
-    let hammer = null;
-    let pinch = null;
-    let profilePicCanvas = null;
-    let profilePicImgInst = null;
+
 
     const handleChange = (e) => {
         switch (e.target.name) {
@@ -70,7 +62,7 @@ function ManageProfile(props) {
                 break;
             case 'name':
                 if (e.target.value.trim() === "") {
-                    setMessage("danger","Name is required.");
+                    setMessage(new MessageModel("danger", "Name is required."));
                     e.target.focus();
                 } else {
                     setName(e.target.value);
@@ -86,7 +78,7 @@ function ManageProfile(props) {
                 setVisibility(e.target.value);
                 break;
             case 'country':
-                setCountry( e.target.value);
+                setCountry(e.target.value);
                 break;
             case 'state':
                 setState(e.target.value);
@@ -100,57 +92,8 @@ function ManageProfile(props) {
             default:
                 break;
         }
-        
+
     }
-
-    //handleProfileImageLoaded(e) {
-    //    this.profilePicCanvas.remove(this.profilePicImgInst);
-    //    this.profilePicImgInst = new fabric.Image(e.target, { angle: 0, padding: 0, cornersize: 0 });
-    //    if (e.target.width >= e.target.height) {
-    //        this.profilePicImgInst.scaleToHeight(this.profilePicCanvas.height);
-    //    } else if (e.target.height > e.target.width) {
-    //        this.profilePicImgInst.scaleToWidth(this.profilePicCanvas.width);
-    //    }
-    //    this.profilePicImgInst.hasControls = false;
-    //    //this.profilePicImgInst.lockMovementX = true;
-    //    //this.profilePicImgInst.lockMovementY = true;
-    //    this.profilePicCanvas.centerObject(this.profilePicImgInst);
-    //    this.profilePicCanvas.add(this.profilePicImgInst);
-    //}
-
-    //handleProfileZoom() {
-    //    this.profilePicCanvas.setZoom(profilepiczoom * 0.1);
-    //}
-
-    //handleFile = e => {
-    //    const fileReader = new FileReader()
-    //    fileReader.onloadend = () => {
-    //        this.setState({ src: fileReader.result }, () => {
-    //            if (this.profilePicCanvas === null) {
-
-    //                this.profilePicCanvas = new fabric.Canvas('profilePicCanvas');
-    //                this.profilePicCanvas.setDimensions({ width: 300, height: 300 });
-    //                this.profilePicCanvas.setZoom(1);
-    //                this.hammer = new Hammer.Manager(this.profilePicCanvas.upperCanvasEl); // Initialize hammer
-    //                this.pinch = new Hammer.Pinch();
-    //                this.hammer.add([this.pinch]);
-
-    //                this.hammer.on('pinch', (ev) => {
-    //                    //console.log(ev);
-    //                    //let point = new fabric.Point(ev.center.x, ev.center.y);
-    //                    //let delta = this.profilepiczoom * ev.scale;
-
-    //                    this.profilePicCanvas.setZoom(profilepiczoom * ev.scale);
-    //                });
-    //            }
-
-    //            var img = new Image();
-    //            img.onload = this.handleProfileImageLoaded;
-    //            img.src = src;
-    //        });
-    //    }
-    //    fileReader.readAsDataURL(e.target.files[0]);
-    //}
 
     const toggleProfilePicModal = () => {
         setShowProfilePicModal(!showProfilePicModal);
@@ -160,7 +103,7 @@ function ManageProfile(props) {
         setLoading(true);
         const fd = new FormData();
         fd.set("pic", "");
-        fetch('//' + window.location.host + '/api/Members/savepic', {
+        fetch(`${Utility.GetAPIURL()}/api/Members/savepic`, {
             method: 'post',
             body: fd,
             headers: {
@@ -183,42 +126,36 @@ function ManageProfile(props) {
             });
     }
 
-    const saveProfilePic = ()  => {
-        //this.setState({
-        //    croppedImageUrl: this.profilePicCanvas.toDataURL("image/png")
-        //}, () => {
-        //    this.hammer = null;
-        //    this.pinch = null;
-        //    this.profilePicCanvas = null;
-        //    this.profilePicImgInst = null;
-        //    setLoading(true);
-        //    const fd = new FormData();
-        //    fd.set("pic", croppedImageUrl);
-        //    fetch('//' + window.location.host + '/api/Members/savepic', {
-        //        method: 'post',
-        //        body: fd,
-        //        headers: {
-        //            'Authorization': 'Bearer ' + localStorage.getItem("token")
-        //        }
-        //    })
-        //        .then(response => {
-        //            if (response.status === 401) {
-        //                //if token is not valid than remove token, set myself object with empty values
-        //                localStorage.removeItem("token");
-        //                this.setState({ loggedin: false, loading: false });
-        //            } else if (response.status === 200) {
-        //                this.setState({ loading: false, showProfilePicModal: false, profilepiczoom: 1 });
-        //                if (localStorage.getItem("token") !== null) {
-        //                    this.validate(localStorage.getItem("token"));
-        //                }
-        //                if (onProfileChange !== null) {
-        //                    onProfileChange();
-        //                }
-        //            } else {
-        //                this.setState({ loading: false, message: 'Unable to save profile pic', bsstyle: 'danger' });
-        //            }
-        //        });
-        //});
+    const handleScale = (e) => {
+        const scale = parseFloat(e.target.value)
+        setProfilePicScale(scale);
+    }
+
+    const saveProfilePic = () => {
+        setLoading(true);
+        const fd = new FormData();
+        fd.set("pic", editor.current?.getImageScaledToCanvas().toDataURL());
+        fetch('//' + window.location.host + '/api/Members/savepic', {
+            method: 'post',
+            body: fd,
+            headers: {
+                'Authorization': `Bearer ${auth.token}`
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                } else if (response.status === 200) {
+                    setMessage(new MessageModel("success", "Data is saved."));
+                    auth.validate();
+                    setShowProfilePicModal(false);
+                    setSrc(null);
+                } else {
+                    setMessage(new MessageModel("danger", "Unable to save profile pic."));
+                }
+            }).catch(err => {
+                setMessage(new MessageModel("danger", "Unable to save profile pic."));
+                console.log(err);
+            }).finally(() => { setLoading(false) });
     }
 
     const saveData = (name, value) => {
@@ -327,12 +264,12 @@ function ManageProfile(props) {
     }
 
     const renderStates = () => {
-        if (myself.country.toLowerCase() === "india") {
+        if (auth.myself.country.toLowerCase() === "india") {
             return renderIndianStates();
-        } else if (myself.country.toLowerCase() === "usa") {
+        } else if (auth.myself.country.toLowerCase() === "usa") {
             return renderUSStates();
         } else {
-            return <input type="text" name="state" className="form-control" maxLength="100" value={state} onChange={handleChange} onBlur={() => { saveData("state", state) } } />
+            return <input type="text" name="state" className="form-control" maxLength="100" value={state} onChange={handleChange} onBlur={() => { saveData("state", state) }} />
         }
     }
 
@@ -350,20 +287,19 @@ function ManageProfile(props) {
                             <div className="modal-body">
                                 <div className="mb-3">
                                     <label htmlFor="securityAnswerTxt" className="form-label">Security Question </label>
-                                    <div>{myself.securityQuestion}</div>
+                                    <div>{auth.myself.securityQuestion}</div>
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="securityAnswerTxt" className="form-label">Security Answer <span className="text-danger">(Required)</span></label>
                                     <input type="text" id="securityAnswerTxt" name="securityAnswer" className="form-control"
                                         maxLength="300" value={securityAnswer} onChange={(e) => { setSecurityAnswer(e.target.value); }} />
                                 </div>
-                                
+
                             </div>
                             <div className="modal-footer">
                                 <ShowMessage messagemodal={message} toast={false} />
                                 <button type="button" disabled={loading} className="btn btn-primary"
-                                    onClick={() => { saveData("securityanswer", securityAnswer) }}>
-                                    {loading ? <Spinner sm={true} /> : "Save" }</button>
+                                    onClick={() => { saveData("securityanswer", securityAnswer) }}><Spinner show={loading} sm={true} /> Save</button>
                             </div>
                         </div>
                     </div>
@@ -376,7 +312,6 @@ function ManageProfile(props) {
 
     const renderProfilePicModal = () => {
         if (showProfilePicModal) {
-            const { crop, profile_pic, src } = this.state;
             return <>
                 <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                     <div className="modal-dialog">
@@ -387,23 +322,27 @@ function ManageProfile(props) {
                                 </button>
                             </div>
                             <div className="modal-body">
-                                {/*<div className="mb-3">*/}
-                                {/*    <button className="btn btn-primary" type="button" onClick={() => { document.getElementById("profile_pic").click(); }}>Choose Picture</button>*/}
-                                {/*    <input type="file" className="d-none" id="profile_pic" value={profile_pic}*/}
-                                {/*        onChange={this.handleFile} />*/}
-                                {/*</div>*/}
-                                {/*<div className="row justify-content-center">*/}
-                                {/*    <div className="col">*/}
-                                {/*        <canvas id="profilePicCanvas" style={{ width: "300px", height: "300px" }}></canvas>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
+                                <div className="mb-3 text-center">
+                                    <button className="btn btn-primary" type="button" onClick={() => {
+                                        document.getElementById("profile_pic").click();
+                                    }}>Choose Picture</button>
+                                    <input ref={profilePicInput} type="file" className="d-none" id="profile_pic"
+                                        onChange={(e) => { setSrc(e.target.files[0]); }} />
+                                </div>
+                                {src !== null ? <div className="text-center">
+                                    <AvatarEditor ref={editor} image={src} width={250} height={250} border={50} scale={profilePicScale} />
+                                    <div className="my-2">
+                                        <input type="range" onChange={handleScale} min='0.1' max="2" step="0.01" defaultValue="1" />
+                                    </div>
+                                </div> : null}
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" onClick={saveProfilePic}>Save</button>
                             </div>
                         </div>
                     </div>
-                </div><div className="modal-backdrop fade show"></div>
+                </div>
+                <div className="modal-backdrop fade show"></div>
             </>;
         }
         else { return null; }
@@ -431,24 +370,24 @@ function ManageProfile(props) {
     }
 
     const renderComp = () => {
-        
+
         var yearitems = []
         for (var i = 1947; i <= 2004; i++) {
             yearitems.push(<option value={i}>{i}</option>);
         }
-        
-        if (myself !== null) {
+
+        if (auth.myself !== null) {
             return <>
-                <div className="container py-5">
-                    {loading ? <Spinner /> : null}
+                <div className="px-md-5 my-lg-3 my-2">
+                    <Spinner show={loading} />
                     {renderSecAnsModal()}
-                    
+                    {renderProfilePicModal()}
                     <div className="row">
                         <div className="col-lg-4">
                             <h4 className="mb-3 text-primary fw-bold text-center">Personal Information</h4>
-                            <img src={myself.pic !== "" ? "//" + window.location.host + "/" + myself.pic : "/theme1/images/person-fill.svg"} className="rounded-circle mx-auto d-block img-fluid" alt="" style={{ width: "150px" }} />
+                            <img src={auth.myself.pic !== "" ? "//" + window.location.host + "/" + auth.myself.pic : "/theme1/images/person-fill.svg"} className="rounded-circle mx-auto d-block img-fluid" alt="" style={{ width: "150px" }} />
                             <div className="text-center">
-                                {myself.pic !== "" ? <button type="button" className="btn btn-sm btn-link m-1" onClick={removeProfilePicture}>Remove</button> : null}
+                                {auth.myself.pic !== "" ? <button type="button" className="btn btn-sm btn-link m-1" onClick={removeProfilePicture}>Remove</button> : null}
                                 <button type="button" className="btn btn-sm btn-link m-1" onClick={toggleProfilePicModal}>Change</button>
                             </div>
                             <div className="mb-3">
@@ -491,7 +430,7 @@ function ManageProfile(props) {
                             <h4 className="mb-3 text-primary fw-bold text-center">Profile Information</h4>
                             <div className="mb-3">
                                 <label htmlFor="thoughtStatus" className="form-label text-primary">One line Introduction</label>
-                                <input type="text" name="thoughtStatus" className="form-control shadow-none border" maxLength="195" value={thoughtStatus} onChange={(e) => { setThoughtStatus(e.target.value); } }
+                                <input type="text" name="thoughtStatus" className="form-control shadow-none border" maxLength="195" value={thoughtStatus} onChange={(e) => { setThoughtStatus(e.target.value); }}
                                     onBlur={() => { saveData("thoughtstatus", thoughtStatus) }} />
                             </div>
                             <div className="mb-3">
@@ -766,7 +705,7 @@ function ManageProfile(props) {
                             <div className="mb-3">
                                 <label htmlFor="securityQuesitonTxt" className="form-label text-primary">Security Question <span className="text-danger">(Required)</span></label>
                                 <input type="text" id="securityQuesitonTxt" name="securityQuestion" className="form-control shadow-none border"
-                                    maxLength="300" value={securityQuestion} onChange={(e) => { setSecurityQuestion(e.target.value); } }
+                                    maxLength="300" value={securityQuestion} onChange={(e) => { setSecurityQuestion(e.target.value); }}
                                     onBlur={() => { saveData("securityquestion", securityQuestion) }} />
                             </div>
                             <div className="mb-3">
@@ -779,22 +718,20 @@ function ManageProfile(props) {
                             <h4 className="mb-3 text-primary fw-bold text-center">Display Contact Information</h4>
                             <div className="lh-base fs-small">Links, Emails and Phone numbers added here will be displayed on profile.</div>
                             <div className="py-2">
-                                <ManageLinks myself={myself} />
+                                <ManageLinks myself={auth.myself} />
                             </div>
                             <div className="py-2">
-                                <ManageEmails myself={myself} />
+                                <ManageEmails myself={auth.myself} />
                             </div>
                             <div className="py-2">
-                                <ManagePhones myself={myself} />
+                                <ManagePhones myself={auth.myself} />
                             </div>
                         </div>
                     </div>
                 </div>
             </>;
         } else {
-            return <>
-                {loading ? <Spinner /> : null}
-            </>;
+            return <Spinner show={loading} />;
         }
     }
     return <Layout>
