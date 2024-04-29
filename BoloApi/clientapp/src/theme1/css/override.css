@@ -156,14 +156,13 @@ textarea.form-control {
 }
 
 #mainmenubar {
-    
     position: -webkit-sticky;
     position: sticky;
     top: 0;
     /*right: 0;
     left: 0;*/
     z-index: 1;
-    width:100%;
+    width: 100%;
     border-bottom: 1px solid lightgrey;
     background: #ffffff;
 }
@@ -176,14 +175,13 @@ textarea.form-control {
     width: auto;
     border-right: 1px solid lightgrey;
     background: #ffffff;
-    height:100vh;
+    height: 100vh;
 }
 
-.sidemenubar .item{
-    height:16.6vh;
-    text-align:center;
-
-}
+    .sidemenubar .item {
+        height: 14.28vh;
+        text-align: center;
+    }
 
 .btn-follow {
     min-width: 80px;
@@ -200,10 +198,47 @@ textarea.form-control {
     position: -webkit-sticky;
     position: sticky;
 }
-.memberpost
-{
-    max-width:800px;
+
+.contact {
+    border-radius: 5px;
+    padding: 10px
 }
+
+    .contact.selected {
+        background: #30235B;
+        color: #fff !important;
+    }
+
+    .contact .contactname {
+        color: #09132C;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .contact.selected .contactname {
+        color: #fff !important;
+    }
+.personalchatcont{
+    height:100vh;
+}
+
+.chatpersoninfocont {
+    background: rgba(48,35,91, 0.1);
+    padding: 1rem;
+}
+    .chatpersoninfocont .personname {
+        max-Width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #09132C;
+    }
+    .memberpost {
+        max-width: 800px;
+    }
 
 @media (min-width: 1400px) {
     .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {

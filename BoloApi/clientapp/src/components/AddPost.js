@@ -123,26 +123,25 @@ function AddPost(props) {
     }
     return <Layout>
         <div className="px-md-5 my-md-3 my-2">
-            <div className="row">
+            {photos.length === 0 ? <div className="text-center pt-5">
+                <h1 className="mb-3 fs-2 text-primary">Create new post</h1>
+                <img alt="" src={`//${window.location.host}/theme1/images/add-post.svg`} className="img-fluid mt-1 pointer" onClick={() => { inputFile.current.click(); }} />
+                <p className="my-3 lh-base">
+                    Upload photos and videos here
+                </p>
+                <button className="btn btn-blue" style={{ width: "130px" }} type="button" onClick={() => { inputFile.current.click(); }}>Add Photos</button>
+
+            </div> : <div className="row">
                 <div className="col-lg-6">
                     <div className="px-md-5 my-md-3 my-2">
-                        {photos.length === 0 ? <div className="text-center pt-5">
-                            <h1 className="mb-3 fs-2 text-primary">Create new post</h1>
-                            <img alt="" src={`//${window.location.host}/theme1/images/add-post.svg`} className="img-fluid mt-1 pointer" onClick={() => { inputFile.current.click(); }} />
-                            <p className="my-3 lh-base">
-                                Upload photos and videos here
-                            </p>
-                            <button className="btn btn-blue" style={{ width: "130px" }} type="button" onClick={() => { inputFile.current.click(); }}>Add Photos</button>
-
-                        </div> : renderComp()}
-                        <input type="file" ref={inputFile} className="d-none" accept="*.jpg.*.png,*.jpeg" multiple onChange={handleFileChange} />
+                        {renderComp()}
                     </div>
                 </div>
                 {photos.length > 0 ?
                     <div className="col-lg-6 pt-4">
                         <div className="mb-5">
                             <div className="form-floating">
-                                <textarea className="form-control" value={describe} onChange={(e) => { setDescribe(e.target.value); } } placeholder="Write about photos here." id="floatingTextarea2" style={{ height: "200px" }} ></textarea>
+                                <textarea className="form-control" value={describe} onChange={(e) => { setDescribe(e.target.value); }} placeholder="Write about photos here." id="floatingTextarea2" style={{ height: "200px" }} ></textarea>
                                 <label htmlFor="floatingTextarea2">Write about photos here</label>
                             </div>
                         </div>
@@ -164,7 +163,9 @@ function AddPost(props) {
                         </div>
                     </div> : null}
                 <ShowMessage messagemodal={message} />
-            </div>
+            </div>}
+            
+            <input type="file" ref={inputFile} className="d-none" accept="*.jpg.*.png,*.jpeg" multiple onChange={handleFileChange} />
         </div>
     </Layout>;
 }

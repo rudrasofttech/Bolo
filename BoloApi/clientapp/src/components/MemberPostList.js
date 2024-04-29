@@ -123,7 +123,7 @@ function MemberPostList(props) {
     }
 
     return <>
-        {viewModeAllowed && posts.length > 0 ? <nav className="nav nav-pills justify-content-center m-1">
+        {viewModeAllowed && posts.length > 0 ? <nav className="nav nav-pills m-1">
             <button type="button" onClick={() => { setViewMode(1); }} className={viewMode === 1 ? "nav-link active bg-primary" : "nav-link text-primary"}><i className="bi bi-grid-3x3-gap-fill"></i></button>
             <button type="button" onClick={() => { setViewMode(2); }} className={viewMode === 2 ? "nav-link active bg-primary" : "nav-link text-primary"}><i className="bi bi-view-list"></i></button>
         </nav> : null}

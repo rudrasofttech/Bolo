@@ -235,7 +235,7 @@ function Profile() {
         if (member !== null) {
             if (member != null && auth.myself.id === member.id) {
                 settings = <div className="d-inline-block">
-                    <DropDownButton buttoncss="btn-link text-decoration-none " text={<><i class="bi bi-gear me-1"></i>Settings</>}>
+                    <DropDownButton  buttoncss="btn-link text-decoration-none " text={<><i className="bi bi-gear me-1"></i>Settings</>}>
                         <li>
                             <Link to="/manageprofile" className="dropdown-item text-dark py-2">Edit Profile</Link></li>
                         <li>
@@ -249,10 +249,10 @@ function Profile() {
             } else {
                 followhtml = renderFollowHtml();
             }
-            me = <div className="my-lg-3 my-2">
-                <div className="row">
+            me = <>
+                <div className="row justify-content-center">
                     <div className="col-lg-8 offset-lg-2 col-12">
-                        <div className="px-md-5 my-md-3 my-2">
+                        <div className="my-md-3 my-2">
                             <div className="py-3">
                                 <div className=" mb-2 bg-white fs-5">
                                     <div className="row">
@@ -320,14 +320,13 @@ function Profile() {
                                     {renderRequestApproval()}
                                 </div>
                             </div>
-                            <Spinner show={loading} />
                             <ShowMessage messagemodal={message} toast={true} />
                             <MemberPostList search={member.userName} viewMode={1} viewModeAllowed="true" />
                         </div>
                     </div>
                 </div>
                 {followlist}
-            </div>;
+            </>;
         }
 
         return <Layout>

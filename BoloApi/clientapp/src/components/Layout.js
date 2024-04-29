@@ -5,16 +5,24 @@ import NotificationList from './NotificationList';
 import SendPulse from './shared/SendPulse';
 import AskPushNotification from './AskPushNotification';
 import Sidebar from './shared/Sidebar';
+import { useMediaQuery } from 'react-responsive';
 
 function Layout(props) {
     const [showSearch, setShowSearch] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [keywords, setKeywords] = useState("");
     const [unseennotificationcount, setUnseenNotificationCount] = useState(0);
+    const isDesktopOrLaptop = useMediaQuery({
+        query: '(min-width: 1224px)'
+    })
+    const isBigScreen = useMediaQuery({ query: '(min-width: 1824px)' })
+    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' })
+    const isPortrait = useMediaQuery({ query: '(orientation: portrait)' })
+    //const isRetina = useMediaQuery({ query: '(min-resolution: 2dppx)' })
 
     const showNotificationModal = () => {
         return <>
-            <div className={showNotification ? "modal d-block" : "modal fade"} id="NotificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+            <div className={showNotification ? "modal d-block" : "modal fade"} id="NotificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-lg rounded-4 modal-dialog-scrollable modal-fullscreen-sm-down">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -61,14 +69,16 @@ function Layout(props) {
     };
 
     return <>
-        <NavBar
-            unseennotificationcount={unseennotificationcount}
-            onAddPostClick={() => { console.log("add post click"); }}
-            onSearchClick={() => { setShowSearch(true); }}
-            onNotificationClick={() => { setShowNotification(true); }} />
+        {
+            <NavBar
+                unseennotificationcount={unseennotificationcount}
+                onAddPostClick={() => { console.log("add post click"); }}
+                onSearchClick={() => { setShowSearch(true); }}
+                onNotificationClick={() => { setShowNotification(true); }} />
+        }
         <div className="container-fluid">
             <div className="row">
-                <div className="col-sm-1 col-lg-1 sidemenubar d-none d-sm-block">
+                <div className="col-md-1 sidemenubar d-none d-md-block">
                     <Sidebar unseennotificationcount={unseennotificationcount}
                         onAddPostClick={() => { console.log("add post click"); }}
                         onSearchClick={() => { setShowSearch(true); }}

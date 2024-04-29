@@ -5,7 +5,7 @@ function PhotoCarousel(props) {
 
         return <>
             <div id={`carousel${props.postid}`} className="carousel carousel-dark slide" data-bs-ride="true">
-                <div class="carousel-indicators">
+                <div className="carousel-indicators">
                     {props.photos.map((i, k) => <button key={k} type="button" data-bs-target={`carousel${props.postid}`} className={k === active ? "active" : ""} data-index={k}
                         onClick={(e) => {
                             setActive(parseInt(e.target.getAttribute("data-index", 10)));

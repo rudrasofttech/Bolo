@@ -26,6 +26,11 @@ function Sidebar(props) {
             </Link>
         </div>
         <div className="item d-flex align-items-center justify-content-center">
+            <Link type="button" className="btn btn-link text-decoration-none text-primary fs-6" to="/conversation" title="Add Post">
+                <i className="bi fs-2 bi-chat-square-text"></i>
+            </Link>
+        </div>
+        <div className="item d-flex align-items-center justify-content-center">
             <button type="button" onClick={() => { props.onNotificationClick(); }} className="position-relative fs-6 text-primary btn btn-link text-decoration-none">
                 <i className="bi fs-2 bi-bell"></i>
                 {props.unseennotificationcount > 0 ? <span style={{ fontSize: "0.8rem", top: "10px" }} className="position-absolute start-100 translate-middle badge rounded-pill bg-danger">

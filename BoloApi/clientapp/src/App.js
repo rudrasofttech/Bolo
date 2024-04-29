@@ -13,6 +13,7 @@ import ManageProfile from './components/ManageProfile';
 import IgnoredUsers from './components/IgnoredUsers';
 import ViewPost from './components/ViewPost';
 import AddPost from './components/AddPost';
+import Conversation from './components/Conversation';
 
 function App() {
     return <>
@@ -26,6 +27,7 @@ function App() {
                     <Route exact path='/add' element={<AddPost />} />
                     <Route exact path='/explore' element={<Explore />} />
                     <Route exact path='/ignored' element={<IgnoredUsers />} />
+                    <Route exact path='/conversation' element={<Conversation />} />
                 </Route>
                 <Route exact path='/register' element={<RegisterForm />} />
                 <Route exact path='/login/:username?' element={<LoginForm />} />

@@ -14,7 +14,7 @@ function NavBar(props) {
                 <div className="col-md-10 text-center text-md-end">
                     <div className="bg-white pt-lg-3 d-md-inline-block">
                         <div className="row g-1 align-items-center justify-items-center">
-                            <div className="col-3 text-start d-md-none">
+                            <div className="col col-md-3 text-start d-md-none">
                                 <Link to="/">
                                     <img src={`//${window.location.host}/theme1/images/yocail-sign-logo.svg`} className="img-fluid logo" alt="Yocail logo" />
                                 </Link>
