@@ -10,6 +10,8 @@ import ShowMessage from "./ShowMessage";
 import EditPost from "../EditPost";
 import { MessageModel } from "./Model";
 import { useAuth } from "./AuthProvider";
+import DropDownButton from "./UI/DropDownButton";
+import { Utility } from "../Utility";
 
 function MemberPost(props) {
     const auth = useAuth();
@@ -79,7 +81,7 @@ function MemberPost(props) {
     }
 
     const sharePost = (sharewithid) => {
-        fetch(`//${window.location.host}/api/post/share/${post.id}?uid=${sharewithid}`, {
+        fetch(`${Utility.GetAPIURL()}/api/post/share/${post.id}?uid=${sharewithid}`, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + auth.token
@@ -103,7 +105,7 @@ function MemberPost(props) {
     }
 
     const deletePost = () => {
-        fetch(`//${window.location.host}/api/post/delete/${post.id}`, {
+        fetch(`${Utility.GetAPIURL()}/api/post/delete/${post.id}`, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + auth.token
@@ -135,7 +137,7 @@ function MemberPost(props) {
     }
 
     const ignoreMember = () => {
-        fetch(`//${window.location.host}/api/ignored/${post.owner.id}`, {
+        fetch(`${Utility.GetAPIURL()}/api/ignored/${post.owner.id}`, {
             method: 'post',
             headers: {
                 'Authorization': 'Bearer ' + auth.token
@@ -155,7 +157,7 @@ function MemberPost(props) {
     }
 
     const flagPost = (typeid) => {
-        fetch(`//${window.location.host}/api/post/flag/${post.id}?type=${typeid}`, {
+        fetch(`${Utility.GetAPIURL()}/api/post/flag/${post.id}?type=${typeid}`, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + auth.token
@@ -175,56 +177,43 @@ function MemberPost(props) {
     }
 
     const renderPostOptions = () => {
-        if (showModal === "post") {
+       
             let deletebtn = null; let ignoreaccbtn = null, editbtn = null;
             if (post.owner.id === auth.myself.id) {
-                editbtn = <div className="text-center border-bottom mb-1 p-1">
-                    <button type="button" className="btn btn-link btn-lg text-decoration-none text-primary fw-normal"
+                editbtn = <li>
+                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
                         onClick={() => { setShowModal('edit'); }}>
                         <i className="bi bi-pencil-fill me-2"></i> Edit
                     </button>
-                </div>;
-                deletebtn = <div className="text-center border-bottom mb-1 p-1">
-                    <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger  fw-normal"
+                </li>;
+                deletebtn = <li>
+                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
                         onClick={() => { setShowModal('delete'); }}>
                         <i className="bi bi-trash3-fill  me-2"></i> Delete
                     </button>
-                </div>;
+                </li>;
             }
 
             if (post.owner.id !== auth.myself.id) {
-                ignoreaccbtn = <div className="text-center mb-1 p-1">
-                    <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger  fw-normal"
+                ignoreaccbtn = <li>
+                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
                         onClick={() => { ignoreMember(); }}>
                         <i className="bi bi-sign-stop-fill me-2"></i> Ignore Member
                     </button>
-                </div>;
+                </li>;
             }
             return <>
-                <div className="modal d-block" tabIndex="-1">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-body">
-                                {editbtn}
-                                {deletebtn}
-                                {ignoreaccbtn}
-                                <div className="text-center mb-1 p-1">
-                                    <button type="button" className="btn btn-link btn-lg text-decoration-none text-danger  fw-normal"
-                                        onClick={() => { setShowModal('flag'); }}>
-                                        <i className="bi bi-flag-fill me-2"></i> Report
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="modal-footer text-center">
-                                <button type="button" className="btn btn-secondary"
-                                    onClick={() => { setShowModal(''); }} data-bs-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="modal-backdrop fade show"></div>
+                {editbtn}
+                {deletebtn}
+                {ignoreaccbtn}
+                <li>
+                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
+                        onClick={() => { setShowModal('flag'); }}>
+                        <i className="bi bi-flag-fill me-2"></i> Report
+                    </button>
+                </li>
             </>;
-        }
+        
     }
 
     const renderPostDisplay = (p) => {
@@ -249,12 +238,9 @@ function MemberPost(props) {
                     {ownerlink}
                 </div>
                 <div className="col-1 text-end">
-                    <button className="btn btn-link text-primary fs-4"
-                        onClick={() => {
-                            setShowModal('post');
-                        }}>
-                        <i className="bi bi-three-dots"></i>
-                    </button>
+                    <DropDownButton buttoncss="btn-link btn-sm text-decoration-none" text={<i className="bi bi-three-dots me-2"></i>}>
+                        {renderPostOptions()}
+                    </DropDownButton>
                 </div>
             </div>
         </div>;
@@ -282,18 +268,6 @@ function MemberPost(props) {
 
         if (!p.acceptComment)
             commentbox = null;
-        let reactionCountHtml = <span className="d-block mt-1 text-dark" style={{ fontSize: "0.7rem" }}>{(p.reactionCount > 0) ? <>{p.reactionCount}<br />Likes</> : " "}</span>;
-
-        let reactionhtml = <div className="p-2 me-2 fs-3 d-inline-block text-center text-primary pointer" onClick={addReaction}>
-            <i className="bi bi-heart"></i>{reactionCountHtml}
-        </div>;
-        if (p.hasReacted) {
-            reactionhtml = <div className="p-2 fs-3 d-inline-block text-center text-danger pointer" onClick={addReaction}><i className="bi bi-heart-fill"></i>{reactionCountHtml}</div>;
-        }
-        let commentBtn = p.acceptComment ? <div className="p-2 me-2 fs-3 d-inline-block text-center text-primary pointer" onClick={() => { setShowModal('comment'); }}><i className="bi bi-chat-square-text"></i><span className="d-block mt-1 text-dark" style={{ fontSize: "0.7rem" }}>{p.commentCount > 0 ? <>{p.commentCount}<br />Comments</> : " "}</span></div> : null;
-        let shareBtn = p.allowShare ? <div className="p-2 fs-3 d-inline-block text-center text-primary pointer" title="Share post with people" onClick={() => { setShowModal('share'); }}>
-            <i className="bi bi-share-fill"></i>
-        </div> : null;
 
         let likemodal = null;
         if (showModal === "reaction") {
@@ -324,9 +298,39 @@ function MemberPost(props) {
                     </div>
                 </div>
                 <div className="col text-end">
-                    {reactionhtml}
-                    {commentBtn}
-                    {shareBtn}
+                    <table className="d-inline-block" cellPadding="0" cellSpacing="0">
+                        <tbody>
+                            <tr>
+                                <td className="px-3 pb-0" align="center" valign="top">
+                                    <button type="button" className={`fs-3 p-0 btn btn-link ${p.hasReacted ? "text-danger" : "text-primary"} text-decoration-none`} onClick={() => { this.addReaction(); }}>
+                                        {p.hasReacted ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                                    </button>
+                                </td>
+                                {p.acceptComment ? <td className="px-3 pb-0" align="center" valign="top">
+                                    <button type="button" className="fs-3 p-0 btn btn-link text-primary" onClick={() => { setShowModal('comment'); }}>
+                                        <i className="bi bi-chat-square-text"></i>
+                                    </button>
+                                </td> :
+                                    null}
+                                {p.allowShare ? <td className="px-3 pb-0" align="center" valign="top">
+                                    <button type="button" title="Share post with people" className="btn p-0 btn-link fs-3 text-primary text-decoration-none" onClick={() => { setShowModal('share'); }}>
+                                        <i className="bi bi-share-fill"></i></button>
+                                </td> : null}
+                            </tr>
+                            <tr>
+                                <td align="center" valign="top">
+                                    {
+                                        p.reactionCount > 0 ? <button type="button" className="btn p-0 btn-link text-dark text-decoration-none" style={{ fontSize: "12px" }} onClick={() => { setShowModal('reaction'); }}>{p.reactionCount}<br />Likes</button> : null
+                                    }
+                                </td>
+                                {p.acceptComment ? <td align="center" valign="top">
+                                    {p.commentCount > 0 ? <button style={{ fontSize: "12px" }} className="btn p-0 btn-link text-primary text-decoration-none" onClick={() => { setShowModal('comment'); }}>{p.commentCount}<br />Comments</button> : null}
+                                </td> : null}
+                                {p.allowShare ? <td></td> : null}
+                            </tr>
+                        </tbody>
+                    </table>
+
                 </div>
             </div>
             <div className="lh-sm">
@@ -334,7 +338,7 @@ function MemberPost(props) {
             </div>
             {likemodal}
             {commentbox}
-            {renderPostOptions()}
+            
             <div className="border-bottom my-3"></div>
         </div>;
     }

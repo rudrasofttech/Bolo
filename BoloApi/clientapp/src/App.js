@@ -25,7 +25,7 @@ function App() {
                     <Route exact path='/' element={<Home />} />
                     <Route exact path='/manageprofile' element={<ManageProfile />} />
                     <Route exact path='/add' element={<AddPost />} />
-                    <Route exact path='/explore' element={<Explore />} />
+                    <Route exact path='/explore/:hashtag?' element={<Explore />} />
                     <Route exact path='/ignored' element={<IgnoredUsers />} />
                     <Route exact path='/conversation' element={<Conversation />} />
                 </Route>

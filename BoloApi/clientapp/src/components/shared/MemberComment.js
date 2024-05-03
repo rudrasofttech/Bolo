@@ -5,6 +5,7 @@ import ConfirmBox from "./ConfirmBox";
 import AutoAdjustTextArea from "./AutoAdjustTextArea";
 import { MessageModel } from "./Model";
 import { useAuth } from "./AuthProvider";
+import { Utility } from "../Utility";
 
 function MemberComment(props) {
     const auth = useAuth();
@@ -65,7 +66,7 @@ function MemberComment(props) {
         const fd = new FormData();
         fd.set("comment", commenttext);
         fd.set("postId", props.post.id);
-        fetch(`//${window.location.host}/api/post/addcomment`, {
+        fetch(`${Utility.GetAPIURL()}/api/post/addcomment`, {
             method: 'post',
             body: fd,
             headers: { 'Authorization': 'Bearer ' + auth.token }
@@ -99,7 +100,7 @@ function MemberComment(props) {
     }
 
     const removeComment = () => {
-        let url = `//${window.location.host}/api/post/removecomment/${commentiddel}`;
+        let url = `${Utility.GetAPIURL()}/api/post/removecomment/${commentiddel}`;
         fetch(url, {
             method: 'get',
             headers: {

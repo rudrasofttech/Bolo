@@ -1,12 +1,13 @@
 ﻿import { useEffect } from "react";
 import { useAuth } from "./AuthProvider";
+import { Utility } from "../Utility";
 
 function SendPulse() {
     const auth = useAuth();
 
     useEffect(() => {
         const timer = setInterval(() => {
-            fetch(`https://${window.location.host}/api/members/savepulse?s=1`, {
+            fetch(`${Utility.GetAPIURL()}/api/members/savepulse?s=1`, {
                 method: 'get',
                 headers: {
                     'Authorization': `Bearer ${auth.token}`

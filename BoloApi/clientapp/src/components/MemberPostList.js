@@ -9,7 +9,7 @@ function MemberPostList(props) {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     
-    const [q, setSearchKeyword] = useState(props.search);
+    //const [q, setSearchKeyword] = useState(props.search);
     let ls = { model: null, posts: [] };
     //if (props.search === "userfeed" && localStorage.getItem("userfeed") != null)
     //    ls = JSON.parse(localStorage.getItem("userfeed"))
@@ -33,11 +33,11 @@ function MemberPostList(props) {
 
     useEffect(() => {
         setLoading(true);
-        let url = '//' + window.location.host + '/api/post?q=' + encodeURIComponent(q) + '&p=' + p;
+        let url = '//' + window.location.host + '/api/post?q=' + encodeURIComponent(props.search) + '&p=' + p;
 
-        if (q === "userfeed")
+        if (props.search === "userfeed")
             url = '//' + window.location.host + '/api/post/feed?p=' + p;
-        else if (q === "explore")
+        else if (props.search === "explore")
             url = '//' + window.location.host + '/api/post/explore?p=' + p;
         fetch(url, {
             method: 'get',
@@ -49,8 +49,8 @@ function MemberPostList(props) {
                 if (response.status === 200) {
                     response.json().then(data => {
                         console.log(data);
-                        let temp = firsttime ? data.posts : posts;
-                        if (!firsttime) {
+                        let temp = p === 0 ? data.posts : posts;
+                        if (p !== 0) {
                             for (var k in data.posts) {
                                 temp.push(data.posts[k]);
                             }
@@ -63,15 +63,13 @@ function MemberPostList(props) {
                         });
                         setPosts(temp);
                         setFirstTime(false);
-                        //if (q === "userfeed" || q === "explore")
-                        //    localStorage.setItem(q, JSON.stringify({ model, posts }));
                     });
                 }
             }).catch(error => {
                 setMessage(new MessageModel('danger','Unable to contact server, Please check your internet connection.'));
                 console.log(error);
             }).finally(() => { setLoading(false); });
-    }, [q, p]);
+    }, [props.search, p]);
 
 
     const postDeleted = (id) => {
@@ -96,7 +94,16 @@ function MemberPostList(props) {
             if (items.length === 0 && !loading) {
                 items.push(empty);
             }
-            return <div>{items}</div>;
+            return <div>
+                {items}
+                {(model != null && (model.current + 1) < model.totalPages) ?
+                    <div className="text-center">
+                        <button className="btn btn-secondary" onClick={() => {
+                            setCurrentPage(model.current + 1);
+                        }}>Load More</button>
+                    </div>
+                    : null}
+            </div>;
         }
         else if (viewMode === 1) {
             let items = [];
@@ -118,7 +125,16 @@ function MemberPostList(props) {
                 items.push(empty);
                 return items;
             }
-            return <div className="row row-cols-2 row-cols-md-3 g-4">{items}</div>;
+            return <>
+                <div className="row row-cols-2 row-cols-md-3 g-4">{items}</div>
+                {(model != null && (model.current + 1) < model.totalPages) ?
+                    <div className="text-center">
+                        <button className="btn btn-secondary" onClick={() => {
+                            setCurrentPage(model.current + 1);
+                        }}>Load More</button>
+                    </div>
+                    : null}
+            </>;
         }
     }
 
@@ -133,13 +149,6 @@ function MemberPostList(props) {
             </div>
         </div> : null}
         {renderPosts()}
-        {(model != null && (model.current + 1) < model.totalPages) ?
-            <div className="text-center">
-                <button className="btn btn-light" onClick={() => {
-                    setCurrentPage(model.current + 1);
-                }}>Load More</button>
-            </div>
-            : null}
     </>;
 
 }

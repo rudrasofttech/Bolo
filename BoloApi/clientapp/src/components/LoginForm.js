@@ -4,9 +4,12 @@ import ShowMessage from "./shared/ShowMessage";
 import { useAuth } from "./shared/AuthProvider";
 import { MessageModel } from "./shared/Model";
 import Spinner from "./shared/Spinner";
+import icuser from "../theme1/images/ic-user.svg";
+import bannerlogin from "../theme1/images/banner-login.svg";
+import yocailogo from "../theme1/images/yocail-logo.svg";
+import iclock from "../theme1/images/ic-lock.svg";
 
 function LoginForm(props) {
-    //const navigate = useNavigate();
     const auth = useAuth();
     const [logindto, setLoginTo] = useState({ userName: props.username, password: '' });
     const [loading, setLoading] = useState(false);
@@ -21,37 +24,10 @@ function LoginForm(props) {
             setMessage(ret);
         }
         setLoading(false);
-        //fetch('//' + window.location.host + '/api/Members/Login', {
-        //    method: 'post',
-        //    body: JSON.stringify({ UserName: logindto.userName, Password: logindto.password }),
-        //    headers: {
-        //        'Content-Type': 'application/json'
-        //    }
-        //})
-        //    .then(response => {
-        //        if (response.status === 200) {
-        //            response.json().then(data => {
-        //                console.log(data);
-        //                if (data.token !== undefined) {
-        //                    localStorage.setItem("token", data.token);
-        //                    localStorage.setItem("myself", JSON.stringify(data.member));
-        //                    setMessage(new MessageModel());
-        //                    navigate('/');
-        //                }
-        //            });
-        //        }
-        //        else if (response.status === 404) {
-        //            response.json().then(data => {
-        //                setMessage(new MessageModel("danger", data.error, 0));
-        //            });
-        //        }
-        //    }).finally(() => {
-        //        setLoading(false);
-        //    });
     }
     return <div className="wrapper sign-up pt-5" style={{ minHeight: "100vh" }}>
         <div className="banner-image d-none d-md-block">
-            <img src={"//" + window.location.host + "/theme1/images/banner-login.svg"} alt="Banner" />
+            <img src={bannerlogin} alt="Banner" />
         </div>
         <div className="container mt-5">
             <main>
@@ -59,7 +35,7 @@ function LoginForm(props) {
                     <div className="intro-slide col-md-6">
                         <header className="site-header">
                             <Link to="/" title="Yocail">
-                                <img src={"//" + window.location.host + "/theme1/images/Yocail-logo.svg"} alt="Yocail Logo" />
+                                <img src={yocailogo} alt="Yocail Logo" />
                             </Link>
                         </header>
                         <div id="carouselExampleIndicators" className="carousel slide" data-ride="carousel">
@@ -98,14 +74,14 @@ function LoginForm(props) {
                             <h2>Login</h2>
                             <form onSubmit={handleLogin}>
                                 <div className="form-group ic-input">
-                                    <img src={"//" + window.location.host + "/theme1/images/ic-user.svg"} className="input-icon" alt="" />
+                                    <img src={icuser} className="input-icon" alt="" />
                                     <input type="text" placeholder="Username" className="form-control" required name="userName" value={logindto.userName}
                                         onChange={(e) => {
                                             setLoginTo({ userName: e.target.value, password: logindto.password });
                                         }} />
                                 </div>
                                 <div className="form-group ic-input">
-                                    <img src={"//" + window.location.host + "/theme1/images/ic-lock.svg"} className="input-icon" alt="" />
+                                    <img src={iclock} className="input-icon" alt="" />
                                     <input className="form-control" required placeholder="Password" name="password" type="password"
                                         onChange={(e) => {
                                             setLoginTo({ userName: logindto.userName, password: e.target.value });

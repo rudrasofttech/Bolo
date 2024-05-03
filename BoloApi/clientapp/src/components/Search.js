@@ -2,6 +2,7 @@
 import { useAuth } from "./shared/AuthProvider";
 import Spinner from "./shared/Spinner";
 import MemberSmallRow from "./shared/MemberSmallRow";
+import { Utility } from "./Utility";
 
 function Search(props) {
     const auth = useAuth();
@@ -16,12 +17,12 @@ function Search(props) {
             return;
         }
         setLoading(true);
-        let url = '//' + window.location.host + '/api/search?q=' + props.keywords.replace("#", "");
+        let url = `${Utility.GetAPIURL()}/api/search?q=${props.keywords.replace("#", "")}`;
 
         fetch(url, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + auth.token
+                'Authorization': `Bearer ${auth.token}`
             }
         })
             .then(response => {
@@ -69,27 +70,27 @@ function Search(props) {
         }
     }
 
-    const renderComp = () => {
-        let clearsearchhtml = <div className="col-md-1 col-2 p-0 text-center">
-            <button type="button" className="btn btn-light" aria-label="Close" onClick={() => {
-                setSearchKeyword("");
-                setItems([]);
-            }}><i className="bi bi-trash"></i></button>
-        </div>;
-        if (q === '') {
-            clearsearchhtml = null;
-        }
-        return <>
-            <div className="row g-1">
-                <div className="col">
-                    <input type="text" className="form-control shadow-none border" value={q} onChange={(e) => { setSearchKeyword(e.target.value); }} placeholder="Search People, Topics, Hashtags" maxLength="150"
-                         />
-                </div>
-                {clearsearchhtml}
-            </div>
-            {renderSearchResult()}
-        </>;
-    }
+    // const renderComp = () => {
+    //     let clearsearchhtml = <div className="col-md-1 col-2 p-0 text-center">
+    //         <button type="button" className="btn btn-light" aria-label="Close" onClick={() => {
+    //             setSearchKeyword("");
+    //             setItems([]);
+    //         }}><i className="bi bi-trash"></i></button>
+    //     </div>;
+    //     if (q === '') {
+    //         clearsearchhtml = null;
+    //     }
+    //     return <>
+    //         <div className="row g-1">
+    //             <div className="col">
+    //                 <input type="text" className="form-control shadow-none border" value={q} onChange={(e) => { setSearchKeyword(e.target.value); }} placeholder="Search People, Topics, Hashtags" maxLength="150"
+    //                      />
+    //             </div>
+    //             {clearsearchhtml}
+    //         </div>
+    //         {renderSearchResult()}
+    //     </>;
+    // }
     return <>{renderSearchResult()}</>;
 }
 

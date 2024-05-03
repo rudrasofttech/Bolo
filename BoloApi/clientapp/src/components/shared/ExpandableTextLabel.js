@@ -16,7 +16,7 @@ function ExpandableTextLabel(props) {
             let hashtagarr = tempdescribe.replace(/\n/g, " ").split(" ").filter(v => v.startsWith('#'));
             hashtagarr.forEach(function (hashtag) {
                 let myExp = new RegExp(hashtag + "\\s", 'g');
-                describe = describe.replace(myExp, "<a href='//" + window.location.host + "/?q=" + encodeURIComponent(hashtag) + "'>" + hashtag + "</a> ");
+                describe = describe.replace(myExp, `<a href='/explore/${encodeURIComponent(hashtag)}'>${hashtag}</a> `);
             });
             t = <>
                 {describe.split('\n').map((item, key) => {

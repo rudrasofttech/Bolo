@@ -1,15 +1,17 @@
 ﻿import { useContext, createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageModel } from "./Model";
+import { Utility } from "../Utility";
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [myself, setMyself] = useState(localStorage.getItem("myself") !== null ? JSON.parse(localStorage.getItem("myself")) : null);
     const [token, setToken] = useState(localStorage.getItem("token") || "");
     const navigate = useNavigate();
+    
     const loginAction = async (data) => {
         try {
-            const response = await fetch('//' + window.location.host + '/api/Members/Login', {
+            const response = await fetch(`${Utility.GetAPIURL()}/api/Members/Login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -38,7 +40,7 @@ const AuthProvider = ({ children }) => {
     };
 
     const validate = () => {
-        fetch('//' + window.location.host + '/api/Members/Validate', {
+        fetch(`${Utility.GetAPIURL()}/api/Members/Validate`, {
             method: 'get',
             headers: {
                 'Authorization': `Bearer ${token}`

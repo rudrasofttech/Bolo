@@ -9,6 +9,7 @@ import * as SimplePeer from "simple-peer";
 import Moment from 'react-moment';
 import DropDownButton from "./shared/UI/DropDownButton";
 import Spinner from "./shared/Spinner";
+import ShowMessage from "./shared/ShowMessage";
 
 const BoloRelationType =
 {
@@ -94,7 +95,7 @@ function PersonChat(props) {
                         try {
                             props.handleShowSearch(true);
                         } catch (err) {
-                            console.log("Error in blocking and removing contact. " + err);
+                            setMessage(new MessageModel("danger", "Error in blocking and removing contact. " + err));
                         }
                     }
                 });
@@ -579,14 +580,14 @@ function PersonChat(props) {
     const showMessageStatus = (status) => {
         switch (status) {
             case messageStatusEnum.Received:
-                return "Received";
+                return <i title="Received" className="bi bi-balloon-fill"></i>;
             case messageStatusEnum.Sent:
-                return "Sent"
+                return <i title="Sent" className="bi bi-balloon"></i>;
             case messageStatusEnum.Seen:
                 //return "Received";
-                return "Seen";
+                return <i title="Seen" className="bi bi-balloon-fill text-success"></i>;
             default:
-                return "";
+                return null;
         }
     }
 
@@ -857,8 +858,8 @@ function PersonChat(props) {
 
     //handle search result item click
     const handleProfileImageClick = (e) => {
-        setProfileToShow(props.person);
-        setShowProfileModal(true);
+        //setProfileToShow(props.person);
+        //setShowProfileModal(true);
     }
 
     const handleContactRelationshipChange = (e) => {
@@ -957,16 +958,25 @@ function PersonChat(props) {
 
 
     const getFileExtensionBasedName = (filename) => {
-        return filename.substring(61, filename.length);
+        if (filename.toLowerCase().endsWith(".doc") || filename.toLowerCase().endsWith(".docx")) {
+            return <i className="bi bi-file-word fs-1" title="Word Document"></i>
+        } else if (filename.toLowerCase().endsWith(".pdf")) {
+            return <i className="bi bi-filetype-pdf fs-1" title="PDF"></i>
+        }
+        else if (filename.toLowerCase().endsWith(".xls") || filename.toLowerCase().endsWith(".xlsx")) {
+            return <i className="bi bi-file-earmark-excel fs-1" title="Spreadsheet"></i>
+        }
+        else
+            return filename.substring(61, filename.length);
     }
 
-    const renderEmojiModal = () => {
-        if (showemojimodal) {
-            return <tr><td colSpan="2"><Emoji onSelect={handleEmojiSelect} /></td></tr>;
-        } else {
-            return null;
-        }
-    }
+    //const renderEmojiModal = () => {
+    //    if (showemojimodal) {
+    //        return <tr><td colSpan="2"><Emoji onSelect={handleEmojiSelect} /></td></tr>;
+    //    } else {
+    //        return null;
+    //    }
+    //}
 
     const renderVideoCallModal = () => {
         return <div className="modal d-block" data-backdrop="static" data-keyboard="false" tabIndex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -981,38 +991,26 @@ function PersonChat(props) {
         </div>;
     }
 
-    const renderLinksInMessage = (msg) => {
+    const renderLinksInMessage = (msg, color = "rgb(48, 35, 91)") => {
         let tempmid = msg.id;
-        if (msg.text.startsWith('https://' + window.location.host + '/data/')) {
+        if (msg.text.startsWith(`https://${window.location.host}/data/`)) {
             if (msg.text.toLowerCase().endsWith(".jpg") || msg.text.toLowerCase().endsWith(".jpeg") || msg.text.toLowerCase().endsWith(".png") || msg.text.toLowerCase().endsWith(".gif") || msg.text.toLowerCase().endsWith(".bmp")) {
-                return <span id={tempmid}>
-                    <img src={msg.text} className='img-fluid' alt="" style={{ maxWidth: "260px" }} />
-                </span>;
+                return <img id={tempmid} src={msg.text} className='img-fluid' alt="" style={{ maxWidth: "260px" }} />;
             }
             else if (msg.text.toLowerCase().endsWith(".mp3")) {
-                return <span id={tempmid}>
-                    <audio src={msg.text} controls playsInline style={{ maxWidth: "260px" }} />
-                </span>;
+                return <audio id={tempmid} src={msg.text} controls playsInline style={{ maxWidth: "260px" }} />;
             }
             else if (msg.text.toLowerCase().endsWith(".ogg") || msg.text.toLowerCase().endsWith(".mp4") || msg.text.toLowerCase().endsWith(".webm") || msg.text.toLowerCase().endsWith(".mov")) {
-                return <span id={tempmid}>
-                    <video src={msg.text.toLowerCase()} controls playsInline style={{ maxWidth: "260px" }} />
-                </span>;
+                return <video id={tempmid} src={msg.text.toLowerCase()} controls playsInline style={{ maxWidth: "260px" }} />;
             }
             else {
-                return <span id={tempmid}>
-                    <a href={msg.text} rel="noreferrer" target="_blank">
-                        {getFileExtensionBasedName(msg.text.toLowerCase())}
-                    </a>
-                </span>;
+                return <a id={tempmid} href={msg.text} style={{ color: color }} rel="noreferrer" target="_blank">{getFileExtensionBasedName(msg.text.toLowerCase())}</a>;
             }
         }
         else if ((msg.text.startsWith('https://') || msg.text.startsWith('http://')) && msg.text.trim().indexOf(" ") === -1) {
-            return <span id={tempmid}>
-                <a href={msg.text.trim()} rel="noreferrer" target="_blank">
-                    {msg.text}
-                </a>
-            </span>;
+            return <a id={tempmid} href={msg.text.trim()} style={{ color: color }} rel="noreferrer" target="_blank">
+                {msg.text}
+            </a>;
         }
         else {
             return <span id={tempmid}>{msg.text.split('\n').map((item, key) => {
@@ -1024,22 +1022,17 @@ function PersonChat(props) {
     const renderContactRelationChange = () => {
         let html = null;
         let contactlist = (localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
-        let style = {
-            margin: "0 auto", maxWidth: "80%", width: "25rem", padding: "15px"
-        };
+
         if (contactlist.get(props.person.id) !== undefined) {
             if (contactlist.get(props.person.id).boloRelation === BoloRelationType.Temporary) {
-                html = <li style={style} >
-                    <div className="card bg-light mb-3">
-                        <div className="card-header">New Contact</div>
-                        <div className="card-body">
-                            <h5 className="card-title">Take Action Here</h5>
-                            <p className="card-text">This person is not your contact list.</p>
-                            <button className="btn btn-success me-2" onClick={handleAddToContacts}>Add to Contacts</button>
-                            <button className="btn btn-outline-dark" onClick={handleBlockandRemove}>Block and Remove</button>
-                        </div>
+                html = <div className="d-flex justify-content-center"><div className="card my-3">
+                    <div className="card-header">New Contact</div>
+                    <div className="card-body">
+                        <p className="card-text mb-2">This person is not your contact list.</p>
+                        <button className="btn btn-primary me-2" onClick={handleAddToContacts}>Add to Contacts</button>
+                        <button className="btn btn-secondary" onClick={handleBlockandRemove}>Block and Remove</button>
                     </div>
-                </li>;
+                </div></div>;
             }
         }
 
@@ -1047,27 +1040,27 @@ function PersonChat(props) {
     }
 
     const renderMessages = () => {
-        let sentlistyle = { display: "block", textAlign: 'right' };
-        let reclistyle = { display: "block", textAlign: 'left' };
-        let sentmessagestyle = {
-            marginBottom: "1px", maxWidth: "70%", position: "relative",
+        //let sentlistyle = { display: "block", textAlign: 'right' };
+        //let reclistyle = { display: "block", textAlign: 'left' };
+        //let sentmessagestyle = {
+        //    marginBottom: "1px", maxWidth: "70%", position: "relative",
 
-            fontSize: "1.2rem",
-            //border: "none",
-            borderRadius: "0rem",
-            //color: "#000",
-            //backgroundColor: "#DBF4FD",
-            wordWrap: "break-word"
-        };
-        let recmessagestyle = {
-            marginBottom: "1px", maxWidth: "70%", position: "relative",
-            //border: "none",
-            borderRadius: "0rem",
-            fontSize: "1.2rem",
-            //color: "#000",
-            //backgroundColor: "#F2F6F9",
-            wordWrap: "break-word"
-        };
+        //    fontSize: "1.2rem",
+        //    //border: "none",
+        //    borderRadius: "0rem",
+        //    //color: "#000",
+        //    //backgroundColor: "#DBF4FD",
+        //    wordWrap: "break-word"
+        //};
+        //let recmessagestyle = {
+        //    marginBottom: "1px", maxWidth: "70%", position: "relative",
+        //    //border: "none",
+        //    borderRadius: "0rem",
+        //    fontSize: "1.2rem",
+        //    //color: "#000",
+        //    //backgroundColor: "#F2F6F9",
+        //    wordWrap: "break-word"
+        //};
         const items = [];
         for (const [key, obj] of messages.current.entries()) {
             if (obj.sender === auth.myself.id) {
@@ -1090,7 +1083,7 @@ function PersonChat(props) {
                 items.push(<div key={key} className="mb-3">
                     <div style={{ borderRadius: "15px", background: "#30235B", color: "#fff", maxWidth: "600px" }}
                         className="d-inline-block lh-base p-3 ">
-                        {renderLinksInMessage(obj)}
+                        {renderLinksInMessage(obj, "#fff")}
                     </div>
                     <span className="d-block"><small style={{ fontSize: "0.75rem" }}><Moment local={true} fromNow>{obj.timestamp}</Moment></small></span>
                 </div>);
@@ -1240,7 +1233,7 @@ function PersonChat(props) {
                 <div className="flex-grow-1" style={{ maxHeight: `calc(100vh - ${messageContainerHeight}px)`, overflowY: "auto" }}>
                     <Spinner show={loading} center={true} />
                     {videohtml}
-                    <div className="chatmsgcont p-3 p-lg-5" style={chatmsgcontstyle}>
+                    <div className="chatmsgcont p-3 p-xl-5" style={chatmsgcontstyle}>
                         {renderMessages()}
                     </div>
                 </div>
@@ -1272,6 +1265,7 @@ function PersonChat(props) {
             </div>
             {personprofile}
             {renderFileUploadProcessModal()}
+            <ShowMessage messagemodal={message} />
             <audio id="chatbeep" muted="muted" volume="0">
                 <source src="/media/swiftly.mp3"></source>
                 <source src="/media/swiftly.m4r"></source>

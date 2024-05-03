@@ -235,7 +235,7 @@ function Profile() {
         if (member !== null) {
             if (member != null && auth.myself.id === member.id) {
                 settings = <div className="d-inline-block">
-                    <DropDownButton  buttoncss="btn-link text-decoration-none " text={<><i className="bi bi-gear me-1"></i>Settings</>}>
+                    <DropDownButton buttoncss="btn-link text-decoration-none " text={<><i className="bi bi-gear me-1"></i>Settings</>}>
                         <li>
                             <Link to="/manageprofile" className="dropdown-item text-dark py-2">Edit Profile</Link></li>
                         <li>
@@ -250,74 +250,73 @@ function Profile() {
                 followhtml = renderFollowHtml();
             }
             me = <>
-                <div className="row justify-content-center">
+                <div className="d-flex justify-content-center">
                     <div className="col-lg-8 offset-lg-2 col-12">
-                        <div className="my-md-3 my-2">
-                            <div className="py-3">
-                                <div className=" mb-2 bg-white fs-5">
-                                    <div className="row">
-                                        <div className="col-md-3">
-                                            {member.pic !== "" ? <img src={"//" + window.location.host + "/" + member.pic} className="img-fluid profile-pic-border mb-2" alt="" />
-                                                : <img src="/theme1/images/person-fill.svg" className="img-fluid profile-pic-border mb-2" alt="" />}
-                                            <h1 className="fs-20 text-center text-primary">@{member.userName}</h1>
-                                        </div>
-                                        <div className="col-md pt-3">
-                                            {member.name !== "" ? <div className="fs-2 mb-3 text-primary">{member.name}</div> : null}
-                                            {member.countryName !== "" ? <div className="mb-2 fs-20 text-secondary"><i className="bi bi-globe-central-south-asia"></i> {member.countryName}</div> : null}
-                                            {/*{member.thoughtStatus !== "" ? <div className="mb-2 fs-20 text-secondary">{member.thoughtStatus}</div> : null}*/}
-                                            {member.bio === null ? null : <div className="mb-2  fs-20">
-                                                <ExpandableTextLabel cssclassName="text-justify lh-base" text={member.bio} maxlength={200} />
-                                            </div>}
-                                            <div className="d-flex justify-content-start">
-                                                {member.phones.length > 0 ? <div className="d-inline-block me-1">
-                                                    <DropDownButton buttoncss="btn-link text-decoration-none text-primary" text={<><i className="bi bi-phone-fill"></i> Phones</>}>{member.phones.map(l => {
-                                                        return <li><a href={`tel:${l.phone}`} className="dropdown-item text-dark py-2">{l.phone}</a></li>
-                                                    })}</DropDownButton>
-                                                </div> : null}
-                                                {member.emails.length > 0 ? <div className="d-inline-block me-1">
-                                                    <DropDownButton buttoncss="btn-link text-decoration-none text-primary" text={<><i className="bi bi-envelope-at-fill"></i> Emails</>}>{member.emails.map(l => {
-                                                        return <li>
-                                                            <a href={`mailto:${l.email}`} className="dropdown-item text-dark py-2">{l.email}</a>
-                                                        </li>;
-                                                    })}</DropDownButton>
-                                                </div> : null}
-                                                {member.links.length > 0 ? <div className="d-inline-block me-1">
-                                                    <DropDownButton buttoncss="btn-link text-decoration-none text-primary" text={<><i className="bi bi-link-45deg"></i> External Links</>}>{member.links.map(l => {
-                                                        return <li>
-                                                            <a href={l.url} className="dropdown-item text-dark py-2" rel="noreferrer" target="_blank">{l.name}</a>
-                                                        </li>;
-                                                    })}</DropDownButton>
-                                                </div> : null}
-                                                {settings}
-                                            </div>
-                                            <div className="d-flex justify-content-start">
-                                                <div className="d-inline-block me-2">
-                                                    <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"><span className="fw-semibold me-1">{member.postCount}</span> Posts</button></div>
-                                                <div className="d-inline-block me-2">
-                                                    {
-                                                        (auth.myself && member != null && auth.myself.id === member.id) ?
-                                                            <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"
-                                                                onClick={() => { setShowFollowing(true) }}>
-                                                                <span className="fw-semibold me-1">{member.followingCount}</span>Following</button> :
-                                                            <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none">
-                                                                <span className="fw-semibold me-1">{member.followingCount}</span>Following</button>
-                                                    }
-                                                </div>
-                                                <div className="d-inline-block me-2">
-                                                    {
-                                                        (auth.myself && member != null && auth.myself.id === member.id) ?
-                                                            <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none"
-                                                                onClick={() => { setShowFollowers(true); }}><span className="fw-semibold me-1">{member.followerCount}</span>Followers</button> :
-                                                            <button type="button" className="btn btn-link text-primary fw-normal text-decoration-none">
-                                                                <span className="fw-semibold me-1">{member.followerCount}</span>Followers</button>
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
+                        <div className="my-md-3 my-2" style={{ maxWidth: "800px" }}>
+                            <div className="py-3 bg-white fs-5">
+                                <div className="row">
+                                    <div className="col-md-3">
+                                        {member.pic !== "" ? <img src={"//" + window.location.host + "/" + member.pic} className="img-fluid profile-pic-border mb-2" alt="" />
+                                            : <img src="/theme1/images/person-fill.svg" className="img-fluid profile-pic-border mb-2 w-100" alt="" />}
+                                        <h1 className="fs-20 text-center text-primary">@{member.userName}</h1>
                                     </div>
-                                    {followhtml}
-                                    {member.followRequestCount > 0 && member.userName === auth.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { setShowRequests(true) }}>{member.followRequestCount} Follow Request</button></div> : null}
-                                    {renderRequestApproval()}
+                                    <div className="col-md pt-3">
+                                        {member.name !== "" ? <div className="fs-2 mb-3 text-primary">{member.name}</div> : null}
+                                        {member.countryName !== "" ? <div className="mb-2 fs-20 text-secondary"><i className="bi bi-globe-central-south-asia"></i> {member.countryName}</div> : null}
+                                        {/*{member.thoughtStatus !== "" ? <div className="mb-2 fs-20 text-secondary">{member.thoughtStatus}</div> : null}*/}
+                                        {member.bio === null ? null : <div className="mb-2  fs-20">
+                                            <ExpandableTextLabel cssclassName="text-justify lh-base" text={member.bio} maxlength={200} />
+                                        </div>}
+                                        <div className="d-flex justify-content-start">
+                                            {member.phones.length > 0 ? <div className="d-inline-block me-1">
+                                                <DropDownButton buttoncss="btn-link text-decoration-none text-primary" text={<><i className="bi bi-phone-fill"></i> Phones</>}>{member.phones.map(l => {
+                                                    return <li><a href={`tel:${l.phone}`} className="dropdown-item text-dark py-2">{l.phone}</a></li>
+                                                })}</DropDownButton>
+                                            </div> : null}
+                                            {member.emails.length > 0 ? <div className="d-inline-block me-1">
+                                                <DropDownButton buttoncss="btn-link text-decoration-none text-primary" text={<><i className="bi bi-envelope-at-fill"></i> Emails</>}>{member.emails.map(l => {
+                                                    return <li>
+                                                        <a href={`mailto:${l.email}`} className="dropdown-item text-dark py-2">{l.email}</a>
+                                                    </li>;
+                                                })}</DropDownButton>
+                                            </div> : null}
+                                            {member.links.length > 0 ? <div className="d-inline-block me-1">
+                                                <DropDownButton buttoncss="btn-link text-decoration-none text-primary" text={<><i className="bi bi-link-45deg"></i> External Links</>}>{member.links.map(l => {
+                                                    return <li>
+                                                        <a href={l.url} className="dropdown-item text-dark py-2" rel="noreferrer" target="_blank">{l.name}</a>
+                                                    </li>;
+                                                })}</DropDownButton>
+                                            </div> : null}
+                                            {settings}
+                                        </div>
+
+                                        {followhtml}
+                                        {member.followRequestCount > 0 && member.userName === auth.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { setShowRequests(true) }}>{member.followRequestCount} Follow Request</button></div> : null}
+                                        {renderRequestApproval()}
+                                    </div>
+                                </div>
+                                <div className="d-flex rounded-5 mt-3 py-2" style={{ background: "rgba(48,35,91,.08)" }}>
+                                    <div className="flex-grow-1 text-center">
+                                        <button type="button" className="btn btn-link text-primary fw-semibold text-decoration-none">{member.postCount} Posts</button></div>
+                                    <div className="flex-grow-1 text-center">
+                                        {
+                                            (auth.myself && member != null && auth.myself.id === member.id) ?
+                                                <button type="button" className="btn btn-link text-primary fw-semibold text-decoration-none"
+                                                    onClick={() => { setShowFollowing(true) }}>
+                                                    {member.followingCount} Following</button> :
+                                                <button type="button" className="btn btn-link text-primary fw-semibold text-decoration-none">
+                                                    {member.followingCount} Following</button>
+                                        }
+                                    </div>
+                                    <div className="flex-grow-1 text-center">
+                                        {
+                                            (auth.myself && member != null && auth.myself.id === member.id) ?
+                                                <button type="button" className="btn btn-link text-primary fw-semibold text-decoration-none"
+                                                    onClick={() => { setShowFollowers(true); }}>{member.followerCount} Followers</button> :
+                                                <button type="button" className="btn btn-link text-primary fw-semibold text-decoration-none">
+                                                    {member.followerCount} Followers</button>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                             <ShowMessage messagemodal={message} toast={true} />

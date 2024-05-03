@@ -40,49 +40,49 @@ namespace Bolo.Controllers
             return View();
         }
 
-        [HttpGet]
-        [Route("conversation")]
-        public IActionResult Conversation()
-        {
-            return View();
-        }
+        //[HttpGet]
+        //[Route("conversation")]
+        //public IActionResult Conversation()
+        //{
+        //    return View();
+        //}
 
-        [HttpGet]
-        [Route("addpost")]
-        public IActionResult AddPost()
-        {
-            return View(new PostPhotoDTO());
-        }
+        //[HttpGet]
+        //[Route("addpost")]
+        //public IActionResult AddPost()
+        //{
+        //    return View(new PostPhotoDTO());
+        //}
 
-        [HttpGet]
-        [Route("profile")]
-        public IActionResult Profile([FromQuery] string un = "")
-        {
-            ViewBag.UserName = un;
-            return View();
-        }
+        //[HttpGet]
+        //[Route("profile")]
+        //public IActionResult Profile([FromQuery] string un = "")
+        //{
+        //    ViewBag.UserName = un;
+        //    return View();
+        //}
 
-        [HttpGet]
-        [Route("discover")]
-        public IActionResult Discover()
-        {
-            return View();
-        }
+        //[HttpGet]
+        //[Route("discover")]
+        //public IActionResult Discover()
+        //{
+        //    return View();
+        //}
 
-        [HttpGet]
-        [Route("updateprofile")]
-        public IActionResult UpdateProfile()
-        {
-            return View();
-        }
+        //[HttpGet]
+        //[Route("updateprofile")]
+        //public IActionResult UpdateProfile()
+        //{
+        //    return View();
+        //}
 
-        [HttpGet]
-        [Route("post/{id}")]
-        public IActionResult Post(Guid id)
-        {
-            ViewBag.PostId = id;
-            return View();
-        }
+        //[HttpGet]
+        //[Route("post/{id}")]
+        //public IActionResult Post(Guid id)
+        //{
+        //    ViewBag.PostId = id;
+        //    return View();
+        //}
 
         [HttpGet]
         public IActionResult EmailVerify(Guid id)

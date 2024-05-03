@@ -7,6 +7,8 @@ import ViewProfile from "./ViewProfile";
 import * as signalR from "@microsoft/signalr";
 import Layout from "./Layout";
 import Spinner from "./shared/Spinner";
+import ShowMessage from "./shared/ShowMessage";
+import personfill from "../theme1/images/person-fill.svg";
 
 function Conversation(props) {
     const [loading, setLoading] = useState(false);
@@ -104,21 +106,21 @@ function Conversation(props) {
 
 
     //function checks if any contact has not send pulse for last 5 seconds then deem them off-line
-    const checkContactPulse = () => {
-        for (const [key, contact] of contactlist.current.entries()) {
-            var dt = new Date(contact.lastPulse);
-            dt.setSeconds(dt.getSeconds() + 5);
-            if (dt < Date.now()) {
-                contact.activity = 5;
-            }
-        }
-    }
+    //const checkContactPulse = () => {
+    //    for (const [key, contact] of contactlist.current.entries()) {
+    //        var dt = new Date(contact.lastPulse);
+    //        dt.setSeconds(dt.getSeconds() + 5);
+    //        if (dt < Date.now()) {
+    //            contact.activity = 5;
+    //        }
+    //    }
+    //}
 
     const fetchContacts = () => {
         fetch(Utility.GetAPIURL() + '/api/Contacts/Member', {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + auth.token
+                'Authorization': `Bearer ${auth.token}`
             }
         })
             .then(response => {
@@ -153,7 +155,7 @@ function Conversation(props) {
                                 localStorage.setItem(data[k].person.id, JSON.stringify(Array.from(msgs)));
                             }
                         }
-                        localStorage.setItem("contacts", JSON.stringify(Array.from(contactlist)));
+                        localStorage.setItem("contacts", JSON.stringify(Array.from(contactlist.current)));
 
                         setDummy(Date.now());
                     });
@@ -221,15 +223,18 @@ function Conversation(props) {
     }
 
     const handleShowSearch = (show) => {
-        //if (show) {
-        //    contactlist = localStorage.getItem("contacts") !== null) ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
-        //}
+        if (show) {
+            let temp = localStorage.getItem("contacts") !== null ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+            contactlist.current.clear();
+            for (const [key, contact] of temp.entries())
+                contactlist.current.set(contact.id, contact);
+        }
         setShowSearch(show);
     }
 
-    const handleProfileSelect = (e) => {
-        setSelectedPerson(e);
-    }
+    //const handleProfileSelect = (e) => {
+    //    setSelectedPerson(e);
+    //}
 
     const handleProfileModalClose = () => {
         setProfileToShow(null);
@@ -237,13 +242,13 @@ function Conversation(props) {
     }
 
     //handle profile menu item click
-    const handleProfileItemClick = (e) => {
-        //should only move forward if there is memberid and there is some profileselect action provided
-        if (e !== null && contactlist.current.get(e) !== undefined) {
-            setProfileToShow(contactlist.current.get(e).person);
-            setShowProfileModal(true);
-        }
-    }
+    //const handleProfileItemClick = (e) => {
+    //    //should only move forward if there is memberid and there is some profileselect action provided
+    //    if (e !== null && contactlist.current.get(e) !== undefined) {
+    //        setProfileToShow(contactlist.current.get(e).person);
+    //        setShowProfileModal(true);
+    //    }
+    //}
 
     //handle search result item click
     const handleResultItemClick = (e) => {
@@ -293,9 +298,12 @@ function Conversation(props) {
     const handleChange = (e) => {
         switch (e.target.name) {
             case 'searchtext':
-                //if (e.target.value.trim() === "") {
-                //    contactlist = (localStorage.getItem("contacts") !== null ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
-                //}
+                if (e.target.value.trim() === "") {
+                    let temp = localStorage.getItem("contacts") !== null ? new Map(JSON.parse(localStorage.getItem("contacts"))) : new Map();
+                    contactlist.current.clear();
+                    for (const [key, contact] of temp.entries())
+                        contactlist.current.set(contact.id, contact);
+                }
                 setSearchText(e.target.value);
                 break;
             default:
@@ -309,38 +317,40 @@ function Conversation(props) {
             let obj = contact.person;
             if (auth.myself === null || obj.id !== auth.myself.id) {
                 items.push(<div key={key} title={obj.thoughtStatus} data-id={obj.id} className={" row g-0 contact justify-items-center pointer " + (selectedperson !== null && selectedperson.id === obj.id ? "selected" : "")} onClick={(e) => handleResultItemClick(e.target.getAttribute("data-id"))}>
-                    <div className="col-2">
-                        <img src={obj.pic !== "" ? `//${window.location.host}/${obj.pic}` : `//${window.location.host}/theme1/images/person-fill.svg`} data-id={obj.id} className="img-fluid pointer profile-pic-border owner-thumb-small" alt="" />
+                    <div className="col-3 col-xl-2">
+                        <img src={obj.pic !== "" ? `//${window.location.host}/${obj.pic}` : personfill} data-id={obj.id} className="img-fluid pointer profile-pic-border owner-thumb-small" alt="" />
                     </div>
                     <div className="col px-2 py-2" data-id={obj.id} >
                         <div className="contactname mb-2" data-id={obj.id} >{obj.name && obj.name !== "" ? obj.name : obj.userName}</div>
                         {contact.unseenMessageCount > 0 ? <span className="badge bg-primary">{contact.unseenMessageCount}</span> : null}
                         {contact.boloRelation === BoloRelationType.Blocked ? <span className="badge bg-danger">Blocked</span> : null}
-                        <span style={{ fontSize: "0.8rem" }} className={obj.activity !== 5 ? "text-success" : "text-danger" }>{obj.activity !== 5 ? "Online" : "Offline"}</span>
+                        <span style={{ fontSize: "0.8rem" }} className={obj.activity !== 5 ? "text-success" : "text-danger"}>{obj.activity !== 5 ? "Online" : "Offline"}</span>
                     </div>
                 </div>);
             }
         }
 
         if (items.length > 0) {
-            return <div style={{height:"calc(100vh - 118px)", overflowY:"auto"} }>{items}</div>;
-        } else if (!loading) {
-            return <div>
-                        No profiles to show here.
-                        <br />
-                        Search for people based on their name, location, profession or gender etc.
-                        Here are some examples of search phrases.
-                        <ul>
-                            <li>Raj Kiran Singh</li>
-                            <li>Raj From India</li>
-                            <li>Software Developer in Noida</li>
-                            <li>Women in India</li>
-                            <li>Men in India</li>
-                            <li>Mumbai Maharashtra</li>
-                            <li>Delhi Mumbai Kolkatta</li>
-                        </ul>
-                    </div>;
-        } else {
+            return <div style={{ height: "calc(100vh - 118px)", overflowY: "auto" }}>{items}</div>;
+        }
+        //else if (!loading) {
+        //    return <div>
+        //                No profiles to show here.
+        //                <br />
+        //                Search for people based on their name, location, profession or gender etc.
+        //                Here are some examples of search phrases.
+        //                <ul>
+        //                    <li>Raj Kiran Singh</li>
+        //                    <li>Raj From India</li>
+        //                    <li>Software Developer in Noida</li>
+        //                    <li>Women in India</li>
+        //                    <li>Men in India</li>
+        //                    <li>Mumbai Maharashtra</li>
+        //                    <li>Delhi Mumbai Kolkatta</li>
+        //                </ul>
+        //            </div>;
+        //}
+        else {
             return null;
         }
     }
@@ -372,29 +382,30 @@ function Conversation(props) {
 
         let searchhtml = null;
         if (showsearch) {
-            searchhtml = <div className="col-sm-4 col-md-3 p-lg-4" style={{ background:"rgba(48,35,91,0.2)"} }>
-                <form onSubmit={handleSearchSubmit} className="row row-cols-lg-auto g-3 align-items-center mb-4">
-                    <div className="col-12" style={{width: "calc(100% - 75px)" }}>
-                        <input type="search" className="form-control" onChange={handleChange} title="Find People by Name, Location, Profession etc." name="searchtext" id="search-input" placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
+            searchhtml = <div className="col-sm-4 col-md-3 p-lg-1 p-xl-4" style={{ background: "rgba(48,35,91,0.2)" }}>
+                <form onSubmit={handleSearchSubmit} className="row row-cols-auto row-cols-lg-auto g-1 align-items-center mb-4">
+                    <div className="col" style={{ width: "calc(100% - 75px)" }}>
+                        <input type="search" disabled={loading} className="form-control" onChange={handleChange} title="Find People by Name, Location, Profession etc." name="searchtext" id="search-input" placeholder="Find People by Name, Location, Profession etc" aria-label="Search for..."
                             autoComplete="off" spellCheck="false" aria-describedby="button-addon2" />
                     </div>
-                    <div className="col-12">
+                    <div className="col">
                         <button className="btn btn-light text-primary" type="submit" disabled={loading}>
                             {loading ? <Spinner show={loading} sm={true} /> : <i className="bi bi-search"></i>}
                         </button>
                     </div>
                 </form>
+
                 {renderPeopleList()}
             </div>;
         }
 
-        return <div className="row" style={{height:"100vh"} }>
-                {searchhtml}
-                {loading}
-                <div className="col-sm-8 col-md-9 p-0">
-                    {personchatorprofile}
-                </div>
-            </div>;
+        return <div className="row" style={{ height: "100vh" }}>
+            {searchhtml}
+            <div className="col-sm-8 col-md-9 p-0">
+                {personchatorprofile}
+                <ShowMessage messagemodal={message} />
+            </div>
+        </div>;
     }
     return <Layout date={dummy}>{renderComp()}</Layout>;
 }

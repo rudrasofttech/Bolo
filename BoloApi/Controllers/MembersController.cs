@@ -1234,7 +1234,7 @@ namespace Bolo.Controllers
                     query = query.Where(t => t.Name.Contains(k) || t.Bio.Contains(k) ||
                     t.City.Contains(k) || t.State.Contains(k) ||
                     t.Country.Contains(k) || t.ThoughtStatus.Contains(k) ||
-                    t.Phone == k || t.Email.ToLower() == k.ToLower());
+                    t.Phone == k || t.Email.ToLower() == k.ToLower()|| t.UserName.Contains(k));
                 }
             }
 

@@ -1,11 +1,12 @@
 ﻿import { useEffect, useState } from "react";
+import { Utility } from "./Utility";
 
 function HashTagDetail(props) {
     const [totalPosts, setTotalPosts] = useState(null);
     const [followed, setFollowed] = useState(null);
 
     useEffect(() => {
-        fetch(`//${window.location.host}/api/post/hashtagpostcount?q=${encodeURIComponent(props.search)}`, {
+        fetch(`${Utility.GetAPIURL()}/api/post/hashtagpostcount?q=${encodeURIComponent(props.search)}`, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + props.token
@@ -22,7 +23,7 @@ function HashTagDetail(props) {
     }, [props.search, props.token])
 
     const follow = () => {
-        fetch(`//${window.location.host}/api/follow/FollowHashtag?q=${encodeURIComponent(props.search)}`, {
+        fetch(`${Utility.GetAPIURL()}/api/follow/FollowHashtag?q=${encodeURIComponent(props.search)}`, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + props.token
@@ -35,7 +36,7 @@ function HashTagDetail(props) {
     }
 
     const unfollow = () => {
-        fetch("//" + window.location.host + "/api/follow/UnfollowHashtag?q=" + encodeURIComponent(props.search), {
+        fetch(`${Utility.GetAPIURL()}/api/follow/UnfollowHashtag?q=${encodeURIComponent(props.search)}`, {
             method: 'get',
             headers: {
                 'Authorization': 'Bearer ' + props.token

@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import MemberPicSmall from "./MemberPicSmall";
 import ConfirmBox from "./ConfirmBox";
 import FollowButton from "./FollowButton";
+import { Utility } from "../Utility";
+import { useAuth } from "./AuthProvider";
 
 function MemberSmallRow(props) {
     const [loading, setLoading] = useState(false);
-    const token = props.token;
+    const auth = useAuth();
+    //const token = props.token;
     const member = props.member;
     const [status, setStatus] = useState(props.status);
     const [showRemove, setShowRemove] = useState(props.showRemove);
@@ -16,10 +19,10 @@ function MemberSmallRow(props) {
 
     const removeFollow = () => {
         setLoading(true);
-        fetch('//' + window.location.host + '/api/follow/remove/' + member.id, {
+        fetch(`${Utility.GetAPIURL()}/api/follow/remove/${member.id}`, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': `Bearer ${auth.token}`
             }
         })
             .then(response => {
@@ -36,7 +39,7 @@ function MemberSmallRow(props) {
     }
 
     const renderFollowButton = () => {
-        let followbtn = <FollowButton token={token} member={member} status={status} />;
+        let followbtn = <FollowButton token={auth.token} member={member} status={status} />;
         if (showRemove) {
             //replace follow button with remmove
             followbtn = <button type="button" disabled={loading} className="btn btn-secondary" onClick={() => { setShowRemoveConfirm(true); }}>Remove</button>;
@@ -49,17 +52,17 @@ function MemberSmallRow(props) {
         return followbtn;
     }
 
-    return <div className="row g-0 align-items-center justify-items-center">
-        <div className="col-2 p-2">
+    return <div className="d-flex align-items-center justify-items-center">
+        <div className="p-2" style={{width:"70px"}}>
             <MemberPicSmall member={member} />
         </div>
-        <div className="col px-1">
-            <Link to={`//${window.location.host}/@${member.userName}`} >
+        <div className="px-1 flex-grow-1">
+            <Link to={`//${window.location.host}/profile/${member.userName}`} >
                 {member.name !== "" ? <div className="fs-20 text-secondary fw-semibold text-capitalize">{member.name}</div> : null}
                 <div className={member.name !== "" ? "text-primary fs-small mt-2" : "fs-20 text-secondary fw-semibold"}>{member.userName}</div>
             </Link>
         </div>
-        <div className="col text-end">
+        <div className="text-end">
             {renderFollowButton()}
             {showRemoveConfirm ? <ConfirmBox cancel={() => { setShowRemoveConfirm(false); }}
                 ok={() => { setShowRemove(false); removeFollow(); }}

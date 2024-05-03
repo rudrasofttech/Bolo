@@ -6,6 +6,7 @@ import { MessageModel } from "./shared/Model";
 import { Utility } from "./Utility";
 import Spinner from "./shared/Spinner";
 import ShowMessage from "./shared/ShowMessage";
+import addpost from "../theme1/images/add-post.svg";
 
 function AddPost(props) {
     const auth = useAuth();
@@ -125,7 +126,7 @@ function AddPost(props) {
         <div className="px-md-5 my-md-3 my-2">
             {photos.length === 0 ? <div className="text-center pt-5">
                 <h1 className="mb-3 fs-2 text-primary">Create new post</h1>
-                <img alt="" src={`//${window.location.host}/theme1/images/add-post.svg`} className="img-fluid mt-1 pointer" onClick={() => { inputFile.current.click(); }} />
+                <img alt="" src={addpost} className="img-fluid mt-1 pointer" onClick={() => { inputFile.current.click(); }} />
                 <p className="my-3 lh-base">
                     Upload photos and videos here
                 </p>

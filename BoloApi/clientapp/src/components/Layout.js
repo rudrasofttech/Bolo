@@ -50,10 +50,10 @@ function Layout(props) {
                     <div className="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h3 className="modal-title fw-semibold" id="notificationModalLabel">
-                                    <input type="text" style={{ width: "300px" }} value={keywords} onChange={(e) => { setKeywords(e.target.value); }} className="form-control shadow-none border"
+                                
+                                    <input type="text" style={{ width: "calc(100% - 40px)" }} value={keywords} onChange={(e) => { setKeywords(e.target.value); }} className="form-control shadow-none border"
                                         placeholder="Search People, Topics, Hashtags" maxLength="150" />
-                                </h3>
+                                
                                 <button type="button" className="btn-close" onClick={() => { setShowSearch(false); }} aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
