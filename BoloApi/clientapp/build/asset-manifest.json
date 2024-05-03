@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.14f60616.css",
+    "main.js": "/static/js/main.0db0328a.js",
+    "static/js/453.e1e0bccf.chunk.js": "/static/js/453.e1e0bccf.chunk.js",
+    "static/media/banner-image.svg": "/static/media/banner-image.3dd64f6dbc61a242296244131ad2a98b.svg",
+    "static/media/banner-login.svg": "/static/media/banner-login.500df690c99e384066b08329254a5599.svg",
+    "static/media/yocail-logo.svg": "/static/media/yocail-logo.549c9ae36cade4043a565d60339e3f8f.svg",
+    "static/media/add-post.svg": "/static/media/add-post.3119c715f7ced53109d3b0811581291a.svg",
+    "static/media/yocail-sign-logo.svg": "/static/media/yocail-sign-logo.9e1f54c0d84e26e78a7fe4db80c89faf.svg",
+    "static/media/ic-user.svg": "/static/media/ic-user.ed945ae13301cd36316f64eee6146b5f.svg",
+    "index.html": "/index.html",
+    "static/media/ic-lock.svg": "/static/media/ic-lock.a871c13232a61dae904abc2bde9c22f6.svg",
+    "static/media/ic-email.svg": "/static/media/ic-email.f3f421910a1a62676aa3c5178aa05176.svg",
+    "static/media/ic-shield-yes.svg": "/static/media/ic-shield-yes.726ca66cbaa9e78a20c8d685406d0f54.svg",
+    "static/media/ic-shield.svg": "/static/media/ic-shield.0f675f58dffeeb8ca3d98d70bf405b95.svg",
+    "static/media/person-fill.svg": "/static/media/person-fill.96333a8ae6aaed43282a32dc16fa60e3.svg",
+    "main.14f60616.css.map": "/static/css/main.14f60616.css.map",
+    "main.0db0328a.js.map": "/static/js/main.0db0328a.js.map",
+    "453.e1e0bccf.chunk.js.map": "/static/js/453.e1e0bccf.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.14f60616.css",
+    "static/js/main.0db0328a.js"
+  ]
+}
