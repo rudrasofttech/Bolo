@@ -80,6 +80,19 @@ namespace Bolo.Models
         public string Name { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Pic { get; set; } = string.Empty;
+
+        public string PicFormedURL
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Pic))
+                    return string.Empty;
+                else if (Pic.ToLower().StartsWith("http://") || Pic.ToLower().StartsWith("https://") || Pic.ToLower().StartsWith("data"))
+                    return Pic;
+                else
+                    return $"https://www.yocail.com/{Pic}";
+            }
+        }
         /// <summary>
         /// Should be true if the member seeing this member info is a follower or not
         /// </summary>
@@ -516,7 +529,7 @@ namespace Bolo.Models
             else if (n.Type == MemberNotificationType.FollowRequest)
             {
                 Title = $"{n.Source.Name} wants to follow you.";
-                URL = $"profile?un={n.Source.UserName}";
+                URL = $"profile/{n.Source.UserName}";
             }
             else if (n.Type == MemberNotificationType.SharePost)
             {

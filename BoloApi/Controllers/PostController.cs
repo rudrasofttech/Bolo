@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using NetTopologySuite.Triangulate.QuadEdge;
 using Org.BouncyCastle.Asn1.Crmf;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace Bolo.Controllers
         private readonly IConfiguration _config;
         private readonly NotificationHelper nhelper;
         private readonly IWebHostEnvironment _webHostEnvironment;
+
         public PostController(BoloContext context, IConfiguration config, IHubContext<UniversalHub> uhub, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
@@ -42,10 +44,21 @@ namespace Bolo.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public PostDTO Get(Guid id)
         {
-            Member currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            var p = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).FirstOrDefault(t => t.PublicID == id);
+            Member currentMember = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+            }
+            var query = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).Where(t => t.PublicID == id);
+            if (!User.Identity.IsAuthenticated)
+                query = query.Where(t => t.Owner.Visibility == MemberProfileVisibility.Public);
+
+            //var p = _context.Posts.Include(t => t.Photos).Include(t => t.Owner).FirstOrDefault(t => t.PublicID == id);
+            var p = query.FirstOrDefault();
+
             if (p == null)
                 return null;
             else
@@ -56,6 +69,13 @@ namespace Bolo.Controllers
                 var pdto = new PostDTO(p);
                 if (currentMember != null)
                     pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == p.ID && t.ReactedBy.ID == currentMember.ID);
+                foreach (var pp in pdto.Photos)
+                {
+                    if (pp.Photo.StartsWith("photos/"))
+                    {
+                        pp.Photo = $"//{Request.Host}/{pp.Photo}";
+                    }
+                }
                 return pdto;
             }
 
@@ -69,7 +89,7 @@ namespace Bolo.Controllers
         /// <param name="p"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
+        public async Task<ActionResult> Get([FromQuery] string q = "", [FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             try
             {
@@ -120,6 +140,16 @@ namespace Bolo.Controllers
                         pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID);
 
                     posts.Add(pdto);
+                }
+                foreach(PostDTO pd in posts)
+                {
+                    foreach(var pp in pd.Photos)
+                    {
+                        if (pp.Photo.StartsWith("photos/"))
+                        {
+                            pp.Photo = $"//{Request.Host}/{pp.Photo}";
+                        }
+                    }
                 }
                 PostsPaged model = new PostsPaged
                 {

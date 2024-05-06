@@ -1,0 +1,11 @@
+<svg width="180" height="178" viewBox="0 0 180 178" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M169.5 120.6V165.4C169.5 166.56 168.56 167.5 167.4 167.5H122.6C121.44 167.5 120.5 166.56 120.5 165.4V120.6C120.5 119.44 121.44 118.5 122.6 118.5H167.4C168.56 118.5 169.5 119.44 169.5 120.6Z" stroke="#30235B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M159 108H112.1C110.94 108 110 108.94 110 110.1V157" stroke="#30235B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M120.5 152.8L139.555 146.5L169.5 157" stroke="#30235B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M153.75 139.5C150.851 139.5 148.5 137.149 148.5 134.25C148.5 131.351 150.851 129 153.75 129C156.649 129 159 131.351 159 134.25C159 137.149 156.649 139.5 153.75 139.5Z" stroke="#30235B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M115.5 58.6V117.4C115.5 118.56 114.56 119.5 113.4 119.5H54.6C53.4402 119.5 52.5 118.56 52.5 117.4V58.6C52.5 57.4402 53.4402 56.5 54.6 56.5H113.4C114.56 56.5 115.5 57.4402 115.5 58.6Z" fill="white" stroke="#30235B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M76.6419 75.7954C75.2419 74.9954 73.5 76.0063 73.5 77.6187V98.3814C73.5 99.9939 75.2419 101.005 76.6419 100.205L94.809 89.8232C96.2199 89.0172 96.2199 86.983 94.809 86.1769L76.6419 75.7954Z" stroke="#30235B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M66.5 10.5H17.5C13.634 10.5 10.5 13.634 10.5 17.5V66.5C10.5 70.366 13.634 73.5 17.5 73.5H66.5C70.366 73.5 73.5 70.366 73.5 66.5V17.5C73.5 13.634 70.366 10.5 66.5 10.5Z" fill="white" stroke="#30235B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29.75 35C32.6495 35 35 32.6495 35 29.75C35 26.8505 32.6495 24.5 29.75 24.5C26.8505 24.5 24.5 26.8505 24.5 29.75C24.5 32.6495 26.8505 35 29.75 35Z" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M73.5 52.5L56 35L17.5 73.5" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

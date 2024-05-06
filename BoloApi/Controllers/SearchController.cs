@@ -40,8 +40,8 @@ namespace Bolo.Controllers
         [HttpGet]
         public List<SearchResultItem> Get([FromQuery] string q = "")
         {
-            List<SearchResultItem> result = new List<SearchResultItem>();
-            if (!string.IsNullOrEmpty(q) && q.Length > 3)
+            var result = new List<SearchResultItem>();
+            if (!string.IsNullOrEmpty(q))
             {
                 var tags = _context.HashTags.Where(t => t.Tag.StartsWith("#" + q))
                      .GroupBy(t => t.Tag)
@@ -62,7 +62,7 @@ namespace Bolo.Controllers
                     ID = Guid.NewGuid(),
                     IPAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString(),
                     Text = q,
-                    ResultCount = result.Count()
+                    ResultCount = result.Count
                 });
                 _context.SaveChanges();
             }
