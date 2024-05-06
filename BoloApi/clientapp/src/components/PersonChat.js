@@ -1187,16 +1187,16 @@ function PersonChat(props) {
             </div>;
         }
 
-        let videotoggleele = videoplaying ? <button type="button" className="btn btn-primary videoctrl" onClick={handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+        let videotoggleele = videoplaying ? <button type="button"  disabled={loading} className="btn btn-primary videoctrl" onClick={handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
             <i className="bi bi-camera-video"></i>
-        </button> : <button type="button" className="btn btn-secondary videoctrl" onClick={handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
+        </button> : <button  disabled={loading} type="button" className="btn btn-secondary videoctrl" onClick={handleVideoToggle} onMouseDown={(e) => e.stopPropagation()} >
             <i className="bi bi-camera-video"></i>
         </button>;
         let audiotoggleele = audioplaying ?
-            <button type="button" className="btn btn-primary audioctrl" onClick={handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
+            <button type="button"  disabled={loading} className="btn btn-primary audioctrl" onClick={handleAudioToggle} onMouseDown={(e) => e.stopPropagation()}>
                 <i className="bi bi-mic"></i>
             </button>
-            : <button type="button" className="btn btn-secondary audioctrl" onClick={handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
+            : <button type="button" disabled={loading} className="btn btn-secondary audioctrl" onClick={handleAudioToggle} onMouseDown={(e) => e.stopPropagation()} >
                 <i className="bi bi-mic"></i>
             </button>;
         //if browser is edge or ie no need to show video or audio control button
@@ -1240,15 +1240,15 @@ function PersonChat(props) {
                 {showemojimodal ? <div style={{ background: "#F7F7F7" }} className="w-100 p-2 pb-0" ><Emoji onSelect={handleEmojiSelect} /></div> : null}
                 <div ref={inputcontainer} style={{ background: "#F7F7F7" }}
                     className="d-flex align-items-center position-absolute bg-light bottom-0 w-100 p-2 py-3">
-                    <button type="button" className={showemojimodal ? "btn btn-warning text-dark" : "btn btn-light text-dark"} onClick={handleEmojiModal} >
+                    <button disabled={loading} type="button" className={showemojimodal ? "btn btn-warning text-dark" : "btn btn-light text-dark"} onClick={handleEmojiModal} >
                         <i className="bi bi-emoji-smile fs-5"></i>
                     </button>
                     <DropDownButton direction="btn-group dropup" buttoncss="btn-link text-decoration-none ms-1" text={<i className="bi bi-file-earmark-plus  fs-5"></i>}>
                         <li>
-                            <button className="btn btn-link dropdown-item text-dark text-decoration-none py-2" type="button" onClick={handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</button>
+                            <button disabled={loading} className="btn btn-link dropdown-item text-dark text-decoration-none py-2" type="button" onClick={handlePhotoClick} title="20 Files at a time, max files size 10 MB">Photos and Videos</button>
                         </li>
                         <li>
-                            <button className="btn btn-link dropdown-item text-dark text-decoration-none py-2" type="button" onClick={handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</button>
+                            <button disabled={loading} className="btn btn-link dropdown-item text-dark text-decoration-none py-2" type="button" onClick={handleDocClick} title="20 Files at a time, max files size 10 MB">Documents</button>
                         </li>
                     </DropDownButton>
                     <input type="file" className="d-none" ref={fileinput} accept=".html,.htm,.doc,.pdf,.xls,.xlsx,.docx,audio/*,video/*,image/*" onChange={handleFileInput} multiple="multiple" />
@@ -1259,8 +1259,8 @@ function PersonChat(props) {
                         }} onBlur={() => { updateTextInputHeight(); }} width="100%"
                         style={{ height: "40px", overflow: "hidden", resize: "none", maxHeight: "200px", border: "2px solid #30235B" }}></textarea>
                     <button type="button" onClick={handleSend} disabled={loading} id="msgsubmit" className="ms-1 btn btn-light  text-dark" title="Send Message">
-                        {loading ? <Spinner show={loading} sm={true} /> : null}
-                        <i className="bi bi-send fs-5"></i></button>
+                        {loading ? <Spinner show={loading} sm={true} /> : <i className="bi bi-send fs-5"></i>}
+                        </button>
                 </div>
             </div>
             {personprofile}

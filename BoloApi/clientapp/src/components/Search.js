@@ -3,6 +3,7 @@ import { useAuth } from "./shared/AuthProvider";
 import Spinner from "./shared/Spinner";
 import MemberSmallRow from "./shared/MemberSmallRow";
 import { Utility } from "./Utility";
+import { Link } from "react-router-dom";
 
 function Search(props) {
     const auth = useAuth();
@@ -53,7 +54,7 @@ function Search(props) {
             } else if (p.hashtag) {
                 itemsList.push(<li key={i} className="list-group-item border-0 p-2">
                     <div>
-                        <a className="text-dark fw-bold text-decoration-none" href={'//' + window.location.host + '/?q=%23' + p.hashtag.tag}>#{p.hashtag.tag}</a>
+                        <Link className="text-dark fw-bold text-decoration-none" to={`/explore/%23${p.hashtag.tag}`}>#{p.hashtag.tag}</Link>
                         <div>{p.hashtag.postCount} Posts</div>
                     </div>
                 </li>);
