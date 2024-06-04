@@ -306,6 +306,8 @@ namespace Bolo.Models
     {
         public int ID { get; set; }
         public string Photo { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
     }
 
     public class MemberReaction
@@ -412,11 +414,8 @@ namespace Bolo.Models
         public Gender Gender { get; set; }
 
         public string Bio { get; set; } = string.Empty;
-
         public string Pic { get; set; } = string.Empty;
-
         public int BirthYear { get; set; }
-
         public string Country { get; set; } = string.Empty;
         public string State { get; set; } = string.Empty;
 

@@ -16,6 +16,8 @@ using Org.BouncyCastle.Asn1.Crmf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -34,6 +36,18 @@ namespace Bolo.Controllers
         private readonly IConfiguration _config;
         private readonly NotificationHelper nhelper;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private const int OrientationKey = 0x0112;
+        private const int NotSpecified = 0;
+        private const int NormalOrientation = 1;
+        private const int MirrorHorizontal = 2;
+        private const int UpsideDown = 3;
+        private const int MirrorVertical = 4;
+        private const int MirrorHorizontalAndRotateRight = 5;
+        private const int RotateLeft = 6;
+        private const int MirorHorizontalAndRotateLeft = 7;
+        private const int RotateRight = 8;
+        private const double PhotoMaxWidth = 700;
+
 
         public PostController(BoloContext context, IConfiguration config, IHubContext<UniversalHub> uhub, IWebHostEnvironment webHostEnvironment)
         {
@@ -395,14 +409,61 @@ namespace Bolo.Controllers
                     string webRootPath = _webHostEnvironment.WebRootPath;
                     string abspath = Path.Combine(webRootPath, "photos", filename);
                     string relpath = string.Format("photos/{0}", filename);
-                    System.IO.File.WriteAllBytes(abspath, data);
-                    //using (var stream = new MemoryStream(data, 0, data.Length))
-                    //{
-                    //    System.Drawing.Image image = System.Drawing.Image.FromStream(stream,true,false);
-                    //    image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    //System.IO.File.WriteAllBytes(abspath, data);
+                    using (var stream = new MemoryStream(data, 0, data.Length))
+                    {
+                        System.Drawing.Image image = System.Drawing.Image.FromStream(stream, true, false);
+                        if (image.PropertyIdList.Contains(OrientationKey))
+                        {
+                            var orientation = (int)image.GetPropertyItem(OrientationKey).Value[0];
+                            switch (orientation)
+                            {
+                                case NotSpecified: // Assume it is good.
+                                case NormalOrientation:
+                                    // No rotation required.
+                                    break;
+                                case MirrorHorizontal:
+                                    image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                                    break;
+                                case UpsideDown:
+                                    image.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                                    break;
+                                case MirrorVertical:
+                                    image.RotateFlip(RotateFlipType.Rotate180FlipX);
+                                    break;
+                                case MirrorHorizontalAndRotateRight:
+                                    image.RotateFlip(RotateFlipType.Rotate90FlipX);
+                                    break;
+                                case RotateLeft:
+                                    image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                                    break;
+                                case MirorHorizontalAndRotateLeft:
+                                    image.RotateFlip(RotateFlipType.Rotate270FlipX);
+                                    break;
+                                case RotateRight:
+                                    image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                                    break;
+                                default:
+                                    throw new NotImplementedException("An orientation of " + orientation + " isn't implemented.");
+                            }
+                        }
+                        if (image.Width > PhotoMaxWidth)
+                        {
+                            double temp = PhotoMaxWidth / image.Width;
+                            temp *= 100;
+                            Image image2 = ScaleByPercent(image, Percent: (int)temp);
+                            image2.Save(abspath);
+                            p.Photos.Add(new PostPhoto() { Photo = relpath, Width = image2.Width, Height = image2.Height });
+                        }
+                        else
+                        {
+                            image.Save(abspath);
+                            p.Photos.Add(new PostPhoto() { Photo = relpath, Width = image.Width, Height = image.Height });
+                        }
+                        
 
-                    //}
-                    p.Photos.Add(new PostPhoto() { Photo = relpath });
+                    }
+                    
                 }
                 _context.Posts.Add(p);
                 if (!string.IsNullOrEmpty(p.Describe))
@@ -434,6 +495,59 @@ namespace Bolo.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = $"Unable to process the request. {ex.Message} {ex.StackTrace}" });
+            }
+        }
+
+        private Image ScaleByPercent(Image imgPhoto, int Percent)
+        {
+            float nPercent = ((float)Percent / 100);
+
+            int sourceWidth = imgPhoto.Width;
+            int sourceHeight = imgPhoto.Height;
+            int sourceX = 0;
+            int sourceY = 0;
+
+            int destX = 0;
+            int destY = 0;
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+            Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
+                                     PixelFormat.Format24bppRgb);
+            bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
+                                    imgPhoto.VerticalResolution);
+
+            Graphics grPhoto = Graphics.FromImage(bmPhoto);
+            grPhoto.InterpolationMode = InterpolationMode.High;
+
+            grPhoto.DrawImage(imgPhoto,
+                new Rectangle(destX, destY, destWidth, destHeight),
+                new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
+                GraphicsUnit.Pixel);
+
+            grPhoto.Dispose();
+            return bmPhoto;
+        }
+
+        [HttpGet]
+        [Route("updatedimension")]
+        [AllowAnonymous]
+        public ActionResult UpdateDimension()
+        {
+            try
+            {
+                var query = _context.PostPhotos.Where(t => t.Height == 0 || t.Width == 0);
+                foreach (var item in query)
+                {
+                    System.Drawing.Image image = System.Drawing.Image.FromFile($"{_webHostEnvironment.WebRootPath}/{item.Photo}");
+                    item.Width = image.Width;
+                    item.Height = image.Height;
+                }
+                _context.SaveChanges();
+                return Ok();
+            }catch(Exception ex)
+            {
+                return BadRequest(new { ex.Message, ex.StackTrace});
             }
         }
 

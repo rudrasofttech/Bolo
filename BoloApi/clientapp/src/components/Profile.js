@@ -185,33 +185,34 @@ function Profile() {
 
     const renderFollowRequest = () => {
         if (showrequests) {
-            return <div className="modal fade show" style={{ display: "block" }} id="followingModal" tabIndex="-1"
-                aria-labelledby="followrequestModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="followingModalLabel">Follow Request</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                onClick={() => { setShowRequests(false); }}></button>
-                        </div>
-                        <div className="modal-body">
-                            <FollowRequestList />
+            return <>
+                <div className="modal fade show" style={{ display: "block" }} id="followingModal" tabIndex="-1"
+                    aria-labelledby="followrequestModalLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="followingModalLabel">Follow Request</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                                    onClick={() => { setShowRequests(false); }}></button>
+                            </div>
+                            <div className="modal-body">
+                                <FollowRequestList />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>;
+                <div className="modal-backdrop fade show"></div>
+            </>;
         }
         return null;
     }
 
     const renderRequestApproval = () => {
         if (hasFollowRequest) {
-            return <div className="row">
-                <div className="col">
-                    <p>You have follow request from this account, take action.</p>
-                    <button type="button" disabled={loading} className="btn btn-primary me-2" onClick={() => { allowRequest(); }}>Approve</button>
-                    <button className="btn btn-secondary" disabled={loading} type="button" onClick={() => { rejectRequest(); }}>Reject</button>
-                </div>
+            return <div className="mt-4 bg-light p-3 rounded-2">
+                    <p className="mb-4 fs-6">You have follow request from this account, take action.</p>
+                    <button type="button" disabled={loading} className="btn btn-primary mt-2 me-3 btn-sm" onClick={() => { allowRequest(); }}>Approve</button>
+                    <button className="btn btn-secondary btn-sm mt-2" disabled={loading} type="button" onClick={() => { rejectRequest(); }}>Reject</button>
             </div>;
         }
     }

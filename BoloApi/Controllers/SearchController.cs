@@ -40,19 +40,20 @@ namespace Bolo.Controllers
         [HttpGet]
         public List<SearchResultItem> Get([FromQuery] string q = "")
         {
+            int take = q.Length > 3 ? 50 : 10;
             var result = new List<SearchResultItem>();
             if (!string.IsNullOrEmpty(q))
             {
                 var tags = _context.HashTags.Where(t => t.Tag.StartsWith("#" + q))
                      .GroupBy(t => t.Tag)
                      .Select(t => new HashtagDTO() { Tag = t.Key, PostCount = t.Count() })
-                     .OrderByDescending(t => t.PostCount).Take(50);
+                     .OrderByDescending(t => t.PostCount).Take(take);
 
                 foreach (var ht in tags)
                     result.Add(new SearchResultItem() { Hashtag = ht });
 
                 var members = _context.Members.Where(t => t.UserName.Contains(q) || t.Name.Contains(q))
-                    .Select(t => new MemberSmallDTO(t)).Take(50);
+                    .Select(t => new MemberSmallDTO(t)).Take(take);
                 foreach (var m in members)
                     result.Add(new SearchResultItem() { Member = m });
 

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable disable
+
 namespace Bolo.Migrations
 {
     [DbContext(typeof(BoloContext))]
@@ -16,16 +18,18 @@ namespace Bolo.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("dbo")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.17")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Bolo.Models.ChatMessage", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
@@ -54,15 +58,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("SentToID");
 
-                    b.ToTable("ChatMessage");
+                    b.ToTable("ChatMessage", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.Contact", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int>("BoloRelation")
                         .HasColumnType("int");
@@ -82,7 +87,7 @@ namespace Bolo.Migrations
 
                     b.HasIndex("PersonID");
 
-                    b.ToTable("Contact");
+                    b.ToTable("Contact", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.DiscoverPostView", b =>
@@ -90,15 +95,18 @@ namespace Bolo.Migrations
                     b.Property<int>("ID")
                         .HasColumnType("int");
 
-                    b.ToView("DiscoverPostView");
+                    b.ToTable((string)null);
+
+                    b.ToView("DiscoverPostView", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.FlaggedItem", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int>("CommentID")
                         .HasColumnType("int");
@@ -119,15 +127,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("FlaggedItem");
+                    b.ToTable("FlaggedItem", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.HashTag", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int?>("PostID")
                         .HasColumnType("int");
@@ -141,15 +150,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("PostID");
 
-                    b.ToTable("HashTag");
+                    b.ToTable("HashTag", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.IgnoredMember", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -166,15 +176,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("IgnoredMember");
+                    b.ToTable("IgnoredMember", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.Member", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int>("Activity")
                         .HasColumnType("int");
@@ -260,15 +271,16 @@ namespace Bolo.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Member");
+                    b.ToTable("Member", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberComment", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Comment")
                         .HasMaxLength(7999)
@@ -289,15 +301,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("PostID");
 
-                    b.ToTable("MemberComment");
+                    b.ToTable("MemberComment", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberFollower", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<DateTime>("FollowedDate")
                         .HasColumnType("datetime2");
@@ -321,15 +334,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("FollowingID");
 
-                    b.ToTable("MemberFollower");
+                    b.ToTable("MemberFollower", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberPost", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<bool>("AcceptComment")
                         .HasColumnType("bit");
@@ -383,15 +397,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("OwnerID");
 
-                    b.ToTable("MemberPost");
+                    b.ToTable("MemberPost", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberReaction", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int?>("CommentID")
                         .HasColumnType("int");
@@ -416,15 +431,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("ReactedByID");
 
-                    b.ToTable("MemberReaction");
+                    b.ToTable("MemberReaction", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.MemberRole", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int?>("MemberID")
                         .HasColumnType("int");
@@ -436,7 +452,7 @@ namespace Bolo.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("MemberRole");
+                    b.ToTable("MemberRole", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.Notification", b =>
@@ -460,7 +476,7 @@ namespace Bolo.Migrations
                     b.Property<int?>("SourceID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TargetID")
+                    b.Property<int>("TargetID")
                         .HasColumnType("int");
 
                     b.Property<string>("Text")
@@ -480,7 +496,7 @@ namespace Bolo.Migrations
 
                     b.HasIndex("TargetID");
 
-                    b.ToTable("Notification");
+                    b.ToTable("Notification", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.PopularPublicAccountView", b =>
@@ -548,7 +564,9 @@ namespace Bolo.Migrations
                     b.Property<int>("Visibility")
                         .HasColumnType("int");
 
-                    b.ToView("PopularPublicAccountView");
+                    b.ToTable((string)null);
+
+                    b.ToView("PopularPublicAccountView", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.PostFeedViewItem", b =>
@@ -556,15 +574,21 @@ namespace Bolo.Migrations
                     b.Property<int>("ID")
                         .HasColumnType("int");
 
-                    b.ToView("PostFeedView");
+                    b.ToTable((string)null);
+
+                    b.ToView("PostFeedView", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.PostPhoto", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("Height")
+                        .HasColumnType("int");
 
                     b.Property<int?>("MemberPostID")
                         .HasColumnType("int");
@@ -572,11 +596,14 @@ namespace Bolo.Migrations
                     b.Property<string>("Photo")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Width")
+                        .HasColumnType("int");
+
                     b.HasKey("ID");
 
                     b.HasIndex("MemberPostID");
 
-                    b.ToTable("PostPhoto");
+                    b.ToTable("PostPhoto", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.ProfileEmail", b =>
@@ -596,7 +623,7 @@ namespace Bolo.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("ProfileEmail");
+                    b.ToTable("ProfileEmail", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.ProfileLink", b =>
@@ -620,7 +647,7 @@ namespace Bolo.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("ProfileLink");
+                    b.ToTable("ProfileLink", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.ProfilePhone", b =>
@@ -640,15 +667,16 @@ namespace Bolo.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("ProfilePhone");
+                    b.ToTable("ProfilePhone", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.PushNotificationWebApp", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Auth")
                         .HasColumnType("nvarchar(max)");
@@ -666,7 +694,7 @@ namespace Bolo.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("PushNotificationWebApp");
+                    b.ToTable("PushNotificationWebApp", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.SearchKeyword", b =>
@@ -691,7 +719,7 @@ namespace Bolo.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("SearchKeyword");
+                    b.ToTable("SearchKeyword", "dbo");
                 });
 
             modelBuilder.Entity("Bolo.Models.ChatMessage", b =>
@@ -848,7 +876,9 @@ namespace Bolo.Migrations
 
                     b.HasOne("Bolo.Models.Member", "Target")
                         .WithMany()
-                        .HasForeignKey("TargetID");
+                        .HasForeignKey("TargetID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Comment");
 

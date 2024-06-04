@@ -2,6 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import MemberSmallRow from "./MemberSmallRow";
 import { useAuth } from "./AuthProvider";
+import { Utility } from "../Utility";
 
 function MemberSmallList(props) {
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ function MemberSmallList(props) {
     const [p, setCurrentPage] = useState(0);
     const [reactions, setReactions] = useState([]);
     const [followList, setFollowList] = useState([]);
-    let url = props.target === 'reaction' ? '//' + window.location.host + '/api/post/reactionlist/' + props.postid : (props.target === 'follower' || props.target === 'share') ? '//' + window.location.host + '/api/Follow/followerlist/' : props.target === 'following' ? '//' + window.location.host + '/api/Follow/followinglist/' : '';
+    let url = props.target === 'reaction' ? `${Utility.GetAPIURL()}/api/post/reactionlist/${props.postid}` : (props.target === 'follower' || props.target === 'share') ? '//' + window.location.host + '/api/Follow/followerlist/' : props.target === 'following' ? `${Utility.GetAPIURL()}/api/Follow/followinglist/` : '';
 
 
     const followerRemoved = (id) => {
@@ -30,7 +31,7 @@ function MemberSmallList(props) {
     }
 
     const hashTagRemove = (tag) => {
-        fetch('//' + window.location.host + '/api/Follow/UnfollowHashtag?q=' + encodeURIComponent(tag), {
+        fetch(`${Utility.GetAPIURL()}/api/Follow/UnfollowHashtag?q=${encodeURIComponent(tag)}`, {
             method: 'get',
             headers: {
                 'Authorization': `Bearer ${auth.token}`
@@ -135,7 +136,7 @@ function MemberSmallList(props) {
                         <div className="col">
                             <a href={"//" + window.location.host + "/?q=" + encodeURIComponent(p.tag)} class="text-primary text-decoration-none">{p.tag}</a></div>
                         <div className="col text-end">
-                            <button data-tag={p.tag} type="button" style={{ width: "110px" }} className="btn btn-blue"
+                            <button data-tag={p.tag} type="button" className="btn btn-blue btn-sm"
                                 onClick={(e) => { hashTagRemove(e.target.getAttribute("data-tag")); }}
                             >Unfollow</button>
                         </div>
