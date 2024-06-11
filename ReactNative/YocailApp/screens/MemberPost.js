@@ -1,4 +1,4 @@
-import { Dimensions, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, Text, View } from "react-native";
+import { Alert, Dimensions, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, Text, View } from "react-native";
 //import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { useAuth } from "../authprovider";
 import { useEffect, useState } from "react";
@@ -12,12 +12,12 @@ import comment from '../assets/comment.png';
 import share from '../assets/share.png';
 import { useRef } from "react";
 import { Utility } from "../utility";
-import MentionHashtagTextView from "react-native-mention-hashtag-text";
 import { TapGestureHandler, State, TextInput } from 'react-native-gesture-handler';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import MemberSmallList from "./shared/MemberSmallList";
 import DateLabel from "./shared/DateLabel";
 import MemberPicSmall from "./shared/MemberPicSmall";
+import ExpandableLabel from "./shared/ExpandableLabel";
 
 export default function MemberPost(props) {
   const win = Dimensions.get('window');
@@ -28,10 +28,14 @@ export default function MemberPost(props) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const doubleTapRef = useRef(null);
   const [post, setPost] = useState(props.post);
+  const [loading, setLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const auth = useAuth();
   const likesRBSheet = useRef();
   const sharesRBSheet = useRef();
   const commentsRBSheet = useRef();
+  const postMenuRBSheet = useRef();
+
 
   const renderOwnerPic = () => {
     if (post.owner.picFormedURL !== "")
@@ -51,10 +55,73 @@ export default function MemberPost(props) {
 
   const onDoubleTapEvent = (event) => {
     if (event.nativeEvent.state === State.ACTIVE) {
-      console.log("double tap");
+      //console.log("double tap");
       addReaction();
     }
   };
+
+  const deletePost = () => {
+    setLoading(true);
+    fetch(`${Utility.GetAPIURL()}/api/post/delete/${post.id}`, {
+        method: 'get',
+        headers: {
+            'Authorization': `Bearer ${auth.token}`
+        }
+    }).then(response => {
+        if (response.status === 200) {
+            let id = post.id;
+            setMessage(new MessageModel());
+            setPost(null);
+            if (props.ondelete !== undefined && props.ondelete !== null) {
+                props.ondelete(id);
+            }
+        } else {
+            response.json().then(data => {
+                setMessage(new MessageModel("danger", data.error));
+            }).catch(err => {
+                setMessage(new MessageModel("danger", "Unable to delete post."));
+                console.log(err);
+            });
+        }
+    }).catch((error) => {
+        setMessage(new MessageModel("danger", "Unable to connect to internet."));
+        console.log(error);
+    }).finally(() => {setLoading(false);});
+}
+
+const ignoreMember = () => {
+  setLoading(true);
+    fetch(`${Utility.GetAPIURL()}/api/ignored/${post.owner.id}`, {
+        method: 'post',
+        headers: {
+            'Authorization': `Bearer ${auth.token}`
+        }
+    }).then(response => {
+        if (response.status === 200) {
+                    if (props.onIgnoredMember !== undefined && props.onIgnoredMember !== null) {
+                        props.onIgnoredMember(post.owner.id);
+                    }
+        }
+    }).finally(() => {setLoading(false);});
+}
+
+const flagPost = (typeid) => {
+  setLoading(true);
+    fetch(`${Utility.GetAPIURL()}/api/post/flag/${post.id}?type=${typeid}`, {
+        method: 'get',
+        headers: {
+            'Authorization': `Bearer ${auth.token}`
+        }
+    }).then(response => {
+        if (response.status === 200) {
+            setMessage(new MessageModel("info", "Thank you! for reporting the post."));
+        } else {
+            setMessage(new MessageModel("danger", "Unable to process your request."));
+        }
+    }).catch(() => {
+        setMessage(new MessageModel("danger", "Unable to process your request."));
+    }).finally(() => {setLoading(false);});
+}
 
   const sharePost = (sharewithid) => {
     fetch(`${Utility.GetAPIURL()}/api/post/share/${post.id}?uid=${sharewithid}`, {
@@ -108,7 +175,6 @@ export default function MemberPost(props) {
   }
 
   const renderPostPic = () => {
-    
     if (post.photos.length > 1) {
       return <TapGestureHandler ref={doubleTapRef} onHandlerStateChange={onDoubleTapEvent} numberOfTaps={2}>
         <View></View>
@@ -124,7 +190,6 @@ export default function MemberPost(props) {
   }
 
   const mentionHashtagClick = (text) => {
-    console.log("Clicked to + " + text);
     props.navigation.push("Hashtag", { hashtag: text });
   };
 
@@ -146,18 +211,19 @@ export default function MemberPost(props) {
       return "comments";
   }
 
+  if(post !== null)
   return (<View style={[styles.mb20]}>
     <View style={{ flex: 1, flexDirection: "row", alignItems: "center", height: 60, paddingLeft: 15, paddingRight: 15, marginBottom: 10 }}>
-      <Pressable onPress={() => { 
-        if(props.allowProfileNavigation){
-        props.navigation.push('Profile', { username: post.owner.userName });
+      <Pressable onPress={() => {
+        if (props.allowProfileNavigation) {
+          props.navigation.push('Profile', { username: post.owner.userName });
         }
-         }}><Image source={renderOwnerPic()} style={[styles.profilepic50, styles.borderPrimary, { marginRight: 10 }]} /></Pressable>
+      }}><Image source={renderOwnerPic()} style={[styles.profilepic50, styles.borderPrimary, { marginRight: 10 }]} /></Pressable>
       <View style={{ flexGrow: 1 }}>
         <Text style={[styles.textPrimary, styles.fwBold, styles.fsnormal]}>{post.owner.name !== "" ? post.owner.name : post.owner.userName}</Text>
         <Text style={[styles.textPrimary, styles.fssmall]}>{post.postDateDisplay}</Text>
       </View>
-      <Image source={moreIcon} style={{ width: 20, height: 20 }} />
+      <Pressable onPress={() => { postMenuRBSheet.current.open(); }}><Image source={moreIcon} style={{ width: 20, height: 20 }} /></Pressable>
     </View>
     {renderPostPic()}
     {/* {post.photos.length > 1 ? <Pagination dotsLength={post.photos.length}
@@ -166,26 +232,24 @@ export default function MemberPost(props) {
       inactiveDotStyle={{ }} inactiveDotOpacity={0.4} inactiveDotScale={0.6} /> : null} */}
     <View style={[styles.py10, styles.px15, { flex: 1, flexDirection: 'row', alignItems: "flex-start", justifyContent: "center" }]}>
       <View style={[styles.px15, { flexShrink: 1 }]}>
-        <Pressable onPress={addReaction}><Image source={post.hasReacted ? heartFill : heart} style={{ width: 20, height: 20, margin: 5, alignSelf:"center" }} /></Pressable>
+        <Pressable onPress={addReaction}><Image source={post.hasReacted ? heartFill : heart} style={{ width: 20, height: 20, margin: 5, alignSelf: "center" }} /></Pressable>
         <Pressable onPress={() => { likesRBSheet.current.open(); }}>{post.reactionCount > 0 ? <Text style={[styles.textCenter, styles.fssmall]}>{post.reactionCount} {renderLikeText(post.reactionCount)}</Text> : <Text style={[styles.textCenter, styles.fssmall]}>No Likes</Text>}</Pressable>
       </View>
       {post.acceptComment ? <View style={[styles.px15, { flexShrink: 1 }]}>
-        <Pressable onPress={() => { commentsRBSheet.current.open(); }}><Image source={comment} style={{ width: 20, height: 20, margin: 5, alignSelf:"center" }} />
+        <Pressable onPress={() => { commentsRBSheet.current.open(); }}><Image source={comment} style={{ width: 20, height: 20, margin: 5, alignSelf: "center" }} />
           {post.commentCount > 0 ? <Text style={[styles.textCenter, styles.fssmall]}>{post.commentCount} {renderCommentText(post.commentCount)}</Text> : <Text style={[styles.textCenter, styles.fssmall]}>No Comments</Text>}</Pressable>
       </View> : null}
       {post.allowShare ? <View style={[styles.px15, { flexShrink: 1 }]}>
-        <Pressable onPress={() => { sharesRBSheet.current.open(); }}><Image source={share} style={{ width: 20, height: 20, margin: 5, alignSelf:"center" }} /></Pressable>
+        <Pressable onPress={() => { sharesRBSheet.current.open(); }}><Image source={share} style={{ width: 20, height: 20, margin: 5, alignSelf: "center" }} /></Pressable>
       </View> : null}
     </View>
     <View style={[styles.p10]}>
-      <MentionHashtagTextView mentionHashtagPress={mentionHashtagClick} mentionHashtagColor={styles.textPrimary.color}>
-        {post.describe}
-      </MentionHashtagTextView>
+      <ExpandableLabel text={post.describe} maxLength={35} navigation={props.navigation} />
       <RBSheet ref={likesRBSheet} height={win.height * (3 / 4)} draggable={true} customStyles={styles.rbSheet}>
         <MemberSmallList target="reaction" postid={post.id} navigation={props.navigation} />
       </RBSheet>
       <RBSheet ref={sharesRBSheet} height={win.height * (3 / 4)} draggable={true} customStyles={styles.rbSheet}>
-        <MemberSmallList postid={post.id} navigation={props.navigation} memberid={auth.myself.id} target="share" onSelected={(id) => { sharePost(id); }} />
+        <MemberSmallList postid={post?.id} navigation={props.navigation} memberid={auth.myself.id} target="share" onSelected={(id) => { if (id !== null) { sharePost(id); } }} />
       </RBSheet>
       <RBSheet ref={commentsRBSheet} height={win.height - 350} draggable={true} customStyles={styles.rbSheet}>
         <MemberComment navigation={props.navigation} post={post}
@@ -200,9 +264,40 @@ export default function MemberPost(props) {
             setPost(p);
           }} />
       </RBSheet>
+      <RBSheet ref={postMenuRBSheet} height={200} draggable={true} customStyles={styles.rbSheet}>
+        <View style={{ flexDirection: "column" }}>
+          {post?.owner?.id === auth.myself.id ? <>
+            <Pressable disabled={loading} style={[styles.borderBottom]}>
+              <Text style={[styles.fsxlarge, styles.textPrimary, styles.py10, styles.textCenter]}>Edit </Text></Pressable>
+            <Pressable  disabled={loading} onPress={() => {
+              Alert.alert('Confirm', 'You are about to remove this post.', [
+                {
+                  text: 'Cancel',
+                  onPress: () => {},
+                  style: 'cancel',
+                },
+                {text: 'OK', onPress: () => {deletePost();}},
+              ]);
+            }}>
+              <Text style={[styles.fsxlarge, styles.textPrimary, styles.py10, styles.textCenter]}>Delete</Text></Pressable>
+          </> : <>
+            <Pressable disabled={loading} style={[styles.borderBottom]} onPress={() => {
+              postMenuRBSheet.current.close();
+              ignoreMember();
+              }}>
+              <Text style={[styles.fsxlarge, styles.textPrimary, styles.py10, styles.textCenter]}>Ignore Member</Text></Pressable>
+            <Pressable disabled={loading} onPress={() => {
+            }}>
+              <Text style={[styles.fsxlarge, styles.textPrimary, styles.py10, styles.textCenter]}>Report Post</Text></Pressable>
+          </>}
+
+        </View>
+      </RBSheet>
 
     </View>
   </View>);
+  else
+  return null;
 }
 
 function MemberComment(props) {
@@ -214,6 +309,7 @@ function MemberComment(props) {
   const [currentPage, setCurrentPage] = useState(0);
   const [commenttext, setCommentText] = useState('');
   const [height, setHeight] = useState(0);
+  
 
   const fetchData = () => {
     setLoadingComments(true);

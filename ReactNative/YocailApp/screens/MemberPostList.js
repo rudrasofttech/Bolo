@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../authprovider";
 import { MessageModel } from "../model";
 import { Utility } from "../utility";
-import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Dimensions, FlatList, Image, Pressable, Text, View } from "react-native";
 import MemberPost from "./MemberPost";
 import MasonryList from "react-native-masonry-list";
 
@@ -11,7 +11,8 @@ import { styles } from "../stylesheet";
 
 export default function MemberPostList(props) {
     const auth = useAuth();
-
+    const window = Dimensions.get('window');
+    const gridColumns = props.gridColumns !== undefined ? props.gridColumns : 2;
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     //const [q, setSearchKeyword] = useState(props.search);
@@ -34,7 +35,7 @@ export default function MemberPostList(props) {
     }
 
     const fetchData = () => {
-        console.log(props.search);
+        //console.log(props.search);
         setLoading(true);
         let url = `${Utility.GetAPIURL()}/api/post?q=${encodeURIComponent(props.search)}&p=${p}`;
 
@@ -78,14 +79,15 @@ export default function MemberPostList(props) {
         fetchData();
     }, [props.search, p]);
 
-
-    const postDeleted = (id) => {
-        setPosts(posts.filter(t => t.id !== id));
-    }
-
     const renderItem = ({ item }) => {
+        
         return (
-            <MemberPost post={item} navigation={props.navigation} allowProfileNavigation={props.allowProfileNavigation} />
+            <MemberPost post={item} navigation={props.navigation} allowProfileNavigation={props.allowProfileNavigation} ondelete={(id) => {
+                setPosts(posts.filter(t => t.id !== id));
+            }} onIgnoredMember={(userid) => {
+                let temp = posts.filter(t => t.owner.id !== userid);
+                setPosts(temp);
+            }} />
         );
     };
 
@@ -120,6 +122,7 @@ export default function MemberPostList(props) {
     // ]
 
     const renderPosts = () => {
+         
         if (viewMode === 1) {
             let temp = [];
             for (let k in posts) {
@@ -127,19 +130,26 @@ export default function MemberPostList(props) {
                     temp.push({ uri: Utility.GetPhotoUrl(posts[k].photos[0].photo), id: posts[k].id, dimensions: { width: posts[k].photos[0].width, height: posts[k].photos[0].height } });
                 }
             }
-            //console.log(temp);
             return (
-                <MasonryList
-                    images={temp}
-                    spacing={1}
-                    columns={props.gridColumns !== undefined ? props.gridColumns : 2}
-                    onEndReached={() => {
-                        if (model.totalPages >= (p + 1)) {
-                            setCurrentPage(p + 1);
-                        }
-                    }}
-                    scrollEnabled={props.scrollEnabled !== undefined ? props.scrollEnabled : true}
-                />
+                <FlatList style={{width:window.width}} data={temp}
+                renderItem={({ item }) => {
+                    return (
+                        <View key={item.id}>
+                            <Image source={{uri : item.uri}} style={{resizeMode:"cover",width:window.width / gridColumns, height: window.width / gridColumns}} />
+                        </View>
+                    );
+                }}
+                numColumns={gridColumns}
+                keyExtractor={(item, index) => index.toString()}
+                refreshing={loading}
+                onRefresh={fetchData}
+                initialNumToRender={5}
+                onEndReached={() => {
+                    if (model.totalPages >= (p + 1)) {
+                        setCurrentPage(p + 1);
+                    }
+                }} scrollEnabled={props.scrollEnabled !== undefined ? props.scrollEnabled : true}>
+            </FlatList>
             );
         }
         else if (viewMode === 2) {
@@ -159,9 +169,9 @@ export default function MemberPostList(props) {
     }
 
     return <>
-        {viewModeAllowed && posts.length > 0 ? <View style={[styles.my10, { flex: 1, flexDirection: "row" }]}>
-            <Pressable onPress={() => { setViewMode(1); }} style={viewMode === 1 ? [styles.fwBold, styles.fsnormal, { flexGrow: 1 }] : [styles.fsnormal, { flexGrow: 1 }]}><Text style={styles.textCenter}>Grid</Text></Pressable>
-            <Pressable onPress={() => { setViewMode(2); }} style={viewMode === 2 ? [styles.fwBold, styles.fsnormal, { flexGrow: 1 }] : [styles.fsnormal, { flexGrow: 1 }]}><Text style={styles.textCenter}>List</Text></Pressable>
+        {viewModeAllowed ? <View style={[styles.py10, styles.borderBottom, { flex: 1, flexDirection: "row" }]}>
+            <Pressable onPress={() => { setViewMode(1); }} style={{ flexGrow: 1 }}><Text style={viewMode === 1 ? [styles.fwBold, styles.fsnormal, styles.textCenter, { flexGrow: 1 }] : [styles.textCenter, styles.fsnormal, { flexGrow: 1 }]}>Grid</Text></Pressable>
+            <Pressable onPress={() => { setViewMode(2); }} style={{ flexGrow: 1 }}><Text style={viewMode === 2 ? [styles.fwBold, styles.fsnormal, styles.textCenter, { flexGrow: 1 }] : [styles.textCenter, styles.fsnormal, { flexGrow: 1 }]}>List</Text></Pressable>
         </View> : null}
         {loading ? <ActivityIndicator /> : null}
         {renderPosts()}

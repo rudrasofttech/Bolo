@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../authprovider";
 import { Utility } from "../../utility";
-import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
 import { styles } from "../../stylesheet";
 import { SearchBar } from "@rneui/themed";
 import MemberSmallRow from "./MemberSmallRow";
@@ -95,11 +95,6 @@ export default function MemberSmallList(props) {
 
     const renderPosts = () => {
         if (props.target === 'reaction') {
-            // let items = [];
-            // for (let k in reactions) {
-            //     let p = reactions[k];
-            //     items.push(<MemberSmallRow  navigation={props.navigation} token={auth.token} key={p.member.id} member={p.member} status={p.status} />);
-            // }
             return <FlatList data={reactions}
                 renderItem={({ item }) => {
                     return (
@@ -107,7 +102,6 @@ export default function MemberSmallList(props) {
                     );
                 }}
                 keyExtractor={(item, index) => index.toString()}
-                
                 initialNumToRender={10}
                 onEndReached={() => {
                     if (model.totalPages >= (p + 1)) {
@@ -150,7 +144,6 @@ export default function MemberSmallList(props) {
                     );
                 }}
                 keyExtractor={(item, index) => index.toString()}
-                
                 initialNumToRender={10}
                 onEndReached={() => {
                     if (model.totalPages >= (p + 1)) {
@@ -161,18 +154,18 @@ export default function MemberSmallList(props) {
         }
         else if (props.target === 'following') {
             return <FlatList data={followList}
-                renderItem={({ p }) => {
-                    if (p.tag !== null && p.tag !== "") {
-                        return (<View key={p.id} style={{ flex: 1 }} >
+                renderItem={({ item }) => {
+                    if (item.tag !== null && item.tag !== "") {
+                        return (<View key={item.id} style={[styles.py10,{flexDirection:"row"}]} >
                             <View style={{ flexGrow: 1 }}>
-                                <Pressable onPress={() => { navigation.push("Hashtag", { Hashtag: p.tag }); }}><Text>{p.tag}</Text></Pressable>
+                                <Pressable onPress={() => { navigation.push("Hashtag", { Hashtag: item.tag }); }} ><Text style={[styles.fsnormal, styles.fwBold]}>{item.tag}</Text></Pressable>
                             </View>
                             <View>
-                                <Pressable style={styles.unfollowButton} onPress={() => { hashTagRemove(p.tag); }}><Text>Unfollow</Text></Pressable>
+                                <Pressable style={styles.unfollowButton} onPress={() => { hashTagRemove(item.tag); }}><Text style={[styles.textWhite]}>Unfollow</Text></Pressable>
                             </View>
                         </View>);
                     } else {
-                        return (<MemberSmallRow token={auth.token} key={p.following.id} member={p.following} status={p.status} />);
+                        return (<MemberSmallRow token={auth.token} key={item.following.id} member={item.following} status={item.status} />);
                     }
                 }}
                 keyExtractor={(item, index) => index.toString()}
@@ -188,15 +181,13 @@ export default function MemberSmallList(props) {
         }
     }
 
-    return <View style={{flex: 1, flexDirection:"column"}}>
+    return <View style={{flex:1,flexDirection:"column"}}>
         <SearchBar placeholder="Type Here..."
           onChangeText={(e) => {
             setCurrentPage(0);
             setKeywords(e);
         }}  value={q} lightTheme={true}></SearchBar>
-        
         {renderPosts()}
-        
         {loading ? <ActivityIndicator color={styles.textPrimary.color} size="small" /> : null}
     </View>;
 

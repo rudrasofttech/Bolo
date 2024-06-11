@@ -10,7 +10,7 @@ import Login from './screens/Login';
 import Splash from './screens/Splash';
 import Register from './screens/Register';
 import { useState } from 'react';
-import AuthProvider from './authprovider';
+import AuthProvider, { useAuth } from './authprovider';
 import { ThemeProvider, createTheme } from '@rneui/themed';
 import { MaterialIcons } from '@expo/vector-icons';
 import { styles } from './stylesheet';
@@ -19,6 +19,8 @@ import Hashtag from './screens/Hashtag';
 import AddPost from './screens/AddPost';
 import Conversation from './screens/Conversation';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Webpage from './screens/shared/Webpage';
+import IgnoredUsers from './screens/IgnoredUsers';
 
 const theme = createTheme({
   lightColors: {
@@ -46,14 +48,18 @@ const HomeStack = () => {
       <Stack.Screen name="Home" component={Home} options={{ title: '', headerBackVisible: false, headerShown: false }} />
       <Stack.Screen name="Hashtag" component={Hashtag} options={({ route }) => ({ title: route.params.hashtag })} />
       <Stack.Screen name="Profile" component={Profile} options={({ route }) => ({ title: route.params.username })} />
+      <Stack.Screen name="Webpage" component={Webpage} options={({ route }) => ({ url: route.params.url })} />
     </Stack.Navigator>
   )
 }
 const ProfileStack = () => {
   return (
-    <Stack.Navigator initialRouteName="Profile">
-      <Stack.Screen name="Profile" component={Profile} options={{ title: '', headerBackVisible: false, headerShown: false }} />
+    <Stack.Navigator initialRouteName="OwnProfile">
+      <Stack.Screen name="OwnProfile" component={Profile} options={{ title: '', headerBackVisible: false, headerShown: false }} />
       <Stack.Screen name="Hashtag" component={Hashtag} options={({ route }) => ({ title: route.params.hashtag })} />
+      <Stack.Screen name="Profile" component={Profile} options={({ route }) => ({ title: route.params.username })} />
+      <Stack.Screen name="Webpage" component={Webpage} options={({ route }) => ({ title: route.params.link.name, link: route.params.link })} />
+      <Stack.Screen name="IgnoredUsers" component={IgnoredUsers} options={{ title: 'Ignored Profiles'}} />
     </Stack.Navigator>
   )
 }
@@ -108,30 +114,21 @@ function YocailStack() {
 }
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  
 
-  if (isAuthenticated)
+  if (isAuthenticated !== null)
     return (
+      <AuthProvider onAuthenticated={() => { setIsAuthenticated(true) }} onLogout={() => { 
+        setIsAuthenticated(false);
+        }}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <ThemeProvider theme={theme}>
-          <AuthProvider onAuthenticated={() => { setIsAuthenticated(true) }} onLogout={() => { setIsAuthenticated(false) }}>
             <NavigationContainer>
-              <YocailTabs />
+              {isAuthenticated ? <YocailTabs /> : <YocailStack /> }
             </NavigationContainer>
-          </AuthProvider>
         </ThemeProvider>
       </GestureHandlerRootView>
-    );
-  else if (!isAuthenticated)
-    return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemeProvider theme={theme}>
-          <AuthProvider onAuthenticated={() => { setIsAuthenticated(true) }} onLogout={() => { setIsAuthenticated(false) }}>
-            <NavigationContainer>
-              <YocailStack />
-            </NavigationContainer>
-          </AuthProvider>
-        </ThemeProvider>
-      </GestureHandlerRootView>
+      </AuthProvider>
     );
   else {
     return (

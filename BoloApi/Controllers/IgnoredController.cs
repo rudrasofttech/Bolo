@@ -65,25 +65,22 @@ namespace BoloWeb.Controllers
             {
                 if (targetMember.ID != currentMember.ID)
                 {
-                    var bm = new IgnoredMember()
+                    if (!_context.IgnoredMembers.Any(t => t.User.ID == currentMember.ID && t.Ignored.ID == targetMember.ID))
                     {
-                        Ignored = targetMember,
-                        CreateDate = DateTime.UtcNow,
-                        User = currentMember
-                    };
-                    _context.IgnoredMembers.Add(bm);
-                    _context.SaveChanges();
-                    return true;
+                        var bm = new IgnoredMember()
+                        {
+                            Ignored = targetMember,
+                            CreateDate = DateTime.UtcNow,
+                            User = currentMember
+                        };
+                        _context.IgnoredMembers.Add(bm);
+                        _context.SaveChanges();
+                        return true;
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+                
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         [HttpGet]

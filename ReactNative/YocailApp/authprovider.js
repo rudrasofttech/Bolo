@@ -11,10 +11,15 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
     const [token, setToken] = useState("");
 
     useEffect(() => {
+        validate();
         (async () => {
             setToken(await store.getItem("token") || "");
             let temp = await store.getItem("myself");
             setMyself(temp !== null ? JSON.parse(temp) : null)
+            if(temp === null)
+                onLogout();
+            else
+             onAuthenticated();
         })();
 
     }, []);
@@ -44,13 +49,13 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
                     return new MessageModel("danger", "Unable to validate credentials", 0);
                 }
             } else {
-                console.log(response.status);
+                //console.log(response.status);
                 const err = await response.json();
                 console.log(err);
                 return new MessageModel("danger", err.error, 0);
             }
         } catch (err) {
-            console.log(response.status);
+            //console.log(response.status);
             console.log(err);
             return new MessageModel("danger", err, 0);
         }
@@ -64,7 +69,7 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
             }
         })
             .then(response => {
-                console.log(response.status);
+                //console.log(response.status);
                 if (response.status === 401) {
                     logOut();
                 }
@@ -80,10 +85,10 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
             });
     }
 
-    const logOut = async () => {
+    const logOut =  () => {
+        (async () => {await store.clear();})();
         setMyself(null);
         setToken("");
-        await store.clear();
         onLogout();
     };
 
@@ -92,8 +97,53 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
         setMyself(obj);
     }
 
+    const getVisitedSearchResults = async () => {
+        let data = await store.getItem("visitedsearchresults");
+        let items = [];
+        if (data !== null)
+            items = JSON.parse(data);
+        return items;
+    }
+
+    const updateVisitedSearchResults = async (value) => {
+        let data = await store.getItem("visitedsearchresults");
+        let items = [];
+        if (data !== null)
+            items = JSON.parse(data);
+
+        if (value.hashtag !== null) {
+            if (items.filter(t => t.hashtag !== null && t.hashtag.tag == value.hashtag.tag).length === 0) {
+                items.push(value);
+                await store.setItem("visitedsearchresults", JSON.stringify(items));
+                return;
+            }
+        }
+        if (value.member !== null) {
+            if (items.filter(t => t.member !== null && t.member.userName === value.member.userName).length === 0) {
+                items.push(value);
+                await store.setItem("visitedsearchresults", JSON.stringify(items));
+            }
+        }
+    }
+
+    const removeVisitedSearchResults = async (value) => {
+        let data = await store.getItem("visitedsearchresults");
+        let items = [];
+        if (data !== null)
+            items = JSON.parse(data);
+
+        let items2 = [];
+        if (value.hashtag !== null) {
+            items2 = items.filter(t => t.member !== null || t.hashtag.tag !== value.hashtag.tag);
+        } else {
+            items2 = items.filter(t => t.hashtag !== null || t.member.userName !== value.member.userName);
+        }
+        await store.setItem("visitedsearchresults", JSON.stringify(items2));
+        return items2;
+    }
+
     return (
-        <AuthContext.Provider value={{ token, myself, loginAction, logOut, validate, updateMyself }}>
+        <AuthContext.Provider value={{ token, myself, loginAction, logOut, validate, updateMyself, updateVisitedSearchResults, getVisitedSearchResults, removeVisitedSearchResults }}>
             {children}
         </AuthContext.Provider>
     );

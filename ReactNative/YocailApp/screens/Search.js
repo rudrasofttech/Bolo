@@ -1,5 +1,4 @@
 import { ActivityIndicator, Dimensions, Image, Platform, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
-
 import { styles } from "../stylesheet";
 import { useAuth } from "../authprovider";
 import { SearchBar } from "@rneui/themed";
@@ -7,8 +6,7 @@ import { useEffect, useState } from "react";
 import { Utility } from "../utility";
 import ShowMessage from "./shared/ShowMessage";
 import personFill from '../assets/person-fill.png';
-import FollowButton from "./shared/FollowButton";
-
+import close from '../assets/close.png';
 
 export default function Search({ navigation }) {
   const [search, setSearch] = useState("");
@@ -24,7 +22,10 @@ export default function Search({ navigation }) {
 
   useEffect(() => {
     if (search === "") {
-      setItems([]);
+      (async () => {
+        const items = await auth.getVisitedSearchResults();
+        setItems(items);
+      })();
       return;
     }
     setLoading(true);
@@ -53,6 +54,18 @@ export default function Search({ navigation }) {
       });
   }, [search]);
 
+  const removeItemFromList = async (value) => {
+    
+    let items2 = [];
+    if(value.hashtag !== null){
+      items2 = items.filter(t => t.member !== null || t.hashtag.tag !== value.hashtag.tag);
+    }else{
+      items2 = items.filter(t => t.hashtag !== null || t.member.userName !== value.member.userName);
+    }
+    setItems(items2);
+    await auth.removeVisitedSearchResults(value);
+  }
+
   const renderOwnerPic = (member) => {
     if (member.picFormedURL !== "")
       return { uri: member.picFormedURL };
@@ -69,18 +82,30 @@ export default function Search({ navigation }) {
       </View>
       {items.length > 0 ? <ScrollView style={styles.width100}>
         {items.map(i => <>{i.hashtag !== null ?
-          <Pressable onPress={() => { navigation.push('Hashtag', { hashtag: `#${i.hashtag.tag}` }) }}>
-            <View style={[styles.px15, styles.mb10, styles.mt10, { flex: 1, flexDirection: "row", alignItems: "center", height: 40 }]}>
-              <Text style={[styles.textPrimary, styles.fwBold, styles.fsnormal]}>#{i.hashtag.tag}</Text>
+          <Pressable onPress={async () => {
+            await auth.updateVisitedSearchResults(i);
+            navigation.push('Hashtag', { hashtag: `#${i.hashtag.tag}` });
+          }}>
+            <View style={[styles.borderBottom, {flex:1, flexDirection: "row", alignItems:"center" }]}>
+              <View style={{flexGrow:1}}><Text style={[styles.p15, styles.textPrimary, styles.fwBold, styles.fsnormal]}>#{i.hashtag.tag}</Text></View>
+              <Pressable style={[styles.p10, { width: 40 }]} onPress={async () => { await removeItemFromList(i); }} >
+                <Image source={close} style={{ width: 10, height: 10 }} />
+              </Pressable>
             </View>
           </Pressable>
           :
-          <Pressable onPress={() => { navigation.push('Profile', { username: i.member.userName }) }}>
-            <View style={[styles.px15, styles.mb10, styles.mt10, { flex: 1, flexDirection: "row", alignItems: "center", height: 40 }]}>
-              <Image source={renderOwnerPic(i.member)} style={[styles.profilepic40, styles.borderPrimary, { marginRight: 10 }]} />
+          <Pressable onPress={async () => {
+            await auth.updateVisitedSearchResults(i);
+            navigation.push('Profile', { username: i.member.userName });
+          }}>
+            <View style={[styles.borderBottom, styles.alignCenter, styles.p10, { flex: 1, flexDirection: "row" }]}>
+              <Image source={renderOwnerPic(i.member)} style={[styles.profilepic30, styles.borderPrimary, { marginRight: 10, borderWidth:0 }]} />
               <View style={{ flexGrow: 1 }}>
-                <Pressable onPress={() => { navigation.push('Profile', { username: i.member.userName }) }}><Text style={[styles.textPrimary, styles.fwBold, styles.fsnormal]}>{i.member.name !== "" ? i.member.name : i.member.userName}</Text></Pressable>
+                <Text style={[styles.textPrimary, styles.fwBold, styles.fsnormal]}>{i.member.name !== "" ? i.member.name : i.member.userName}</Text>
               </View>
+              <Pressable style={[styles.p10]} onPress={async () => { await removeItemFromList(i); }} >
+                <Image source={close} style={{ width: 10, height: 10 }} />
+              </Pressable>
               {/* <View>
               <FollowButton member={i.member} notify={(memberid, status) => { console.log(`Member ID: ${memberid} , Status : ${status}`) }}/>
             </View> */}
@@ -88,7 +113,6 @@ export default function Search({ navigation }) {
           </Pressable>}
         </>)}
       </ScrollView> : null}
-
       <ShowMessage modal={message} />
     </SafeAreaView>
   );

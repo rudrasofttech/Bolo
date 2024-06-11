@@ -22,6 +22,9 @@ export const styles = StyleSheet.create({
   fwBold: {
     fontWeight: "bold"
   },
+  textSuccess : {
+    color:"rgb(25, 135, 84)"
+  },
   textPrimary: {
     color: '#30235B'
   },
@@ -46,14 +49,21 @@ export const styles = StyleSheet.create({
   borderPrimary: {
     borderColor: '#30235B'
   },
+  borderBottom:{
+    borderBottomColor:"rgba(97,97,97,0.5)",
+    borderBottomWidth:0.5
+  },
+  alignCenter:{
+    alignSelf:"center"
+  },
   profilepic100: {
-    width: 100, height: 100, resizeMode: "contain", borderWidth: 2, borderRadius: 10
+    width: 120, height: 120, resizeMode: "contain", borderWidth: 0, borderRadius: 10
   },
   profilepic50: {
-    width: 50, height: 50, resizeMode: "contain", borderWidth: 2, borderRadius: 10
+    width: 50, height: 50, resizeMode: "contain", borderWidth: 0, borderRadius: 10
   },
   profilepic40: {
-    width: 40, height: 40, resizeMode: "contain", borderWidth: 2, borderRadius: 10
+    width: 40, height: 40, resizeMode: "contain", borderWidth: 0, borderRadius: 10
   },
   profilepic30: {
     width: 30, height: 30, resizeMode: "contain", borderWidth: 2, borderRadius: 10
@@ -64,6 +74,19 @@ export const styles = StyleSheet.create({
     borderWidth: 0,
     borderRadius: 10,
     padding: 10,
+    shadowColor: '#171717',
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  lightButton : {
+    
+    borderRadius: 15,
+    backgroundColor: "#ffffff",
+    padding: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
     shadowColor: '#171717',
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
@@ -96,14 +119,14 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    height: 35,
-    width: 80
+    height: 25,
+    width: 75
   },
   unfollowButton: {
     color: "#ffffff",
     borderRadius: 15,
     backgroundColor: "#7BAAF9",
-    padding: 3,
+    padding: 0,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 3,
@@ -111,8 +134,8 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    height: 35,
-    width: 80
+    height: 25,
+    width: 75
   },
   textUnderline: {
     textDecorationStyle: "solid"
@@ -152,7 +175,7 @@ export const styles = StyleSheet.create({
   pt10: { paddingTop: 10 },
   pt15: { paddingTop: 15 },
   pt20: { paddingTop: 20 },
-  fssmall: { fontSize: 12 },
+  fssmall: { fontSize: 13 },
   fsnormal: { fontSize: 16 },
   fslarge: { fontSize: 17 },
   fsxlarge: { fontSize: 23 },

@@ -279,11 +279,11 @@ namespace Bolo.Controllers
                     PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID)
                 };
                 if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
-                    result.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+                    result.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).Select(t => new ProfileLink() { ID = t.ID, Name = t.Name, URL = t.URL }).ToList();
                 if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
-                    result.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+                    result.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).Select(t => new ProfileEmail() { ID = t.ID, Email = t.Email }).ToList();
                 if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
-                    result.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+                    result.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).Select(t => new ProfilePhone() { ID = t.ID, Phone = t.Phone }).ToList();
                 LocationHelper lh = new LocationHelper();
                 result.CountryName = lh.GetCountryName(result.Country);
                 return result;
@@ -365,7 +365,7 @@ namespace Bolo.Controllers
         public List<ProfileLink> GetLinks()
         {
             var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
-            return _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+            return _context.ProfileLinks.Where(t => t.Member.ID == member.ID).Select(t => new ProfileLink() { ID = t.ID, Name = t.Name, URL = t.URL }).ToList();
         }
 
         [HttpGet]
@@ -435,7 +435,8 @@ namespace Bolo.Controllers
         public List<ProfileEmail> GetEmails()
         {
             var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
-            return _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+            return _context.ProfileEmails.Where(t => t.Member.ID == member.ID).Select(t => new ProfileEmail() { ID = t.ID, Email = t.Email })
+                .ToList();
         }
 
         [HttpGet]
@@ -505,7 +506,7 @@ namespace Bolo.Controllers
         public List<ProfilePhone> GetPhones()
         {
             var member = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
-            return _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
+            return _context.ProfilePhones.Where(t => t.Member.ID == member.ID).Select(t => new ProfilePhone() { ID = t.ID, Phone = t.Phone }).ToList();
         }
 
         [HttpGet]

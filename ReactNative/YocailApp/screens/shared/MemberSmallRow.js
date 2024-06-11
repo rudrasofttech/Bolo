@@ -1,8 +1,7 @@
 import { useState } from "react";
 import personFill from '../../assets/person-fill.png';
-import ConfirmBox from "./ConfirmBox";
 import FollowButton from "./FollowButton";
-import { Image, Pressable, Text, View } from "react-native";
+import { Alert, Image, Pressable, Text, View } from "react-native";
 import { Utility } from "../../utility";
 import { useAuth } from "../../authprovider";
 import { styles } from "../../stylesheet";
@@ -14,9 +13,7 @@ export default function MemberSmallRow(props) {
     const [status, setStatus] = useState(props.status);
     const [showRemove, setShowRemove] = useState(props.showRemove);
     const showShare = (props.showShare === undefined || props.showShare === null) ? false : props.showShare;
-    const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
-
-
+    
     const removeFollow = () => {
         setLoading(true);
         fetch(`${Utility.GetAPIURL()}/api/follow/remove/${member.id}`, {
@@ -42,7 +39,16 @@ export default function MemberSmallRow(props) {
         let followbtn = <FollowButton member={member} status={status} />;
         if (showRemove) {
             //replace follow button with remove
-            followbtn = <Pressable disabled={loading} onPress={() => { setShowRemoveConfirm(true); }} style={styles.unfollowButton}><Text>Remove</Text></Pressable>;
+            followbtn = <Pressable disabled={loading} onPress={() => {
+                Alert.alert('Confirm', 'Are you sure you want to remove this member from your followers?', [
+                    {
+                      text: 'Cancel',
+                      onPress: () => {},
+                      style: 'cancel',
+                    },
+                    {text: 'OK', onPress: () => {setShowRemove(false); removeFollow();}},
+                  ]);
+            }} style={styles.unfollowButton}><Text style={styles.textWhite}>Remove</Text></Pressable>;
         }
         if (showShare)
             followbtn = <Pressable disabled={loading} style={styles.unfollowButton} onPress={(e) => { props.onShare(props.member.id); }}>
@@ -68,9 +74,6 @@ export default function MemberSmallRow(props) {
         </View>
         <View>
             {renderFollowButton()}
-            {showRemoveConfirm ? <ConfirmBox cancel={() => { setShowRemoveConfirm(false); }}
-                ok={() => { setShowRemove(false); removeFollow(); }}
-                message="Are you sure you want to remove this member from your followers?" /> : null}
         </View>
     </View>;
 

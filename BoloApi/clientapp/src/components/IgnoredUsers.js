@@ -82,13 +82,7 @@ function IgnoredUsers() {
                 </div>
             </div>);
         }
-        if (temp.length === 0 && !loading) {
-            temp.push(<p className="p-5 text-center fs-3">
-                            No Ignored Members
-                        </p>)
-        }
-        
-        return <div>{temp}</div>;
+        return <div style={{ maxWidth: "600px" }}>{temp}</div>;
 
     }
     return <Layout>
