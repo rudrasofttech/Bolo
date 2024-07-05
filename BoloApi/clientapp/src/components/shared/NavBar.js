@@ -8,7 +8,7 @@ function NavBar(props) {
     return <div id="mainmenubar" className="d-block d-md-none">
         <div className="container px-2">
             <div className="row g-0 align-items-center">
-                <div className="col-md-2 d-none d-md-block  py-2">
+                <div className="col-md-2 d-none d-md-block py-2">
                     <Link to="/">
                         <img src={yocailogo} className="img-fluid logo" alt="Yocail logo" />
                     </Link>
@@ -22,22 +22,22 @@ function NavBar(props) {
                                 </Link>
                             </div>
                             <div className="col">
-                                <button type="button" className="btn btn-link text-primary fs-4 mx-md-4" title="Search" onClick={() => { props.onSearchClick(); }}>
+                                <button type="button" className="btn btn-link text-primary fs-1 my-3 my-md-1 mx-md-4" title="Search" onClick={() => { props.onSearchClick(); }}>
                                     <i className="bi bi-search"></i>
                                 </button>
                             </div>
                             <div className="col">
-                                <Link className="btn btn-link text-primary fs-4 mx-md-4" to="/explore" title="Explore">
+                                <Link className="btn btn-link text-primary fs-1 my-3 my-md-1 mx-md-4" to="/explore" title="Explore">
                                     <i className="bi bi-globe-central-south-asia"></i>
                                 </Link>
                             </div>
                             <div className="col">
-                                <button type="button" className="btn btn-link text-primary fs-4 mx-md-4" onClick={() => { props.onAddPostClick(); }} title="Add Post">
+                                <button type="button" className="btn btn-link text-primary fs-1 my-3 my-md-1 mx-md-4" onClick={() => { props.onAddPostClick(); }} title="Add Post">
                                     <i className="bi bi-file-plus"></i>
                                 </button>
                             </div>
                             <div className="col">
-                                <button type="button" onClick={() => { props.onNotificationClick(); }} className="position-relative fs-4 mx-md-4 text-primary btn btn-link">
+                                <button type="button" onClick={() => { props.onNotificationClick(); }} className="position-relative fs-1 my-3 my-md-1 mx-md-4 text-primary btn btn-link">
                                     <i className="bi bi-bell"></i>
                                     {props.unseennotificationcount > 0 ? <span style={{ fontSize: "0.8rem", top: "10px" }} className="position-absolute start-100 translate-middle badge rounded-pill bg-danger">
                                         {props.unseennotificationcount}
@@ -45,7 +45,7 @@ function NavBar(props) {
                                 </button>
                             </div>
                             <div className="col">
-                                <Link className="btn btn-link text-primary fs-4 mx-md-4" to="/profile" title="Profile">
+                                <Link className="btn btn-link text-primary fs-1 my-3 my-md-1 mx-md-4" to="/profile" title="Profile">
                                     {auth.myself != null && auth.myself.pic !== "" ? <img alt="" src={`//${window.location.host}/${auth.myself.pic}`} className='profile-icon profile-pic-border' /> : <img src={personfill} className='profile-icon profile-pic-border' alt="" />}
                                 </Link>
                             </div>

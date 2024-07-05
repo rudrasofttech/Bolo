@@ -79,6 +79,7 @@ namespace Bolo.Models
         public Guid ID { get; set; }
         public string Name { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
+        [JsonIgnore]
         public string Pic { get; set; } = string.Empty;
 
         public string PicFormedURL
@@ -228,7 +229,7 @@ namespace Bolo.Models
             State = string.IsNullOrEmpty(m.State) ? "" : m.State;
             City = string.IsNullOrEmpty(m.City) ? "" : m.City;
             ThoughtStatus = string.IsNullOrEmpty(m.ThoughtStatus) ? "" : m.ThoughtStatus;
-            Phone = "";
+            Phone = m.Phone;
             Email = m.Email;
             SecurityQuestion = m.SecurityQuestion;
             Status = m.Status;
@@ -333,7 +334,7 @@ namespace Bolo.Models
         public MemberPostType PostType { get; set; }
         public string Describe { get; set; } = string.Empty;
         public RecordStatus Status { get; set; } = RecordStatus.Active;
-        public List<PostPhoto> Photos { get; set; } = new List<PostPhoto>();
+        public List<PostPhoto> Photos { get; set; } = [];
         public bool AcceptComment { get; set; } = true;
         public bool AllowShare { get; set; } = true;
         public string VideoURL { get; set; }
@@ -354,9 +355,7 @@ namespace Bolo.Models
                 PostType = mp.PostType;
                 Describe = mp.Describe;
                 Status = mp.Status;
-                Photos = new List<PostPhoto>();
-                foreach (PostPhoto pp in mp.Photos)
-                    Photos.Add(pp);
+                Photos = [.. mp.Photos];
                 AcceptComment = mp.AcceptComment;
                 VideoURL = mp.VideoURL;
                 AllowShare = mp.AllowShare;

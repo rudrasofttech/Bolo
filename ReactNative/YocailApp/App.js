@@ -1,13 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import { Button, Image, StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './screens/Home';
 import Profile from './screens/Profile';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Search from './screens/Search';
 import Login from './screens/Login';
-import Splash from './screens/Splash';
 import Register from './screens/Register';
 import { useState } from 'react';
 import AuthProvider, { useAuth } from './authprovider';
@@ -20,7 +18,8 @@ import AddPost from './screens/AddPost';
 import Conversation from './screens/Conversation';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Webpage from './screens/shared/Webpage';
-import IgnoredUsers from './screens/IgnoredUsers';
+import EditProfilePic from './screens/EditProfilePic';
+import ViewPost from './screens/ViewPost';
 
 const theme = createTheme({
   lightColors: {
@@ -39,6 +38,7 @@ const SearchStack = () => {
       <Stack.Screen name="Search" component={Search} options={{ title: '', headerBackVisible: false, headerShown: false }} />
       <Stack.Screen name="Hashtag" component={Hashtag} options={({ route }) => ({ title: route.params.hashtag })} />
       <Stack.Screen name="Profile" component={Profile} options={({ route }) => ({ title: route.params.username })} />
+      <Stack.Screen name="ProfilePosts" component={ViewPost} options={({ route }) => ({ title: `${route.params.search} Posts` })} />
     </Stack.Navigator>
   )
 }
@@ -49,6 +49,7 @@ const HomeStack = () => {
       <Stack.Screen name="Hashtag" component={Hashtag} options={({ route }) => ({ title: route.params.hashtag })} />
       <Stack.Screen name="Profile" component={Profile} options={({ route }) => ({ title: route.params.username })} />
       <Stack.Screen name="Webpage" component={Webpage} options={({ route }) => ({ url: route.params.url })} />
+      <Stack.Screen name="ProfilePosts" component={ViewPost} options={({ route }) => ({ title: `${route.params.search} posts` })} />
     </Stack.Navigator>
   )
 }
@@ -59,7 +60,8 @@ const ProfileStack = () => {
       <Stack.Screen name="Hashtag" component={Hashtag} options={({ route }) => ({ title: route.params.hashtag })} />
       <Stack.Screen name="Profile" component={Profile} options={({ route }) => ({ title: route.params.username })} />
       <Stack.Screen name="Webpage" component={Webpage} options={({ route }) => ({ title: route.params.link.name, link: route.params.link })} />
-      <Stack.Screen name="IgnoredUsers" component={IgnoredUsers} options={{ title: 'Ignored Profiles'}} />
+      <Stack.Screen name="EditProfilePic" component={EditProfilePic} options={{title : "Profile Picture"}} />
+      <Stack.Screen name="ProfilePosts" component={ViewPost} options={({ route }) => ({ title: `${route.params.search} posts` })} />
     </Stack.Navigator>
   )
 }

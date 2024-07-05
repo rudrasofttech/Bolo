@@ -64,9 +64,7 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
     const validate = () => {
         fetch(`${Utility.GetAPIURL()}/api/Members/Validate`, {
             method: 'get',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(response => {
                 //console.log(response.status);
@@ -92,58 +90,13 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
         onLogout();
     };
 
-    const updateMyself = (obj) => {
-        store.setItem("myself", JSON.stringify(obj));
+    const updateMyself = async (obj) => {
+        await store.setItem("myself", JSON.stringify(obj));
         setMyself(obj);
     }
-
-    const getVisitedSearchResults = async () => {
-        let data = await store.getItem("visitedsearchresults");
-        let items = [];
-        if (data !== null)
-            items = JSON.parse(data);
-        return items;
-    }
-
-    const updateVisitedSearchResults = async (value) => {
-        let data = await store.getItem("visitedsearchresults");
-        let items = [];
-        if (data !== null)
-            items = JSON.parse(data);
-
-        if (value.hashtag !== null) {
-            if (items.filter(t => t.hashtag !== null && t.hashtag.tag == value.hashtag.tag).length === 0) {
-                items.push(value);
-                await store.setItem("visitedsearchresults", JSON.stringify(items));
-                return;
-            }
-        }
-        if (value.member !== null) {
-            if (items.filter(t => t.member !== null && t.member.userName === value.member.userName).length === 0) {
-                items.push(value);
-                await store.setItem("visitedsearchresults", JSON.stringify(items));
-            }
-        }
-    }
-
-    const removeVisitedSearchResults = async (value) => {
-        let data = await store.getItem("visitedsearchresults");
-        let items = [];
-        if (data !== null)
-            items = JSON.parse(data);
-
-        let items2 = [];
-        if (value.hashtag !== null) {
-            items2 = items.filter(t => t.member !== null || t.hashtag.tag !== value.hashtag.tag);
-        } else {
-            items2 = items.filter(t => t.hashtag !== null || t.member.userName !== value.member.userName);
-        }
-        await store.setItem("visitedsearchresults", JSON.stringify(items2));
-        return items2;
-    }
-
+    
     return (
-        <AuthContext.Provider value={{ token, myself, loginAction, logOut, validate, updateMyself, updateVisitedSearchResults, getVisitedSearchResults, removeVisitedSearchResults }}>
+        <AuthContext.Provider value={{ token, myself, loginAction, logOut, validate, updateMyself }}>
             {children}
         </AuthContext.Provider>
     );

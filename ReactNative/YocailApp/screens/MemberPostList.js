@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../authprovider";
 import { MessageModel } from "../model";
 import { Utility } from "../utility";
@@ -16,7 +16,7 @@ export default function MemberPostList(props) {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     //const [q, setSearchKeyword] = useState(props.search);
-    let ls = { model: null, posts: [] };
+    let ls = { model: props.model ?? null, posts: props.posts ?? [] };
     //if (props.search === "userfeed" && localStorage.getItem("userfeed") != null)
     //    ls = JSON.parse(localStorage.getItem("userfeed"))
     //else if (props.search === "explore" && localStorage.getItem("explore") != null)
@@ -28,14 +28,13 @@ export default function MemberPostList(props) {
     const [viewMode, setViewMode] = useState(props.viewMode);
     const viewModeAllowed = props.viewModeAllowed;
     const [post, setPost] = useState(null);
-
+    const memberPostFlatlist = useRef();
 
     const selectPost = (id) => {
         setViewMode(2);
     }
 
     const fetchData = () => {
-        //console.log(props.search);
         setLoading(true);
         let url = `${Utility.GetAPIURL()}/api/post?q=${encodeURIComponent(props.search)}&p=${p}`;
 
@@ -76,11 +75,17 @@ export default function MemberPostList(props) {
     }
 
     useEffect(() => {
-        fetchData();
+        if (props.posts === undefined || props.posts === null || props.posts.length === 0) {
+            fetchData();
+        }else{
+            if (props.postIndex)
+                setTimeout(() => {memberPostFlatlist.current?.scrollToIndex({ animated: false, index: props.postIndex });}, 300);
+        }
+
     }, [props.search, p]);
 
     const renderItem = ({ item }) => {
-        
+
         return (
             <MemberPost post={item} navigation={props.navigation} allowProfileNavigation={props.allowProfileNavigation} ondelete={(id) => {
                 setPosts(posts.filter(t => t.id !== id));
@@ -122,7 +127,7 @@ export default function MemberPostList(props) {
     // ]
 
     const renderPosts = () => {
-         
+
         if (viewMode === 1) {
             let temp = [];
             for (let k in posts) {
@@ -131,39 +136,47 @@ export default function MemberPostList(props) {
                 }
             }
             return (
-                <FlatList style={{width:window.width}} data={temp}
-                renderItem={({ item }) => {
-                    return (
-                        <View key={item.id}>
-                            <Image source={{uri : item.uri}} style={{resizeMode:"cover",width:window.width / gridColumns, height: window.width / gridColumns}} />
-                        </View>
-                    );
-                }}
-                numColumns={gridColumns}
-                keyExtractor={(item, index) => index.toString()}
-                refreshing={loading}
-                onRefresh={fetchData}
-                initialNumToRender={5}
-                onEndReached={() => {
-                    if (model.totalPages >= (p + 1)) {
-                        setCurrentPage(p + 1);
-                    }
-                }} scrollEnabled={props.scrollEnabled !== undefined ? props.scrollEnabled : true}>
-            </FlatList>
+                <FlatList style={{ width: window.width }} data={temp}
+                    renderItem={({ item }) => {
+                        return (
+                            <View key={item.id} style={[styles.mx10, styles.my10, {}]}>
+                                <Image source={{ uri: item.uri }} style={[{ borderRadius: 15, resizeMode: "cover", width: (window.width / gridColumns) - 20, height: (window.width / gridColumns) - 20 }]} />
+                            </View>
+                        );
+                    }}
+                    numColumns={gridColumns}
+                    keyExtractor={(item, index) => index.toString()}
+                    refreshing={loading}
+                    onRefresh={fetchData}
+                    initialNumToRender={5}
+                    onEndReached={() => {
+                        if (model.totalPages >= (p + 1)) {
+                            setCurrentPage(p + 1);
+                        }
+                    }} scrollEnabled={props.scrollEnabled !== undefined ? props.scrollEnabled : true}>
+                </FlatList>
             );
         }
         else if (viewMode === 2) {
-            return <FlatList data={posts}
-                renderItem={renderItem}
+            return <FlatList data={posts} ref={memberPostFlatlist}
+                renderItem={renderItem} 
                 keyExtractor={(item, index) => index.toString()}
                 refreshing={loading}
-                onRefresh={fetchData}
-                initialNumToRender={5}
+                onRefresh={() => { setCurrentPage(0); fetchData(); }}
+                initialNumToRender={posts.length}
                 onEndReached={() => {
                     if (model.totalPages >= (p + 1)) {
                         setCurrentPage(p + 1);
                     }
-                }} scrollEnabled={props.scrollEnabled !== undefined ? props.scrollEnabled : true}>
+                }} scrollEnabled={props.scrollEnabled !== undefined ? props.scrollEnabled : true}
+                onScrollToIndexFailed={info => {
+                    const wait = new Promise(resolve => setTimeout(resolve, 500));
+                    wait.then(() => {
+                        
+                            setTimeout(() => {memberPostFlatlist.current?.scrollToIndex({ animated: false, index: info.index });}, 300);
+                    });
+                  }}
+                >
             </FlatList>;
         }
     }
@@ -173,7 +186,6 @@ export default function MemberPostList(props) {
             <Pressable onPress={() => { setViewMode(1); }} style={{ flexGrow: 1 }}><Text style={viewMode === 1 ? [styles.fwBold, styles.fsnormal, styles.textCenter, { flexGrow: 1 }] : [styles.textCenter, styles.fsnormal, { flexGrow: 1 }]}>Grid</Text></Pressable>
             <Pressable onPress={() => { setViewMode(2); }} style={{ flexGrow: 1 }}><Text style={viewMode === 2 ? [styles.fwBold, styles.fsnormal, styles.textCenter, { flexGrow: 1 }] : [styles.textCenter, styles.fsnormal, { flexGrow: 1 }]}>List</Text></Pressable>
         </View> : null}
-        {loading ? <ActivityIndicator /> : null}
         {renderPosts()}
     </>;
 

@@ -49,7 +49,7 @@ function ManageEmails(props) {
 
                     });
                 } else {
-                    setMessage("danger", 'Unable to save email.');
+                    setMessage(new MessageModel("danger", 'Unable to save email.'));
                 }
             }).catch(() => {
                 setMessage(new MessageModel("danger", 'Unable to connect to internet.'));
@@ -75,7 +75,7 @@ function ManageEmails(props) {
                     setId(Utility.EmptyID);
                     setEmail("");
                 } else {
-                    setMessage("danger", 'Unable to save email.');
+                    setMessage(new MessageModel("danger", 'Unable to remove email.'));
                 }
             }).catch(() => {
                 setMessage(new MessageModel("danger", 'Unable to connect to internet.'));

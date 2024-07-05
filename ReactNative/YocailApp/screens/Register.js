@@ -108,7 +108,7 @@ export default function Register({ navigation }) {
           <TextInput style={usernameerror !== "" ? [styles.inputwhitebg, { borderColor: "red", borderWidth: 1 }] : [styles.inputwhitebg, styles.mb20]} placeholder="Username*" value={username} maxLength={300} onChangeText={val => { setMessage(null); setUsername(val); }} />
           {usernameerror !== "" ? <Text style={[styles.textPrimary, styles.fsnormal, styles.mb10, styles.mt10, styles.textDanger]}>{usernameerror}</Text> : null}
 
-          <TextInput style={passworderror !== "" ? [styles.inputwhitebg, { borderColor: "red", borderWidth: 1 }] : [styles.inputwhitebg, styles.mb20]} placeholder="Password*" value={password} secureTextEntry={true} maxLength={300} onChangeText={val => { setMessage(null); setPassword(val); }} />
+          <TextInput style={passworderror !== "" ? [styles.inputwhitebg, { borderColor: "red", borderWidth: 1 }] : [styles.inputwhitebg, styles.mb20]} placeholder="Password*" value={password} secureTextEntry={true} maxLength={100} passwordRules="required:upper;required:lower;required:digit;minlength:8" onChangeText={val => { setMessage(null); setPassword(val); }} />
           {passworderror !== "" ? <Text style={[styles.textPrimary, styles.fsnormal, styles.mb10, styles.mt10, styles.textDanger]}>{passworderror}</Text> : null}
 
           <TextInput style={emailerror !== "" ? [styles.inputwhitebg, { borderColor: "red", borderWidth: 1 }] : [styles.inputwhitebg, styles.mb20]} placeholder="Email*" value={email} maxLength={200} onChangeText={val => { setMessage(null); setEmail(val); }} />

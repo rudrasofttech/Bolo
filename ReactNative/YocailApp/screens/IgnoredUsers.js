@@ -3,16 +3,13 @@ import { useAuth } from "../authprovider";
 import { MessageModel } from "../model";
 import { Utility } from "../utility";
 import MemberPicSmall from "./shared/MemberPicSmall";
-import { ActivityIndicator, Dimensions, FlatList, Pressable, ScrollView, Text, View } from "react-native";
-import { styleProps } from "react-native-web/dist/cjs/modules/forwardedProps";
+import { ActivityIndicator,  FlatList, Pressable, Text, View } from "react-native";
 import { styles } from "../stylesheet";
-import { stringifyValueWithProperty } from "react-native-web/dist/cjs/exports/StyleSheet/compiler";
 import ShowMessage from "./shared/ShowMessage";
 import { SafeAreaView } from "react-native";
 
 export default function IgnoredUsers(props) {
     const auth = useAuth();
-    const window = Dimensions.get('window');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     const [items, setItems] = useState([]);
@@ -71,6 +68,7 @@ export default function IgnoredUsers(props) {
     }
 
     return <SafeAreaView style={[styles.container, styles.width100]}>
+        {loading ? <ActivityIndicator /> : null}
         <FlatList data={items}
             renderItem={({ item }) => {
                 return (
@@ -83,14 +81,12 @@ export default function IgnoredUsers(props) {
                     </View>
                 );
             }}
-            
             keyExtractor={(item, index) => index.toString()}
             refreshing={loading}
             onRefresh={fetchData}
-            initialNumToRender={10}
-            >
+            initialNumToRender={10}>
         </FlatList>
-        {loading ? <ActivityIndicator size={"large"} /> : null}
+        
         <ShowMessage messagemodal={message} toast={true} />
 
     </SafeAreaView>;

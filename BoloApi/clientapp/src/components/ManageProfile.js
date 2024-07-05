@@ -161,7 +161,7 @@ function ManageProfile(props) {
     const saveData = (name, value) => {
         setLoading(true);
         if (name !== 'bio') {
-            fetch('//' + window.location.host + '/api/Members/Save' + name + '?d=' + value, {
+            fetch(`${Utility.GetAPIURL()}/api/Members/Save${name}?d=${value}`, {
                 method: 'get',
                 headers: {
                     "Authorization": `Bearer ${auth.token}`
@@ -189,7 +189,7 @@ function ManageProfile(props) {
         } else {
             const fd = new FormData();
             fd.set("d", value);
-            fetch('//' + window.location.host + '/api/Members/savebio', {
+            fetch(`${Utility.GetAPIURL()}/api/Members/savebio`, {
                 method: 'post',
                 body: fd,
                 headers: {
@@ -200,7 +200,7 @@ function ManageProfile(props) {
                     if (response.status === 401) {
                         auth.logout();
                     } else if (response.status === 200) {
-                        setMessage("success", "Data is saved.");
+                        setMessage(new MessageModel("success", "Data is saved."));
                         auth.validate();
                     } else {
                         response.json().then(data => {
@@ -294,7 +294,6 @@ function ManageProfile(props) {
                                     <input type="text" id="securityAnswerTxt" name="securityAnswer" className="form-control"
                                         maxLength="300" value={securityAnswer} onChange={(e) => { setSecurityAnswer(e.target.value); }} />
                                 </div>
-
                             </div>
                             <div className="modal-footer">
                                 <ShowMessage messagemodal={message} toast={false} />

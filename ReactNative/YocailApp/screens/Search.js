@@ -7,12 +7,14 @@ import { Utility } from "../utility";
 import ShowMessage from "./shared/ShowMessage";
 import personFill from '../assets/person-fill.png';
 import close from '../assets/close.png';
+import { AppStorage } from "../storage";
 
 export default function Search({ navigation }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [items, setItems] = useState([]);
+  const store = new AppStorage();
 
   const updateSearch = (search) => {
     setSearch(search);
@@ -23,8 +25,7 @@ export default function Search({ navigation }) {
   useEffect(() => {
     if (search === "") {
       (async () => {
-        const items = await auth.getVisitedSearchResults();
-        setItems(items);
+        setItems(await store.getVisitedSearchResults());
       })();
       return;
     }
@@ -63,7 +64,7 @@ export default function Search({ navigation }) {
       items2 = items.filter(t => t.hashtag !== null || t.member.userName !== value.member.userName);
     }
     setItems(items2);
-    await auth.removeVisitedSearchResults(value);
+    await store.removeVisitedSearchResults(value);
   }
 
   const renderOwnerPic = (member) => {
@@ -75,7 +76,7 @@ export default function Search({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ backgroundColor: "#fcfcfc", width: Dimensions.get('window').width }} >
+      <View style={[styles.width100]} >
         <SearchBar placeholder="Type Here..."
           onChangeText={updateSearch}
           value={search} lightTheme={true}></SearchBar>
@@ -83,7 +84,7 @@ export default function Search({ navigation }) {
       {items.length > 0 ? <ScrollView style={styles.width100}>
         {items.map(i => <>{i.hashtag !== null ?
           <Pressable onPress={async () => {
-            await auth.updateVisitedSearchResults(i);
+            await store.updateVisitedSearchResults(i);
             navigation.push('Hashtag', { hashtag: `#${i.hashtag.tag}` });
           }}>
             <View style={[styles.borderBottom, {flex:1, flexDirection: "row", alignItems:"center" }]}>
@@ -95,10 +96,10 @@ export default function Search({ navigation }) {
           </Pressable>
           :
           <Pressable onPress={async () => {
-            await auth.updateVisitedSearchResults(i);
+            await store.updateVisitedSearchResults(i);
             navigation.push('Profile', { username: i.member.userName });
           }}>
-            <View style={[styles.borderBottom, styles.alignCenter, styles.p10, { flex: 1, flexDirection: "row" }]}>
+            <View style={[styles.borderBottom, styles.alignCenter, styles.p10, {  flexDirection: "row", alignItems:"center" }]}>
               <Image source={renderOwnerPic(i.member)} style={[styles.profilepic30, styles.borderPrimary, { marginRight: 10, borderWidth:0 }]} />
               <View style={{ flexGrow: 1 }}>
                 <Text style={[styles.textPrimary, styles.fwBold, styles.fsnormal]}>{i.member.name !== "" ? i.member.name : i.member.userName}</Text>

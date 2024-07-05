@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Hosting;
 using Org.BouncyCastle.Crypto.Parameters;
 using BoloWeb.Helper;
 using Org.BouncyCastle.Asn1.Misc;
+using System.Drawing.Drawing2D;
 
 namespace Bolo.Controllers
 {
@@ -167,17 +168,24 @@ namespace Bolo.Controllers
                 {
                     member.Status = RecordStatus.Active;
                     await _context.SaveChangesAsync();
-                    var mdto = new MemberDTO(member);
+                    var mdto = new MemberDTO(member) {
+                        Phone = member.Phone,
+                        Email = member.Email,
+                        FollowerCount = _context.Followers.Count(t => t.Following.ID == member.ID),
+                        FollowingCount = _context.Followers.Count(t => t.Follower.ID == member.ID),
+                        PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID)
+                    };
                     if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
-                        mdto.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).ToList();
+                        mdto.Links = [.. _context.ProfileLinks.Where(t => t.Member.ID == member.ID).Select(t => new ProfileLink() { ID = t.ID, Name = t.Name, URL = t.URL })];
                     if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
-                        mdto.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).ToList();
+                        mdto.Emails = [.. _context.ProfileEmails.Where(t => t.Member.ID == member.ID).Select(t => new ProfileEmail() { ID = t.ID, Email = t.Email })];
                     if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
-                        mdto.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).ToList();
-                    LocationHelper lh = new LocationHelper();
+                        mdto.Phones = [.. _context.ProfilePhones.Where(t => t.Member.ID == member.ID).Select(t => new ProfilePhone() { ID = t.ID, Phone = t.Phone })];
+                    
+                    LocationHelper lh = new();
                     mdto.CountryName = lh.GetCountryName(mdto.Country);
 
-                    LoginReturnDTO result = new LoginReturnDTO() { Member = mdto, Token = GenerateJSONWebToken(member) };
+                    var result = new LoginReturnDTO() { Member = mdto, Token = GenerateJSONWebToken(member) };
                     return result;
                 }
             }catch(Exception ex)
@@ -191,11 +199,11 @@ namespace Bolo.Controllers
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new List<Claim>() {
-                new Claim(ClaimTypes.Name, m.PublicID.ToString()),
-        new Claim(ClaimTypes.NameIdentifier,  m.PublicID.ToString()),
-        new Claim(JwtRegisteredClaimNames.Email, m.Email),
-        new Claim(JwtRegisteredClaimNames.Exp, Helper.Utility.TokenExpiry.ToString("yyyy-MM-dd")),
-        new Claim(JwtRegisteredClaimNames.Jti, m.PublicID.ToString())
+                new(ClaimTypes.Name, m.PublicID.ToString()),
+        new(ClaimTypes.NameIdentifier,  m.PublicID.ToString()),
+        new(JwtRegisteredClaimNames.Email, m.Email),
+        new(JwtRegisteredClaimNames.Exp, Helper.Utility.TokenExpiry.ToString("yyyy-MM-dd")),
+        new(JwtRegisteredClaimNames.Jti, m.PublicID.ToString())
     };
             if (m.Roles != null)
             {
@@ -206,7 +214,7 @@ namespace Bolo.Controllers
             }
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
               _config["Jwt:Issuer"],
-              claims.ToArray(),
+              [.. claims],
               expires: Helper.Utility.TokenExpiry,
               signingCredentials: credentials);
 
@@ -279,18 +287,16 @@ namespace Bolo.Controllers
                     PostCount = _context.Posts.Count(t => t.Owner.ID == member.ID)
                 };
                 if (_context.ProfileLinks.Any(t => t.Member.ID == member.ID))
-                    result.Links = _context.ProfileLinks.Where(t => t.Member.ID == member.ID).Select(t => new ProfileLink() { ID = t.ID, Name = t.Name, URL = t.URL }).ToList();
+                    result.Links = [.. _context.ProfileLinks.Where(t => t.Member.ID == member.ID).Select(t => new ProfileLink() { ID = t.ID, Name = t.Name, URL = t.URL })];
                 if (_context.ProfileEmails.Any(t => t.Member.ID == member.ID))
-                    result.Emails = _context.ProfileEmails.Where(t => t.Member.ID == member.ID).Select(t => new ProfileEmail() { ID = t.ID, Email = t.Email }).ToList();
+                    result.Emails = [.. _context.ProfileEmails.Where(t => t.Member.ID == member.ID).Select(t => new ProfileEmail() { ID = t.ID, Email = t.Email })];
                 if (_context.ProfilePhones.Any(t => t.Member.ID == member.ID))
-                    result.Phones = _context.ProfilePhones.Where(t => t.Member.ID == member.ID).Select(t => new ProfilePhone() { ID = t.ID, Phone = t.Phone }).ToList();
-                LocationHelper lh = new LocationHelper();
+                    result.Phones = [.. _context.ProfilePhones.Where(t => t.Member.ID == member.ID).Select(t => new ProfilePhone() { ID = t.ID, Phone = t.Phone })];
+                var lh = new LocationHelper();
                 result.CountryName = lh.GetCountryName(result.Country);
                 return result;
             }
         }
-
-
 
         // GET: api/Members
         [HttpGet]
@@ -935,6 +941,7 @@ namespace Bolo.Controllers
 
         [HttpPost]
         [Route("savepic")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public async Task<IActionResult> SavePic([FromForm] string pic)
         {
 
@@ -961,8 +968,15 @@ namespace Bolo.Controllers
                         using (var stream = new MemoryStream(data, 0, data.Length))
                         {
                             System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
-                            image.Save(abspath, System.Drawing.Imaging.ImageFormat.Jpeg);
-
+                            long quality = 65;
+                            var qualityParam = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
+                            ImageCodecInfo imageCodec = ImageCodecInfo.GetImageDecoders().FirstOrDefault(codec => codec.FormatID == ImageFormat.Jpeg.Guid);
+                            var encoderParameters = new EncoderParameters(1);
+                            encoderParameters.Param[0] = qualityParam;
+                            double temp = 200 / (double)image.Width;
+                            temp *= 100;
+                            System.Drawing.Image image2 = Bolo.Helper.Utility.ScaleByPercent(image, Percent: temp);
+                            image2.Save(abspath, imageCodec, encoderParameters);
                         }
                         pic = relpath;
                     }
@@ -983,7 +997,10 @@ namespace Bolo.Controllers
                     throw;
                 }
             }
+
         }
+
+        
 
         [HttpGet]
         [AllowAnonymous]

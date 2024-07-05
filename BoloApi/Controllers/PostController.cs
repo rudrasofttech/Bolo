@@ -3,16 +3,13 @@ using Bolo.Helper;
 using Bolo.Hubs;
 using Bolo.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using NetTopologySuite.Triangulate.QuadEdge;
-using Org.BouncyCastle.Asn1.Crmf;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -165,7 +162,7 @@ namespace Bolo.Controllers
                         }
                     }
                 }
-                PostsPaged model = new PostsPaged
+                var model = new PostsPaged
                 {
                     Current = p,
                     PageSize = ps,
@@ -381,6 +378,7 @@ namespace Bolo.Controllers
 
         // POST api/<PhotoController>
         [HttpPost]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
         public async Task<ActionResult> PostAsync([FromForm] PostPhotoDTO value)
         {
             if (!ModelState.IsValid)
@@ -447,17 +445,25 @@ namespace Bolo.Controllers
                                     throw new NotImplementedException("An orientation of " + orientation + " isn't implemented.");
                             }
                         }
+                        long quality = 65;
+                        var qualityParam = new EncoderParameter(Encoder.Quality, quality);
+                        ImageCodecInfo imageCodec = ImageCodecInfo.GetImageDecoders().FirstOrDefault(codec => codec.FormatID == ImageFormat.Jpeg.Guid);
+                        var encoderParameters = new EncoderParameters(1);
+                        encoderParameters.Param[0] = qualityParam;
                         if (image.Width > PhotoMaxWidth)
                         {
-                            double temp = PhotoMaxWidth / image.Width;
+                            
+                            double temp = PhotoMaxWidth / (double)image.Width;
                             temp *= 100;
-                            Image image2 = ScaleByPercent(image, Percent: (int)temp);
-                            image2.Save(abspath);
+                            System.Drawing.Image image2 = Bolo.Helper.Utility.ScaleByPercent(image, Percent: temp);
+                            image2.Save(abspath,imageCodec, encoderParameters);
+                            
                             p.Photos.Add(new PostPhoto() { Photo = relpath, Width = image2.Width, Height = image2.Height });
                         }
                         else
                         {
-                            image.Save(abspath);
+                            image.Save(abspath, imageCodec, encoderParameters);
+                            
                             p.Photos.Add(new PostPhoto() { Photo = relpath, Width = image.Width, Height = image.Height });
                         }
                         
@@ -494,40 +500,59 @@ namespace Bolo.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { error = $"Unable to process the request. {ex.Message} {ex.StackTrace}" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = $"Unable to process the request. {ex.Message} " });
             }
         }
 
-        private Image ScaleByPercent(Image imgPhoto, int Percent)
-        {
-            float nPercent = ((float)Percent / 100);
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
+        //private ImageCodecInfo GetEncoderInfo(string mimeType)
+        //{
+        //    ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+        //    for(int i = 0; i < codecs.Length;i++)
+        //    {
+        //        if (codecs[i].MimeType == mimeType)
+        //            return codecs[i];
+        //    }
 
-            int sourceWidth = imgPhoto.Width;
-            int sourceHeight = imgPhoto.Height;
-            int sourceX = 0;
-            int sourceY = 0;
+        //    return null;
+        //}
 
-            int destX = 0;
-            int destY = 0;
-            int destWidth = (int)(sourceWidth * nPercent);
-            int destHeight = (int)(sourceHeight * nPercent);
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
+        //private System.Drawing.Image ScaleByPercent(System.Drawing.Image imgPhoto, int Percent)
+        //{
+        //    float nPercent = ((float)Percent / 100);
 
-            Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
-                                     PixelFormat.Format24bppRgb);
-            bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
-                                    imgPhoto.VerticalResolution);
+        //    int sourceWidth = imgPhoto.Width;
+        //    int sourceHeight = imgPhoto.Height;
+        //    int sourceX = 0;
+        //    int sourceY = 0;
 
-            Graphics grPhoto = Graphics.FromImage(bmPhoto);
-            grPhoto.InterpolationMode = InterpolationMode.High;
+        //    int destX = 0;
+        //    int destY = 0;
+        //    int destWidth = (int)(sourceWidth * nPercent);
+        //    int destHeight = (int)(sourceHeight * nPercent);
 
-            grPhoto.DrawImage(imgPhoto,
-                new Rectangle(destX, destY, destWidth, destHeight),
-                new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
-                GraphicsUnit.Pixel);
+        //    Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
+        //                             PixelFormat.Format24bppRgb);
+        //    bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
+        //                            imgPhoto.VerticalResolution);
 
-            grPhoto.Dispose();
-            return bmPhoto;
-        }
+        //    Graphics grPhoto = Graphics.FromImage(bmPhoto);
+            
+        //    grPhoto.InterpolationMode = InterpolationMode.Low;
+        //    grPhoto.CompositingMode = CompositingMode.SourceCopy;
+        //    grPhoto.CompositingQuality = CompositingQuality.HighSpeed;
+        //    grPhoto.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+        //    grPhoto.SmoothingMode = SmoothingMode.HighSpeed;
+            
+        //    grPhoto.DrawImage(imgPhoto,
+        //        new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
+        //        new System.Drawing.Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
+        //        GraphicsUnit.Pixel);
+
+        //    grPhoto.Dispose();
+        //    return bmPhoto;
+        //}
 
         [HttpGet]
         [Route("updatedimension")]

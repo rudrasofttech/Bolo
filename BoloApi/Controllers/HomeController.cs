@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Bolo.Data;
-using Bolo.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Bolo.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SignalR;
-using System.IO;
 using BoloWeb.Helper;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bolo.Controllers
 {

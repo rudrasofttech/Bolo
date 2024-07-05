@@ -7,7 +7,7 @@ import ShowMessage from "./shared/ShowMessage";
 
 export default function Login({ navigation }) {
     const auth = useAuth();
-    const [username, setUsername] = useState('rajkiransingh');
+    const [username, setUsername] = useState('popularmemes');
     const [password, setPassword] = useState('Welcome1!');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);

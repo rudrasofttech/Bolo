@@ -3,7 +3,7 @@ import { useAuth } from "./shared/AuthProvider";
 import { useEffect, useState } from "react";
 import { MessageModel } from "./shared/Model";
 import FollowButton from "./shared/FollowButton";
-import Spinner from "./shared/Spinner";
+import personfill from "../theme1/images/person-fill.svg";
 import MemberSmallList from "./shared/MemberSmallList";
 import FollowRequestList from "./FollowRequestList";
 import ExpandableTextLabel from "./shared/ExpandableTextLabel";
@@ -11,6 +11,7 @@ import MemberPostList from "./MemberPostList";
 import ShowMessage from "./shared/ShowMessage";
 import Layout from "./Layout";
 import DropDownButton from "./shared/UI/DropDownButton";
+import { Utility } from "./Utility";
 
 function Profile() {
     const auth = useAuth();
@@ -34,7 +35,7 @@ function Profile() {
         } else {
             un = username;
         }
-        fetch('//' + window.location.host + '/api/Members/' + un, {
+        fetch(`${Utility.GetAPIURL()}/api/Members/${un}`, {
             method: 'get',
             headers: {
                 'Authorization': `Bearer ${auth.token}`
@@ -59,7 +60,7 @@ function Profile() {
 
     const loadFollowStatus = (username) => {
         setLoading(true);
-        fetch('//' + window.location.host + '/api/Follow/Status/' + username, {
+        fetch(`${Utility.GetAPIURL()}/api/Follow/Status/${username}`, {
             method: 'get',
             headers: { 'Authorization': `Bearer ${auth.token}` }
         })
@@ -79,7 +80,7 @@ function Profile() {
 
     const checkIfHasRequest = (username) => {
         setLoading(true);
-        fetch('//' + window.location.host + '/api/Follow/HasRequest/' + username, {
+        fetch(`${Utility.GetAPIURL()}/api/Follow/HasRequest/${username}`, {
             method: 'get',
             headers: { 'Authorization': `Bearer ${auth.token}` }
         })
@@ -98,7 +99,7 @@ function Profile() {
     }
 
     const allowRequest = () => {
-        fetch('//' + window.location.host + '/api/Follow/allow/' + member.id, {
+        fetch(`${Utility.GetAPIURL()}/api/Follow/allow/${member.id}`, {
             method: 'get',
             headers: { 'Authorization': `Bearer ${auth.token}` }
         })
@@ -115,7 +116,7 @@ function Profile() {
 
     const rejectRequest = () => {
         setLoading(true);
-        fetch('//' + window.location.host + '/api/Follow/Reject/' + member.id, {
+        fetch(`${Utility.GetAPIURL()}/api/Follow/Reject/${member.id}`, {
             method: 'get',
             headers: { 'Authorization': `Bearer ${auth.token}` }
         })
@@ -256,15 +257,15 @@ function Profile() {
                         <div className="my-md-3 my-2" style={{ maxWidth: "800px" }}>
                             <div className="py-3 bg-white fs-5">
                                 <div className="row">
-                                    <div className="col-md-3">
-                                        {member.pic !== "" ? <img src={"//" + window.location.host + "/" + member.pic} className="img-fluid profile-pic-border mb-2" alt="" />
-                                            : <img src="/theme1/images/person-fill.svg" className="img-fluid profile-pic-border mb-2 w-100" alt="" />}
+                                    <div className="col-md-3 text-center">
+                                        {member.pic !== "" ? <img src={"//" + window.location.host + "/" + member.pic} className="img-fluid profile-pic-border mb-2" style={{maxWidth:"100px"}} alt="Profile" />
+                                            : <img src={personfill} className="img-fluid profile-pic-border mb-2" style={{ width: "100px" }} alt="No Pic" />}
                                         <h1 className="fs-20 text-center text-primary">@{member.userName}</h1>
                                     </div>
                                     <div className="col-md pt-3">
-                                        {member.name !== "" ? <div className="fs-2 mb-3 text-primary">{member.name}</div> : null}
-                                        {member.countryName !== "" ? <div className="mb-2 fs-20 text-secondary"><i className="bi bi-globe-central-south-asia"></i> {member.countryName}</div> : null}
-                                        {/*{member.thoughtStatus !== "" ? <div className="mb-2 fs-20 text-secondary">{member.thoughtStatus}</div> : null}*/}
+                                        {member.name !== "" ? <div className="fs-2 mb-3 text-primary text-center">{member.name}</div> : null}
+                                        {member.countryName !== "" ? <div className="mb-2 fs-20 text-secondary  text-center"><i className="bi bi-globe-central-south-asia"></i> {member.countryName}</div> : null}
+                                        {member.thoughtStatus !== "" ? <div className="mb-2 fs-20 text-secondary text-center">{member.thoughtStatus}</div> : null}
                                         {member.bio === null ? null : <div className="mb-2  fs-20">
                                             <ExpandableTextLabel cssclassName="text-justify lh-base" text={member.bio} maxlength={200} />
                                         </div>}
@@ -288,9 +289,9 @@ function Profile() {
                                                     </li>;
                                                 })}</DropDownButton>
                                             </div> : null}
-                                            {settings}
+                                            
                                         </div>
-
+                                        {settings}
                                         {followhtml}
                                         {member.followRequestCount > 0 && member.userName === auth.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { setShowRequests(true) }}>{member.followRequestCount} Follow Request</button></div> : null}
                                         {renderRequestApproval()}

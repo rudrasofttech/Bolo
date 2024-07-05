@@ -68,7 +68,7 @@ function AddPost(props) {
             }).catch(err => {
                 setMessage(new MessageModel("danger", "Unable to save the post, please try after some time."));
             }).finally(() => {
-                setMessage(new MessageModel("danger", "Unable to connect to internet."));
+                setLoading(false);
             });
     }
 

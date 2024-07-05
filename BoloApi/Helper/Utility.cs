@@ -12,6 +12,9 @@ using Microsoft.Extensions.Configuration;
 using Bolo.Models;
 using Microsoft.Extensions.Options;
 using System.Text.RegularExpressions;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Drawing;
 
 namespace Bolo.Helper
 {
@@ -87,6 +90,43 @@ namespace Bolo.Helper
                 // Close and clean up the StreamReader sr.Close();
             }
             return result;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
+        public static System.Drawing.Image ScaleByPercent(System.Drawing.Image imgPhoto, double Percent)
+        {
+            float nPercent = ((float)Percent / 100);
+
+            int sourceWidth = imgPhoto.Width;
+            int sourceHeight = imgPhoto.Height;
+            int sourceX = 0;
+            int sourceY = 0;
+
+            int destX = 0;
+            int destY = 0;
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+            Bitmap bmPhoto = new Bitmap(destWidth, destHeight,
+                                     PixelFormat.Format24bppRgb);
+            bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
+                                    imgPhoto.VerticalResolution);
+
+            Graphics grPhoto = Graphics.FromImage(bmPhoto);
+
+            grPhoto.InterpolationMode = InterpolationMode.Low;
+            grPhoto.CompositingMode = CompositingMode.SourceCopy;
+            grPhoto.CompositingQuality = CompositingQuality.HighSpeed;
+            grPhoto.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+            grPhoto.SmoothingMode = SmoothingMode.HighSpeed;
+
+            grPhoto.DrawImage(imgPhoto,
+                new System.Drawing.Rectangle(destX, destY, destWidth, destHeight),
+                new System.Drawing.Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
+                GraphicsUnit.Pixel);
+
+            grPhoto.Dispose();
+            return bmPhoto;
         }
     }
 
