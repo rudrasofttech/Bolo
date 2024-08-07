@@ -77,11 +77,11 @@ function MemberPostList(props) {
     }
 
     const renderPosts = () => {
-        //let empty = <div key={0}>
-        //    <div className="text-center fs-3 py-5 bg-white rounded-3">
-        //        <img src={"//" + window.location.host + "/theme1/images/add-post.svg"} className="img-fluid" style={{ maxWidth: "150px" }} alt="" /><h2 className="fw-semibold">Nothing to see here</h2>
-        //    </div>
-        //</div>;
+        let empty = <div key={0}>
+           <div className="text-center fs-3 py-5 bg-white rounded-3">
+               <img src={"//" + window.location.host + "/theme1/images/add-post.svg"} className="img-fluid" style={{ maxWidth: "150px" }} alt="" /><h2 className="fw-semibold">Nothing to see here</h2>
+           </div>
+        </div>;
         if (viewMode === 2) {
             let items = []
             if (model !== null) {
@@ -91,9 +91,9 @@ function MemberPostList(props) {
                     }} />);
                 }
             }
-            //if (items.length === 0 && !loading) {
-            //    items.push(empty);
-            //}
+            if (items.length === 0 && !loading) {
+               items.push(empty);
+            }
             return <div>
                 {items}
                 {(model != null && (model.current + 1) < model.totalPages) ?
@@ -122,7 +122,7 @@ function MemberPostList(props) {
                 }
             }
             if (items.length === 0 && !loading) {
-                //items.push(empty);
+                items.push(empty);
                 return items;
             }
             return <>

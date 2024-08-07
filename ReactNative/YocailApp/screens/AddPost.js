@@ -12,7 +12,6 @@ import { Platform } from "react-native";
 import { Utility } from "../utility";
 
 
-
 export default function AddPost(props) {
   const [viewName, setViewName] = useState("add");
   const [images, setImages] = useState([]);
@@ -52,9 +51,9 @@ function AddPostItems(props) {
     setLoading(true);
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [3, 4],
-      quality: 0.7,
+      allowsEditing: false,
+      //aspect: [4, 4],
+      quality: 0.5,
       exif: true,
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
@@ -109,11 +108,11 @@ function AddPostItems(props) {
       <ScrollView ref={scrollViewRef} horizontal={true} showsHorizontalScrollIndicator={false} pagingEnabled={true}
         snapToStart={true} >
         {images.map((image, index) => {
-          //console.log(`index ${index}`);
+          let asp = image.height / image.width;
           return <View style={[{ flexDirection: "column", alignItems: "center" }]} data-date={date}>
-            <View style={[styles.width100, { height: styles.width100.width * (4 / 3) }]}>
+            <View style={[styles.width100, { height: styles.width100.width * asp }]}>
               <Image source={{ uri: `data:${image.mimeType};base64,${image.base64}` }} style={[{
-                flex: 1, width: styles.width100.width, height: styles.width100.width * (image.height / image.width),
+                flex: 1, width: styles.width100.width, height: styles.width100.width * asp,
                 resizeMode: 'cover'
               }]} />
             </View>
@@ -168,8 +167,8 @@ function SavePostItems(props) {
     setMessage(null);
     let fd = new FormData();
     fd.append("Describe", describe);
-    fd.append("AcceptComment", acceptComment);
-    fd.append("AllowShare", allowShare);
+    fd.append("AcceptComment", acceptComment === undefined || acceptComment === null ? false : acceptComment);
+    fd.append("AllowShare", allowShare === undefined || allowShare === null ? false : allowShare);
     props.data.forEach((value, index) => {
       fd.append(`Photos[${index}]`, `data:${value.mimeType};base64,${value.base64}`);
     });
@@ -180,7 +179,7 @@ function SavePostItems(props) {
         if (response.status === 200) {
           setDescribe('');
           props.onSave();
-        } else if (response.status === 500) {
+        } else {
           response.json().then(data => {
             console.log(data);
             setMessage(new MessageModel("danger", data.error));

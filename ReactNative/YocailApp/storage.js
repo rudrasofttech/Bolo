@@ -56,6 +56,35 @@ export class AppStorage {
     }
   };
 
+  setContacts = async (value) => {
+    try {
+      await AsyncStorage.setItem(
+        "contacts",
+        JSON.stringify(value),
+      );
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
+
+  getContacts = async () => {
+    let temp = [];
+    try {
+      const value = await AsyncStorage.getItem("feed");
+      if (value === null || value === "")
+        return temp;
+      else
+        return JSON.parse(value);
+    } catch (error) {
+      // Error retrieving data
+      console.log("GetItem Error");
+      console.log(error);
+      return temp;
+    }
+  }
+
   removeItem = async (key) => {
     await AsyncStorage.removeItem(key);
   };

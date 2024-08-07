@@ -15,6 +15,12 @@ import { Utility } from "./Utility";
 function RegisterForm() {
     const navigate = useNavigate();
     const [registerdto, setRegisterdTo] = useState({ userName: '', password: '', userEmail: '', securityQuestion: '', securityAnswer: '' });
+    const [userName, setUserName] = useState('');
+    const [password, setPassword] = useState('');
+    const [userEmail, setUserEmail] = useState('');
+    const [securityQuestion, setSecurityQuestion] = useState('');
+    const [securityAnswer, setSecurityAnswer] = useState('');
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(new MessageModel());
     const [showSecurityQuestionSampleModal, setShowSecurityQuestionSampleModal] = useState(false);
@@ -25,11 +31,11 @@ function RegisterForm() {
         fetch(`${Utility.GetAPIURL()}/api/members/register`, {
             method: 'post',
             body: JSON.stringify({
-                UserName: registerdto.userName,
-                Password: registerdto.password,
-                Email: registerdto.userEmail,
-                SecurityQuestion: registerdto.securityQuestion,
-                SecurityAnswer: registerdto.securityAnswer
+                UserName: userName,
+                Password: password,
+                Email: userEmail,
+                SecurityQuestion: securityQuestion,
+                SecurityAnswer: securityAnswer
             }),
             headers: {
                 'Content-Type': 'application/json'
@@ -38,7 +44,7 @@ function RegisterForm() {
             .then(response => {
                 if (response.status === 200) {
                     setMessage(new MessageModel('success', 'Your registration is complete.'));
-                    navigate('/login/:' + registerdto.userName)
+                    navigate('/login/:' + userName)
                 } else if (response.status === 400) {
                     response.json().then(data => {
                         setMessage(new  MessageModel('danger',data.error));
@@ -67,9 +73,7 @@ function RegisterForm() {
                             </div>
                             <div className="modal-body">
                                 <SecurityQuestionSampleList onQuestionSelect={e => {
-                                    let rdto = registerdto;
-                                    rdto.securityQuestion = e;
-                                    setRegisterdTo(rdto);
+                                    setSecurityQuestion(e);
                                     setShowSecurityQuestionSampleModal(false);
                                 }} />
                             </div>
@@ -134,41 +138,26 @@ function RegisterForm() {
                                     <div className="form-group ic-input">
                                         <img src={icuser} className="input-icon" alt="" />
                                         <input type="text" className="form-control" required maxLength="30" minLength="2" name="username"
-                                            value={registerdto.userName}
+                                            value={userName}
                                             placeholder="Unique username"
-                                            onChange={(e) => {
-                                                let rdto = registerdto;
-                                                rdto.userName = e.target.value;
-                                                setRegisterdTo(rdto);
-                                            }} />
+                                            onChange={(e) => { setUserName(e.target.value); }} />
                                     </div>
                                     <div className="form-group ic-input">
                                         <img src={iclock} className="input-icon" alt="" />
-                                        <input type="password" minLength="8" className="form-control" onChange={(e) => {
-                                            let rdto = registerdto;
-                                            rdto.password = e.target.value;
-                                            setRegisterdTo(rdto);
-                                        }}
-                                            placeholder="Password" required />
+                                        <input placeholder="Password" required type="password" minLength="8" className="form-control" onChange={(e) => {
+                                            setPassword(e.target.value);
+                                        }} />
                                     </div>
                                     <div className="form-group ic-input">
                                         <img src={icemail} className="input-icon" alt="" />
-                                        <input type="email" className="form-control" maxLength="250" placeholder="E-mail" value={registerdto.userEmail}
-                                            onChange={(e) => {
-                                                let rdto = registerdto;
-                                                rdto.userEmail = e.target.value;
-                                                setRegisterdTo(rdto);
-                                            }} required />
+                                        <input type="email" className="form-control" maxLength="250" placeholder="Email" value={userEmail}
+                                            onChange={(e) => { setUserEmail(e.target.value); }} required />
 
                                     </div>
                                     <div className="form-group ic-input">
                                         <img src={icsheild} className="input-icon" alt="" />
-                                        <input list="sqlist" type="text" placeholder="Security Question" className="form-control" minLength="10" required maxLength="300" name="securityQuestion" value={registerdto.securityQuestion}
-                                            onChange={(e) => {
-                                                let rdto = registerdto;
-                                                rdto.securityQuestion = e.target.value;
-                                                setRegisterdTo(rdto);
-                                            }} aria-describedby="securityquestionHelp" />
+                                        <input list="sqlist" type="text" placeholder="Security Question" className="form-control" minLength="10" required maxLength="300" name="securityQuestion" value={securityQuestion}
+                                            onChange={(e) => { setSecurityQuestion(e.target.value); }} aria-describedby="securityquestionHelp" />
                                         <datalist id="sqlist">
                                             <option value="What is the name of your first friend?" />
                                             <option value="What was the make and model of your first car?" />
@@ -183,16 +172,10 @@ function RegisterForm() {
                                             setShowSecurityQuestionSampleModal(true)} className="fw-bold mx-1 pointer my-2" style={{ color: "#30235B" }}>Sample Questions List</div></div>
                                     <div className="form-group ic-input">
                                         <img src={icsheildyes} className="input-icon" alt="" />
-                                        <input type="text" className="form-control" maxLength="100" placeholder="Security Answer" required name="securityAnswer" value={registerdto.securityAnswer}
-                                            onChange={(e) => {
-                                                let rdto = registerdto;
-                                                rdto.securityAnswer = e.target.value;
-                                                setRegisterdTo(rdto);
-                                            }} />
+                                        <input type="text" className="form-control" maxLength="100" placeholder="Security Answer" required name="securityAnswer" value={securityAnswer}
+                                            onChange={(e) => { setSecurityAnswer(e.target.value); }} />
                                     </div>
-                                    <div id="securitypasswordHelp" className="form-text mb-3 text-center d-none">
-                                        Correct answer to your security question.
-                                        </div>
+                                    <div id="securitypasswordHelp" className="form-text mb-3 text-center d-none"> Correct answer to your security question.</div>
                                     <button className="btn btn-dark" type="submit">
                                         {loading ? <div className="spinner-border spinner-border-sm text-light" role="status">
                                         <span className="visually-hidden">Loading...</span>

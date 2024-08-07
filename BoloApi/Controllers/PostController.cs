@@ -445,7 +445,7 @@ namespace Bolo.Controllers
                                     throw new NotImplementedException("An orientation of " + orientation + " isn't implemented.");
                             }
                         }
-                        long quality = 65;
+                        long quality = 75;
                         var qualityParam = new EncoderParameter(Encoder.Quality, quality);
                         ImageCodecInfo imageCodec = ImageCodecInfo.GetImageDecoders().FirstOrDefault(codec => codec.FormatID == ImageFormat.Jpeg.Guid);
                         var encoderParameters = new EncoderParameters(1);

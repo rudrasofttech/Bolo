@@ -26,9 +26,8 @@ export default function Profile(props) {
   const { username } = props.route?.params ? props.route?.params : { username: auth.myself.userName };
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  let ls = { model: { current: 0, pageSize: 20, total: 0, totalPages: 0 }, posts: [] };
-  const [model, setModel] = useState(ls.model);
-  const [posts, setPosts] = useState(ls.posts);
+  let ls = { current: 0, pageSize: 20, total: 0, totalPages: 0, posts: [] };
+  const [model, setModel] = useState(ls);
   const [hasFollowRequest, setHasFollowRequest] = useState(false);
   const [followStatus, setFollowStatus] = useState(null);
   const [member, setMember] = useState(null);
@@ -111,11 +110,10 @@ export default function Profile(props) {
   }
 
   const fetchData = () => {
-    //console.log(`current page: ${currentPage}`);
-    setLoading(true);
-    let url = `${Utility.GetAPIURL()}/api/post?q=${encodeURIComponent(username)}&p=${currentPage}`;
 
-    //console.log(url);
+    setLoading(true);
+    let url = `${Utility.GetAPIURL()}/api/post?q=${encodeURIComponent(username)}&p=${currentPage}&ps=${model.pageSize}`;
+
     fetch(url, {
       method: 'get',
       headers: {
@@ -125,8 +123,7 @@ export default function Profile(props) {
       .then(response => {
         if (response.status === 200) {
           response.json().then(data => {
-            //console.log(data.posts.length);
-            let temp = currentPage === 0 ? data.posts : posts;
+            let temp = currentPage === 0 ? data.posts : model.posts;
             if (currentPage > 0) {
               for (var k in data.posts) {
                 temp.push(data.posts[k]);
@@ -136,10 +133,9 @@ export default function Profile(props) {
               current: data.current,
               pageSize: data.pageSize,
               total: data.total,
-              totalPages: data.totalPages
+              totalPages: data.totalPages,
+              posts: temp
             });
-            setPosts(temp);
-            //console.log(`current page: ${currentPage}`);
           });
         }
       }).catch(error => {
@@ -152,16 +148,14 @@ export default function Profile(props) {
   useEffect(() => {
     fetchProfile();
     fetchData();
-  }, [isFocused]);
+  }, [isFocused, currentPage]);
 
   const loadFollowStatus = async (username) => {
-
     const response = await fetch(`${Utility.GetAPIURL()}/api/Follow/Status/${username}`, {
       method: 'get',
       headers: { 'Authorization': `Bearer ${auth.token}` }
     });
     if (response.status === 200) {
-      //console.log(`loadFollowStatus status ${response.status} ${currentPage}`);
       response.json().then(data => {
         setFollowStatus(data.status);
       });
@@ -169,7 +163,6 @@ export default function Profile(props) {
   }
 
   const checkIfHasRequest = async (username) => {
-
     const response = await fetch(`${Utility.GetAPIURL()}/api/Follow/HasRequest/${username}`, {
       method: 'get',
       headers: { 'Authorization': `Bearer ${auth.token}` }
@@ -254,25 +247,26 @@ export default function Profile(props) {
   if (member !== null) {
     return (
       <SafeAreaView style={[styles.container, styles.width100]}>
-        <FlatList style={[styles.width100]} data={posts}
+        <FlatList style={[styles.width100]} data={model.posts}
           renderItem={({ item, index }) => {
+
             return (
               <TouchableOpacity onPress={() => {
-                props.navigation.push("ProfilePosts", {search : username, posts :posts, postIndex : index, model : model});
+                props.navigation.push("ProfilePosts", { search: username, posts: model.posts, postIndex: index, model: model });
               }}>
                 <View key={item.id} style={[styles.mx10, styles.my10, {}]}>
-                <Image source={{ uri: Utility.GetPhotoUrl(item.photos[0].photo) }} style={[{ borderRadius: 15, resizeMode: "cover", width: (styles.width100.width / gridColumns) - 20, height: (styles.width100.width / gridColumns) - 20 }]} />
-              </View></TouchableOpacity>
+                  <Image source={{ uri: Utility.GetPhotoUrl(item.photos[0].photo) }} style={[{ borderRadius: 15, resizeMode: "cover", width: (styles.width100.width / gridColumns) - 20, height: (styles.width100.width / gridColumns) - 20 }]} />
+                </View>
+                </TouchableOpacity>
             );
           }}
           numColumns={gridColumns}
           keyExtractor={(item, index) => index.toString()}
           refreshing={loading}
-          onRefresh={() => { setCurrentPage(0); fetchData(); }}
+          onRefresh={() => { setCurrentPage(0); }}
           initialNumToRender={10}
           onEndReached={() => {
             if (model.totalPages > (currentPage + 1)) {
-              console.log("onEndReached");
               setCurrentPage(currentPage + 1);
             }
           }} scrollEnabled={props.scrollEnabled !== undefined ? props.scrollEnabled : true}

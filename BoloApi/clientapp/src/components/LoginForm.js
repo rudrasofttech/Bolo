@@ -58,6 +58,9 @@ function LoginForm(props) {
                         </div>
                     </div>
                     <div className="col-md-6">
+                        <div className="text-center py-3 d-md-none">
+                            <img src={yocailogo} alt="Yocail Logo" style={{ maxWidth: 100 }} />
+                        </div>
                         <div className="form-wrap">
                             <div className="right-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="79" height="106" viewBox="0 0 79 106" fill="none">
@@ -71,6 +74,7 @@ function LoginForm(props) {
                                 </svg>
                             </div>
                             <span></span>
+
                             <h2>Login</h2>
                             <form onSubmit={handleLogin}>
                                 <div className="form-group ic-input">
@@ -94,7 +98,7 @@ function LoginForm(props) {
                                     </div>
                                     <Link to="/forgotpassword" title="Forgot Password?" className="forgot-pass">Forgot Password?</Link>
                                 </div>
-                                <button type="submit" disabled={loading} className="btn btn-blue"><Spinner sm={true} show={loading} /> Login</button>
+                                <button type="submit" disabled={loading} className="btn btn-blue">{loading ? <Spinner sm={true} show={loading} /> : "Login"}</button>
                             </form>
                             <div className="alternateoption">
                                 <span>Or</span>

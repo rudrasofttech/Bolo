@@ -187,7 +187,7 @@ export default function MemberPost(props) {
         <FlatList style={{width:window.width}} data={post?.photos ? post?.photos : []}
                 renderItem={renderCaourselItem}
                 keyExtractor={(item, index) => index.toString()}
-                horizontal={true}
+                horizontal={true} pagingEnabled={true} showsHorizontalScrollIndicator={false} snapToStart={true}
                 >
             </FlatList>
         {/* <Carousel ref={cl} layout='default' data={post?.photos ? post?.photos : []} renderItem={renderCaourselItem}

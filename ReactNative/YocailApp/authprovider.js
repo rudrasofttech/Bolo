@@ -11,7 +11,7 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
     const [token, setToken] = useState("");
 
     useEffect(() => {
-        validate();
+        //
         (async () => {
             setToken(await store.getItem("token") || "");
             let temp = await store.getItem("myself");
@@ -19,7 +19,10 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
             if(temp === null)
                 onLogout();
             else
-             onAuthenticated();
+            {
+                validate();
+             
+            }
         })();
 
     }, []);
@@ -78,6 +81,7 @@ const AuthProvider = ({ children, onAuthenticated, onLogout }) => {
                     response.json().then(data => {
                         store.setItem("myself", JSON.stringify(data));
                         setMyself(data);
+                        onAuthenticated(token);
                     });
                 }
             });

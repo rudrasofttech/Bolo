@@ -20,6 +20,7 @@ function AddPost(props) {
     const [photosAdded, setPhotosAdded] = useState(null);
     const inputFile = useRef(null);
     const [cactive, setCurrentActive] = useState(0);
+    const [view, setView] = useState(1);
 
     const handleFileChange = (e) => {
         if (e.target.files.length === 0) return;
@@ -73,7 +74,7 @@ function AddPost(props) {
     }
 
     const renderComp = () => {
-        return <div className="text-center">
+        return <div className="text-center" style={{ maxWidth: 600 }}>
             <div className="carousel d-inline-block slide mb-3" style={{ height: "600px" }}>
                 {photos.length > 1 ? <div className="carousel-indicators">
                     {photos.map((p, index) => {
@@ -118,6 +119,9 @@ function AddPost(props) {
             </div>
             <div className="mb-3 text-center">
                 <button className="btn btn-blue btn-sm" style={{ width: "130px" }} type="button" onClick={() => { inputFile.current.click(); }}>Add Photos</button>
+
+                {photos.length > 0 ?
+                    <button className="btn btn-blue btn-sm ms-3" type="button" onClick={() => { setView(2) }}>Next</button> : null}
             </div>
 
         </div>;
@@ -132,43 +136,39 @@ function AddPost(props) {
                 </p>
                 <button className="btn btn-blue" style={{ width: "130px" }} type="button" onClick={() => { inputFile.current.click(); }}>Add Photos</button>
 
-            </div> : <div className="row">
-                <div className="col-lg-6">
-                    <div className="px-md-5 my-md-3 my-2">
-                        {renderComp()}
+            </div> : view === 1 ? <>{renderComp()}</> : <>
+                    <div className="pt-4" style={{maxWidth:600}}>
+                    <div className="mb-5">
+                        <div className="form-floating">
+                            <textarea className="form-control" value={describe} onChange={(e) => { setDescribe(e.target.value); }} placeholder="Write about photos here." id="floatingTextarea2" style={{ height: "200px" }} ></textarea>
+                            <label htmlFor="floatingTextarea2">Write about photos here</label>
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <div className="form-check form-switch">
+                            <input className="form-check-input" type="checkbox" role="switch" id="acceptCommentCheckbox" checked={acceptComment} onChange={() => { setAcceptComment(!acceptComment); }} />
+                            <label className="form-check-label pt-1" htmlFor="acceptCommentCheckbox">Accept comments on post.</label>
+                        </div>
+                    </div>
+                    <div className="mb-3">
+                        <div className="form-check form-switch">
+                            <input className="form-check-input" type="checkbox" role="switch" id="allowShareCheckbox" checked={allowShare} onChange={() => { setAllowShare(!allowShare); }} />
+                            <label className="form-check-label pt-1" htmlFor="allowShareCheckbox">Allow sharing of post.</label>
+                        </div>
+                    </div>
+                    <div className="mb-3 text-center">
+                        <button className="btn btn-blue btn-sm me-3" type="button" onClick={() => { setView(1) }}>Previous</button>
+                        <button type="button" onClick={savePost} className="btn btn-primary" disabled={loading}>
+                            <Spinner show={loading} sm={true} /> Save</button>
                     </div>
                 </div>
-                {photos.length > 0 ?
-                    <div className="col-lg-6 pt-4">
-                        <div className="mb-5">
-                            <div className="form-floating">
-                                <textarea className="form-control" value={describe} onChange={(e) => { setDescribe(e.target.value); }} placeholder="Write about photos here." id="floatingTextarea2" style={{ height: "200px" }} ></textarea>
-                                <label htmlFor="floatingTextarea2">Write about photos here</label>
-                            </div>
-                        </div>
-                        <div className="mb-3">
-                            <div className="form-check form-switch">
-                                <input className="form-check-input" type="checkbox" role="switch" id="acceptCommentCheckbox" checked={acceptComment} onChange={() => { setAcceptComment(!acceptComment); }} />
-                                <label className="form-check-label pt-1" htmlFor="acceptCommentCheckbox">Accept comments on post.</label>
-                            </div>
-                        </div>
-                        <div className="mb-3">
-                            <div className="form-check form-switch">
-                                <input className="form-check-input" type="checkbox" role="switch" id="allowShareCheckbox" checked={allowShare} onChange={() => { setAllowShare(!allowShare); }} />
-                                <label className="form-check-label pt-1" htmlFor="allowShareCheckbox">Allow sharing of post.</label>
-                            </div>
-                        </div>
-                        <div className="mb-3 text-end">
-                            <button type="button" onClick={savePost} className="btn btn-primary" disabled={loading}>
-                                <Spinner show={loading} sm={true} /> Save</button>
-                        </div>
-                    </div> : null}
                 <ShowMessage messagemodal={message} />
-            </div>}
-            
+            </>
+            }
+
             <input type="file" ref={inputFile} className="d-none" accept="*.jpg.*.png,*.jpeg" multiple onChange={handleFileChange} />
         </div>
-    </Layout>;
+    </Layout >;
 }
 
 export default AddPost;

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.1",
+    "@microsoft/signalr": "^8.0.0",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/picker": "^1.8.1",
     "@react-navigation/bottom-tabs": "^6.5.20",
@@ -19,6 +20,7 @@
     "@rneui/themed": "^4.0.0-rc.8",
     "email-validator": "^2.0.4",
     "expo": "^51.0.9",
+    "expo-camera": "~15.0.12",
     "expo-image-manipulator": "~12.0.5",
     "expo-image-picker": "~15.0.5",
     "expo-status-bar": "~1.12.1",
@@ -36,8 +38,7 @@
     "react-native-vector-icons": "^10.1.0",
     "react-native-view-shot": "^3.8.0",
     "react-native-web": "~0.19.10",
-    "react-native-webview": "^13.10.3",
-    "expo-camera": "~15.0.12"
+    "react-native-webview": "^13.10.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
