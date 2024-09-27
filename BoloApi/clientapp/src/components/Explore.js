@@ -16,7 +16,7 @@ function Explore(props) {
             <div className="col-lg-6 offset-lg-3">
                 <div className="my-md-3 my-2">
                     {hashtag && hashtag.indexOf("#") > -1 ? <HashTagDetail token={auth.token} search={hashtag} /> : null}
-                    <MemberPostList search={hashtag || "userfeed"} token={auth.token} viewMode={1} viewModeAllowed="true" />
+                    <MemberPostList search={hashtag || "explore"} token={auth.token} viewMode={1} viewModeAllowed="true" />
                 </div>
             </div>
             {/*<div className="col-lg-4 d-none d-md-block">*/}

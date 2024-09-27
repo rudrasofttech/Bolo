@@ -128,6 +128,7 @@ namespace BoloApi
                 //        controller = "Home",
                 //        action = "Index"
                 //    });
+                
 
             });
             app.UseSpa(spa =>

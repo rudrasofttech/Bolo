@@ -1,16 +1,7 @@
-﻿using GeoAPI.Geometries;
-using Microsoft.EntityFrameworkCore.Storage;
-using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Mozilla;
-using Org.BouncyCastle.Bcpg;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Bolo.Models
 {

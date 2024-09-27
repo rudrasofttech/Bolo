@@ -12,11 +12,13 @@ import ShowMessage from "./shared/ShowMessage";
 import Layout from "./Layout";
 import DropDownButton from "./shared/UI/DropDownButton";
 import { Utility } from "./Utility";
+import Spinner from "./shared/Spinner";
 
 function Profile() {
     const auth = useAuth();
     const { username } = useParams()
     const [loading, setLoading] = useState(false);
+    const [loadingFollowStatus, setLoadingFollowStatus] = useState(false);
     const [showfollowers, setShowFollowers] = useState(false);
     const [showfollowing, setShowFollowing] = useState(false);
     //const [showSettings, setShowSettings] = useState(false);
@@ -59,7 +61,7 @@ function Profile() {
     }, [username]);
 
     const loadFollowStatus = (username) => {
-        setLoading(true);
+        setLoadingFollowStatus(true);
         fetch(`${Utility.GetAPIURL()}/api/Follow/Status/${username}`, {
             method: 'get',
             headers: { 'Authorization': `Bearer ${auth.token}` }
@@ -74,12 +76,11 @@ function Profile() {
             }).catch(() => {
                 setMessage(new MessageModel("danger", "Unable to connect to internet."));
             }).finally(() => {
-                setLoading(false);
+                setLoadingFollowStatus(false);
             });
     }
 
     const checkIfHasRequest = (username) => {
-        setLoading(true);
         fetch(`${Utility.GetAPIURL()}/api/Follow/HasRequest/${username}`, {
             method: 'get',
             headers: { 'Authorization': `Bearer ${auth.token}` }
@@ -93,8 +94,6 @@ function Profile() {
                 }
             }).catch(() => {
                 setMessage(new MessageModel("danger", "Unable to connect to internet."));
-            }).finally(() => {
-                setLoading(false);
             });
     }
 
@@ -252,7 +251,7 @@ function Profile() {
                 followhtml = renderFollowHtml();
             }
             me = <>
-                <div className="d-flex justify-content-center">
+                <div className="d-flex">
                     <div className="col-lg-8 offset-lg-2 col-12">
                         <div className="my-md-3 my-2" style={{ maxWidth: "800px" }}>
                             <div className="py-3 bg-white fs-5">
@@ -263,13 +262,12 @@ function Profile() {
                                         <h1 className="fs-20 text-center text-primary">@{member.userName}</h1>
                                     </div>
                                     <div className="col-md pt-3">
-                                        {member.name !== "" ? <div className="fs-2 mb-3 text-primary text-center">{member.name}</div> : null}
-                                        {member.countryName !== "" ? <div className="mb-2 fs-20 text-secondary  text-center"><i className="bi bi-globe-central-south-asia"></i> {member.countryName}</div> : null}
-                                        {member.thoughtStatus !== "" ? <div className="mb-2 fs-20 text-secondary text-center">{member.thoughtStatus}</div> : null}
-                                        {member.bio === null ? null : <div className="mb-2  fs-20">
-                                            <ExpandableTextLabel cssclassName="text-justify lh-base" text={member.bio} maxlength={200} />
-                                        </div>}
+                                        {member.name !== "" ? <div className="fs-2 mb-3 text-primary text-center text-md-start">{member.name}</div> : null}
+                                        {member.countryName !== "" ? <div className="mb-2 fs-20 text-secondary text-center text-md-start"><i className="bi bi-globe-central-south-asia"></i> {member.countryName}</div> : null}
+                                        {member.thoughtStatus !== "" ? <div className="mb-2 fs-20 text-secondary text-center text-md-start">{member.thoughtStatus}</div> : null}
+                                        {member.bio === null ? null : <ExpandableTextLabel cssclassname="mb-2 text-center text-md-start fs-20 lh-base" text={member.bio} maxlength={200} />}
                                         <div className="d-flex justify-content-start">
+                                            {settings}
                                             {member.phones.length > 0 ? <div className="d-inline-block me-1">
                                                 <DropDownButton buttoncss="btn-link text-decoration-none text-primary" text={<><i className="bi bi-phone-fill"></i> Phones</>}>{member.phones.map(l => {
                                                     return <li><a href={`tel:${l.phone}`} className="dropdown-item text-dark py-2">{l.phone}</a></li>
@@ -291,7 +289,7 @@ function Profile() {
                                             </div> : null}
                                             
                                         </div>
-                                        {settings}
+                                        
                                         {followhtml}
                                         {member.followRequestCount > 0 && member.userName === auth.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { setShowRequests(true) }}>{member.followRequestCount} Follow Request</button></div> : null}
                                         {renderRequestApproval()}
@@ -331,6 +329,7 @@ function Profile() {
         }
 
         return <Layout>
+            <Spinner show={loading} center={true } />
             {me}
         </Layout>;
     }

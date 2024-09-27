@@ -179,23 +179,31 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("hashtag")]
+        [AllowAnonymous]
         public async Task<PostsPaged> HashTag([FromQuery] string q, [FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
-            Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
-            var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
+            Member? currentMember = null;
+            var ignored = new List<Member>();
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+                ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
+            }
+                
             var query = _context.HashTags.Include(t => t.Post).Include(t => t.Post.Photos).Include(t => t.Post.Owner)
                 .Where(t => t.Tag == q).Where(t => !ignored.Contains(t.Post.Owner)).Select(t => t.Post)
                 .OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps).ToList();
-            List<PostDTO> posts = new List<PostDTO>();
-            foreach (MemberPost pd in query)
+            
+            var posts = new List<PostDTO>();
+            foreach (var pd in query)
             {
-                PostDTO pdto = new PostDTO(pd);
+                var pdto = new PostDTO(pd);
                 if (currentMember != null)
                     pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID);
 
                 posts.Add(pdto);
             }
-            PostsPaged model = new PostsPaged
+            var model = new PostsPaged
             {
                 Current = p,
                 PageSize = ps,
@@ -207,41 +215,54 @@ namespace Bolo.Controllers
 
         [HttpGet]
         [Route("hashtagpostcount")]
-        public ActionResult HashtagPostcount([FromQuery] string q)
+        [AllowAnonymous]
+        public ActionResult HashtagPostCount([FromQuery] string q)
         {
-            Member currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
             int c = _context.HashTags.Include(t => t.Post).Where(t => t.Tag.ToLower() == q.ToLower()).Select(t => t.Post).Count();
-
-            bool b = _context.Followers.Any(t => t.Tag.ToLower() == q.ToLower() && t.Follower.ID == currentMember.ID);
+            bool b = false;
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                Member currentMember = _context.Members.First(t => t.PublicID == new Guid(User.Identity.Name));
+                b = _context.Followers.Any(t => t.Tag.ToLower() == q.ToLower() && t.Follower.ID == currentMember.ID);
+            }
 
             return Ok(new { PostCount = c, Followed = b });
         }
 
         /// <summary>
-        /// get post based on whats trending and what users likes
+        /// get post based on what is trending and what users likes
         /// </summary>
         /// <param name="ps"></param>
         /// <param name="p"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("explore")]
+        [AllowAnonymous]
         public PostsPaged Explore([FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
-            Member currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
-            //var ignored = _context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList();
+            var ignored = new List<Member>();
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                var currentMember = _context.Members.FirstOrDefault(t => t.PublicID == new Guid(User.Identity.Name));
+                ignored.AddRange(_context.IgnoredMembers.Where(t => t.User.ID == currentMember.ID).Select(t => t.Ignored).ToList());
+            }
             //List<int> queryview = _context.DiscoverPostView.Skip(ps * p).Take(ps).Select(t => t.ID).ToList();
             //var query = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => queryview.Contains(t.ID))
             //    .Where(t => !ignored.Contains(t.Owner)).Select(t => new PostDTO(t)).ToList();
 
-            var q = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => t.Owner.Visibility == MemberProfileVisibility.Public).OrderByDescending(t => t.PostDate)
-                .OrderByDescending(t => t.Rank)
+            var q = _context.Posts.Include(t => t.Owner).Include(t => t.Photos).Where(t => t.Owner.Visibility == MemberProfileVisibility.Public);
+
+            if (ignored.Count > 0)
+                q = q.Where(t => !ignored.Contains(t.Owner));
+
+                q = q.OrderByDescending(t => t.PostDate).OrderByDescending(t => t.Rank)
                 .OrderByDescending(t => t.ReactionCount).OrderByDescending(t => t.CommentCount).OrderByDescending(t => t.ShareCount);
-            PostsPaged result = new PostsPaged()
+            var result = new PostsPaged()
             {
                 Current = p,
                 PageSize = ps,
                 Total = q.Count(), //_context.DiscoverPostView.Count(),
-                Posts = q.Skip(ps * p).Take(ps).Select(t => new PostDTO(t)).ToList()
+                Posts = [.. q.Skip(ps * p).Take(ps).Select(t => new PostDTO(t))]
             };
             return result;
         }
@@ -275,16 +296,16 @@ namespace Bolo.Controllers
                 query = query.Union(query2);
             }
             var list = query.OrderByDescending(t => t.PostDate).Skip(p * ps).Take(ps).ToList();
-            List<PostDTO> posts = new List<PostDTO>();
-            foreach (MemberPost pd in list)
+            var posts = new List<PostDTO>();
+            foreach (var pd in list)
             {
-                PostDTO pdto = new PostDTO(pd);
+                var pDto = new PostDTO(pd);
                 if (currentMember != null)
-                    pdto.HasReacted = _context.Reactions.Any(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID);
+                    pDto.HasReacted = _context.Reactions.Any(t => t.Post.ID == pd.ID && t.ReactedBy.ID == currentMember.ID);
 
-                posts.Add(pdto);
+                posts.Add(pDto);
             }
-            PostsPaged model = new PostsPaged
+            var model = new PostsPaged
             {
                 Current = p,
                 PageSize = ps,

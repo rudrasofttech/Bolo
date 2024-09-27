@@ -33,16 +33,16 @@ function MemberPostList(props) {
 
     useEffect(() => {
         setLoading(true);
-        let url = '//' + window.location.host + '/api/post?q=' + encodeURIComponent(props.search) + '&p=' + p;
+        let url = `//${window.location.host}/api/post?q=${encodeURIComponent(props.search)}&p=${p}`;
 
         if (props.search === "userfeed")
-            url = '//' + window.location.host + '/api/post/feed?p=' + p;
+            url = `//${window.location.host}/api/post/feed?p=${p}`;
         else if (props.search === "explore")
-            url = '//' + window.location.host + '/api/post/explore?p=' + p;
+            url = `//${window.location.host}/api/post/explore?p=${p}`;
         fetch(url, {
             method: 'get',
             headers: {
-                'Authorization': 'Bearer ' + auth.token
+                'Authorization': `Bearer ${auth.token}`
             }
         })
             .then(response => {
@@ -79,7 +79,9 @@ function MemberPostList(props) {
     const renderPosts = () => {
         let empty = <div key={0}>
            <div className="text-center fs-3 py-5 bg-white rounded-3">
-               <img src={"//" + window.location.host + "/theme1/images/add-post.svg"} className="img-fluid" style={{ maxWidth: "150px" }} alt="" /><h2 className="fw-semibold">Nothing to see here</h2>
+               <img src={`//${window.location.host}/theme1/images/add-post.svg`} className="img-fluid" style={{ maxWidth: "150px" }} alt="" />
+               <h2 className="fw-semibold">Nothing to see here</h2>
+               {props.search === "userfeed" ? <p className="fs-6 mt-2">Start posting photos and follow your favorite people on Yocail.</p> : null}
            </div>
         </div>;
         if (viewMode === 2) {

@@ -35,7 +35,7 @@ function ExpandableTextLabel(props) {
             expandbtn = <span onClick={() => { setExpand(!expand) }} className="text-primary ps-2 fw-semibold pointer" >{(!expand) ? "More" : "Less"}</span>
         }
 
-        return <div className={props.cssclass}>{t}{expandbtn}</div>;
+        return <div className={props.cssclassname}>{t}{expandbtn}</div>;
     }
 
     return <>{renderText()}</>
