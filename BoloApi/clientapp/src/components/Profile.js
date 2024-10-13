@@ -13,6 +13,7 @@ import Layout from "./Layout";
 import DropDownButton from "./shared/UI/DropDownButton";
 import { Utility } from "./Utility";
 import Spinner from "./shared/Spinner";
+import LoginForm from "./LoginForm";
 
 function Profile() {
     const auth = useAuth();
@@ -29,14 +30,16 @@ function Profile() {
     const [member, setMember] = useState(null);
 
     useEffect(() => {
-        setLoading(true);
         let un = "";
         if (username === undefined) {
+            if (auth.myself === null)
+                return;
             auth.validate();
             un = auth.myself.id;
         } else {
             un = username;
         }
+        setLoading(true);
         fetch(`${Utility.GetAPIURL()}/api/Members/${un}`, {
             method: 'get',
             headers: {
@@ -210,9 +213,9 @@ function Profile() {
     const renderRequestApproval = () => {
         if (hasFollowRequest) {
             return <div className="mt-4 bg-light p-3 rounded-2">
-                    <p className="mb-4 fs-6">You have follow request from this account, take action.</p>
-                    <button type="button" disabled={loading} className="btn btn-primary mt-2 me-3 btn-sm" onClick={() => { allowRequest(); }}>Approve</button>
-                    <button className="btn btn-secondary btn-sm mt-2" disabled={loading} type="button" onClick={() => { rejectRequest(); }}>Reject</button>
+                <p className="mb-4 fs-6">You have follow request from this account, take action.</p>
+                <button type="button" disabled={loading} className="btn btn-primary mt-2 me-3 btn-sm" onClick={() => { allowRequest(); }}>Approve</button>
+                <button className="btn btn-secondary btn-sm mt-2" disabled={loading} type="button" onClick={() => { rejectRequest(); }}>Reject</button>
             </div>;
         }
     }
@@ -257,7 +260,7 @@ function Profile() {
                             <div className="py-3 bg-white fs-5">
                                 <div className="row">
                                     <div className="col-md-3 text-center">
-                                        {member.pic !== "" ? <img src={"//" + window.location.host + "/" + member.pic} className="img-fluid profile-pic-border mb-2" style={{maxWidth:"100px"}} alt="Profile" />
+                                        {member.pic !== "" ? <img src={"//" + window.location.host + "/" + member.pic} className="img-fluid profile-pic-border mb-2" style={{ maxWidth: "100px" }} alt="Profile" />
                                             : <img src={personfill} className="img-fluid profile-pic-border mb-2" style={{ width: "100px" }} alt="No Pic" />}
                                         <h1 className="fs-20 text-center text-primary">@{member.userName}</h1>
                                     </div>
@@ -287,9 +290,9 @@ function Profile() {
                                                     </li>;
                                                 })}</DropDownButton>
                                             </div> : null}
-                                            
+
                                         </div>
-                                        
+
                                         {followhtml}
                                         {member.followRequestCount > 0 && member.userName === auth.myself.userName ? <div className="mt-2"><button type="button" className="btn btn-light text-success fw-bold " onClick={() => { setShowRequests(true) }}>{member.followRequestCount} Follow Request</button></div> : null}
                                         {renderRequestApproval()}
@@ -329,7 +332,7 @@ function Profile() {
         }
 
         return <Layout>
-            <Spinner show={loading} center={true } />
+            <Spinner show={loading} center={true} />
             {me}
         </Layout>;
     }

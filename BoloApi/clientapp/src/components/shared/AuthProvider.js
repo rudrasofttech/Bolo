@@ -5,7 +5,7 @@ import { Utility } from "../Utility";
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-    const [myself, setMyself] = useState(localStorage.getItem("myself") !== null ? JSON.parse(localStorage.getItem("myself")) : null);
+    const [myself, setMyself] = useState(localStorage.getItem("myself") !== null ? JSON.parse(localStorage.getItem("myself")) : { id: "", pic :""});
     const [token, setToken] = useState(localStorage.getItem("token") || "");
     const navigate = useNavigate();
     
@@ -25,7 +25,7 @@ const AuthProvider = ({ children }) => {
                     localStorage.setItem("myself", JSON.stringify(data.member));
                     setMyself(data.member);
                     setToken(data.token);
-                    navigate("/");
+                    navigate("/explore");
                     return new MessageModel();
                 } else {
                     return new MessageModel("danger", "Unable to validate credentials", 0);

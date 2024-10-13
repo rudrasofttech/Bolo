@@ -42,7 +42,8 @@ function Sidebar(props) {
         </div>
         <div className="item d-flex align-items-center justify-content-center">
             <Link className="btn btn-link text-decoration-none text-decoration-none text-primary fs-6" to="/profile" title="Profile">
-                {auth.myself != null && auth.myself.pic !== "" ? <img alt="" src={`//${window.location.host}/${auth.myself.pic}`} className='profile-icon profile-pic-border' /> : <img src={personfill} className='profile-icon profile-pic-border' alt="" />}
+                {auth.myself != null && auth.myself.pic !== "" ? <img alt="" src={`//${window.location.host}/${auth.myself.pic}`} className='profile-icon profile-pic-border' /> :
+                    <img src={personfill} className='profile-icon profile-pic-border' alt="" />}
             </Link>
         </div>
     </>;

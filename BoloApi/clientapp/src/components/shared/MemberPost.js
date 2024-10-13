@@ -26,7 +26,7 @@ function MemberPost(props) {
     const addReaction = () => {
         fetch('//' + window.location.host + '/api/post/addreaction/' + post.id, {
             method: 'get',
-            headers: { "Authorization": 'Bearer ' + auth.token }
+            headers: { "Authorization": `Bearer ${auth.token}` }
         }).then(response => {
             if (response.status === 200) {
                 response.json().then(data => {
@@ -177,43 +177,43 @@ function MemberPost(props) {
     }
 
     const renderPostOptions = () => {
-       
-            let deletebtn = null; let ignoreaccbtn = null, editbtn = null;
-            if (post.owner.id === auth.myself.id) {
-                editbtn = <li>
-                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
-                        onClick={() => { setShowModal('edit'); }}>
-                        <i className="bi bi-pencil-fill me-2"></i> Edit
-                    </button>
-                </li>;
-                deletebtn = <li>
-                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
-                        onClick={() => { setShowModal('delete'); }}>
-                        <i className="bi bi-trash3-fill  me-2"></i> Delete
-                    </button>
-                </li>;
-            }
 
-            if (post.owner.id !== auth.myself.id) {
-                ignoreaccbtn = <li>
-                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
-                        onClick={() => { ignoreMember(); }}>
-                        <i className="bi bi-sign-stop-fill me-2"></i> Ignore Member
-                    </button>
-                </li>;
-            }
-            return <>
-                {editbtn}
-                {deletebtn}
-                {ignoreaccbtn}
-                <li>
-                    <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
-                        onClick={() => { setShowModal('flag'); }}>
-                        <i className="bi bi-flag-fill me-2"></i> Report
-                    </button>
-                </li>
-            </>;
-        
+        let deletebtn = null; let ignoreaccbtn = null, editbtn = null;
+        if (post.owner.id === auth.myself.id) {
+            editbtn = <li>
+                <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
+                    onClick={() => { setShowModal('edit'); }}>
+                    <i className="bi bi-pencil-fill me-2"></i> Edit
+                </button>
+            </li>;
+            deletebtn = <li>
+                <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
+                    onClick={() => { setShowModal('delete'); }}>
+                    <i className="bi bi-trash3-fill  me-2"></i> Delete
+                </button>
+            </li>;
+        }
+
+        if (post.owner.id !== auth.myself.id) {
+            ignoreaccbtn = <li>
+                <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
+                    onClick={() => { ignoreMember(); }}>
+                    <i className="bi bi-sign-stop-fill me-2"></i> Ignore Member
+                </button>
+            </li>;
+        }
+        return <>
+            {editbtn}
+            {deletebtn}
+            {ignoreaccbtn}
+            <li>
+                <button type="button" className="btn btn-link dropdown-item text-dark text-decoration-none py-2"
+                    onClick={() => { setShowModal('flag'); }}>
+                    <i className="bi bi-flag-fill me-2"></i> Report
+                </button>
+            </li>
+        </>;
+
     }
 
     const renderPostDisplay = (p) => {
@@ -302,7 +302,7 @@ function MemberPost(props) {
                         <tbody>
                             <tr>
                                 <td className="px-3 pb-0" align="center" valign="top">
-                                    <button type="button" className={`fs-3 p-0 btn btn-link ${p.hasReacted ? "text-danger" : "text-primary"} text-decoration-none`} onClick={() => { this.addReaction(); }}>
+                                    <button type="button" className={`fs-3 p-0 btn btn-link ${p.hasReacted ? "text-danger" : "text-primary"} text-decoration-none`} onClick={() => { addReaction(); }}>
                                         {p.hasReacted ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
                                     </button>
                                 </td>
@@ -338,7 +338,7 @@ function MemberPost(props) {
             </div>
             {likemodal}
             {commentbox}
-            
+
             <div className="border-bottom my-3"></div>
         </div>;
     }

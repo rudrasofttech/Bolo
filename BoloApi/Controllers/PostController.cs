@@ -100,11 +100,16 @@ namespace Bolo.Controllers
         /// <param name="p"></param>
         /// <returns></returns>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult> Get([FromQuery] string q = "", [FromQuery] int ps = 20, [FromQuery] int p = 0)
         {
             try
             {
-                Member currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+                Member currentMember = null;
+                if (User.Identity.IsAuthenticated)
+                {
+                    currentMember = await _context.Members.FirstOrDefaultAsync(t => t.PublicID == new Guid(User.Identity.Name));
+                }
 
                 Member member = null;
                 if (!string.IsNullOrEmpty(q))
@@ -115,7 +120,7 @@ namespace Bolo.Controllers
 
                 if (member != null)
                 {
-                    if (member.Visibility == MemberProfileVisibility.Private)
+                    if (member.Visibility == MemberProfileVisibility.Private && currentMember != null)
                     {
                         var count = _context.Followers.Any(t => t.Follower.ID == currentMember.ID && t.Following.ID == member.ID && t.Status == FollowerStatus.Active);
                         if (count || currentMember.ID == member.ID)
